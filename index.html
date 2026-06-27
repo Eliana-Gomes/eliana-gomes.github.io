@@ -25,4 +25,198 @@
     .nav-links a:hover { color: var(--cream); }
     #hero { min-height: 100vh; background: var(--petrol); display: flex; align-items: center; padding: 7rem 2.5rem 4rem; }
     .hero-inner { max-width: 820px; margin: 0 auto; }
-    .hero-eyebrow { color: var(--gold); font-size: .8rem; letter-spacing: .18em; text-transform:
+    .hero-eyebrow { color: var(--gold); font-size: .8rem; letter-spacing: .18em; text-transform: uppercase; margin-bottom: 1.5rem; font-weight: 500; }
+    .hero-title { font-family: 'Playfair Display', serif; color: var(--cream); font-size: clamp(2.6rem, 6vw, 4.5rem); line-height: 1.12; margin-bottom: 1.8rem; }
+    .hero-title em { font-style: italic; color: #b89d3a; }
+    .hero-sub { color: var(--silver); font-size: 1.05rem; max-width: 560px; margin-bottom: 2.5rem; font-weight: 300; }
+    .btn-primary { display: inline-block; background: var(--gold); color: var(--white); padding: .85rem 2rem; border-radius: 2px; text-decoration: none; font-size: .9rem; font-weight: 600; letter-spacing: .04em; transition: background .2s, transform .15s; }
+    .btn-primary:hover { background: #5c4900; transform: translateY(-1px); }
+    .btn-outline { display: inline-block; border: 1.5px solid var(--silver); color: var(--silver); padding: .85rem 2rem; border-radius: 2px; text-decoration: none; font-size: .9rem; font-weight: 500; margin-left: 1rem; transition: border-color .2s, color .2s; }
+    .btn-outline:hover { border-color: var(--cream); color: var(--cream); }
+    section { padding: 5rem 2.5rem; }
+    .container { max-width: 960px; margin: 0 auto; }
+    .section-label { color: var(--gold); font-size: .75rem; letter-spacing: .2em; text-transform: uppercase; font-weight: 600; margin-bottom: .75rem; }
+    .section-title { font-family: 'Playfair Display', serif; font-size: clamp(1.8rem, 3.5vw, 2.6rem); line-height: 1.2; margin-bottom: 1.2rem; color: var(--petrol); }
+    .section-lead { color: var(--muted); font-size: 1rem; max-width: 580px; margin-bottom: 3rem; font-weight: 300; }
+    #sobre { background: var(--white); }
+    .sobre-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center; }
+    .sobre-img-placeholder { aspect-ratio: 3/4; background: var(--silver); border-radius: 2px; display: flex; align-items: center; justify-content: center; color: var(--muted); font-size: .85rem; letter-spacing: .06em; }
+    .sobre-text p { color: #444; margin-bottom: 1.1rem; font-size: .97rem; }
+    .sobre-tags { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: 1.8rem; }
+    .tag { background: var(--cream); color: var(--petrol); padding: .3rem .9rem; border-radius: 99px; font-size: .78rem; font-weight: 500; letter-spacing: .04em; }
+    #ebooks { background: var(--cream); }
+    .ebooks-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.8rem; }
+    .ebook-card { background: var(--white); border-radius: 2px; overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 2px 12px rgba(0,52,61,.07); transition: transform .2s, box-shadow .2s; }
+    .ebook-card:hover { transform: translateY(-4px); box-shadow: 0 8px 28px rgba(0,52,61,.13); }
+    .ebook-cover { aspect-ratio: 3/4; background: var(--petrol); display: flex; align-items: center; justify-content: center; padding: 1.5rem; }
+    .ebook-cover-inner { text-align: center; }
+    .ebook-cover-title { font-family: 'Playfair Display', serif; color: var(--cream); font-size: 1rem; line-height: 1.3; margin-bottom: .5rem; }
+    .ebook-cover-sub { color: #b89d3a; font-size: .7rem; letter-spacing: .1em; text-transform: uppercase; }
+    .ebook-body { padding: 1.4rem; flex: 1; display: flex; flex-direction: column; }
+    .ebook-price { font-size: 1.3rem; font-weight: 700; color: var(--petrol); margin-bottom: .5rem; }
+    .ebook-desc { font-size: .85rem; color: #666; flex: 1; margin-bottom: 1.2rem; }
+    .btn-ebook { display: block; text-align: center; background: var(--petrol); color: var(--cream); padding: .7rem; border-radius: 2px; text-decoration: none; font-size: .82rem; font-weight: 600; letter-spacing: .04em; transition: background .2s; }
+    .btn-ebook:hover { background: var(--gold); }
+    #servicos { background: var(--petrol); }
+    #servicos .section-title { color: var(--cream); }
+    #servicos .section-label { color: #b89d3a; }
+    #servicos .section-lead { color: var(--silver); }
+    .servicos-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem; }
+    .servico-card { border: 1px solid rgba(255,255,255,.12); border-radius: 2px; padding: 2rem; transition: border-color .2s, background .2s; }
+    .servico-card:hover { border-color: var(--gold); background: rgba(122,98,0,.08); }
+    .servico-icon { font-size: 1.5rem; margin-bottom: 1rem; }
+    .servico-name { font-family: 'Playfair Display', serif; color: var(--cream); font-size: 1.15rem; margin-bottom: .6rem; }
+    .servico-desc { color: var(--silver); font-size: .88rem; font-weight: 300; }
+    #portfolio { background: var(--white); }
+    .portfolio-placeholder { background: var(--cream); border: 2px dashed var(--silver); border-radius: 2px; padding: 4rem 2rem; text-align: center; color: var(--muted); font-size: .9rem; }
+    #contacto { background: var(--cream); }
+    .contacto-inner { max-width: 580px; margin: 0 auto; text-align: center; }
+    .contacto-inner .section-title { text-align: center; }
+    .contacto-inner .section-lead { margin: 0 auto 2.5rem; }
+    .form-group { margin-bottom: 1.2rem; text-align: left; }
+    .form-group label { display: block; font-size: .78rem; letter-spacing: .1em; text-transform: uppercase; color: var(--petrol); font-weight: 600; margin-bottom: .4rem; }
+    .form-group input, .form-group textarea { width: 100%; border: 1.5px solid var(--silver); border-radius: 2px; padding: .75rem 1rem; font-family: 'Inter', sans-serif; font-size: .92rem; background: var(--white); color: var(--text); transition: border-color .2s; outline: none; }
+    .form-group input:focus, .form-group textarea:focus { border-color: var(--petrol); }
+    .form-group textarea { resize: vertical; min-height: 130px; }
+    .btn-submit { width: 100%; background: var(--petrol); color: var(--white); border: none; padding: .95rem; border-radius: 2px; font-size: .92rem; font-weight: 600; letter-spacing: .04em; cursor: pointer; transition: background .2s; margin-top: .5rem; }
+    .btn-submit:hover { background: var(--gold); }
+    footer { background: var(--petrol); color: var(--silver); text-align: center; padding: 2rem; font-size: .8rem; letter-spacing: .04em; }
+    footer a { color: #b89d3a; text-decoration: none; }
+    @media (max-width: 768px) {
+      nav { padding: 1rem 1.5rem; }
+      .nav-links { display: none; }
+      section { padding: 3.5rem 1.5rem; }
+      .sobre-grid { grid-template-columns: 1fr; }
+      .ebooks-grid { grid-template-columns: 1fr; }
+      .servicos-grid { grid-template-columns: 1fr; }
+      .hero-inner { text-align: center; }
+      .hero-sub { margin: 0 auto 2.5rem; }
+      .btn-outline { margin-left: 0; margin-top: .8rem; display: inline-block; }
+    }
+    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition: none !important; } }
+  </style>
+</head>
+<body>
+  <nav>
+    <a href="#hero" class="nav-logo">Eliana Gomes</a>
+    <ul class="nav-links">
+      <li><a href="#sobre">Sobre</a></li>
+      <li><a href="#ebooks">E-books</a></li>
+      <li><a href="#servicos">Serviços</a></li>
+      <li><a href="#portfolio">Portfólio</a></li>
+      <li><a href="#contacto">Contacto</a></li>
+    </ul>
+  </nav>
+  <section id="hero">
+    <div class="hero-inner">
+      <p class="hero-eyebrow">Escritora · Copywriter · Comunicação com Propósito</p>
+      <h1 class="hero-title">Palavras que <em>movem</em><br>pessoas e negócios.</h1>
+      <p class="hero-sub">Ajudo marcas, empreendedores e profissionais a comunicar com clareza, autenticidade e intenção — em português, para o mundo.</p>
+      <a href="#ebooks" class="btn-primary">Ver E-books</a>
+      <a href="#contacto" class="btn-outline">Trabalhar comigo</a>
+    </div>
+  </section>
+  <section id="sobre">
+    <div class="container">
+      <div class="sobre-grid">
+        <div class="sobre-img-placeholder">[ A tua foto aqui ]</div>
+        <div class="sobre-text">
+          <p class="section-label">Sobre mim</p>
+          <h2 class="section-title">Uma escritora com raízes e asas.</h2>
+          <p>Sou Eliana Gomes — escritora, copywriter e especialista em comunicação com propósito. Brasileira, baseada em Huelva, Espanha, trabalho com os mercados português, brasileiro e espanhol.</p>
+          <p>O meu percurso passou pela análise laboratorial, gestão de negócios e informática — experiências que me ensinaram que comunicar bem é uma ciência e uma arte ao mesmo tempo.</p>
+          <p>Acredito que as melhores palavras não são as mais bonitas, mas as mais honestas. Aquelas que chegam à pessoa certa, no momento certo, e fazem algo acontecer.</p>
+          <div class="sobre-tags">
+            <span class="tag">Copywriting</span>
+            <span class="tag">E-mail Marketing</span>
+            <span class="tag">Marketing Online</span>
+            <span class="tag">E-books</span>
+            <span class="tag">Conteúdo</span>
+            <span class="tag">Português · Espanhol</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <section id="ebooks">
+    <div class="container">
+      <p class="section-label">Coleção Recomeços</p>
+      <h2 class="section-title">E-books para quem está a começar.</h2>
+      <p class="section-lead">Três guias práticos para comunicar melhor, entrar no mundo digital e recomeçar com intenção.</p>
+      <div class="ebooks-grid">
+        <div class="ebook-card">
+          <div class="ebook-cover"><div class="ebook-cover-inner"><div class="ebook-cover-title">E-Mails Profissionais com Clareza</div><div class="ebook-cover-sub">Eliana Gomes</div></div></div>
+          <div class="ebook-body">
+            <div class="ebook-price">€13,90</div>
+            <p class="ebook-desc">11 modelos prontos, a fórmula do assunto perfeito e o checklist que elimina o medo de enviar.</p>
+            <a href="https://go.hotmart.com/K106028445D" class="btn-ebook" target="_blank">Comprar agora</a>
+          </div>
+        </div>
+        <div class="ebook-card">
+          <div class="ebook-cover"><div class="ebook-cover-inner"><div class="ebook-cover-title">Do Zero ao Digital</div><div class="ebook-cover-sub">Eliana Gomes</div></div></div>
+          <div class="ebook-body">
+            <div class="ebook-price">€16,90</div>
+            <p class="ebook-desc">O guia para dar os primeiros passos no mundo digital com clareza, estratégia e sem perder tempo.</p>
+            <a href="https://pay.hotmart.com/O106505422V" class="btn-ebook" target="_blank">Comprar agora</a>
+          </div>
+        </div>
+        <div class="ebook-card">
+          <div class="ebook-cover"><div class="ebook-cover-inner"><div class="ebook-cover-title">Mulheres em Recomeço</div><div class="ebook-cover-sub">Eliana Gomes</div></div></div>
+          <div class="ebook-body">
+            <div class="ebook-price">€19,90</div>
+            <p class="ebook-desc">Para a mulher que sente que é hora de recomeçar — e quer fazer isso com propósito e coragem.</p>
+            <a href="https://pay.hotmart.com/C106503934C?off=osemywuz" class="btn-ebook" target="_blank">Comprar agora</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <section id="servicos">
+    <div class="container">
+      <p class="section-label">O que faço</p>
+      <h2 class="section-title">Serviços de escrita e comunicação.</h2>
+      <p class="section-lead">Para marcas e profissionais que querem comunicar com mais clareza, estratégia e resultado.</p>
+      <div class="servicos-grid">
+        <div class="servico-card"><div class="servico-icon">✦</div><div class="servico-name">Copywriting</div><p class="servico-desc">Textos que vendem sem forçar — páginas de venda, anúncios, landing pages e conteúdo que converte.</p></div>
+        <div class="servico-card"><div class="servico-icon">✉</div><div class="servico-name">E-mail Marketing</div><p class="servico-desc">Sequências de e-mail, newsletters e automações que constroem relação e geram vendas consistentes.</p></div>
+        <div class="servico-card"><div class="servico-icon">◈</div><div class="servico-name">Marketing Online</div><p class="servico-desc">Estratégia de conteúdo, posicionamento digital e presença online com coerência e propósito.</p></div>
+        <div class="servico-card"><div class="servico-icon">📖</div><div class="servico-name">E-books e Conteúdo</div><p class="servico-desc">Criação de e-books, guias e materiais digitais — da ideia à publicação, com voz autêntica e estrutura profissional.</p></div>
+      </div>
+    </div>
+  </section>
+  <section id="portfolio">
+    <div class="container">
+      <p class="section-label">Portfólio</p>
+      <h2 class="section-title">Trabalhos em destaque.</h2>
+      <p class="section-lead">Exemplos reais do meu trabalho — textos, projetos e resultados.</p>
+      <div class="portfolio-placeholder">
+        <p style="margin-bottom:1.2rem">Consulta o meu portfólio completo no Canva</p>
+        <a href="https://canva.link/3v1hzagb3i909hu" target="_blank" class="btn-primary" style="display:inline-block">Ver portfólio →</a>
+      </div>
+    </div>
+  </section>
+  <section id="contacto">
+    <div class="container">
+      <div class="contacto-inner">
+        <p class="section-label">Vamos conversar</p>
+        <h2 class="section-title">Tens um projeto em mente?</h2>
+        <p class="section-lead">Escreve-me. Respondo sempre com atenção — e sem demora.</p>
+        <form action="mailto:eliana.rodrigues.santos200978@gmail.com" method="POST" enctype="text/plain">
+          <div class="form-group"><label for="nome">Nome</label><input type="text" id="nome" name="nome" placeholder="O teu nome" required /></div>
+          <div class="form-group"><label for="email">E-mail</label><input type="email" id="email" name="email" placeholder="O teu e-mail" required /></div>
+          <div class="form-group"><label for="mensagem">Mensagem</label><textarea id="mensagem" name="mensagem" placeholder="Conta-me sobre o teu projeto..." required></textarea></div>
+          <button type="submit" class="btn-submit">Enviar mensagem</button>
+        </form>
+      </div>
+    </div>
+  </section>
+  <footer>
+    <p>© 2026 Eliana Gomes · Escritora & Copywriter · Huelva, Espanha</p>
+    <p style="margin-top:.4rem"><a href="mailto:eliana.rodrigues.santos200978@gmail.com">eliana.rodrigues.santos200978@gmail.com</a></p>
+    <p style="margin-top:.6rem; display:flex; gap:1.5rem; justify-content:center; flex-wrap:wrap;">
+      <a href="https://wa.me/+351966211580" target="_blank">WhatsApp</a>
+      <a href="https://www.linkedin.com/in/eliana-gomes-escrita-comunicacao/" target="_blank">LinkedIn</a>
+    </p>
+  </footer>
+</body>
+</html>
