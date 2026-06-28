@@ -40,7 +40,6 @@
     .section-lead { color: var(--muted); font-size: 1rem; max-width: 580px; margin-bottom: 3rem; font-weight: 300; }
     #sobre { background: var(--white); }
     .sobre-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center; }
-    .<img src="foto-perfil.jpg" alt="Eliana Gomes" style="width:100%;border-radius:2px;object-fit:cover;" />
     .sobre-text p { color: #444; margin-bottom: 1.1rem; font-size: .97rem; }
     .sobre-tags { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: 1.8rem; }
     .tag { background: var(--cream); color: var(--petrol); padding: .3rem .9rem; border-radius: 99px; font-size: .78rem; font-weight: 500; letter-spacing: .04em; }
@@ -55,11 +54,11 @@
     .ebook-body { padding: 1.4rem; flex: 1; display: flex; flex-direction: column; }
     .ebook-price { font-size: 1.3rem; font-weight: 700; color: var(--petrol); margin-bottom: .5rem; }
     .ebook-desc { font-size: .85rem; color: #666; flex: 1; margin-bottom: 1.2rem; }
-    .btn-ebook { display: block; text-align: center; background: var(--petrol); color: var(--cream); padding: .7rem; border-radius: 2px; text-decoration: none; font-size: .82rem; font-weight: 600; letter-spacing: .04em; transition: background .2s; }
+    .btn-ebook-group { display: flex; flex-direction: column; gap: .5rem; }
+    .btn-ebook { display: block; text-align: center; background: var(--petrol); color: var(--cream); padding: .7rem; border-radius: 2px; text-decoration: none; font-size: .78rem; font-weight: 600; letter-spacing: .04em; transition: background .2s; }
     .btn-ebook:hover { background: var(--gold); }
-    btn-ebook-group { display: flex; flex-direction: column; gap: .5rem; }
-.btn-ebook-alt { display: block; text-align: center; background: transparent; border: 1.5px solid var(--petrol); color: var(--petrol); padding: .65rem; border-radius: 2px; text-decoration: none; font-size: .78rem; font-weight: 600; letter-spacing: .04em; transition: all .2s; }
-.btn-ebook-alt:hover { background: var(--petrol); color: var(--cream); }
+    .btn-ebook-alt { display: block; text-align: center; background: transparent; border: 1.5px solid var(--petrol); color: var(--petrol); padding: .65rem; border-radius: 2px; text-decoration: none; font-size: .78rem; font-weight: 600; letter-spacing: .04em; transition: all .2s; }
+    .btn-ebook-alt:hover { background: var(--petrol); color: var(--cream); }
     #servicos { background: var(--petrol); }
     #servicos .section-title { color: var(--cream); }
     #servicos .section-label { color: #b89d3a; }
@@ -122,7 +121,7 @@
   <section id="sobre">
     <div class="container">
       <div class="sobre-grid">
-        <img src="foto-perfil.jpg" alt="Eliana Gomes" style="width:100%;border-radius:2px;" />
+        <img src="foto-perfil.jpg" alt="Eliana Gomes" style="width:100%;border-radius:2px;object-fit:cover;" />
         <div class="sobre-text">
           <p class="section-label">Sobre mim</p>
           <h2 class="section-title">Uma escritora com raízes e asas.</h2>
@@ -152,7 +151,10 @@
           <div class="ebook-body">
             <div class="ebook-price">€13,90</div>
             <p class="ebook-desc">11 modelos prontos, a fórmula do assunto perfeito e o checklist que elimina o medo de enviar.</p>
-           <div class="btn-ebook-group"><a href="https://go.hotmart.com/K106028445D" class="btn-ebook" target="_blank">🌍 Europa</a><a href="https://pay.kiwify.com/rDdGE1C" class="btn-ebook-alt" target="_blank">🇧🇷 Brasil</a></div>
+            <div class="btn-ebook-group">
+              <a href="https://go.hotmart.com/K106028445D" class="btn-ebook" target="_blank">🌍 Europa</a>
+              <a href="https://pay.kiwify.com/rDdGE1C" class="btn-ebook-alt" target="_blank">🇧🇷 Brasil</a>
+            </div>
           </div>
         </div>
         <div class="ebook-card">
@@ -160,7 +162,10 @@
           <div class="ebook-body">
             <div class="ebook-price">€16,90</div>
             <p class="ebook-desc">O guia para dar os primeiros passos no mundo digital com clareza, estratégia e sem perder tempo.</p>
-           <div class="btn-ebook-group"><a href="https://pay.hotmart.com/O106505422V" class="btn-ebook" target="_blank">🌍 Europa</a><a href="https://pay.kiwify.com/LzmYcVB" class="btn-ebook-alt" target="_blank">🇧🇷 Brasil</div>
+            <div class="btn-ebook-group">
+              <a href="https://pay.hotmart.com/O106505422V" class="btn-ebook" target="_blank">🌍 Europa</a>
+              <a href="https://pay.kiwify.com/LzmYcVB" class="btn-ebook-alt" target="_blank">🇧🇷 Brasil</a>
+            </div>
           </div>
         </div>
         <div class="ebook-card">
@@ -168,7 +173,10 @@
           <div class="ebook-body">
             <div class="ebook-price">€19,90</div>
             <p class="ebook-desc">Para a mulher que sente que é hora de recomeçar — e quer fazer isso com propósito e coragem.</p>
-<div class="btn-ebook-group"><a href="https://pay.hotmart.com/C106503934C?off=osemywuz" class="btn-ebook" target="_blank">🌍 Europa</a><a href="https://pay.kiwify.com/P4FdJaN" class="btn-ebook-alt" target="_blank">🇧🇷 Brasil</a></div>
+            <div class="btn-ebook-group">
+              <a href="https://pay.hotmart.com/C106503934C?off=osemywuz" class="btn-ebook" target="_blank">🌍 Europa</a>
+              <a href="https://pay.kiwify.com/P4FdJaN" class="btn-ebook-alt" target="_blank">🇧🇷 Brasil</a>
+            </div>
           </div>
         </div>
       </div>
