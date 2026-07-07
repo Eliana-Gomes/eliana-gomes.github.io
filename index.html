@@ -43,22 +43,39 @@
     .sobre-text p { color: #444; margin-bottom: 1.1rem; font-size: .97rem; }
     .sobre-tags { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: 1.8rem; }
     .tag { background: var(--cream); color: var(--petrol); padding: .3rem .9rem; border-radius: 99px; font-size: .78rem; font-weight: 500; letter-spacing: .04em; }
+
     #ebooks { background: var(--cream); }
-    .ebooks-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.8rem; }
+    .ebooks-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5rem; }
     .ebook-card { background: var(--white); border-radius: 2px; overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 2px 12px rgba(0,52,61,.07); transition: transform .2s, box-shadow .2s; }
     .ebook-card:hover { transform: translateY(-4px); box-shadow: 0 8px 28px rgba(0,52,61,.13); }
-    .ebook-cover { aspect-ratio: 3/4; background: var(--petrol); display: flex; align-items: center; justify-content: center; padding: 1.5rem; }
-    .ebook-cover-inner { text-align: center; }
-    .ebook-cover-title { font-family: 'Playfair Display', serif; color: var(--cream); font-size: 1rem; line-height: 1.3; margin-bottom: .5rem; }
-    .ebook-cover-sub { color: #b89d3a; font-size: .7rem; letter-spacing: .1em; text-transform: uppercase; }
-    .ebook-body { padding: 1.4rem; flex: 1; display: flex; flex-direction: column; }
-    .ebook-price { font-size: 1.3rem; font-weight: 700; color: var(--petrol); margin-bottom: .5rem; }
-    .ebook-desc { font-size: .85rem; color: #666; flex: 1; margin-bottom: 1.2rem; }
+    .ebook-card-bundle { border: 1.5px solid var(--gold); }
+    .ebook-cover-photo { aspect-ratio: 3/4; overflow: hidden; background: var(--petrol); }
+    .ebook-cover-photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .ebook-body { padding: 1.3rem; flex: 1; display: flex; flex-direction: column; }
+    .ebook-title-inline { font-family: 'Playfair Display', serif; color: var(--petrol); font-size: 1.02rem; line-height: 1.3; margin-bottom: .5rem; }
+    .ebook-price { font-size: 1.2rem; font-weight: 700; color: var(--petrol); margin-bottom: .5rem; }
+    .ebook-card-bundle .ebook-price { color: var(--gold); }
+    .price-strike { text-decoration: line-through; color: var(--muted); font-size: .88rem; font-weight: 400; margin-right: .45rem; }
+    .ebook-desc { font-size: .83rem; color: #666; flex: 1; margin-bottom: 1.1rem; }
     .btn-ebook-group { display: flex; flex-direction: column; gap: .5rem; }
-    .btn-ebook { display: block; text-align: center; background: var(--petrol); color: var(--cream); padding: .7rem; border-radius: 2px; text-decoration: none; font-size: .78rem; font-weight: 600; letter-spacing: .04em; transition: background .2s; }
+    .btn-ebook { display: block; text-align: center; background: var(--petrol); color: var(--cream); padding: .65rem; border-radius: 2px; text-decoration: none; font-size: .76rem; font-weight: 600; letter-spacing: .04em; transition: background .2s; }
     .btn-ebook:hover { background: var(--gold); }
-    .btn-ebook-alt { display: block; text-align: center; background: transparent; border: 1.5px solid var(--petrol); color: var(--petrol); padding: .65rem; border-radius: 2px; text-decoration: none; font-size: .78rem; font-weight: 600; letter-spacing: .04em; transition: all .2s; }
+    .btn-ebook-alt { display: block; text-align: center; background: transparent; border: 1.5px solid var(--petrol); color: var(--petrol); padding: .6rem; border-radius: 2px; text-decoration: none; font-size: .76rem; font-weight: 600; letter-spacing: .04em; transition: all .2s; }
     .btn-ebook-alt:hover { background: var(--petrol); color: var(--cream); }
+
+    #em-breve { background: var(--petrol); }
+    #em-breve .section-title { color: var(--cream); }
+    #em-breve .section-label { color: #b89d3a; }
+    #em-breve .section-lead { color: var(--silver); }
+    .upcoming-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.6rem; }
+    .upcoming-card { display: flex; gap: 1.2rem; background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.12); border-radius: 2px; padding: 1.2rem; transition: border-color .2s, background .2s; }
+    .upcoming-card:hover { border-color: var(--gold); background: rgba(122,98,0,.08); }
+    .upcoming-cover { width: 100px; flex: none; aspect-ratio: 3/4; overflow: hidden; border-radius: 2px; }
+    .upcoming-cover img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .upcoming-status { display: inline-block; font-size: .68rem; letter-spacing: .1em; text-transform: uppercase; color: #b89d3a; font-weight: 600; margin-bottom: .5rem; }
+    .upcoming-title { font-family: 'Playfair Display', serif; color: var(--cream); font-size: 1.12rem; margin-bottom: .5rem; }
+    .upcoming-tagline { color: var(--silver); font-size: .85rem; font-weight: 300; line-height: 1.5; }
+
     #servicos { background: var(--petrol); }
     #servicos .section-title { color: var(--cream); }
     #servicos .section-label { color: #b89d3a; }
@@ -84,6 +101,9 @@
     .btn-submit:hover { background: var(--gold); }
     footer { background: var(--petrol); color: var(--silver); text-align: center; padding: 2rem; font-size: .8rem; letter-spacing: .04em; }
     footer a { color: #b89d3a; text-decoration: none; }
+    @media (max-width: 900px) {
+      .ebooks-grid { grid-template-columns: repeat(2, 1fr); }
+    }
     @media (max-width: 768px) {
       nav { padding: 1rem 1.5rem; }
       .nav-links { display: none; }
@@ -91,6 +111,7 @@
       .sobre-grid { grid-template-columns: 1fr; }
       .ebooks-grid { grid-template-columns: 1fr; }
       .servicos-grid { grid-template-columns: 1fr; }
+      .upcoming-grid { grid-template-columns: 1fr; }
       .hero-inner { text-align: center; }
       .hero-sub { margin: 0 auto 2.5rem; }
       .btn-outline { margin-left: 0; margin-top: .8rem; display: inline-block; }
@@ -104,10 +125,12 @@
     <ul class="nav-links">
       <li><a href="#sobre">Sobre</a></li>
       <li><a href="#ebooks">E-books</a></li>
+      <li><a href="#em-breve">Em Breve</a></li>
       <li><a href="#servicos">Serviços</a></li>
       <li><a href="#portfolio">Portfólio</a></li>
       <li><a href="#contacto">Contacto</a></li>
-<li><a href="blog.html">Blog</a></li>
+      <li><a href="blog.html">Blog</a></li>
+    </ul>
   </nav>
   <section id="hero">
     <div class="hero-inner">
@@ -140,48 +163,51 @@
       </div>
     </div>
   </section>
+
   <section id="ebooks">
     <div class="container">
       <p class="section-label">Coleção Recomeços</p>
       <h2 class="section-title">E-books para quem está a começar.</h2>
-      <p class="section-lead">Três guias práticos para comunicar melhor, entrar no mundo digital e recomeçar com intenção.</p>
+      <p class="section-lead">Três guias práticos para comunicar melhor, entrar no mundo digital e recomeçar com intenção — mais o pacote completo.</p>
       <div class="ebooks-grid">
-        <div class="ebook-card">
-          <div class="ebook-cover"><div class="ebook-cover-inner"><div class="ebook-cover-title">E-Mails Profissionais com Clareza</div><div class="ebook-cover-sub">Eliana Gomes</div></div></div>
+        {% for book in site.data.ebooks %}
+        <div class="ebook-card{% if book.bundle %} ebook-card-bundle{% endif %}">
+          <div class="ebook-cover-photo"><img src="{{ book.cover }}" alt="Capa de {{ book.title }}" loading="lazy" /></div>
           <div class="ebook-body">
-            <div class="ebook-price">€13,90</div>
-            <p class="ebook-desc">11 modelos prontos, a fórmula do assunto perfeito e o checklist que elimina o medo de enviar.</p>
+            <div class="ebook-price">{% if book.original_price %}<span class="price-strike">{{ book.original_price }}</span>{% endif %}{{ book.price }}</div>
+            <p class="ebook-title-inline">{{ book.title }}</p>
+            <p class="ebook-desc">{{ book.desc }}</p>
             <div class="btn-ebook-group">
-              <a href="https://go.hotmart.com/K106028445D" class="btn-ebook" target="_blank">🌍 Europa</a>
-              <a href="https://pay.kiwify.com/rDdGE1C" class="btn-ebook-alt" target="_blank">🇧🇷 Brasil</a>
+              <a href="{{ book.europa }}" class="btn-ebook" target="_blank">🌍 Europa</a>
+              <a href="{{ book.brasil }}" class="btn-ebook-alt" target="_blank">🇧🇷 Brasil</a>
             </div>
           </div>
         </div>
-        <div class="ebook-card">
-          <div class="ebook-cover"><div class="ebook-cover-inner"><div class="ebook-cover-title">Do Zero ao Digital</div><div class="ebook-cover-sub">Eliana Gomes</div></div></div>
-          <div class="ebook-body">
-            <div class="ebook-price">€16,90</div>
-            <p class="ebook-desc">O guia para dar os primeiros passos no mundo digital com clareza, estratégia e sem perder tempo.</p>
-            <div class="btn-ebook-group">
-              <a href="https://pay.hotmart.com/O106505422V" class="btn-ebook" target="_blank">🌍 Europa</a>
-              <a href="https://pay.kiwify.com/LzmYcVB" class="btn-ebook-alt" target="_blank">🇧🇷 Brasil</a>
-            </div>
-          </div>
-        </div>
-        <div class="ebook-card">
-          <div class="ebook-cover"><div class="ebook-cover-inner"><div class="ebook-cover-title">Mulheres em Recomeço</div><div class="ebook-cover-sub">Eliana Gomes</div></div></div>
-          <div class="ebook-body">
-            <div class="ebook-price">€19,90</div>
-            <p class="ebook-desc">Para a mulher que sente que é hora de recomeçar — e quer fazer isso com propósito e coragem.</p>
-            <div class="btn-ebook-group">
-              <a href="https://pay.hotmart.com/C106503934C?off=osemywuz" class="btn-ebook" target="_blank">🌍 Europa</a>
-              <a href="https://pay.kiwify.com/P4FdJaN" class="btn-ebook-alt" target="_blank">🇧🇷 Brasil</a>
-            </div>
-          </div>
-        </div>
+        {% endfor %}
       </div>
     </div>
   </section>
+
+  <section id="em-breve">
+    <div class="container">
+      <p class="section-label">Novidades</p>
+      <h2 class="section-title">Em breve.</h2>
+      <p class="section-lead">Os próximos livros, ainda em construção.</p>
+      <div class="upcoming-grid">
+        {% for book in site.data.upcoming %}
+        <div class="upcoming-card">
+          <div class="upcoming-cover"><img src="{{ book.cover }}" alt="Capa de {{ book.title }}" loading="lazy" /></div>
+          <div>
+            <span class="upcoming-status">{{ book.status }}</span>
+            <h3 class="upcoming-title">{{ book.title }}</h3>
+            <p class="upcoming-tagline">{{ book.tagline }}</p>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </section>
+
   <section id="servicos">
     <div class="container">
       <p class="section-label">O que faço</p>
