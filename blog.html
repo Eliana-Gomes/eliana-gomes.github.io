@@ -30,59 +30,23 @@
     .nav-links a { color: var(--silver); text-decoration: none; font-size: .85rem; letter-spacing: .06em; text-transform: uppercase; transition: color .2s; }
     .nav-links a:hover, .nav-links a.active { color: var(--cream); }
 
-    /* HERO BLOG */
-    .blog-hero {
-      background: var(--petrol);
-      padding: 9rem 2.5rem 5rem;
-      text-align: center;
-    }
+    .blog-hero { background: var(--petrol); padding: 9rem 2.5rem 5rem; text-align: center; }
     .blog-hero-label { color: var(--gold); font-size: .75rem; letter-spacing: .2em; text-transform: uppercase; font-weight: 600; margin-bottom: 1rem; }
     .blog-hero-title { font-family: 'Playfair Display', serif; color: var(--cream); font-size: clamp(2rem, 4vw, 3.2rem); margin-bottom: 1rem; }
     .blog-hero-sub { color: var(--silver); font-size: 1rem; max-width: 500px; margin: 0 auto; font-weight: 300; }
 
-    /* ARTICLES GRID */
     .blog-section { padding: 5rem 2.5rem; }
     .container { max-width: 960px; margin: 0 auto; }
     .articles-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; }
 
-    .article-card {
-      background: var(--white);
-      border-radius: 2px;
-      overflow: hidden;
-      display: flex; flex-direction: column;
-      box-shadow: 0 2px 12px rgba(0,52,61,.07);
-      transition: transform .2s, box-shadow .2s;
-      text-decoration: none;
-      color: inherit;
-    }
+    .article-card { background: var(--white); border-radius: 2px; overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 2px 12px rgba(0,52,61,.07); transition: transform .2s, box-shadow .2s; text-decoration: none; color: inherit; }
     .article-card:hover { transform: translateY(-4px); box-shadow: 0 8px 28px rgba(0,52,61,.13); }
-    .article-tag {
-      background: var(--petrol);
-      color: #b89d3a;
-      font-size: .7rem;
-      letter-spacing: .12em;
-      text-transform: uppercase;
-      padding: .4rem .9rem;
-      font-weight: 600;
-    }
+    .article-tag { background: var(--petrol); color: #b89d3a; font-size: .7rem; letter-spacing: .12em; text-transform: uppercase; padding: .4rem .9rem; font-weight: 600; }
     .article-body { padding: 1.5rem; flex: 1; display: flex; flex-direction: column; }
-    .article-title {
-      font-family: 'Playfair Display', serif;
-      font-size: 1.15rem;
-      line-height: 1.3;
-      color: var(--petrol);
-      margin-bottom: .8rem;
-    }
+    .article-title { font-family: 'Playfair Display', serif; font-size: 1.15rem; line-height: 1.3; color: var(--petrol); margin-bottom: .8rem; }
     .article-excerpt { font-size: .88rem; color: #666; flex: 1; margin-bottom: 1.2rem; font-weight: 300; line-height: 1.6; }
-    .article-link {
-      font-size: .78rem;
-      font-weight: 600;
-      color: var(--gold);
-      letter-spacing: .06em;
-      text-transform: uppercase;
-    }
+    .article-link { font-size: .78rem; font-weight: 600; color: var(--gold); letter-spacing: .06em; text-transform: uppercase; }
 
-    /* SINGLE ARTICLE */
     .article-page { display: none; padding: 8rem 2.5rem 5rem; }
     .article-page.active { display: block; }
     .article-header { max-width: 720px; margin: 0 auto 3rem; }
@@ -92,49 +56,17 @@
     .article-content { max-width: 720px; margin: 0 auto; }
     .article-content p { margin-bottom: 1.4rem; font-size: 1rem; line-height: 1.8; color: #333; }
     .article-content h2 { font-family: 'Playfair Display', serif; font-size: 1.5rem; color: var(--petrol); margin: 2.5rem 0 1rem; }
-    .article-content blockquote {
-      border-left: 3px solid var(--gold);
-      padding: 1rem 1.5rem;
-      margin: 2rem 0;
-      background: var(--white);
-      border-radius: 0 2px 2px 0;
-      font-family: 'Playfair Display', serif;
-      font-style: italic;
-      color: var(--petrol);
-      font-size: 1.05rem;
-    }
-    .article-cta {
-      background: var(--petrol);
-      border-radius: 2px;
-      padding: 2.5rem;
-      margin: 3rem 0 0;
-      text-align: center;
-    }
+    .article-content ul { margin: 0 0 1.4rem 1.5rem; }
+    .article-content ul li { font-size: 1rem; line-height: 1.8; color: #333; margin-bottom: .5rem; }
+    .article-content blockquote { border-left: 3px solid var(--gold); padding: 1rem 1.5rem; margin: 2rem 0; background: var(--white); border-radius: 0 2px 2px 0; font-family: 'Playfair Display', serif; font-style: italic; color: var(--petrol); font-size: 1.05rem; }
+    .article-cta { background: var(--petrol); border-radius: 2px; padding: 2.5rem; margin: 3rem 0 0; text-align: center; }
     .article-cta p { color: var(--silver); font-size: .95rem; margin-bottom: 1.2rem; font-weight: 300; }
-    .article-cta a {
-      display: inline-block;
-      background: var(--gold);
-      color: var(--white);
-      padding: .85rem 2rem;
-      border-radius: 2px;
-      text-decoration: none;
-      font-size: .88rem;
-      font-weight: 600;
-      letter-spacing: .04em;
-      transition: background .2s;
-    }
+    .article-cta a { display: inline-block; background: var(--gold); color: var(--white); padding: .85rem 2rem; border-radius: 2px; text-decoration: none; font-size: .88rem; font-weight: 600; letter-spacing: .04em; transition: background .2s; }
     .article-cta a:hover { background: #5c4900; }
-    .back-link {
-      display: inline-flex; align-items: center; gap: .4rem;
-      color: var(--gold); font-size: .82rem; font-weight: 600;
-      letter-spacing: .06em; text-transform: uppercase;
-      text-decoration: none; margin-bottom: 2.5rem;
-      cursor: pointer; background: none; border: none;
-    }
+    .back-link { display: inline-flex; align-items: center; gap: .4rem; color: var(--gold); font-size: .82rem; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; text-decoration: none; margin-bottom: 2.5rem; cursor: pointer; background: none; border: none; }
     .back-link:hover { color: var(--petrol); }
-
-    /* DIVIDER */
     .gold-rule { width: 48px; height: 2px; background: var(--gold); margin: 0 auto 3rem; display: block; }
+    .manifesto { background: var(--petrol); border-radius: 2px; padding: 2rem 2.5rem; margin: 2.5rem 0; font-family: 'Playfair Display', serif; font-style: italic; color: var(--cream); font-size: 1.05rem; line-height: 2; }
 
     footer { background: var(--petrol); color: var(--silver); text-align: center; padding: 2rem; font-size: .8rem; }
     footer a { color: #b89d3a; text-decoration: none; }
@@ -169,7 +101,6 @@
       <h1 class="blog-hero-title">Palavras que fazem<br><em style="font-style:italic;color:#b89d3a;">algo acontecer.</em></h1>
       <p class="blog-hero-sub">Dicas de comunicação, reflexões sobre recomeços e bastidores dos meus livros e e-books.</p>
     </div>
-
     <section class="blog-section">
       <div class="container">
         <span class="gold-rule"></span>
@@ -202,6 +133,15 @@
             </div>
           </a>
 
+          <a class="article-card" href="#" onclick="showArticle('art4'); return false;">
+            <div class="article-tag">Recomeços</div>
+            <div class="article-body">
+              <h2 class="article-title">O recomeço é um caminho que se faz a andar — mesmo sem estares pronta</h2>
+              <p class="article-excerpt">Sentes que o teu tempo já passou ou que ainda não tens o suficiente para começar algo novo? A clareza que procuras não vem antes de começares — ela aparece no meio do caminho.</p>
+              <span class="article-link">Ler artigo →</span>
+            </div>
+          </a>
+
         </div>
       </div>
     </section>
@@ -218,34 +158,25 @@
       </div>
       <div class="article-content">
         <p>Já aconteceu contigo? Abres o computador, começas a escrever um e-mail simples — e trinta minutos depois ainda estás a relê-lo, a mudar palavras, a perguntar-te se o tom está certo, se vais parecer demasiado formal, demasiado informal, demasiado directo ou demasiado vago.</p>
-
         <p>Não és a única. E o problema não está na tua competência — está na falta de uma estrutura clara antes de começar a escrever.</p>
-
         <h2>O erro mais comum</h2>
         <p>A maioria das pessoas abre o e-mail em branco e começa a escrever. O resultado é um texto que tenta fazer tudo ao mesmo tempo: explicar o contexto, fazer o pedido, justificar a razão, ser simpático e ainda terminar de forma adequada. Fica confuso — para quem escreve e para quem recebe.</p>
-
         <blockquote>O e-mail que ninguém responde tem sempre o mesmo problema: quem o lê não sabe o que fazer com ele.</blockquote>
-
         <h2>A fórmula dos 3 elementos</h2>
         <p>Antes de escrever qualquer e-mail profissional, responde a estas três perguntas:</p>
         <p><strong>1. Contexto</strong> — Quem és tu e porque estás a escrever? (Uma frase, no máximo duas.)</p>
         <p><strong>2. Pedido</strong> — O que precisas exactamente? (Seja específico. "Gostaria de agendar uma reunião na próxima semana" é melhor do que "Gostaria de conversar.")</p>
         <p><strong>3. Prazo</strong> — Quando precisas de uma resposta? (Dar um prazo claro respeitoso aumenta exponencialmente a taxa de resposta.)</p>
-
         <h2>O assunto decide tudo</h2>
         <p>Antes do corpo do e-mail, há uma parte que a maioria ignora: o assunto. É a primeira coisa que o destinatário lê — e muitas vezes é a única. Um assunto vago como "Olá" ou "Contacto" garante que o e-mail fica para depois — e "depois" muitas vezes significa nunca.</p>
         <p>A fórmula que uso: <strong>[Contexto + Acção + Prazo]</strong>. Exemplo: "Proposta de parceria — aguardo resposta até sexta." Em seis palavras, o destinatário sabe exactamente o que é, o que se pede e quando.</p>
-
         <h2>Checklist antes de enviar</h2>
-        <p>Antes de carregar em enviar, responde rapidamente:</p>
         <p>✦ O assunto é específico e informativo?<br>
         ✦ As primeiras duas frases explicam quem és e porque escreves?<br>
         ✦ O pedido é claro e accionável?<br>
         ✦ Há um prazo ou próximo passo definido?<br>
         ✦ O tom é adequado para esta pessoa e este contexto?</p>
-
         <p>Se respondeste sim a todas, o e-mail está pronto. Se hesitaste em alguma — é aí que precisas de trabalhar.</p>
-
         <div class="article-cta">
           <p>Tens 11 modelos de e-mail prontos a usar — do primeiro contacto à cobrança educada — no meu e-book <em>E-Mails Profissionais com Clareza</em>.</p>
           <a href="https://go.hotmart.com/K106028445D" target="_blank">Quero o e-book →</a>
@@ -265,26 +196,19 @@
       </div>
       <div class="article-content">
         <p>Quando decidi trabalhar pela internet, imaginei que o maior desafio seria técnico. Aprender as ferramentas, perceber como funcionam as plataformas, montar um perfil. E sim — isso deu trabalho. Mas não foi o mais difícil.</p>
-
         <p>O mais difícil foi o que ninguém me disse antes de começar.</p>
-
         <h2>A solidão é real</h2>
         <p>Trabalhar sozinha significa tomar todas as decisões — sobre preços, clientes, estratégia, horários. Não há chefe para culpar quando corre mal. Não há colega para partilhar a dúvida antes de enviar uma proposta. Há dias em que o silêncio do escritório caseiro pesa muito.</p>
-
         <blockquote>A liberdade que o trabalho remoto oferece é real. Mas ninguém te conta que essa liberdade exige uma disciplina interna que a vida de escritório nunca te ensinou a ter.</blockquote>
-
         <h2>O dinheiro não aparece logo</h2>
         <p>Os primeiros meses são de investimento — de tempo, de energia, de aprendizagem. As histórias de sucesso rápido que vês nas redes sociais existem, mas são excepção. A regra é: construção lenta, consistente e muitas vezes invisível para o mundo exterior.</p>
         <p>Isso não significa que não vale a pena. Significa que vale a pena com expectativas realistas.</p>
-
         <h2>Escolher um caminho é mais importante do que conhecer todos</h2>
         <p>Quando entrei no mundo digital, tentei aprender tudo ao mesmo tempo. Copywriting, redes sociais, e-mail marketing, SEO, criação de conteúdo, afiliados. O resultado foi paralisia. Sabia um pouco de tudo e não dominava nada.</p>
         <p>O que mudou tudo foi escolher uma área e aprofundá-la primeiro. Para mim, foi a escrita. Do copywriting vieram os clientes. Dos clientes veio a confiança. Da confiança vieram os e-books e os projetos maiores.</p>
-
         <h2>O que eu faria diferente</h2>
         <p>Começaria com um serviço claro, dirigido a um público claro, com um preço justo. Sem tentar agradar a toda a gente. Sem cobrar barato para conseguir clientes — porque barato atrai o cliente errado e esgota-te antes de começares.</p>
         <p>E acima de tudo: publicaria conteúdo desde o primeiro dia. Não quando estivesse "pronta". Não quando o perfil estivesse perfeito. Desde o primeiro dia — imperfeita, genuína e presente.</p>
-
         <div class="article-cta">
           <p>No <em>Do Zero ao Digital</em> tens o mapa completo — de freelancer a criador de conteúdo, de afiliado a vendedor de produtos digitais. Um passo de cada vez.</p>
           <a href="https://pay.hotmart.com/O106505422V" target="_blank">Quero o e-book →</a>
@@ -304,26 +228,94 @@
       </div>
       <div class="article-content">
         <p>Durante muito tempo, recomeçar pareceu-me uma confissão de fracasso. Como se começar de novo fosse admitir que o que havia antes não funcionou — e que eu não fui suficiente para fazê-lo funcionar.</p>
-
         <p>Levei anos a perceber que estava a olhar para isso ao contrário.</p>
-
         <h2>O que o mundo chama de fraqueza</h2>
         <p>Há uma narrativa silenciosa que persegue muitas mulheres: a de que desistir — de uma relação, de um emprego, de uma vida que não é tua — é sinal de incapacidade. Que quem resiste, quem aguenta, quem fica, é mais forte. Que a força se mede em quanto consegues suportar.</p>
-
         <blockquote>Não. A força mede-se em quanto consegues soltar quando percebeste que aquilo já não te serve.</blockquote>
-
         <h2>O que ninguém vê no recomeço</h2>
         <p>Quando uma mulher decide recomeçar, o mundo vê o que ela deixou para trás. Não vê o que ela carregou durante anos antes de tomar essa decisão. Não vê as noites em que ficou acordada a perguntar-se se era ela o problema. Não vê a coragem silenciosa de continuar a funcionar enquanto por dentro estava a desmoronar.</p>
         <p>Recomeçar não começa no dia em que sais. Começa muito antes — no dia em que decides que mereces mais do que aquilo que tens.</p>
-
         <h2>Recomeçar sem ter tudo pronto</h2>
         <p>Uma das maiores armadilhas é esperar estar pronta. Esperar ter o dinheiro certo, o plano certo, a certeza certa. Mas a certeza raramente chega antes de começar. Chega durante — quando já estás a caminhar e descobres que as pernas te sustentam.</p>
         <p>Não precisas de ter tudo resolvido para dar o primeiro passo. Precisas apenas de estar disposta a dar.</p>
-
         <h2>O que encontras do outro lado</h2>
         <p>Do outro lado do recomeço não está a perfeição. Está a tua vida — imperfeita, em construção, com medos novos e descobertas inesperadas. Mas é tua. E há uma diferença enorme entre uma vida imperfeita que é tua e uma vida aparentemente estável que pertence ao medo.</p>
         <p>Recomeçar não é o fim de uma história. É o momento em que decides ser a autora da tua própria.</p>
+        <div class="article-cta">
+          <p><em>Mulheres em Recomeço</em> foi escrito para a mulher que está pronta para começar — mesmo sem se sentir pronta. Com clareza, estratégia e coragem.</p>
+          <a href="https://pay.hotmart.com/C106503934C?off=osemywuz" target="_blank">Quero o e-book →</a>
+        </div>
+      </div>
+    </div>
+  </div>
 
+  <!-- ARTIGO 4 — NOVO -->
+  <div id="art4" class="article-page">
+    <div class="container">
+      <button class="back-link" onclick="showIndex()">← Voltar ao blog</button>
+      <div class="article-header">
+        <span class="tag">Recomeços</span>
+        <h1>O recomeço é um caminho que se faz a andar</h1>
+        <p class="meta">Eliana Gomes · Julho 2026</p>
+      </div>
+      <div class="article-content">
+        <p>Sentes que o teu tempo já passou ou que ainda não tens o suficiente para começar algo novo?</p>
+        <p>Não estás sozinha.</p>
+        <p>Muitas mulheres vivem paralisadas à espera de se sentirem prontas — mais preparadas, mais seguras, mais qualquer coisa. Mas a verdade é que a clareza não é um pré-requisito para a acção. É uma consequência dela. Surge depois do primeiro passo, não antes.</p>
+        <p>Este texto não foi escrito de um lugar de chegada. Foi escrito de um lugar de percurso — porque o recomeço é um caminho real, exigente, do tipo que cansa e que desafia. E é exactamente nesse caminho que se constrói uma nova identidade. E, com ela, uma nova independência.</p>
+        <h2>1. O momento perfeito não existe — e nunca vai existir</h2>
+        <p>A ideia de que precisas de mais dinheiro, mais formação ou mais segurança antes de dar o primeiro passo é uma das mentiras mais persistentes que nos ensinam.</p>
+        <p>Para muitas de nós — mulheres que atravessámos contextos difíceis, relações complexas, fases em que sobreviver já era suficiente — o perfeccionismo não é vaidade. É um mecanismo de protecção. Aprendemos que é mais seguro não tentar do que tentar e falhar.</p>
+        <p>Mas no mundo digital, essa lógica trabalha contra nós.</p>
+        <blockquote>A segurança não é o ponto de partida. É o resultado da consistência. O medo que sentes não é um sinal de que não és capaz — é a prova de que o projecto que tens em mãos importa profundamente para ti.</blockquote>
+        <h2>2. O que já sabes fazer vale mais do que pensas</h2>
+        <p>Quando alguém te pergunta "mas o que é que sabes fazer?", é provável que respondas "nada de especial". Convido-te a olhar de outra forma.</p>
+        <p>Tudo o que viveste — cada responsabilidade, cada papel que desempenhaste, cada problema que resolveste sem que ninguém te ensinasse — é experiência real com valor real no mercado digital.</p>
+        <p>Cuidaste de crianças ou de pessoas idosas? Tens competências de empatia e gestão de bem-estar que são a base de serviços de consultoria e apoio.</p>
+        <p>Geriste uma casa com orçamento curto? Isso traduz-se directamente em assistência administrativa e organização de processos para pequenos negócios.</p>
+        <p>Resolveste conflitos, mediaste conversas difíceis, escreves mensagens com cuidado? Essas são as bases da gestão de comunidades e do apoio ao cliente.</p>
+        <blockquote>O negócio possível é o único que realmente existe — e ele nasce das habilidades que já exercitas todos os dias.</blockquote>
+        <h2>3. Não precisas de muito para começar</h2>
+        <p>Uma das maiores vantagens do empreendedorismo digital é que a barreira de entrada é quase nenhuma. Não precisas de equipamento novo. Não precisas de um logótipo dispendioso. Não precisas de um site perfeito.</p>
+        <p>O teu telemóvel já é uma ferramenta de trabalho se for usado com intenção. O Instagram para criares presença. O WhatsApp para o atendimento directo. O Google Docs para estruturares os teus serviços e propostas.</p>
+        <blockquote>A perfeição é o inimigo do começo. Começa com o que tens. O resto vem com os primeiros resultados.</blockquote>
+        <h2>4. Quando a família não apoia — e o que fazer com isso</h2>
+        <p>É comum que as pessoas mais próximas projectem os seus próprios medos na nossa mudança. O ceticismo de quem nos rodeia raramente tem a ver connosco — tem a ver com os limites deles.</p>
+        <p>Nestes casos, a estratégia mais sensata é simples: protege a tua visão.</p>
+        <blockquote>Algumas sementes precisam de crescer antes de serem vistas. Constrói em silêncio. Deixa que os resultados falem — porque vão falar mais alto do que qualquer argumento.</blockquote>
+        <h2>5. Trinta minutos por dia constroem um negócio</h2>
+        <p>O tempo para o teu negócio não aparece — é conquistado. Se dedicares apenas 30 minutos focados por dia ao teu projecto, ao fim de um mês terás investido 15 horas na sua construção. A consistência, mesmo que silenciosa, vence sempre o talento esporádico.</p>
+        <p>Para começares hoje, aqui está um plano para os próximos 7 dias:</p>
+        <ul>
+          <li><strong>Dia 1</strong> — Lista todas as tuas competências e experiências, sem julgamento.</li>
+          <li><strong>Dia 2</strong> — Escolhe a habilidade com maior potencial de gerar rendimento imediato.</li>
+          <li><strong>Dia 3</strong> — Cria ou actualiza o teu perfil no Workana, LinkedIn ou Instagram.</li>
+          <li><strong>Dia 4</strong> — Produz uma amostra simples do teu trabalho — um portfólio mínimo.</li>
+          <li><strong>Dia 5</strong> — Partilha o teu serviço com três pessoas da tua rede.</li>
+          <li><strong>Dia 6</strong> — Envia a tua primeira proposta formal a um potencial cliente.</li>
+          <li><strong>Dia 7</strong> — Revê o progresso e define o próximo passo concreto.</li>
+        </ul>
+        <h2>6. O teu primeiro cliente está mais perto do que imaginas</h2>
+        <p>Não precisas de um currículo extenso para conseguir o teu primeiro cliente. Ele não paga pela tua reputação passada — paga pela tua capacidade de resolver um problema específico hoje.</p>
+        <ul>
+          <li><strong>Na tua rede directa</strong> — pessoas que já confiam em ti e na tua integridade.</li>
+          <li><strong>Em grupos e comunidades online</strong> — onde surgem diariamente pedidos de ajuda com escrita, organização, design, gestão.</li>
+          <li><strong>Em plataformas de freelance</strong> — Workana, GetNinjas, Upwork, onde a procura por execução profissional é constante.</li>
+        </ul>
+        <blockquote>A primeira vitória não é apenas o dinheiro. É descobrires que és capaz. E essa descoberta muda tudo.</blockquote>
+        <h2>Para terminar — o horizonte depois da curva</h2>
+        <p>Há momentos em que a vida faz uma curva tão fechada que perdemos de vista a estrada. Mas o facto de não veres o horizonte não significa que ele não existe. Significa apenas que ainda estás na curva.</p>
+        <p>O teu passado explica a tua história. Não determina o teu futuro.</p>
+        <div class="manifesto">
+          Eu não preciso de estar pronta para começar.<br>
+          Posso aprender enquanto caminho.<br>
+          Pequenos passos também constroem grandes mudanças.<br>
+          Tenho o direito de construir algo meu.<br>
+          Eu posso. Eu consigo. Eu vou.
+        </div>
+        <p>Enquanto houver vida, haverá tempo para florescer.</p>
+        <p>O recomeço começa no exacto momento em que decides que já esperaste o suficiente.</p>
+        <p><strong>Qual é a única coisa pequena que podes fazer hoje para provares a ti mesma que o teu recomeço já começou?</strong></p>
         <div class="article-cta">
           <p><em>Mulheres em Recomeço</em> foi escrito para a mulher que está pronta para começar — mesmo sem se sentir pronta. Com clareza, estratégia e coragem.</p>
           <a href="https://pay.hotmart.com/C106503934C?off=osemywuz" target="_blank">Quero o e-book →</a>
