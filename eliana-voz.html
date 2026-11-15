@@ -69,8 +69,8 @@
   @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
   .tip-strip { background: rgba(0,84,100,0.25); border-radius: 10px; padding: 10px 14px; font-size: 0.77rem; color: #7ab8c0; line-height: 1.55; border-left: 3px solid #7ab8c0; }
   .tip-strip strong { color: var(--cream); }
-  .avatar-wrap { display: flex; justify-content: center; margin: 4px 0 10px; }
-  .avatar { width: 128px; height: 128px; border-radius: 50%; background: radial-gradient(circle at 50% 40%, #f4f0ea 0%, #d8d9dd 100%); border: 3px solid var(--gold); box-shadow: 0 6px 24px rgba(0,0,0,0.35); overflow: hidden; transition: box-shadow .3s, transform .3s; }
+  .avatar-wrap { display: flex; justify-content: center; margin: 0; padding: 6px 0 8px; position: sticky; top: 0; z-index: 50; background: var(--petrol); }
+  .avatar { width: 96px; height: 96px; border-radius: 50%; background: radial-gradient(circle at 50% 40%, #f4f0ea 0%, #d8d9dd 100%); border: 3px solid var(--gold); box-shadow: 0 6px 24px rgba(0,0,0,0.35); overflow: hidden; transition: box-shadow .3s, transform .3s; }
   .avatar.listening { box-shadow: 0 0 0 6px rgba(46,204,113,0.35), 0 6px 24px rgba(0,0,0,0.35); }
   .avatar.talking { animation: av-bob 1.6s ease-in-out infinite; }
   @keyframes av-bob { 0%,100% { transform: translateY(0) rotate(0); } 50% { transform: translateY(-2px) rotate(-1.5deg); } }
@@ -262,7 +262,7 @@ function saveProfile() {
   PROFILE = { name, city: document.getElementById('pf-city').value.trim(), expl: document.getElementById('pf-expl').value, levels };
   try { localStorage.setItem('tutora_profile', JSON.stringify(PROFILE)); } catch(e) {}
   document.getElementById('profile-screen').style.display = 'none';
-  chatHistory = []; clearTranscript();
+  chatHistory = []; repeatTarget = ""; repeatTries = 0; clearTranscript();
   init();
 }
 function startApp() {
@@ -331,7 +331,7 @@ function setLang(code, name, locale, el) {
   document.querySelectorAll('.lang-pill').forEach(b => b.classList.remove('active'));
   el.classList.add('active');
   document.getElementById('tip-text').textContent = TIPS[code];
-  chatHistory = []; clearTranscript(); stopRecording(); synth.cancel();
+  chatHistory = []; repeatTarget = ''; repeatTries = 0; clearTranscript(); stopRecording(); synth.cancel();
   initRecognition();
   setTimeout(() => greet(), 300);
 }
@@ -340,11 +340,12 @@ function setTopic(el, topic) {
   currentTopic = topic;
   document.querySelectorAll('.topic-pill').forEach(b => b.classList.remove('active'));
   el.classList.add('active');
-  chatHistory = []; clearTranscript(); synth.cancel();
+  chatHistory = []; repeatTarget = ""; repeatTries = 0; clearTranscript(); synth.cancel();
   setTimeout(() => greet(), 200);
 }
 
 // ── SPEECH RECOGNITION ──
+let repeatTarget = '', repeatTries = 0;
 let wantRecording = false, sendOnEnd = false, finalText = '', sessionParts = [], interimText = '';
 
 function sessionText() {
@@ -462,7 +463,7 @@ function stopRecording() {
 function speak(text, onEnd) {
   synth.cancel();
   if (typeof SpeechSynthesisUtterance === 'undefined') { if (onEnd) onEnd(); return; }
-  const clean = text.replace(/[📝✅❌🎤🔊💡👤🛒🏥🏠🏦🎓🗣️]/gu,'').replace(/\*\*/g,'').trim();
+  const clean = text.replace(/[📝✅❌🎤🔊💡👤🛒🏥🏠🏦🎓🗣️🎯]/gu,'').replace(/\*\*/g,'').trim();
   const utt = new SpeechSynthesisUtterance(clean);
   utt.lang = currentLocale; utt.rate = 0.95; utt.pitch = 1.0;
   const voice = getBestVoice(currentLocale);
@@ -533,13 +534,20 @@ async function processInput(text) {
     while (recent.length && recent[0].role !== 'user') recent = recent.slice(1);
     const reply = await callAI(recent.map(m => ({ role: m.role, content: m.content })), buildSystem());
     removeLoading();
-    const lines = reply.split('\n');
+    const allLines = reply.split('\n');
+    const goal = allLines.find(l => l.trim().startsWith('🎯')) || '';
+    const lines = allLines.filter(l => !l.trim().startsWith('🎯'));
+    if (repeatTarget) {
+      repeatTries++;
+      if (/OK/i.test(goal) || repeatTries >= 3) { repeatTarget = ''; repeatTries = 0; }
+    }
     const fixLines = lines.filter(l => l.trim().startsWith('📝') || l.trim().startsWith('🗣'));
     const okLine = lines.find(l => l.trim().startsWith('✅')) || '';
     const main = lines.filter(l => !l.trim().startsWith('📝') && !l.trim().startsWith('🗣') && !l.trim().startsWith('✅')).join('\n').trim();
     chatHistory.push({ role: 'assistant', content: reply });
     if (fixLines.length) {
       const fixed = okLine.replace('✅', '').trim();
+      if (fixed && !repeatTarget) { repeatTarget = fixed; repeatTries = 0; }
       const esc = t => t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
       const short = fixLines.map(l => esc(l.split('·')[0].trim())).join('<br>');
       const why = fixLines.map(l => { const p = l.split('·'); return p[1] ? esc(p[0].replace(/^[📝🗣️\s]+/u,'').trim() + ': ' + p.slice(1).join('·').trim()) : ''; }).filter(Boolean).join('<br>');
@@ -589,6 +597,11 @@ FORMATO:
 - E, só se houver linhas 📝, uma última linha com a frase corrigida:
 ✅ frase corrigida em ${currentLangName}
 - Sem erros: nenhuma linha 📝, 🗣️ nem ✅.
+QUANDO HOUVER ERRO: depois de corrigir, NÃO continues o tema. A tua resposta natural deve ser só um pedido curto para repetir a frase certa (ex.: "¿Puedes repetirlo?"). A conversa continua depois.
+SE ${N} PEDIR AJUDA COM UMA PALAVRA OU PRONÚNCIA (ex.: "corrígeme la palabra desarrollar"): faz um mini-treino. Diz a palavra devagar e separada em sílabas (ex.: "de-sa-rro-llar"), dá uma dica curta de pronúncia em ${EX} numa linha 🗣️, e pede para repetir. Não continues o tema até acertar.
+${repeatTarget ? `MODO REPETIÇÃO: pediste a ${N} para repetir esta frase: "${repeatTarget}". Compara a resposta com essa frase, ignorando pontuação, maiúsculas e hesitações.
+- Se estiver certa (ou quase, com diferenças mínimas de transcrição): começa com um elogio curto e claro (ex.: "¡Correcto! ¡Muy bien!"), depois retoma a conversa com uma pergunta, e acrescenta no fim a linha: 🎯 OK
+- Se ainda estiver errada: diz com carinho o que ainda falta, sem linhas 📝, pede para tentar mais uma vez, e acrescenta no fim a linha: 🎯 DE NOVO` : ''}
 Tema da conversa: "${currentTopic}"`;
 }
 
