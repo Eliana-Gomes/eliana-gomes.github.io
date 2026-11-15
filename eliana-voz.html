@@ -69,6 +69,18 @@
   @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
   .tip-strip { background: rgba(0,84,100,0.25); border-radius: 10px; padding: 10px 14px; font-size: 0.77rem; color: #7ab8c0; line-height: 1.55; border-left: 3px solid #7ab8c0; }
   .tip-strip strong { color: var(--cream); }
+  .avatar-wrap { display: flex; justify-content: center; margin: 4px 0 10px; }
+  .avatar { width: 128px; height: 128px; border-radius: 50%; background: radial-gradient(circle at 50% 40%, #f4f0ea 0%, #d8d9dd 100%); border: 3px solid var(--gold); box-shadow: 0 6px 24px rgba(0,0,0,0.35); overflow: hidden; transition: box-shadow .3s, transform .3s; }
+  .avatar.listening { box-shadow: 0 0 0 6px rgba(46,204,113,0.35), 0 6px 24px rgba(0,0,0,0.35); }
+  .avatar.talking { animation: av-bob 1.6s ease-in-out infinite; }
+  @keyframes av-bob { 0%,100% { transform: translateY(0) rotate(0); } 50% { transform: translateY(-2px) rotate(-1.5deg); } }
+  .av-eyes { animation: av-blink 4.5s infinite; transform-origin: 50% 47%; transform-box: view-box; }
+  @keyframes av-blink { 0%,93%,100% { transform: scaleY(1); } 95% { transform: scaleY(0.1); } }
+  .av-mouth-open { transform-origin: 60px 78.5px; transform-box: view-box; transform: scaleY(0.15); }
+  .avatar.talking .av-mouth-open { animation: av-talk .26s ease-in-out infinite alternate; }
+  @keyframes av-talk { 0% { transform: scaleY(0.2); } 60% { transform: scaleY(1); } 100% { transform: scaleY(0.45); } }
+  .avatar.listening .av-brows { transform: translateY(-2px); }
+  .av-brows { transition: transform .3s; }
   .speaking-badge { display: none; background: rgba(46,204,113,0.15); border: 1px solid #2ecc71; border-radius: 8px; padding: 6px 12px; font-size: 0.75rem; color: #2ecc71; text-align: center; }
   .speaking-badge.show { display: block; }
   .dots { display: inline-flex; gap: 4px; align-items: center; }
@@ -155,6 +167,27 @@
     <button class="topic-pill" onclick="setTopic(this,'Apresentação pessoal')">👤 Apresentação</button>
   </div>
 
+  <div class="avatar-wrap"><div class="avatar" id="avatar">
+    <svg viewBox="0 0 120 120" width="100%" height="100%" aria-label="Tutora">
+      <path d="M22 120 C24 96 40 88 60 88 C80 88 96 96 98 120 Z" fill="#00343d"/>
+      <path d="M50 84 L70 84 L68 96 Q60 101 52 96 Z" fill="#e2b48f"/>
+      <path d="M26 62 C22 30 40 16 60 16 C82 16 98 30 94 62 C93 78 88 92 84 98 L36 98 C31 90 27 78 26 62 Z" fill="#3b2418"/>
+      <ellipse cx="60" cy="58" rx="24" ry="28" fill="#f0c6a2"/>
+      <path d="M35 50 C38 30 52 26 62 27 C74 28 84 34 86 50 C78 40 66 36 52 40 C45 42 39 46 35 50 Z" fill="#3b2418"/>
+      <circle cx="35" cy="66" r="2.6" fill="#b89a00"/><circle cx="85" cy="66" r="2.6" fill="#b89a00"/>
+      <g class="av-brows" stroke="#3b2418" stroke-width="2" stroke-linecap="round" fill="none">
+        <path d="M44 48 Q49 45 54 48"/><path d="M66 48 Q71 45 76 48"/>
+      </g>
+      <g class="av-eyes" fill="#2a1a12">
+        <ellipse cx="49" cy="57" rx="3" ry="3.6"/><ellipse cx="71" cy="57" rx="3" ry="3.6"/>
+        <circle cx="50" cy="56" r="1" fill="#fff"/><circle cx="72" cy="56" r="1" fill="#fff"/>
+      </g>
+      <path d="M60 60 Q58 67 61 69" stroke="#d29c78" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+      <ellipse cx="44" cy="70" rx="4.5" ry="2.6" fill="#e8a08a" opacity=".45"/><ellipse cx="76" cy="70" rx="4.5" ry="2.6" fill="#e8a08a" opacity=".45"/>
+      <path d="M52 76 Q60 81 68 76" stroke="#b5574f" stroke-width="2" fill="none" stroke-linecap="round"/>
+      <ellipse class="av-mouth-open" cx="60" cy="78.5" rx="5.5" ry="4" fill="#7a2e2a"/>
+    </svg>
+  </div></div>
   <div class="transcript-box" id="transcript"></div>
   <div class="speaking-badge" id="speaking-badge">🔊 Tutora a falar...</div>
 
@@ -321,7 +354,12 @@ function fullText() {
   return [finalText, sessionText(), interimText].filter(Boolean).join(' ').replace(/\s+/g, ' ').trim();
 }
 
+function avatarState(cls, on) {
+  const a = document.getElementById('avatar'); if (a) a.classList.toggle(cls, on);
+}
+
 function setMicUI(on) {
+  avatarState('listening', on);
   const btn = document.getElementById('mic-btn');
   btn.classList.toggle('recording', on);
   btn.textContent = on ? '⏹' : '🎤';
@@ -379,7 +417,7 @@ function initRecognition() {
 }
 
 function toggleMic() {
-  if (isSpeaking) { synth.cancel(); isSpeaking = false; document.getElementById('speaking-badge').classList.remove('show'); }
+  if (isSpeaking) { synth.cancel(); isSpeaking = false; document.getElementById('speaking-badge').classList.remove('show'); avatarState('talking', false); }
   if (isRecording) { finishRecording(); return; }
   startRecording();
 }
@@ -418,17 +456,17 @@ function speak(text, onEnd) {
   const voice = getBestVoice(currentLocale);
   if (voice) utt.voice = voice;
   isSpeaking = true;
-  document.getElementById('speaking-badge').classList.add('show');
+  document.getElementById('speaking-badge').classList.add('show'); avatarState('talking', true);
   setStatus('green', '🔊 Tutora a falar...');
   utt.onend = () => {
     isSpeaking = false;
-    document.getElementById('speaking-badge').classList.remove('show');
+    document.getElementById('speaking-badge').classList.remove('show'); avatarState('talking', false);
     setStatus('ready', 'Pronta. Toca para responder.');
     if (onEnd) onEnd();
   };
   utt.onerror = () => {
     isSpeaking = false;
-    document.getElementById('speaking-badge').classList.remove('show');
+    document.getElementById('speaking-badge').classList.remove('show'); avatarState('talking', false);
     setStatus('ready', 'Pronta. Toca para falar.');
   };
   synth.speak(utt);
