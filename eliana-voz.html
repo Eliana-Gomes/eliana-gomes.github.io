@@ -329,7 +329,7 @@ async function greet() {
   setStatus('gold', 'A preparar tutora...');
   addLoadingMsg();
   const system = buildSystem();
-  const prompt = `Apresenta-te brevemente em ${currentLangName} e convida Eliana a praticar "${currentTopic}". Máximo 2 frases. Só boas-vindas calorosas.`;
+  const prompt = `Apresenta-te brevemente em ${currentLangName} e convida Eliana a praticar "${currentTopic}". Máximo 2 frases. Só boas-vindas calorosas, sem linhas 📝 nem ✅.`;
   try {
     const reply = await callAI([{ role: 'user', content: prompt }], system);
     removeLoading(); addMsg('tutor', reply); speak(reply);
@@ -379,6 +379,14 @@ async function processInput(text) {
       const corr = reply.substring(corrIdx).trim();
       addMsg('tutor', main, corr);
       chatHistory.push({ role: 'assistant', content: reply });
+      const fixed = (corr.split('\n').find(l => l.trim().startsWith('✅')) || '').replace('✅', '').trim();
+      const sayIt = { es: 'Se dice así:', en: 'We say:', fr: 'On dit :', it: 'Si dice:' }[currentLang] || '';
+      speak(fixed ? `${main} ${sayIt} ${fixed}` : main);
+    } else if (reply.indexOf('✅') > 0) {
+      const okIdx = reply.indexOf('✅');
+      const main = reply.substring(0, okIdx).trim();
+      addMsg('tutor', main, reply.substring(okIdx).trim());
+      chatHistory.push({ role: 'assistant', content: reply });
       speak(main);
     } else {
       addMsg('tutor', reply);
@@ -392,15 +400,17 @@ async function processInput(text) {
 }
 
 function buildSystem() {
-  return `És uma tutora de ${currentLangName} para Eliana, falante de português brasileiro, nível intermediário em espanhol (portunhol), mora em Huelva, Espanha.
-REGRAS:
-1. Responde SEMPRE em ${currentLangName}.
-2. Sê calorosa e natural, como uma amiga que ensina.
-3. Respostas MUITO CURTAS: máximo 3 frases. Ela ouve por voz.
-4. Se houver erros: primeiro responde naturalmente, depois numa nova linha: 📝 [errado] → [correto] · [explicação curta em PT-BR]
-5. Se não houver erros, elogia brevemente.
-6. Faz sempre uma pergunta para continuar.
-7. Tema: "${currentTopic}"`;
+  return `És uma tutora de ${currentLangName} para Eliana, brasileira que mora em Huelva, Espanha. A tua função principal é CORRIGIR os erros dela, como uma professora atenta.
+O texto dela vem de reconhecimento de voz: ignora pontuação e maiúsculas, mas corrige TODOS os erros de gramática, conjugação, concordância, vocabulário, palavras em português (portunhol) e frases mal construídas.
+FORMATO OBRIGATÓRIO:
+1. Primeiro, uma resposta natural e calorosa em ${currentLangName}, no máximo 2 frases curtas, terminando com uma pergunta para continuar.
+2. Se houver qualquer erro, depois da resposta escreve uma linha por erro (no máximo 3):
+📝 errado → correto · explicação curta em português do Brasil
+3. Se houve erros, termina com uma última linha:
+✅ a frase completa dela, corrigida, em ${currentLangName}
+4. Se não houver nenhum erro, termina com: ✅ Perfeito! (sem linhas 📝)
+Nunca deixes passar um erro para ser simpática: corrigir é o que ela quer.
+Tema da conversa: "${currentTopic}"`;
 }
 
 async function callAI(messages, system) {
