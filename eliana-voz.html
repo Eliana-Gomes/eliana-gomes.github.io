@@ -243,59 +243,103 @@ function setTopic(el, topic) {
 }
 
 // ── SPEECH RECOGNITION ──
+let wantRecording = false, sendOnEnd = false, finalText = '', sessionParts = [], interimText = '';
+
+function sessionText() {
+  const parts = sessionParts.filter(Boolean);
+  const kept = parts.filter((p, i) => !(parts[i + 1] && parts[i + 1].trim().toLowerCase().startsWith(p.trim().toLowerCase())));
+  return kept.join(' ').trim();
+}
+
+function fullText() {
+  return [finalText, sessionText(), interimText].filter(Boolean).join(' ').replace(/\s+/g, ' ').trim();
+}
+
+function setMicUI(on) {
+  const btn = document.getElementById('mic-btn');
+  btn.classList.toggle('recording', on);
+  btn.textContent = on ? '⏹' : '🎤';
+  document.getElementById('mic-ring').classList.toggle('active', on);
+  document.getElementById('mic-label').textContent = on ? 'A ouvir… toca ⏹ quando terminares' : 'Toca para falar';
+}
+
 function initRecognition() {
-  if (recognition) { try { recognition.abort(); } catch(e) {} }
+  if (recognition) { try { recognition.onend = null; recognition.abort(); } catch(e) {} }
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
   if (!SR) { setStatus('error', 'Usa o Chrome para reconhecimento de voz.'); return; }
   recognition = new SR();
   recognition.lang = currentLocale;
-  recognition.continuous = false;
+  recognition.continuous = true;
   recognition.interimResults = true;
 
-  recognition.onstart = () => {
-    isRecording = true;
-    document.getElementById('mic-btn').classList.add('recording');
-    document.getElementById('mic-btn').textContent = '⏹';
-    document.getElementById('mic-ring').classList.add('active');
-    document.getElementById('mic-label').textContent = 'A ouvir... fala agora!';
-    setStatus('green', 'A ouvir a tua voz...');
-  };
+  recognition.onstart = () => { sessionParts = []; interimText = ''; };
 
   recognition.onresult = (e) => {
-    const transcript = Array.from(e.results).map(r => r[0].transcript).join('');
-    if (e.results[0].isFinal) { handleUserSpeech(transcript); }
-    else { setStatus('green', '🎙️ ' + transcript); }
+    interimText = '';
+    for (let i = e.resultIndex; i < e.results.length; i++) {
+      const t = e.results[i][0].transcript;
+      if (e.results[i].isFinal) sessionParts[i] = t; else interimText += t;
+    }
+    const txt = fullText();
+    if (txt) setStatus('green', '🎙️ ' + txt);
   };
 
   recognition.onerror = (e) => {
-    stopRecording();
-    if (e.error === 'no-speech') setStatus('ready', 'Não ouvi nada. Toca e fala de novo.');
-    else if (e.error === 'not-allowed') setStatus('error', 'Microfone bloqueado. Permite nas definições do Chrome.');
-    else setStatus('ready', 'Tenta de novo.');
+    if (e.error === 'not-allowed' || e.error === 'service-not-allowed') {
+      wantRecording = false; sendOnEnd = false; setMicUI(false);
+      setStatus('error', 'Microfone bloqueado. Permite nas definições do Chrome.');
+    }
   };
 
-  recognition.onend = () => { stopRecording(); };
+  recognition.onend = () => {
+    const st = sessionText();
+    if (st) finalText = [finalText, st].filter(Boolean).join(' ');
+    else if (interimText) finalText = [finalText, interimText].filter(Boolean).join(' ');
+    sessionParts = []; interimText = '';
+    if (wantRecording) {
+      try { recognition.start(); } catch(e) { setTimeout(() => { try { recognition.start(); } catch(_) {} }, 250); }
+      return;
+    }
+    isRecording = false;
+    setMicUI(false);
+    if (sendOnEnd) {
+      sendOnEnd = false;
+      const text = finalText.replace(/\s+/g, ' ').trim();
+      finalText = '';
+      if (text) handleUserSpeech(text);
+      else setStatus('ready', 'Não ouvi nada. Toca e fala de novo.');
+    }
+  };
 }
 
 function toggleMic() {
-  if (isSpeaking) { synth.cancel(); isSpeaking = false; }
-  if (isRecording) { stopRecording(); return; }
+  if (isSpeaking) { synth.cancel(); isSpeaking = false; document.getElementById('speaking-badge').classList.remove('show'); }
+  if (isRecording) { finishRecording(); return; }
   startRecording();
 }
 
 function startRecording() {
-  if (!recognition) { initRecognition(); }
-  try { recognition.start(); } catch(e) { initRecognition(); setTimeout(() => recognition.start(), 200); }
+  if (!recognition) initRecognition();
+  if (!recognition) return;
+  finalText = ''; sessionParts = []; interimText = '';
+  wantRecording = true; sendOnEnd = false; isRecording = true;
+  setMicUI(true);
+  setStatus('green', 'A ouvir a tua voz… podes fazer pausas.');
+  try { recognition.start(); } catch(e) { initRecognition(); setTimeout(() => { try { recognition.start(); } catch(_) {} }, 250); }
+}
+
+function finishRecording() {
+  wantRecording = false; sendOnEnd = true;
+  setStatus('gold', 'A enviar...');
+  try { recognition.stop(); } catch(e) { recognition.onend && recognition.onend(); }
 }
 
 function stopRecording() {
-  isRecording = false;
-  document.getElementById('mic-btn').classList.remove('recording');
-  document.getElementById('mic-btn').textContent = '🎤';
-  document.getElementById('mic-ring').classList.remove('active');
-  document.getElementById('mic-label').textContent = 'Toca para falar';
+  wantRecording = false; sendOnEnd = false; isRecording = false;
+  finalText = ''; sessionParts = []; interimText = '';
+  setMicUI(false);
   if (!isSpeaking) setStatus('ready', 'Pronta. Toca para falar.');
-  try { if (recognition) recognition.stop(); } catch(e) {}
+  try { if (recognition) recognition.abort(); } catch(e) {}
 }
 
 // ── SPEECH SYNTHESIS ──
@@ -373,25 +417,19 @@ async function processInput(text) {
     while (recent.length && recent[0].role !== 'user') recent = recent.slice(1);
     const reply = await callAI(recent.map(m => ({ role: m.role, content: m.content })), buildSystem());
     removeLoading();
-    const corrIdx = reply.indexOf('📝');
-    if (corrIdx > 0) {
-      const main = reply.substring(0, corrIdx).trim();
-      const corr = reply.substring(corrIdx).trim();
-      addMsg('tutor', main, corr);
-      chatHistory.push({ role: 'assistant', content: reply });
-      const fixed = (corr.split('\n').find(l => l.trim().startsWith('✅')) || '').replace('✅', '').trim();
+    const lines = reply.split('\n');
+    const fixLines = lines.filter(l => l.trim().startsWith('📝'));
+    const okLine = lines.find(l => l.trim().startsWith('✅')) || '';
+    const main = lines.filter(l => !l.trim().startsWith('📝') && !l.trim().startsWith('✅')).join('\n').trim();
+    chatHistory.push({ role: 'assistant', content: reply });
+    if (fixLines.length) {
+      const fixed = okLine.replace('✅', '').trim();
+      addMsg('tutor', main, fixLines.join('\n') + (fixed ? '\n✅ ' + fixed : ''));
       const sayIt = { es: 'Se dice así:', en: 'We say:', fr: 'On dit :', it: 'Si dice:' }[currentLang] || '';
       speak(fixed ? `${main} ${sayIt} ${fixed}` : main);
-    } else if (reply.indexOf('✅') > 0) {
-      const okIdx = reply.indexOf('✅');
-      const main = reply.substring(0, okIdx).trim();
-      addMsg('tutor', main, reply.substring(okIdx).trim());
-      chatHistory.push({ role: 'assistant', content: reply });
-      speak(main);
     } else {
-      addMsg('tutor', reply);
-      chatHistory.push({ role: 'assistant', content: reply });
-      speak(reply);
+      addMsg('tutor', main || reply);
+      speak(main || reply);
     }
   } catch(e) {
     removeLoading();
@@ -400,16 +438,17 @@ async function processInput(text) {
 }
 
 function buildSystem() {
-  return `És uma tutora de ${currentLangName} para Eliana, brasileira que mora em Huelva, Espanha. A tua função principal é CORRIGIR os erros dela, como uma professora atenta.
-O texto dela vem de reconhecimento de voz: ignora pontuação e maiúsculas, mas corrige TODOS os erros de gramática, conjugação, concordância, vocabulário, palavras em português (portunhol) e frases mal construídas.
-FORMATO OBRIGATÓRIO:
-1. Primeiro, uma resposta natural e calorosa em ${currentLangName}, no máximo 2 frases curtas, terminando com uma pergunta para continuar.
-2. Se houver qualquer erro, depois da resposta escreve uma linha por erro (no máximo 3):
+  return `És uma tutora de ${currentLangName} para Eliana, brasileira que mora em Huelva, Espanha. Conversas com ela e corriges os erros REAIS que ela comete.
+O texto dela vem de reconhecimento de voz: ignora pontuação, maiúsculas e acentos. Pode haver palavras mal transcritas: se uma palavra não faz sentido mas soa parecida com uma palavra correta, não a trates como erro dela.
+O QUE CORRIGIR: só erros verdadeiros de gramática, conjugação, concordância, preposição, palavras em português (portunhol) ou palavras que não existem em ${currentLangName}.
+O QUE NÃO CORRIGIR: frases corretas, frases aceitáveis no uso normal, ou alternativas apenas de estilo. Na dúvida, NÃO corrijas. Nunca repitas a frase dela se ela estiver certa.
+FORMATO:
+- Primeiro, resposta natural e calorosa em ${currentLangName}: no máximo 2 frases curtas, terminando com uma pergunta.
+- SÓ se houver erro real, acrescenta no fim uma linha por erro (máximo 3), com a explicação SEMPRE em português do Brasil:
 📝 errado → correto · explicação curta em português do Brasil
-3. Se houve erros, termina com uma última linha:
-✅ a frase completa dela, corrigida, em ${currentLangName}
-4. Se não houver nenhum erro, termina com: ✅ Perfeito! (sem linhas 📝)
-Nunca deixes passar um erro para ser simpática: corrigir é o que ela quer.
+- E, só nesse caso, uma última linha com a frase dela corrigida:
+✅ frase corrigida em ${currentLangName}
+- Sem erros: nenhuma linha 📝 nem ✅.
 Tema da conversa: "${currentTopic}"`;
 }
 
