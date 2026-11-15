@@ -543,8 +543,13 @@ async function processInput(text) {
     }
     const fixLines = lines.filter(l => l.trim().startsWith('📝') || l.trim().startsWith('🗣'));
     const okLine = lines.find(l => l.trim().startsWith('✅')) || '';
-    const main = lines.filter(l => !l.trim().startsWith('📝') && !l.trim().startsWith('🗣') && !l.trim().startsWith('✅')).join('\n').trim();
-    chatHistory.push({ role: 'assistant', content: reply });
+    let main = lines.filter(l => !l.trim().startsWith('📝') && !l.trim().startsWith('🗣') && !l.trim().startsWith('✅')).join('\n').trim();
+    const wasRepeating = !!repeatTarget;
+    if (fixLines.length && okLine && !wasRepeating) {
+      const ask = { es: '¿Puedes repetirlo, por favor? 🔁', en: 'Can you say it again, please? 🔁', fr: 'Tu peux le répéter, s\'il te plaît ? 🔁', it: 'Puoi ripeterlo, per favore? 🔁' }[currentLang] || '🔁';
+      main = ask;
+    }
+    chatHistory.push({ role: 'assistant', content: [main, ...fixLines, okLine].filter(Boolean).join('\n') });
     if (fixLines.length) {
       const fixed = okLine.replace('✅', '').trim();
       if (fixed && !repeatTarget) { repeatTarget = fixed; repeatTries = 0; }
@@ -554,7 +559,7 @@ async function processInput(text) {
       const html = (fixed ? `<div class="fix-main">✅ ${esc(fixed)}</div>` : '') +
         `<div class="fix-list">${short}</div>` +
         (why ? `<details class="fix-why"><summary>Por quê?</summary>${why}</details>` : '');
-      addMsg('tutor', main, html);
+      addMsg('tutor', main, html, true);
       const unq = t => t.replace(/^[📝\s]+/u, '').replace(/["“”«»]/g, '').trim();
       const pairs = fixLines.filter(l => l.trim().startsWith('📝') && l.includes('→')).map(l => {
         const [a, b] = l.split('·')[0].split('→'); return [unq(a), unq(b)];
@@ -594,6 +599,7 @@ FORMATO:
 📝 yo desenfoví → yo desarrollé · o verbo é "desarrollar"; no passado fica "desarrollé"
 - Se o microfone entendeu uma palavra parecida (pronúncia), acrescenta uma linha, também em ${EX}:
 🗣️ entendi "tía" → acho que querias dizer "día" · treina o som do D, mais suave
+- As linhas 📝 têm de cobrir TODAS as diferenças importantes entre a frase original e a frase corrigida (ex.: "me encanta ensaladas → me encantan las ensaladas"), juntando correções próximas numa só linha.
 - E, só se houver linhas 📝, uma última linha com a frase corrigida:
 ✅ frase corrigida em ${currentLangName}
 - Sem erros: nenhuma linha 📝, 🗣️ nem ✅.
@@ -624,13 +630,14 @@ async function callAI(messages, system) {
 }
 
 // ── UI ──
-function addMsg(role, text, correction) {
+function addMsg(role, text, correction, correctionFirst) {
   const box = document.getElementById('transcript');
   const div = document.createElement('div');
   div.className = 'msg ' + role;
-  let html = `<div class="label">${role === 'tutor' ? '🎓 Tutora' : '🎤 Tu'}</div>
-              <div class="bubble">${text.replace(/\n/g,'<br>')}</div>`;
-  if (correction) html += `<div class="correction">${correction.replace(/\n/g,'<br>')}</div>`;
+  const label = `<div class="label">${role === 'tutor' ? '🎓 Tutora' : '🎤 Tu'}</div>`;
+  const bubble = `<div class="bubble">${text.replace(/\n/g,'<br>')}</div>`;
+  const corr = correction ? `<div class="correction">${correction.replace(/\n/g,'<br>')}</div>` : '';
+  let html = correctionFirst ? label + corr + bubble : label + bubble + corr;
   div.innerHTML = html;
   box.appendChild(div);
   box.scrollTop = box.scrollHeight;
