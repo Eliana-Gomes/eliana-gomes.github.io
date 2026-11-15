@@ -214,9 +214,13 @@ function init() {
 function loadVoices() { voices = synth.getVoices(); }
 
 function getBestVoice(locale) {
-  return voices.find(v => v.lang === locale)
-    || voices.find(v => v.lang.startsWith(locale.split('-')[0]))
-    || voices[0];
+  const base = locale.split('-')[0];
+  const norm = l => (l || '').replace('_', '-');
+  const same = voices.filter(v => norm(v.lang) === locale);
+  const lang = voices.filter(v => norm(v.lang).startsWith(base));
+  const rank = v => /natural|neural|online|premium|enhanced/i.test(v.name) ? 0 : /google/i.test(v.name) ? 1 : v.localService === false ? 2 : 3;
+  const pick = list => list.slice().sort((a, b) => rank(a) - rank(b))[0];
+  return pick(same) || pick(lang) || voices[0];
 }
 
 // ── LANGUAGE & TOPIC ──
@@ -300,7 +304,7 @@ function speak(text, onEnd) {
   if (typeof SpeechSynthesisUtterance === 'undefined') { if (onEnd) onEnd(); return; }
   const clean = text.replace(/[📝✅❌🎤🔊💡👤🛒🏥🏠🏦🎓]/g,'').replace(/\*\*/g,'').trim();
   const utt = new SpeechSynthesisUtterance(clean);
-  utt.lang = currentLocale; utt.rate = 0.88; utt.pitch = 1.05;
+  utt.lang = currentLocale; utt.rate = 0.95; utt.pitch = 1.0;
   const voice = getBestVoice(currentLocale);
   if (voice) utt.voice = voice;
   isSpeaking = true;
@@ -332,9 +336,13 @@ async function greet() {
     chatHistory.push({ role: 'assistant', content: reply });
   } catch(e) {
     removeLoading();
-    const fallback = currentLang === 'es'
-      ? `¡Hola, Eliana! Soy tu tutora. Practiquemos: ${currentTopic}. ¡Habla cuando quieras!`
-      : `Hello Eliana! Let's practice: ${currentTopic}. Speak when ready!`;
+    const fallbacks = {
+      es: '¡Hola, Eliana! Soy tu tutora. ¡Habla cuando quieras y practicamos juntas!',
+      en: "Hello Eliana! I'm your tutor. Speak whenever you're ready and we'll practise together!",
+      fr: "Bonjour Eliana ! Je suis ta tutrice. Parle quand tu veux et on pratique ensemble !",
+      it: 'Ciao Eliana! Sono la tua tutor. Parla quando vuoi e pratichiamo insieme!'
+    };
+    const fallback = fallbacks[currentLang] || fallbacks.es;
     addMsg('tutor', fallback); speak(fallback);
     setStatus('error', 'Erro de ligação — verifica a chave API.');
   }
