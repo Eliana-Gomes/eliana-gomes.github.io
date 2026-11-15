@@ -40,6 +40,10 @@
   .msg.user .label { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.08em; color: #7ab8c0; margin-bottom: 4px; text-align: right; }
   .msg.user .bubble { background: rgba(0,84,100,0.4); border-right: 3px solid #7ab8c0; border-radius: 12px 0 0 12px; padding: 10px 13px; color: var(--cream); text-align: right; }
   .correction { background: rgba(255,200,0,0.08); border: 1px solid rgba(122,98,0,0.4); border-radius: 10px; padding: 9px 12px; font-size: 0.78rem; color: #d4b800; line-height: 1.6; margin-top: 6px; }
+  .fix-main { font-size: 0.95rem; color: #9be3a8; font-weight: 500; }
+  .fix-list { margin-top: 4px; color: #d4b800; }
+  .fix-why { margin-top: 6px; color: #b8b49a; }
+  .fix-why summary { cursor: pointer; color: #d4b800; text-decoration: underline; list-style: none; }
   .mic-section { display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 10px 0; }
   .mic-ring { position: relative; width: 96px; height: 96px; }
   .mic-ring-pulse { position: absolute; inset: -8px; border-radius: 50%; border: 2px solid var(--gold); opacity: 0; transition: all 0.3s; }
@@ -346,7 +350,7 @@ function stopRecording() {
 function speak(text, onEnd) {
   synth.cancel();
   if (typeof SpeechSynthesisUtterance === 'undefined') { if (onEnd) onEnd(); return; }
-  const clean = text.replace(/[📝✅❌🎤🔊💡👤🛒🏥🏠🏦🎓]/g,'').replace(/\*\*/g,'').trim();
+  const clean = text.replace(/[📝✅❌🎤🔊💡👤🛒🏥🏠🏦🎓🗣️]/gu,'').replace(/\*\*/g,'').trim();
   const utt = new SpeechSynthesisUtterance(clean);
   utt.lang = currentLocale; utt.rate = 0.95; utt.pitch = 1.0;
   const voice = getBestVoice(currentLocale);
@@ -418,15 +422,32 @@ async function processInput(text) {
     const reply = await callAI(recent.map(m => ({ role: m.role, content: m.content })), buildSystem());
     removeLoading();
     const lines = reply.split('\n');
-    const fixLines = lines.filter(l => l.trim().startsWith('📝'));
+    const fixLines = lines.filter(l => l.trim().startsWith('📝') || l.trim().startsWith('🗣'));
     const okLine = lines.find(l => l.trim().startsWith('✅')) || '';
-    const main = lines.filter(l => !l.trim().startsWith('📝') && !l.trim().startsWith('✅')).join('\n').trim();
+    const main = lines.filter(l => !l.trim().startsWith('📝') && !l.trim().startsWith('🗣') && !l.trim().startsWith('✅')).join('\n').trim();
     chatHistory.push({ role: 'assistant', content: reply });
     if (fixLines.length) {
       const fixed = okLine.replace('✅', '').trim();
-      addMsg('tutor', main, fixLines.join('\n') + (fixed ? '\n✅ ' + fixed : ''));
-      const sayIt = { es: 'Se dice así:', en: 'We say:', fr: 'On dit :', it: 'Si dice:' }[currentLang] || '';
-      speak(fixed ? `${main} ${sayIt} ${fixed}` : main);
+      const esc = t => t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+      const short = fixLines.map(l => esc(l.split('·')[0].trim())).join('<br>');
+      const why = fixLines.map(l => { const p = l.split('·'); return p[1] ? esc(p[0].replace(/^[📝🗣️\s]+/u,'').trim() + ': ' + p.slice(1).join('·').trim()) : ''; }).filter(Boolean).join('<br>');
+      const html = (fixed ? `<div class="fix-main">✅ ${esc(fixed)}</div>` : '') +
+        `<div class="fix-list">${short}</div>` +
+        (why ? `<details class="fix-why"><summary>Por quê?</summary>${why}</details>` : '');
+      addMsg('tutor', main, html);
+      const unq = t => t.replace(/^[📝\s]+/u, '').replace(/["“”«»]/g, '').trim();
+      const pairs = fixLines.filter(l => l.trim().startsWith('📝') && l.includes('→')).map(l => {
+        const [a, b] = l.split('·')[0].split('→'); return [unq(a), unq(b)];
+      }).filter(([a, b]) => a && b);
+      const better = {
+        es: (a, b) => `Mejor di: ${b}. Y no: ${a}.`,
+        en: (a, b) => `Better to say: ${b}. Not: ${a}.`,
+        fr: (a, b) => `Il vaut mieux dire : ${b}. Et non : ${a}.`,
+        it: (a, b) => `Meglio dire: ${b}. Non: ${a}.`
+      }[currentLang] || ((a, b) => `${b}.`);
+      const sayFull = { es: 'Mejor dilo así:', en: 'Better to say:', fr: 'Il vaut mieux dire :', it: 'Meglio dire:' }[currentLang] || '';
+      const spokenFix = pairs.length ? pairs.map(([a, b]) => better(a, b)).join(' ') : (fixed ? `${sayFull} ${fixed}.` : '');
+      speak(spokenFix ? `${spokenFix} ${main}` : main);
     } else {
       addMsg('tutor', main || reply);
       speak(main || reply);
@@ -439,16 +460,19 @@ async function processInput(text) {
 
 function buildSystem() {
   return `És uma tutora de ${currentLangName} para Eliana, brasileira que mora em Huelva, Espanha. Conversas com ela e corriges os erros REAIS que ela comete.
-O texto dela vem de reconhecimento de voz: ignora pontuação, maiúsculas e acentos. Pode haver palavras mal transcritas: se uma palavra não faz sentido mas soa parecida com uma palavra correta, não a trates como erro dela.
+O texto dela vem de reconhecimento de voz: ignora pontuação, maiúsculas e acentos. Palavras repetidas seguidas (ex.: "el clima el clima") são falhas do microfone, e hesitações como "eh", "em", "este", "pues" são normais na fala: ignora-as sempre.
+Se uma palavra não faz sentido mas soa parecida com a palavra certa (ex.: "mi tía ha ido bien" quando ela queria dizer "mi día"), isso é PRONÚNCIA, não gramática: responde como se ela tivesse dito a palavra certa e usa a linha 🗣️ (ver formato).
 O QUE CORRIGIR: só erros verdadeiros de gramática, conjugação, concordância, preposição, palavras em português (portunhol) ou palavras que não existem em ${currentLangName}.
 O QUE NÃO CORRIGIR: frases corretas, frases aceitáveis no uso normal, ou alternativas apenas de estilo. Na dúvida, NÃO corrijas. Nunca repitas a frase dela se ela estiver certa.
 FORMATO:
 - Primeiro, resposta natural e calorosa em ${currentLangName}: no máximo 2 frases curtas, terminando com uma pergunta.
-- SÓ se houver erro real, acrescenta no fim uma linha por erro (máximo 3), com a explicação SEMPRE em português do Brasil:
-📝 errado → correto · explicação curta em português do Brasil
+- SÓ se houver erro real de gramática ou vocabulário, acrescenta no fim uma linha por erro (máximo 3). A explicação depois do · tem no máximo 10 palavras e é OBRIGATORIAMENTE em português do Brasil, nunca em ${currentLangName}. Exemplo:
+📝 yo desenfoví → yo desarrollé · o verbo é "desarrollar"; no passado fica "desarrollé"
+- Se o microfone entendeu uma palavra parecida (pronúncia), acrescenta uma linha, também em português do Brasil:
+🗣️ entendi "tía" → acho que querias dizer "día" · treina o som do D, mais suave, com a língua nos dentes
 - E, só nesse caso, uma última linha com a frase dela corrigida:
 ✅ frase corrigida em ${currentLangName}
-- Sem erros: nenhuma linha 📝 nem ✅.
+- Sem erros: nenhuma linha 📝, 🗣️ nem ✅. A linha ✅ só aparece se houver pelo menos uma linha 📝.
 Tema da conversa: "${currentTopic}"`;
 }
 
