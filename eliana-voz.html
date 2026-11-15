@@ -534,25 +534,27 @@ async function processInput(text) {
     while (recent.length && recent[0].role !== 'user') recent = recent.slice(1);
     const reply = await callAI(recent.map(m => ({ role: m.role, content: m.content })), buildSystem());
     removeLoading();
-    const allLines = reply.split('\n');
-    const goal = allLines.find(l => l.trim().startsWith('🎯')) || '';
-    const lines = allLines.filter(l => !l.trim().startsWith('🎯'));
+    const goalMatch = reply.match(/🎯\s*([A-ZÀ-Ú ]+)/u);
+    const goal = goalMatch ? goalMatch[1] : '';
+    const lines = reply.replace(/🎯\s*[A-ZÀ-Ú ]*/gu, '').split('\n').map(l => l.trimEnd()).filter(l => l.trim() !== '');
     if (repeatTarget) {
       repeatTries++;
-      if (/OK/i.test(goal) || repeatTries >= 3) { repeatTarget = ''; repeatTries = 0; }
+      if (/OK/i.test(goal) || repeatTries >= 2) { repeatTarget = ''; repeatTries = 0; }
     }
     const fixLines = lines.filter(l => l.trim().startsWith('📝') || l.trim().startsWith('🗣'));
     const okLine = lines.find(l => l.trim().startsWith('✅')) || '';
     let main = lines.filter(l => !l.trim().startsWith('📝') && !l.trim().startsWith('🗣') && !l.trim().startsWith('✅')).join('\n').trim();
     const wasRepeating = !!repeatTarget;
-    if (fixLines.length && okLine && !wasRepeating) {
-      const ask = { es: '¿Puedes repetirlo, por favor? 🔁', en: 'Can you say it again, please? 🔁', fr: 'Tu peux le répéter, s\'il te plaît ? 🔁', it: 'Puoi ripeterlo, per favore? 🔁' }[currentLang] || '🔁';
-      main = ask;
+    const gramFix = lines.filter(l => l.trim().startsWith('📝') && l.includes('→'));
+    const fragment = gramFix.map(l => l.split('·')[0].split('→')[1] || '').map(t => t.replace(/["“”«»]/g, '').trim()).filter(Boolean).join(' … ');
+    if (gramFix.length && !wasRepeating) {
+      const ask = { es: 'Repite conmigo 🔁', en: 'Repeat after me 🔁', fr: 'Répète avec moi 🔁', it: 'Ripeti con me 🔁' }[currentLang] || '🔁';
+      main = `${ask}: «${fragment}»`;
     }
     chatHistory.push({ role: 'assistant', content: [main, ...fixLines, okLine].filter(Boolean).join('\n') });
     if (fixLines.length) {
       const fixed = okLine.replace('✅', '').trim();
-      if (fixed && !repeatTarget) { repeatTarget = fixed; repeatTries = 0; }
+      if (gramFix.length && !wasRepeating) { repeatTarget = fragment; repeatTries = 0; }
       const esc = t => t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
       const short = fixLines.map(l => esc(l.split('·')[0].trim())).join('<br>');
       const why = fixLines.map(l => { const p = l.split('·'); return p[1] ? esc(p[0].replace(/^[📝🗣️\s]+/u,'').trim() + ': ' + p.slice(1).join('·').trim()) : ''; }).filter(Boolean).join('<br>');
@@ -572,7 +574,8 @@ async function processInput(text) {
       }[currentLang] || ((a, b) => `${b}.`);
       const sayFull = { es: 'Mejor dilo así:', en: 'Better to say:', fr: 'Il vaut mieux dire :', it: 'Meglio dire:' }[currentLang] || '';
       const spokenFix = pairs.length ? pairs.map(([a, b]) => better(a, b)).join(' ') : (fixed ? `${sayFull} ${fixed}.` : '');
-      speak(spokenFix ? `${spokenFix} ${main}` : main);
+      const rep = { es: 'Repite:', en: 'Repeat:', fr: 'Répète :', it: 'Ripeti:' }[currentLang] || '';
+      speak(gramFix.length && !wasRepeating ? `${spokenFix} ${rep} ${fragment}.` : (spokenFix ? `${spokenFix} ${main}` : main));
     } else {
       addMsg('tutor', main || reply);
       speak(main || reply);
@@ -603,11 +606,15 @@ FORMATO:
 - E, só se houver linhas 📝, uma última linha com a frase corrigida:
 ✅ frase corrigida em ${currentLangName}
 - Sem erros: nenhuma linha 📝, 🗣️ nem ✅.
-QUANDO HOUVER ERRO: depois de corrigir, NÃO continues o tema. A tua resposta natural deve ser só um pedido curto para repetir a frase certa (ex.: "¿Puedes repetirlo?"). A conversa continua depois.
-SE ${N} PEDIR AJUDA COM UMA PALAVRA OU PRONÚNCIA (ex.: "corrígeme la palabra desarrollar"): faz um mini-treino. Diz a palavra devagar e separada em sílabas (ex.: "de-sa-rro-llar"), dá uma dica curta de pronúncia em ${EX} numa linha 🗣️, e pede para repetir. Não continues o tema até acertar.
-${repeatTarget ? `MODO REPETIÇÃO: pediste a ${N} para repetir esta frase: "${repeatTarget}". Compara a resposta com essa frase, ignorando pontuação, maiúsculas e hesitações.
-- Se estiver certa (ou quase, com diferenças mínimas de transcrição): começa com um elogio curto e claro (ex.: "¡Correcto! ¡Muy bien!"), depois retoma a conversa com uma pergunta, e acrescenta no fim a linha: 🎯 OK
-- Se ainda estiver errada: diz com carinho o que ainda falta, sem linhas 📝, pede para tentar mais uma vez, e acrescenta no fim a linha: 🎯 DE NOVO` : ''}
+QUANDO HOUVER ERRO: depois de corrigir, NÃO continues o tema; a conversa continua depois de repetir.
+NUNCA inventes correções: se uma palavra parece mal transcrita pelo microfone (ex.: "Botía", "lo tomo" em vez de "otoño"), NÃO a corrijas como gramática; no máximo usa uma linha 🗣️. Alternativas corretas (ex.: "visto que", "ya que", "como") NÃO são erros.
+Atenção a erros reais frequentes de brasileiros: conjugação ("mi conté" → "me cuente"), concordância ("bajas"), "estar/hacer frío", artigos, preposições, palavras em português.
+SE ${N} PEDIR AJUDA COM UMA PALAVRA OU PRONÚNCIA (ex.: "corrígeme la palabra desarrollar"): faz um mini-treino. Diz a palavra devagar, separada em sílabas (ex.: "de-sa-rro-llar"), dá uma dica curta em ${EX} numa linha 🗣️, e pede para repetir.
+${repeatTarget ? `MODO REPETIÇÃO: pediste a ${N} para repetir SÓ este trecho corrigido: "${repeatTarget}".
+- Avalia SÓ esse trecho. Ignora o resto da frase, a pontuação, hesitações e palavras mal transcritas pelo microfone que soem parecidas (ex.: "lo tomo" ≈ "otoño").
+- Se o trecho estiver certo ou quase certo: começa com "¡Correcto! ¡Muy bien!", retoma a conversa com UMA pergunta, e põe numa linha separada no fim: 🎯 OK
+- Se o erro corrigido continuar igual: em ${currentLangName} simples, diz numa frase curta o que ainda falta, repete o trecho certo devagar, e põe numa linha separada no fim: 🎯 DE NOVO
+- Se ${N} fizer uma pergunta em vez de repetir, responde curto e pede de novo o trecho.` : ''}
 Tema da conversa: "${currentTopic}"`;
 }
 
