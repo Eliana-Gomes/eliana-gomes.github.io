@@ -15,9 +15,12 @@ App de conversação para praticar idiomas (espanhol, inglês, francês, italian
 
 ## Regras da tutora (não quebrar)
 - Corrige só erros reais. Não corrige frases certas, alternativas de estilo, hesitações ("eh", "pues") nem palavras mal transcritas pelo microfone (essas viram linha 🗣️ de pronúncia).
-- Formato da resposta: linhas `📝 errado → certo · explicação curta em português` e `✅ frase corrigida`.
-- Quando há erro: a tutora fala "Mejor di: … Y no: …", mostra a caixa de correção ANTES do texto, e pede para repetir só o trecho corrigido ("Repite conmigo 🔁: «…»"). Não continua o tema antes disso.
-- Modo repetição: avalia só o trecho, tolera erros do microfone, máximo 2 tentativas, depois "¡Correcto!" e segue a conversa. Marcador interno `🎯 OK` / `🎯 DE NOVO` nunca aparece na tela.
+- Corrige só a forma (gramática, conjugação, concordância, preposição, palavra em português). Nunca muda o sentido nem acrescenta informação.
+- Uma correção por vez: no máximo UMA linha 📝, com o erro mais importante; os outros erros ficam para outra rodada. O código também corta para uma só linha 📝.
+- Formato da resposta: `📝 errado → certo · explicação curta em português` (o lado esquerdo é exatamente o trecho que a aluna disse), `✅ frase corrigida` e `🔁 frase curta e completa para repetir`.
+- Frase confusa por erro do microfone: a tutora não adivinha, pergunta "¿Puedes decirlo otra vez?" (ou o equivalente no idioma).
+- Quando há erro: a tutora fala "Mejor di: … Y no: …", mostra a caixa de correção ANTES do texto, e pede para repetir a frase curta e completa da linha 🔁 ("Repite conmigo 🔁: «…»"), nunca trechos soltos juntos com "…". Não continua o tema antes disso.
+- Modo repetição: avalia só a frase, tolera erros do microfone, máximo 2 tentativas, depois "¡Correcto!" e segue a conversa. Se a aluna perguntar algo ou disser que não entendeu, a tutora explica em português com uma frase curta e repete a frase certa (isso não conta como tentativa). Marcadores internos `🎯 OK` / `🎯 DE NOVO` / `🎯 PERGUNTA` nunca aparecem na tela.
 - Explicações sempre em português (do Brasil ou de Portugal, conforme o perfil).
 
 ## Fluxo de trabalho
