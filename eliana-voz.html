@@ -344,7 +344,7 @@ async function greet() {
     };
     const fallback = fallbacks[currentLang] || fallbacks.es;
     addMsg('tutor', fallback); speak(fallback);
-    setStatus('error', 'Erro de ligação — verifica a chave API.');
+    setStatus('error', 'Erro: ' + (e && e.message ? e.message : 'sem ligação'));
   }
 }
 
@@ -387,7 +387,7 @@ async function processInput(text) {
     }
   } catch(e) {
     removeLoading();
-    setStatus('error', 'Erro de ligação. Verifica a tua chave API.');
+    setStatus('error', 'Erro: ' + (e && e.message ? e.message : 'sem ligação'));
   }
 }
 
