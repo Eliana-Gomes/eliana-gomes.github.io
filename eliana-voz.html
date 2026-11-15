@@ -4,6 +4,14 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>Tutora de Voz — Luz em Movimento</title>
+<meta name="theme-color" content="#00343d">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Tutora">
+<link rel="apple-touch-icon" href="/tutora-icon-192.png">
+<link rel="icon" type="image/png" href="/tutora-icon-192.png">
+<link rel="manifest" href="/tutora-manifest.json">
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Inter:wght@300;400;500;600&display=swap');
   :root {
@@ -152,7 +160,7 @@
 let currentLang = 'es', currentLangName = 'Espanhol', currentLocale = 'es-ES';
 let currentTopic = 'Conversa livre';
 let chatHistory = [], recognition = null, isRecording = false, isSpeaking = false;
-let synth = window.speechSynthesis, voices = [], API_KEY = '';
+let synth = window.speechSynthesis || { getVoices: () => [], cancel() {}, speak() {}, onvoiceschanged: null }, voices = [], API_KEY = '';
 
 const TIPS = {
   es: 'Em espanhol, "ser" é para características permanentes e "estar" para estados temporários. É o erro mais comum para falantes de português!',
@@ -289,6 +297,7 @@ function stopRecording() {
 // ── SPEECH SYNTHESIS ──
 function speak(text, onEnd) {
   synth.cancel();
+  if (typeof SpeechSynthesisUtterance === 'undefined') { if (onEnd) onEnd(); return; }
   const clean = text.replace(/[📝✅❌🎤🔊💡👤🛒🏥🏠🏦🎓]/g,'').replace(/\*\*/g,'').trim();
   const utt = new SpeechSynthesisUtterance(clean);
   utt.lang = currentLocale; utt.rate = 0.88; utt.pitch = 1.05;
@@ -352,7 +361,9 @@ async function processInput(text) {
   setStatus('gold', 'A processar...');
   addLoadingMsg();
   try {
-    const reply = await callAI(chatHistory.map(m => ({ role: m.role, content: m.content })), buildSystem());
+    let recent = chatHistory.slice(-20);
+    while (recent.length && recent[0].role !== 'user') recent = recent.slice(1);
+    const reply = await callAI(recent.map(m => ({ role: m.role, content: m.content })), buildSystem());
     removeLoading();
     const corrIdx = reply.indexOf('📝');
     if (corrIdx > 0) {
@@ -393,7 +404,7 @@ async function callAI(messages, system) {
       'anthropic-version': '2023-06-01',
       'anthropic-dangerous-direct-browser-access': 'true'
     },
-    body: JSON.stringify({ model: 'claude-sonnet-4-6', max_tokens: 1000, system, messages })
+    body: JSON.stringify({ model: 'claude-haiku-5-5', max_tokens: 400, system, messages })
   });
   const data = await res.json();
   if (data.error) throw new Error(data.error.message);

@@ -1,0 +1,24 @@
+{
+  "name": "Tutora de Voz",
+  "short_name": "Tutora",
+  "id": "/eliana-voz.html",
+  "start_url": "/eliana-voz.html",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#f4f0ea",
+  "theme_color": "#00343d",
+  "icons": [
+    {
+      "src": "/tutora-icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/tutora-icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
