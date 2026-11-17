@@ -123,6 +123,17 @@
   .pf-photo-btns .backup-btn { flex: 1 1 45%; padding: 9px 6px; }
   .pf-check { width: 100%; display: flex; align-items: center; gap: 10px; font-size: 0.85rem; color: var(--cream); cursor: pointer; }
   .pf-check input { width: 20px; height: 20px; accent-color: var(--gold); flex-shrink: 0; }
+  .pf-tests { width: 100%; display: flex; flex-direction: column; gap: 6px; font-size: 0.85rem; color: var(--cream); }
+  .pf-tests .none { color: var(--muted); }
+  .pf-tests .lvl { color: var(--gold-light); font-weight: 600; }
+  .pf-tests .when { color: var(--muted); font-size: 0.75rem; }
+  .test-card { background: rgba(122,98,0,0.15); border: 1px solid var(--gold); border-radius: 12px; padding: 12px; margin-bottom: 6px; color: var(--cream); font-size: 0.85rem; line-height: 1.5; }
+  .test-card .lvl-title { font-size: 1.05rem; font-weight: 600; color: var(--gold-light); margin-bottom: 4px; }
+  .test-card .sec { margin-top: 8px; font-weight: 600; }
+  .test-card ul { margin: 2px 0 0 18px; }
+  .test-card .rec { margin-top: 10px; display: flex; flex-direction: column; gap: 6px; }
+  .test-card .rec button { text-align: left; padding: 9px 12px; border-radius: 10px; border: 1px solid var(--gold); background: transparent; color: var(--gold-light); font-size: 0.85rem; font-family: 'Inter', sans-serif; cursor: pointer; }
+  .test-card .rec button.primary { background: var(--gold); color: var(--white); }
   .msg-hint { margin-top: 5px; font-size: 0.85rem; color: #9be3a8; }
   .msg-hint.hide { display: none; }
   .key-btn { width: 100%; border-color: rgba(192,57,43,0.7); color: #e57368; }
@@ -259,6 +270,8 @@
   </div>
   <p data-i18n="profile_text"></p>
   <div class="streak-stats" id="pf-streak"></div>
+  <div class="prof-label" data-i18n="pf_tests_label"></div>
+  <div class="pf-tests" id="pf-tests"></div>
   <div class="prof-label" data-i18n="native_q"></div>
   <select class="api-select" id="pf-native" onchange="previewNative(this.value)">
     <option value="pt-BR">🇧🇷 Português (Brasil)</option>
@@ -350,9 +363,8 @@
   <button class="home-card" onclick="navTo('chat')">
     <span class="ico">💬</span><span class="ctxt"><span class="ct" data-i18n="card_chat_t"></span><span class="cd" data-i18n="card_chat_d"></span></span>
   </button>
-  <button class="home-card" onclick="alert(t('test_soon'))">
-    <span class="ico">📊</span><span class="ctxt"><span class="ct" data-i18n="card_test_t"></span><span class="cd" data-i18n="card_test_d"></span></span>
-    <span class="soon" data-i18n="soon"></span>
+  <button class="home-card" onclick="startTest()">
+    <span class="ico">📊</span><span class="ctxt"><span class="ct" data-i18n="card_test_t"></span><span class="cd" id="card-test-d"></span></span>
   </button>
 </section>
 
@@ -413,6 +425,7 @@
     <div class="mic-label" id="mic-label"></div>
     <button class="cancel-btn" id="cancel-btn" onclick="cancelRecording()" data-i18n="cancel_btn"></button>
     <button class="hint-btn" id="hint-btn" onclick="suggestReplies()" data-i18n="hint_btn"></button>
+    <button class="hint-btn" id="skip-btn" onclick="skipTestQuestion()" data-i18n="test_skip_btn" style="display:none"></button>
     <div class="suggest-box" id="suggest-box"></div>
   </div>
 
@@ -569,7 +582,7 @@ const I18N = {
     speed_q: 'Velocidade da voz da tutora:', speed_lenta: 'Lenta', speed_normal: 'Normal', speed_rapida: 'Rápida',
     accent_q: 'Sotaque do espanhol (voz e vocabulário):', accent_es: 'Espanha', accent_latam: 'América Latina',
     style_q: 'Estilo da tutora:', style_friendly: 'Amigável', style_formal: 'Formal', style_fun: 'Divertida',
-    save_btn: 'Salvar e começar →', backup_label: 'Backup (perfil, foto, caderno, racha e lições; sem a chave API):',
+    save_btn: 'Salvar e começar →', backup_label: 'Backup (perfil, foto, caderno, racha, lições e testes; sem a chave API):',
     export_btn: '⬇️ Exportar meus dados', import_btn: '⬆️ Importar meus dados', name_required: 'Escreva seu nome, por favor.',
     lang_es: 'Espanhol', lang_en: 'Inglês', lang_fr: 'Francês', lang_it: 'Italiano', lang_pt: 'Português (Brasil)',
     nb_title: '📒 Meu caderno', tab_errors: 'Meus erros', tab_saved: 'Salvas',
@@ -604,10 +617,17 @@ const I18N = {
     next_lesson_btn: 'Próxima lição →', all_done: 'Você concluiu todas as lições! 🎉', lessons_n: '{n} de 12 concluídas',
     home_hello: 'Olá, {name}!', home_sub: 'O que vamos praticar hoje?', card_continue: 'Continuar lição {n}',
     card_chat_t: 'Conversar', card_chat_d: 'Temas do dia a dia e conversa livre', card_test_t: 'Teste de nível', card_test_d: 'Descubra o seu nível no idioma',
-    soon: 'Em breve', test_soon: 'O teste de nível chega numa próxima versão.', back_home: '← Início',
+    back_home: '← Início',
     tab_home: 'Início', tab_chat: 'Conversar', tab_notebook: 'Caderno', tab_profile: 'Perfil',
     photo_gallery: '🖼️ Galeria', photo_camera: '📷 Câmera', photo_remove: '✕ Remover foto', photo_fail: 'Não consegui abrir a foto.', photo_save_fail: 'Não consegui salvar a foto.',
-    hint_label: '💡 Dica', readnat_q: 'Ler explicações em voz alta (além das frases no idioma)'
+    hint_label: '💡 Dica', readnat_q: 'Ler explicações em voz alta (além das frases no idioma)',
+    test_banner: '📊 Teste de nível · pergunta {n}/{total}', test_evaluating: '📊 Teste de nível · avaliando…', test_done_banner: '📊 Teste de nível concluído',
+    test_skip_btn: '🤷 Não sei', test_skip_said: 'Não sei',
+    test_intro: 'Vou fazer 8 perguntas curtas para descobrir o seu nível. Responda como conseguir: não vou corrigir agora. Se não souber, toque em "Não sei".',
+    test_result_title: 'Seu nível: {level}', test_strong: '✅ Pontos fortes', test_improve: '🎯 Para melhorar', test_recommend: 'Recomendação:',
+    test_confirm: 'Atualizar o seu nível de {lang} no perfil para "{level}"?', test_rec_lesson: '🌱 Lição {n}: {title}', test_rec_chat: '💬 Ir para Conversar',
+    test_fail: 'Não consegui preparar o teste. Tente de novo.', test_eval_fail: 'Não consegui avaliar o teste. Tente de novo.',
+    pf_tests_label: '📊 Último teste de nível:', pf_tests_none: 'Você ainda não fez nenhum teste.', card_test_last: 'Último resultado: {level}. Toque para refazer.'
   },
   'pt-PT': {
     setup_text: 'Para a tutora de IA funcionar, precisas de uma chave API da Anthropic.<br>É gratuita para começar e só tu tens acesso.',
@@ -621,7 +641,7 @@ const I18N = {
     speed_q: 'Velocidade da voz da tutora:', speed_lenta: 'Lenta', speed_normal: 'Normal', speed_rapida: 'Rápida',
     accent_q: 'Sotaque do espanhol (voz e vocabulário):', accent_es: 'Espanha', accent_latam: 'América Latina',
     style_q: 'Estilo da tutora:', style_friendly: 'Amigável', style_formal: 'Formal', style_fun: 'Divertida',
-    save_btn: 'Guardar e começar →', backup_label: 'Cópia de segurança (perfil, foto, caderno, racha e lições; sem a chave API):',
+    save_btn: 'Guardar e começar →', backup_label: 'Cópia de segurança (perfil, foto, caderno, racha, lições e testes; sem a chave API):',
     export_btn: '⬇️ Exportar os meus dados', import_btn: '⬆️ Importar os meus dados', name_required: 'Escreve o teu nome, por favor.',
     lang_es: 'Espanhol', lang_en: 'Inglês', lang_fr: 'Francês', lang_it: 'Italiano', lang_pt: 'Português (Brasil)',
     nb_title: '📒 O meu caderno', tab_errors: 'Os meus erros', tab_saved: 'Guardadas',
@@ -656,10 +676,17 @@ const I18N = {
     next_lesson_btn: 'Próxima lição →', all_done: 'Concluíste todas as lições! 🎉', lessons_n: '{n} de 12 concluídas',
     home_hello: 'Olá, {name}!', home_sub: 'O que vamos praticar hoje?', card_continue: 'Continuar lição {n}',
     card_chat_t: 'Conversar', card_chat_d: 'Temas do dia a dia e conversa livre', card_test_t: 'Teste de nível', card_test_d: 'Descobre o teu nível no idioma',
-    soon: 'Em breve', test_soon: 'O teste de nível chega numa próxima versão.', back_home: '← Início',
+    back_home: '← Início',
     tab_home: 'Início', tab_chat: 'Conversar', tab_notebook: 'Caderno', tab_profile: 'Perfil',
     photo_gallery: '🖼️ Galeria', photo_camera: '📷 Câmara', photo_remove: '✕ Remover foto', photo_fail: 'Não consegui abrir a foto.', photo_save_fail: 'Não consegui guardar a foto.',
-    hint_label: '💡 Dica', readnat_q: 'Ler explicações em voz alta (além das frases no idioma)'
+    hint_label: '💡 Dica', readnat_q: 'Ler explicações em voz alta (além das frases no idioma)',
+    test_banner: '📊 Teste de nível · pergunta {n}/{total}', test_evaluating: '📊 Teste de nível · a avaliar…', test_done_banner: '📊 Teste de nível concluído',
+    test_skip_btn: '🤷 Não sei', test_skip_said: 'Não sei',
+    test_intro: 'Vou fazer-te 8 perguntas curtas para descobrir o teu nível. Responde como conseguires: não vou corrigir agora. Se não souberes, toca em "Não sei".',
+    test_result_title: 'O teu nível: {level}', test_strong: '✅ Pontos fortes', test_improve: '🎯 Para melhorar', test_recommend: 'Recomendação:',
+    test_confirm: 'Atualizar o teu nível de {lang} no perfil para "{level}"?', test_rec_lesson: '🌱 Lição {n}: {title}', test_rec_chat: '💬 Ir para Conversar',
+    test_fail: 'Não consegui preparar o teste. Tenta de novo.', test_eval_fail: 'Não consegui avaliar o teste. Tenta de novo.',
+    pf_tests_label: '📊 Último teste de nível:', pf_tests_none: 'Ainda não fizeste nenhum teste.', card_test_last: 'Último resultado: {level}. Toca para repetir.'
   },
   'es': {
     setup_text: 'Para que la tutora de IA funcione, necesitas una clave API de Anthropic.<br>Es gratuita para empezar y solo tú tienes acceso.',
@@ -673,7 +700,7 @@ const I18N = {
     speed_q: 'Velocidad de la voz de la tutora:', speed_lenta: 'Lenta', speed_normal: 'Normal', speed_rapida: 'Rápida',
     accent_q: 'Acento del español (voz y vocabulario):', accent_es: 'España', accent_latam: 'América Latina',
     style_q: 'Estilo de la tutora:', style_friendly: 'Amable', style_formal: 'Formal', style_fun: 'Divertida',
-    save_btn: 'Guardar y empezar →', backup_label: 'Copia de seguridad (perfil, foto, cuaderno, racha y lecciones; sin la clave API):',
+    save_btn: 'Guardar y empezar →', backup_label: 'Copia de seguridad (perfil, foto, cuaderno, racha, lecciones y pruebas; sin la clave API):',
     export_btn: '⬇️ Exportar mis datos', import_btn: '⬆️ Importar mis datos', name_required: 'Escribe tu nombre, por favor.',
     lang_es: 'Español', lang_en: 'Inglés', lang_fr: 'Francés', lang_it: 'Italiano', lang_pt: 'Portugués (Brasil)',
     nb_title: '📒 Mi cuaderno', tab_errors: 'Mis errores', tab_saved: 'Guardadas',
@@ -708,10 +735,17 @@ const I18N = {
     next_lesson_btn: 'Siguiente lección →', all_done: '¡Completaste todas las lecciones! 🎉', lessons_n: '{n} de 12 completadas',
     home_hello: '¡Hola, {name}!', home_sub: '¿Qué practicamos hoy?', card_continue: 'Continuar lección {n}',
     card_chat_t: 'Conversar', card_chat_d: 'Temas del día a día y conversación libre', card_test_t: 'Prueba de nivel', card_test_d: 'Descubre tu nivel en el idioma',
-    soon: 'Pronto', test_soon: 'La prueba de nivel llegará en una próxima versión.', back_home: '← Inicio',
+    back_home: '← Inicio',
     tab_home: 'Inicio', tab_chat: 'Conversar', tab_notebook: 'Cuaderno', tab_profile: 'Perfil',
     photo_gallery: '🖼️ Galería', photo_camera: '📷 Cámara', photo_remove: '✕ Quitar foto', photo_fail: 'No pude abrir la foto.', photo_save_fail: 'No pude guardar la foto.',
-    hint_label: '💡 Pista', readnat_q: 'Leer las explicaciones en voz alta (además de las frases en el idioma)'
+    hint_label: '💡 Pista', readnat_q: 'Leer las explicaciones en voz alta (además de las frases en el idioma)',
+    test_banner: '📊 Prueba de nivel · pregunta {n}/{total}', test_evaluating: '📊 Prueba de nivel · evaluando…', test_done_banner: '📊 Prueba de nivel completada',
+    test_skip_btn: '🤷 No sé', test_skip_said: 'No sé',
+    test_intro: 'Te voy a hacer 8 preguntas cortas para descubrir tu nivel. Responde como puedas: no voy a corregir ahora. Si no sabes, toca "No sé".',
+    test_result_title: 'Tu nivel: {level}', test_strong: '✅ Puntos fuertes', test_improve: '🎯 Para mejorar', test_recommend: 'Recomendación:',
+    test_confirm: '¿Actualizar tu nivel de {lang} en el perfil a "{level}"?', test_rec_lesson: '🌱 Lección {n}: {title}', test_rec_chat: '💬 Ir a Conversar',
+    test_fail: 'No pude preparar la prueba. Inténtalo de nuevo.', test_eval_fail: 'No pude evaluar la prueba. Inténtalo de nuevo.',
+    pf_tests_label: '📊 Última prueba de nivel:', pf_tests_none: 'Todavía no has hecho ninguna prueba.', card_test_last: 'Último resultado: {level}. Toca para repetirla.'
   }
 };
 
@@ -836,6 +870,7 @@ function fillProfileForm() {
   applyI18n();
   renderLevelGrid(p.levels || DEFAULT_LEVELS);
   renderStreakStats();
+  renderTestsSummary();
   renderPhotos();
 }
 function saveProfile() {
@@ -910,6 +945,7 @@ window.addEventListener('load', () => {
 function init() {
   ensureVisibleLang();
   exitLesson();
+  exitTest();
   applyI18n();
   setStatus('ready', t('st_ready_start'));
   initRecognition();
@@ -967,7 +1003,7 @@ window.addEventListener('popstate', (e) => {
 
 // Ao entrar em "Conversar" sem conversa: abre a trilha (iniciante, 1.ª vez) ou a tutora cumprimenta.
 function ensureChatStarted() {
-  if (!PROFILE || document.getElementById('transcript').children.length) return;
+  if (!PROFILE || currentTest || document.getElementById('transcript').children.length) return;
   if (!maybeAutoZero()) greet();
 }
 
@@ -981,6 +1017,8 @@ function renderHome() {
     document.getElementById('card-continue-t').textContent = t('card_continue', { n: cur + 1 });
     document.getElementById('card-continue-d').textContent = lessonUI(cur)[0];
   }
+  const last = testLoad()[currentLang], lv = last && normLevel(last.level);
+  document.getElementById('card-test-d').textContent = lv ? t('card_test_last', { level: t('lvl_' + lv) }) : t('card_test_d');
   renderPhotos();
 }
 // "Continuar lição": se a lição ainda está aberta na conversa, volta a ela; senão, repõe a conversa guardada
@@ -1022,6 +1060,7 @@ function setLang(code) {
   document.getElementById('tip-text').textContent = (TIPS[uiLang()] || {})[code] || '';
   chatHistory = []; repeatTarget = ''; repeatTries = 0; clearTranscript(); stopRecording(); synth.cancel();
   exitLesson();
+  exitTest();
   initRecognition();
   renderHome();
   if (currentView === 'chat') setTimeout(ensureChatStarted, 300);
@@ -1029,6 +1068,7 @@ function setLang(code) {
 
 function setTopic(el, topic) {
   currentTopic = topic;
+  exitTest();
   currentLesson = null; updateLessonBanner();
   document.querySelectorAll('.topic-pill').forEach(b => b.classList.remove('active'));
   el.classList.add('active');
@@ -1107,6 +1147,7 @@ function clearLessonSession() {
 
 // Abre a lição i. Se houver conversa guardada dessa lição (e resume não for false), retoma-a; senão começa do início.
 function startLesson(i, resume) {
+  exitTest();
   document.getElementById('zero-screen').style.display = 'none';
   if (currentLesson === null) topicElBeforeLesson = document.querySelector('.topic-pill.active:not(#zero-pill)');
   currentLesson = i; lessonCompleted = false;
@@ -1143,6 +1184,13 @@ function exitLesson() {
 }
 function updateLessonBanner() {
   const el = document.getElementById('lesson-banner');
+  if (currentTest) {
+    const total = currentTest.q.length || TEST_TOTAL;
+    const txt = currentTest.done ? t('test_done_banner') : currentTest.finished ? t('test_evaluating') : t('test_banner', { n: Math.min(currentTest.idx + 1, total), total });
+    el.innerHTML = `<b>${esc(txt)}</b>`;
+    el.classList.add('show');
+    return;
+  }
   if (currentLesson === null) { el.classList.remove('show'); el.innerHTML = ''; return; }
   const [title, goal] = lessonUI(currentLesson);
   el.innerHTML = `<b>🌱 ${esc(t('lesson_banner', { n: currentLesson + 1 }))} · ${esc(title)}</b><br><span class="goal">${esc(goal)}</span>`;
@@ -1455,6 +1503,9 @@ async function sendText() {
 }
 
 async function processInput(text) {
+  // Teste de nível: as respostas não são corrigidas nem enviadas à IA uma a uma.
+  if (currentTest && !currentTest.finished) { handleTestAnswer(text); return; }
+  if (currentTest && currentTest.finished) exitTest(); // depois do resultado, a conversa segue normal
   setStatus('gold', t('st_processing'));
   addLoadingMsg();
   try {
@@ -1984,6 +2035,173 @@ function renderStreakStats() {
     <div class="streak-today">${esc(st.todayDone ? t('today_done') : t('today_left', { n: st.todayCount, g: STREAK_GOAL }))}</div>`;
 }
 
+// ── 📊 TESTE DE NÍVEL ──
+// 8 perguntas (geradas pela IA numa chamada), respondidas sem correção; no fim, uma chamada avalia tudo.
+// Último resultado por idioma no localStorage 'tutora_teste' = { idioma: { date, level, explanation, strengths, improve } }.
+const TEST_KEY = 'tutora_teste', TEST_TOTAL = 8;
+let currentTest = null; // { q: [perguntas], a: [respostas], idx, finished }
+function testLoad() { try { const s = JSON.parse(localStorage.getItem(TEST_KEY) || '{}'); return s && typeof s === 'object' ? s : {}; } catch(e) { return {}; } }
+function testStore(s) { try { localStorage.setItem(TEST_KEY, JSON.stringify(s)); } catch(e) {} }
+// Lê o primeiro objeto JSON de uma resposta da IA (ignora texto à volta).
+function parseJsonReply(text) {
+  const a = text.indexOf('{'), b = text.lastIndexOf('}');
+  if (a < 0 || b <= a) return null;
+  try { return JSON.parse(text.slice(a, b + 1)); } catch(e) { return null; }
+}
+// Aceita "Intermediário", "intermediario", etc.
+function normLevel(v) {
+  const k = String(v || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').trim();
+  return LEVELS.find(l => l.normalize('NFD').replace(/[̀-ͯ]/g, '') === k) || null;
+}
+
+function setTestUI(on) {
+  document.getElementById('skip-btn').style.display = on ? '' : 'none';
+  document.getElementById('hint-btn').style.display = on ? 'none' : '';
+  if (on) hideSuggestions();
+}
+
+async function startTest() {
+  if (!PROFILE) return;
+  exitLesson();
+  if (currentTest === null) topicElBeforeLesson = document.querySelector('.topic-pill.active:not(#zero-pill)');
+  document.querySelectorAll('.topic-pill').forEach(b => b.classList.remove('active'));
+  chatHistory = []; repeatTarget = ''; repeatTries = 0; clearTranscript(); stopRecording(); synth.cancel();
+  currentTest = { q: [], a: [], idx: 0, finished: false };
+  const test = currentTest;
+  setTestUI(true);
+  updateLessonBanner();
+  navTo('chat');
+  addMsg('tutor', '[nat] ' + t('test_intro'));
+  setStatus('gold', t('st_preparing'));
+  addLoadingMsg();
+  const P = PROFILE, NI = NATIVES[getNative(P)];
+  const system = `Crias um teste de nível ORAL de ${currentLangName} para ${P.name}, ${NI.speaker}. ${accentRule(P)}
+Escreve ${TEST_TOTAL} perguntas curtas (no máximo 15 palavras cada) em ${currentLangName}, dirigidas a ${P.name}, em dificuldade crescente:
+1. cumprimento e pergunta do nome; 2. presente do dia a dia (de onde é, onde mora); 3. presente do dia a dia (rotina); 4. passado (o que fez ontem); 5. passado (o último fim de semana); 6. planos futuros; 7. opinião e porquê, sobre um tema do dia a dia; 8. hipótese ("o que farias se…").
+Sem traduções, sem numeração dentro das frases. Responde SÓ com JSON: {"perguntas": ["…", "…"]}`;
+  try {
+    const out = await callAI([{ role: 'user', content: 'Cria as perguntas do teste.' }], system);
+    removeLoading();
+    if (currentTest !== test) return; // a aluna saiu do teste entretanto
+    const j = parseJsonReply(out);
+    const qs = j && Array.isArray(j.perguntas) ? j.perguntas.filter(s => typeof s === 'string' && s.trim()).map(s => s.trim()).slice(0, TEST_TOTAL) : [];
+    if (qs.length < 6) throw new Error(t('test_fail'));
+    test.q = qs;
+    askTestQuestion();
+  } catch(e) {
+    removeLoading();
+    if (currentTest !== test) return;
+    exitTest();
+    setStatus('error', t('st_error') + (e && e.message ? e.message : t('no_connection')));
+  }
+}
+function askTestQuestion() {
+  const q = currentTest.q[currentTest.idx];
+  updateLessonBanner();
+  addMsg('tutor', q);
+  speak(q);
+}
+// Resposta da aluna a uma pergunta do teste (sem correção nem chamada à IA).
+function handleTestAnswer(text) {
+  const test = currentTest;
+  if (!test || test.finished || !test.q.length) return;
+  test.a[test.idx] = text;
+  test.idx++;
+  if (test.idx < test.q.length) setTimeout(() => { if (currentTest === test) askTestQuestion(); }, 300);
+  else finishTest();
+}
+function skipTestQuestion() {
+  if (!currentTest || currentTest.finished || !currentTest.q.length) return;
+  synth.cancel();
+  addMsg('user', '🤷 ' + t('test_skip_said'));
+  handleTestAnswer('(não sei)');
+}
+async function finishTest() {
+  const test = currentTest;
+  test.finished = true;
+  setTestUI(false);
+  document.getElementById('hint-btn').style.display = 'none';
+  updateLessonBanner();
+  setStatus('gold', t('st_processing'));
+  addLoadingMsg();
+  const P = PROFILE, NI = NATIVES[getNative(P)], EX = NI.expl, lang = currentLang;
+  const system = `És examinadora de ${currentLangName}. Avalia o nível oral de ${P.name} (${NI.speaker}) pelas respostas a um teste de ${TEST_TOTAL} perguntas de dificuldade crescente. As respostas vêm de reconhecimento de voz: ignora pontuação, maiúsculas, acentos e falhas do microfone. "(não sei)" = não respondeu.
+Níveis: "iniciante" (não responde ou só palavras soltas), "básico" (frases simples no presente), "intermediário" (usa passado e futuro com alguns erros, explica opiniões), "avançado" (usa hipóteses e estruturas complexas, com poucos erros).
+Responde SÓ com JSON: {"nivel": "iniciante|básico|intermediário|avançado", "explicacao": "uma frase curta em ${EX}", "fortes": ["…", "…"], "melhorar": ["…", "…"]}. Os textos vão em ${EX} (${NI.variant}), com no máximo 12 palavras cada; "fortes" e "melhorar" têm exatamente 2 itens.`;
+  const qa = test.q.map((q, i) => `${i + 1}. ${q}\nResposta: ${test.a[i] || '(não sei)'}`).join('\n\n');
+  try {
+    const out = await callAI([{ role: 'user', content: qa }], system);
+    removeLoading();
+    if (currentTest !== test) return;
+    const j = parseJsonReply(out) || {};
+    const level = normLevel(j.nivel);
+    if (!level) throw new Error(t('test_eval_fail'));
+    const list = v => (Array.isArray(v) ? v : []).filter(s => typeof s === 'string' && s.trim()).map(s => s.trim()).slice(0, 2);
+    const result = { date: new Date().toISOString(), level, explanation: String(j.explicacao || '').trim(), strengths: list(j.fortes), improve: list(j.melhorar) };
+    const all = testLoad(); all[lang] = result; testStore(all);
+    test.done = true;
+    updateLessonBanner();
+    showTestResult(result);
+  } catch(e) {
+    removeLoading();
+    if (currentTest !== test) return;
+    exitTest();
+    setStatus('error', t('st_error') + (e && e.message ? e.message : t('no_connection')));
+  }
+}
+function showTestResult(r) {
+  const li = arr => arr.map(s => `<li>${esc(s)}</li>`).join('');
+  const html = `<div class="test-card"><div class="lvl-title">${esc(t('test_result_title', { level: t('lvl_' + r.level) }))}</div>` +
+    (r.strengths.length ? `<div class="sec">${esc(t('test_strong'))}</div><ul>${li(r.strengths)}</ul>` : '') +
+    (r.improve.length ? `<div class="sec">${esc(t('test_improve'))}</div><ul>${li(r.improve)}</ul>` : '') +
+    `<div class="sec">${esc(t('test_recommend'))}</div><div class="rec"></div></div>`;
+  const div = addMsg('tutor', '[nat] ' + (r.explanation || t('test_result_title', { level: t('lvl_' + r.level) })), html, true);
+  // Recomendação: iniciante/básico → próxima lição do Do zero; senão → Conversar.
+  const next = nextLessonIdx(zeroLang().done);
+  const lessonFirst = (r.level === 'iniciante' || r.level === 'básico') && next >= 0;
+  const rec = div.querySelector('.rec');
+  const bLesson = document.createElement('button');
+  if (next >= 0) {
+    bLesson.textContent = t('test_rec_lesson', { n: next + 1, title: lessonUI(next)[0] });
+    bLesson.onclick = () => { exitTest(); startLesson(next); };
+  }
+  const bChat = document.createElement('button');
+  bChat.textContent = t('test_rec_chat');
+  bChat.onclick = () => { exitTest(); const free = document.querySelectorAll('.topic-pill')[1]; setTopic(free, 'Conversa livre'); };
+  (lessonFirst ? bLesson : bChat).classList.add('primary');
+  if (lessonFirst) rec.append(bLesson, bChat); else { rec.append(bChat); if (next >= 0) rec.append(bLesson); }
+  setStatus('ready', t('st_ready'));
+  renderHome();
+  // Atualiza o nível do idioma no perfil, com confirmação.
+  const cur = (PROFILE.levels || {})[currentLang] || DEFAULT_LEVELS[currentLang];
+  if (r.level !== cur) {
+    setTimeout(() => {
+      if (confirm(t('test_confirm', { lang: langUI(currentLang), level: t('lvl_' + r.level) }))) {
+        PROFILE.levels = Object.assign({}, DEFAULT_LEVELS, PROFILE.levels || {}, { [currentLang]: r.level });
+        try { localStorage.setItem('tutora_profile', JSON.stringify(PROFILE)); } catch(e) {}
+      }
+    }, 600);
+  }
+}
+function exitTest() {
+  if (currentTest === null) return;
+  currentTest = null;
+  setTestUI(false);
+  if (topicElBeforeLesson && currentLesson === null) topicElBeforeLesson.classList.add('active');
+  updateLessonBanner();
+}
+function renderTestsSummary() {
+  const box = document.getElementById('pf-tests'), all = testLoad();
+  const rows = visibleLangs().filter(l => all[l.code] && normLevel(all[l.code].level));
+  if (!rows.length) { box.innerHTML = `<div class="none">${esc(t('pf_tests_none'))}</div>`; return; }
+  box.innerHTML = rows.map(l => {
+    const r = all[l.code];
+    let d = '';
+    try { d = new Date(r.date).toLocaleDateString(nativeInfo().date); } catch(e) {}
+    return `<div>${l.flag} ${esc(langUI(l.code))}: <span class="lvl">${esc(t('lvl_' + normLevel(r.level)))}</span> <span class="when">· ${esc(d)}</span></div>`;
+  }).join('');
+}
+
 // ── 📷 FOTO DO PERFIL ──
 // localStorage 'tutora_foto' = data URL JPEG, reduzida para caber em 256×256.
 const PHOTO_KEY = 'tutora_foto', PHOTO_MAX = 256;
@@ -2032,7 +2250,7 @@ function userLabelHtml() {
 // ── CÓPIA DE SEGURANÇA ──
 // Exporta perfil + caderno (todos os idiomas) + racha num .json. A chave API NUNCA entra no arquivo.
 function exportData() {
-  const data = { app: 'tutora-voz', version: 3, exportedAt: new Date().toISOString(), profile: loadProfile(), foto: loadPhoto() || null, caderno: nbLoad(), racha: streakLoad(), zero: zeroLoad() };
+  const data = { app: 'tutora-voz', version: 3, exportedAt: new Date().toISOString(), profile: loadProfile(), foto: loadPhoto() || null, caderno: nbLoad(), racha: streakLoad(), zero: zeroLoad(), teste: testLoad() };
   const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
@@ -2081,6 +2299,16 @@ function importData(input) {
       localStorage.setItem(NB_KEY, JSON.stringify(caderno));
       localStorage.setItem(STREAK_KEY, JSON.stringify(racha));
       if (hasZero) localStorage.setItem(ZERO_KEY, JSON.stringify(zero));
+      // Teste de nível: só substitui se a cópia o trouxer.
+      if (data.teste && typeof data.teste === 'object') {
+        const tst = {};
+        Object.keys(data.teste).forEach(lang => {
+          const r = data.teste[lang], lv = r && normLevel(r.level);
+          const strs = v => (Array.isArray(v) ? v : []).filter(s => typeof s === 'string').slice(0, 2);
+          if (lv) tst[lang] = { date: String(r.date || ''), level: lv, explanation: String(r.explanation || ''), strengths: strs(r.strengths), improve: strs(r.improve) };
+        });
+        localStorage.setItem(TEST_KEY, JSON.stringify(tst));
+      }
       // Foto: só substitui se a cópia trouxer uma imagem válida.
       if (typeof data.foto === 'string' && /^data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+/=]+$/.test(data.foto)) localStorage.setItem(PHOTO_KEY, data.foto);
     } catch(e) { alert(t('import_save_fail') + (e && e.message ? e.message : e)); return; }
