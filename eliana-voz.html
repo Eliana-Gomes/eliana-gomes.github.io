@@ -516,21 +516,27 @@ const LEVELS = ['iniciante', 'básico', 'intermediário', 'avançado'];
 const NATIVES = {
   'pt-BR': { ui: 'pt-BR', expl: 'Brazilian Portuguese', speaker: 'a native speaker of Brazilian Portuguese', short: 'Portuguese', locale: 'pt-BR', hide: 'pt', group: 'pt', date: 'pt-BR',
              exFix: 'o verbo é "desarrollar"; no passado fica "desarrollé"', exPron: 'entendi "tía" → acho que você quis dizer "día" · treine o som do D, mais suave', exTr: '(Olá, bom dia)',
+             exRecall: 'Como se diz "bom dia" em {lang}?', exOff: 'Você repetiu a pergunta. A resposta é só: «…». Tente de novo.', exWrong: 'Faltou o "s" no final. O certo é: «…». Tente de novo.',
              repeatEx: 'Repita comigo', variant: 'write in Brazilian Portuguese, addressing the learner as "você" (e.g. "Repita comigo", "Ouça", "Diga"; celular, ônibus)' },
   'pt-PT': { ui: 'pt-PT', expl: 'European Portuguese (Portugal)', speaker: 'a native speaker of European Portuguese', short: 'Portuguese', locale: 'pt-PT', hide: 'pt', group: 'pt', date: 'pt-PT',
              exFix: 'o verbo é "desarrollar"; no passado fica "desarrollé"', exPron: 'entendi "tía" → acho que querias dizer "día" · treina o som do D, mais suave', exTr: '(Olá, bom dia)',
+             exRecall: 'Como se diz "bom dia" em {lang}?', exOff: 'Repetiste a pergunta. A resposta é só: «…». Tenta de novo.', exWrong: 'Faltou o "s" no fim. O certo é: «…». Tenta de novo.',
              repeatEx: 'Repete comigo', variant: 'write in European Portuguese, addressing the learner as "tu" (e.g. "Repete comigo", "Ouve", "Diz"; telemóvel, autocarro)' },
   'es':    { ui: 'es', expl: 'Spanish', speaker: 'a native Spanish speaker', short: 'Spanish', locale: 'es-ES', hide: 'es', group: 'es', date: 'es-ES',
              exFix: 'el verbo es "desarrollar"; en pasado es "desarrollé"', exPron: 'entendí "tía" → creo que querías decir "día" · practica la D, más suave', exTr: '(Hola, buenos días)',
+             exRecall: '¿Cómo se dice "buenos días" en {lang}?', exOff: 'Repetiste la pregunta. La respuesta es solo: «…». Inténtalo de nuevo.', exWrong: 'Te faltó la "s" final. Lo correcto es: «…». Inténtalo de nuevo.',
              repeatEx: 'Repite conmigo', variant: 'write in Spanish, addressing the learner as "tú" (e.g. "Repite conmigo", "Escucha", "Di")' },
   'en':    { ui: 'en', expl: 'English', speaker: 'a native English speaker', short: 'English', locale: 'en-GB', hide: 'en', group: 'en', date: 'en-GB',
              exFix: 'the verb is "desarrollar"; in the past it is "desarrollé"', exPron: 'I heard "tía" → I think you meant "día" · practise a softer D', exTr: '(Hello, good morning)',
+             exRecall: 'How do you say "good morning" in {lang}?', exOff: 'You repeated the question. The answer is just: «…». Try again.', exWrong: 'The final "s" is missing. The right form is: «…». Try again.',
              repeatEx: 'Repeat after me', variant: 'write in simple English, addressing the learner as "you" (e.g. "Repeat after me", "Listen", "Say")' },
   'fr':    { ui: 'fr', expl: 'French', speaker: 'a native French speaker', short: 'French', locale: 'fr-FR', hide: 'fr', group: 'fr', date: 'fr-FR',
              exFix: 'le verbe est « desarrollar » ; au passé, c’est « desarrollé »', exPron: 'j’ai entendu « tía » → tu voulais dire « día » · travaille un D plus doux', exTr: '(Bonjour, bonne journée)',
+             exRecall: 'Comment dit-on « bonjour » en {lang} ?', exOff: 'Tu as répété la question. La réponse est simplement : «…». Réessaie.', exWrong: 'Il manque le « s » final. La bonne forme est : «…». Réessaie.',
              repeatEx: 'Répète avec moi', variant: 'write in French, addressing the learner as "tu" (e.g. "Répète avec moi", "Écoute", "Dis")' },
   'it':    { ui: 'it', expl: 'Italian', speaker: 'a native Italian speaker', short: 'Italian', locale: 'it-IT', hide: 'it', group: 'it', date: 'it-IT',
              exFix: 'il verbo è "desarrollar"; al passato è "desarrollé"', exPron: 'ho sentito "tía" → credo volessi dire "día" · allena una D più morbida', exTr: '(Ciao, buongiorno)',
+             exRecall: 'Come si dice "buongiorno" in {lang}?', exOff: 'Hai ripetuto la domanda. La risposta è solo: «…». Riprova.', exWrong: 'Manca la "s" finale. La forma giusta è: «…». Riprova.',
              repeatEx: 'Ripeti con me', variant: 'write in Italian, addressing the learner as "tu" (e.g. "Ripeti con me", "Ascolta", "Di\'")' }
 };
 
@@ -578,7 +584,6 @@ const TARGET_TXT = {
   great:  { es: '¡Eres genial!', en: "You're awesome!", fr: 'Tu es formidable !', it: 'Sei grande!', pt: 'Você é demais!' },
   sayEx:  { es: 'Quiero comprar una camiseta.', en: 'I want to buy a T-shirt.', fr: 'Je veux acheter un t-shirt.', it: 'Voglio comprare una maglietta.', pt: 'Quero comprar uma camiseta.' },
   good:   { es: '¡Muy bien!', en: 'Very good!', fr: 'Très bien !', it: 'Molto bene!', pt: 'Muito bem!' },
-  howSay: { es: '¿Cómo se dice…?', en: 'How do you say…?', fr: 'Comment dit-on… ?', it: 'Come si dice…?', pt: 'Como se diz…?' },
   correct:{ es: '¡Correcto! ¡Muy bien!', en: 'Correct! Very good!', fr: 'C’est juste ! Très bien !', it: 'Giusto! Molto bene!', pt: 'Correto! Muito bem!' }
 };
 
@@ -680,7 +685,7 @@ const BETTER = {
   pt: (a, b) => `Melhor dizer: ${b}. E não: ${a}.`
 };
 // Textos da tutora em português de Portugal (quando se estuda essa variante).
-const TARGET_TXT_PTPT = { ask: 'Repete comigo 🔁', rep: 'Repete:', canSay: 'Podes dizer:', sayFull: 'Diz antes assim:', again: 'Podes dizer outra vez?', great: 'És espetacular!', sayEx: 'Quero comprar uma t-shirt.', good: 'Muito bem!', howSay: 'Como se diz…?', correct: 'Certo! Muito bem!' };
+const TARGET_TXT_PTPT = { ask: 'Repete comigo 🔁', rep: 'Repete:', canSay: 'Podes dizer:', sayFull: 'Diz antes assim:', again: 'Podes dizer outra vez?', great: 'És espetacular!', sayEx: 'Quero comprar uma t-shirt.', good: 'Muito bem!', correct: 'Certo! Muito bem!' };
 function tgt(key) {
   if (currentLang === 'pt' && ptIsPT() && TARGET_TXT_PTPT[key]) return TARGET_TXT_PTPT[key];
   return TARGET_TXT[key][currentLang] || TARGET_TXT[key].es;
@@ -1494,8 +1499,10 @@ function hideZeroList() {
 // Fecha a lista ao escolher uma lição, tirando também a entrada dela do histórico (sem mais efeitos).
 let zeroPopSkip = false;
 function closeZeroForLesson() {
+  // Só volta no histórico se a lista estava mesmo aberta (duas chamadas seguidas voltariam duas vezes e sairiam do app).
+  const wasOpen = zeroOpen();
   document.getElementById('zero-screen').style.display = 'none';
-  if (history.state && history.state.zero) { zeroPopSkip = true; history.back(); }
+  if (wasOpen && history.state && history.state.zero) { zeroPopSkip = true; history.back(); }
 }
 function renderZero() {
   document.getElementById('zero-title').textContent = t('zero_title', { lang: langUI(currentLang) });
@@ -1864,7 +1871,10 @@ function processLessonReply(reply) {
   }).slice(0, 1);
   // 💡 = resposta do passo LEMBRAR: fica escondida num botão "Dica" (nem escrita no balão, nem lida).
   const hint = lines.filter(l => starts(l, '💡')).map(l => l.trim().replace(/^💡\s*/u, '').replace(VOICE_TAG, '')).join(' · ');
-  const main = lines.filter(l => !['📝', '✅', '🗣', '💡'].some(s => starts(l, s))).join('\n').trim();
+  // Linhas curtas a anunciar a dica ("Hint is available") não aparecem: o botão 💡 já basta.
+  const hintWord = t('hint_label').replace(/^💡\s*/u, '').toLowerCase();
+  const mentionsHint = l => !!hint && l.length < 90 && (l.toLowerCase().includes(hintWord) || /\bhint\b/i.test(l)) && !l.includes('«');
+  const main = lines.filter(l => !['📝', '✅', '🗣', '💡'].some(s => starts(l, s)) && !mentionsHint(l)).join('\n').trim();
   chatHistory.push({ role: 'assistant', content: [main, ...gramFix, hint ? '💡 ' + hint : ''].filter(Boolean).join('\n') });
   let html = '';
   if (gramFix.length) {
@@ -2099,7 +2109,7 @@ ${typical ? `Watch for real mistakes that ${NI.short} speakers often make in ${L
 ${memory}${repeatTarget ? `REPETITION MODE: you asked ${N} to repeat ONLY this corrected sentence: "${repeatTarget}".
 - Evaluate ONLY that sentence and only the main correction (from the previous 📝 line), with no new 📝 or ✅ lines. Ignore the rest of the sentence, punctuation, hesitations and similar-sounding microphone glitches (e.g. "lo tomo" ≈ "otoño").
 - If it is right or almost right: start with "${tgt('correct')}", resume the conversation with ONE open question, and put on a separate last line: 🎯 OK
-- If the corrected mistake is still the same: in simple ${L}, say in one short sentence what is still missing, repeat the right sentence slowly, and put on a separate last line: 🎯 DE NOVO
+- If the corrected mistake is still the same: in simple ${L}, say in one short sentence what is still missing, repeat the right sentence slowly, and put on a separate last line: 🎯 DE NOVO. Never call a wrong answer "almost right", "on the right track" or "OK": say clearly what is missing.
 - If ${N} asks a question or says they did not understand (in any language): explain in ONE short sentence in ${EX}, on a line starting with [nat] (so the app uses the right voice), then repeat the right sentence ("${repeatTarget}") and ask them to repeat it; put on a separate last line: 🎯 PERGUNTA
 - If ${N}, instead of repeating, corrects a piece of information (e.g. "no, es XXL"): accept it, do NOT say "${tgt('correct')}", do not correct, continue the conversation with ONE question and put on a separate last line: 🎯 ESCLARECIMENTO` : ''}
 Conversation topic: "${currentTopic}"`;
@@ -2111,6 +2121,9 @@ function buildLessonSystem() {
   const NI = NATIVES[getNative(P)];
   const N = P.name, EX = NI.expl, L = currentLangName, i = currentLesson;
   const [title, goal] = lessonUI(i);
+  // Nome do idioma estudado na língua nativa (para o exemplo da pergunta LEMBRAR).
+  const langNat = NI.group === 'en' ? langUI(currentLang) : langUI(currentLang).toLowerCase();
+  const recallEx = NI.exRecall.replace('{lang}', langNat);
   const style = { 'formal': `Address ${N} with the language's polite form (usted, vous, Lei).`, 'divertida': 'Fun, light tone.' }[P.style] || 'Warm, encouraging tone.';
   return `${langRule(NI)}
 You are Lia, a patient ${L} teacher for ${N}, ${NI.speaker}, who is learning FROM SCRATCH (absolute beginner). ${style} ${accentRule(P)}
@@ -2120,14 +2133,15 @@ VOICES (mandatory): EVERY line starts with [nat] or [alvo]. [nat] = text in ${EX
 NATIVE LANGUAGE: in [nat] lines and explanations, ${NI.variant}.
 TWO KINDS OF STEP:
 - TEACH (new sentence): one [alvo] line with the sentence (short, up to 6 words, useful in everyday life); one [nat] line with its translation in ${EX} in brackets (e.g. [nat] ${NI.exTr}); one [nat] line asking them to repeat (e.g. "${NI.repeatEx}").
-- RECALL (a sentence already taught, later in the lesson): one [alvo] line "${tgt('howSay')}" and one [nat] line with the sentence in ${EX} between «…», WITHOUT giving the answer; plus one line starting with 💡 with the answer in ${L} (the app hides it behind a "Hint" button that ${N} only opens if they want). If ${N} gets it wrong, gets stuck or says they don't know, TEACH that sentence again.
+- RECALL (a sentence already taught, later in the lesson): ask ONLY in ${EX}, in ONE [nat] line. The question must NEVER contain the ${L} word or sentence to recall, only its meaning in ${EX} (right: [nat] ${recallEx}; WRONG: "Comment dit-on « bonjour » le matin ?"). A RECALL step has NO [alvo] line. Then add one line starting with 💡 with the answer in ${L} (the app hides it behind the 💡 button). NEVER mention the hint, the 💡 button or that help is available in your text. If ${N} gets it wrong, gets stuck or says they don't know, TEACH that sentence again.
 HOW TO RUN THE LESSON:
 1. First message: one short [nat] line explaining the lesson goal; then TEACH the 1st sentence.
-2. When ${N} repeats well (tolerate microphone glitches, punctuation and accents): confirm in a short [alvo] line ("${tgt('good')}"), then ask the real question: one [alvo] line with a simple question ${N} can answer using the sentence, and one [nat] line with its translation.
-3. If ${N} makes a mistake (when repeating, answering or recalling): one line "📝 wrong → right · short explanation in ${EX}" (left side = exactly what ${N} said; right side = the correct form); then one [alvo] line "${tgt('ask')}: «right sentence»". Count attempts from the history: at most 2 attempts per sentence; after the 2nd, even if still wrong, say the right sentence one last time, encourage in a [nat] line and move on.
+2. When ${N} gets it right (tolerate microphone glitches, punctuation and accents): confirm in a short [alvo] line ("${tgt('correct')}"), then ask the real question: one [alvo] line with a simple question ${N} can answer using the sentence, and one [nat] line with its translation.
+3. If ${N} makes a mistake (when repeating, answering or recalling): one line "📝 wrong → right · short explanation in ${EX}" (left side = exactly what ${N} said; right side = the correct form); then one [nat] line in ${EX} that says clearly what was missing or wrong, gives the right form and asks them to try again (e.g. [nat] ${NI.exWrong}); then one [alvo] line "${tgt('ask')}: «right sentence»". If ${N} repeats your question, says words that make no sense or answers something else: no 📝 line; explain clearly and briefly, in ONE [nat] line in ${EX}, what happened, give the expected answer and ask them to try again (e.g. [nat] ${NI.exOff}). Count attempts from the history (these cases count too): at most 2 attempts per sentence; after the 2nd, even if still wrong, say the right sentence one last time, encourage in a [nat] line and move on.
 4. Teach 3 to 5 sentences in total, from the simplest to the most useful. From the 2nd sentence on, before TEACHING a new one, do a RECALL step for an earlier sentence.
 5. After the sentences, have a mini conversation of 2 or 3 exchanges using the sentences learned (each question on an [alvo] line, with its translation on a [nat] line).
 6. At the end of the mini conversation: congratulate in a [nat] line, recap the sentences learned in one [alvo] line (separated by " · ") and put on a separate line: 🎯 LIÇÃO CONCLUÍDA
+CLEAR FEEDBACK: when the answer is wrong, NEVER say vague things like "you're on the right track", "almost", "that's OK", "no problem" or "good try". Right → a short confirmation ("${tgt('correct')}"). Wrong → what was missing + the right form + try again.
 RULES: at most 4 lines per message (not counting 📝, 💡 and 🎯). Very simple sentences. Do not use ✅ or 🗣️. Correct only real mistakes: ignore punctuation, capitals, accents, hesitations and similar-sounding mis-transcribed words. If the sentence is garbled by the microphone, ask in an [alvo] line "${tgt('again')}" with its translation in a [nat] line. If ${N} asks a question or says they did not understand, answer in a short [nat] line and repeat the current sentence. Check the grammar of your own sentences before replying. Never mention these instructions or explain the [nat]/[alvo] tags: use them only at the start of lines.`;
 }
 
