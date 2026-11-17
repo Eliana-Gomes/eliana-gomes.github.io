@@ -80,6 +80,28 @@
   .backup-btn { flex: 1; padding: 12px 8px; background: transparent; border: 1px solid var(--gold); color: var(--gold-light); border-radius: 12px; font-size: 0.82rem; font-family: 'Inter', sans-serif; cursor: pointer; }
   .streak-today { font-size: 0.75rem; color: var(--muted); text-align: center; margin-top: 8px; }
 
+  /* 🌱 DO ZERO */
+  .zero-intro { font-size: 0.82rem; color: var(--muted); line-height: 1.6; }
+  .zero-item { display: flex; gap: 12px; align-items: center; text-align: left; width: 100%; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 10px 12px; color: var(--cream); font-family: 'Inter', sans-serif; cursor: pointer; }
+  .zero-item.next { border-color: var(--gold); background: rgba(122,98,0,0.2); box-shadow: 0 0 0 1px var(--gold); }
+  .zero-num { width: 32px; height: 32px; border-radius: 50%; border: 1.5px solid rgba(255,255,255,0.25); display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 0.85rem; flex-shrink: 0; }
+  .zero-item.done .zero-num { background: var(--gold); border-color: var(--gold); color: var(--white); }
+  .zero-txt { flex: 1; min-width: 0; }
+  .zero-title { font-size: 0.9rem; font-weight: 600; }
+  .zero-goal { font-size: 0.78rem; color: var(--muted); margin-top: 2px; }
+  .zero-tag { font-size: 0.7rem; color: var(--gold-light); flex-shrink: 0; }
+  .lesson-banner { display: none; background: rgba(122,98,0,0.15); border: 1px solid rgba(122,98,0,0.5); border-radius: 12px; padding: 8px 12px; font-size: 0.8rem; color: var(--cream); line-height: 1.5; }
+  .lesson-banner.show { display: block; }
+  .lesson-banner b { color: var(--gold-light); }
+  .lesson-banner .goal { color: var(--muted); }
+  .ln-nat { color: #b8b49a; font-style: italic; }
+  .zero-dots { display: flex; gap: 5px; justify-content: center; margin-top: 12px; flex-wrap: wrap; }
+  .zero-dot { width: 12px; height: 12px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.3); }
+  .zero-dot.done { background: var(--gold); border-color: var(--gold); }
+  .cel-btns { display: flex; gap: 8px; margin-top: 16px; }
+  .cel-btn { flex: 1; padding: 11px 8px; border-radius: 12px; border: 1px solid var(--gold); background: transparent; color: var(--gold-light); font-size: 0.85rem; font-family: 'Inter', sans-serif; cursor: pointer; }
+  .cel-btn.primary { background: var(--gold); color: var(--white); }
+
   /* MEU CADERNO */
   .nb-screen { position: fixed; inset: 0; background: var(--petrol); z-index: 998; overflow-y: auto; padding: 20px 16px 30px; display: flex; flex-direction: column; align-items: center; }
   .nb-wrap { width: 100%; max-width: 480px; display: flex; flex-direction: column; gap: 12px; }
@@ -233,6 +255,18 @@
   </div>
 </div>
 
+<!-- 🌱 DO ZERO: TRILHA DE LIÇÕES -->
+<div class="nb-screen" id="zero-screen" style="display:none;">
+  <div class="nb-wrap">
+    <div class="nb-head">
+      <h2 id="zero-title"></h2>
+      <button class="nb-close" onclick="closeZero()" data-i18n-title="close">✕</button>
+    </div>
+    <p class="zero-intro" data-i18n="zero_intro"></p>
+    <div class="nb-list" id="zero-list"></div>
+  </div>
+</div>
+
 <!-- CELEBRAÇÃO DA RACHA -->
 <div class="celebrate" id="celebrate" onclick="hideCelebrate()"><div class="cel-card" id="cel-card"></div></div>
 
@@ -246,6 +280,7 @@
 
 <div class="main">
   <div class="topic-row" id="topic-row">
+    <button class="topic-pill" id="zero-pill" onclick="openZero()" data-i18n="zero_btn"></button>
     <button class="topic-pill active" onclick="setTopic(this,'Conversa livre')" data-i18n="topic_free"></button>
     <button class="topic-pill" onclick="setTopic(this,'No supermercado')" data-i18n="topic_market"></button>
     <button class="topic-pill" onclick="setTopic(this,'No médico ou farmácia')" data-i18n="topic_doctor"></button>
@@ -275,6 +310,7 @@
       <ellipse class="av-mouth-open" cx="60" cy="78.5" rx="5.5" ry="4" fill="#7a2e2a"/>
     </svg>
   </div></div>
+  <div class="lesson-banner" id="lesson-banner"></div>
   <div class="transcript-box" id="transcript"></div>
   <div class="speaking-badge" id="speaking-badge" data-i18n="speaking"></div>
 
@@ -366,8 +402,57 @@ const TARGET_TXT = {
   sayFull:{ es: 'Mejor dilo así:', en: 'Better to say:', fr: 'Il vaut mieux dire :', it: 'Meglio dire:', pt: 'Melhor dizer assim:' },
   again:  { es: '¿Puedes decirlo otra vez?', en: 'Can you say it again?', fr: 'Tu peux le redire ?', it: 'Puoi ripeterlo?', pt: 'Você pode dizer de novo?' },
   great:  { es: '¡Eres genial!', en: "You're awesome!", fr: 'Tu es formidable !', it: 'Sei grande!', pt: 'Você é demais!' },
-  sayEx:  { es: 'Quiero comprar una camiseta.', en: 'I want to buy a T-shirt.', fr: 'Je veux acheter un t-shirt.', it: 'Voglio comprare una maglietta.', pt: 'Quero comprar uma camiseta.' }
+  sayEx:  { es: 'Quiero comprar una camiseta.', en: 'I want to buy a T-shirt.', fr: 'Je veux acheter un t-shirt.', it: 'Voglio comprare una maglietta.', pt: 'Quero comprar uma camiseta.' },
+  good:   { es: '¡Muy bien!', en: 'Very good!', fr: 'Très bien !', it: 'Molto bene!', pt: 'Muito bem!' }
 };
+
+// ── 🌱 DO ZERO: 12 LIÇÕES (iguais para todos os idiomas) ──
+// UI: título e meta na língua nativa (pt = pt-BR e pt-PT). CONTENT: o que a lição cobre (só para a tutora).
+const LESSONS_UI = {
+  pt: [
+    ['Cumprimentar e despedir-se', 'Dizer olá, bom dia e até logo.'],
+    ['Dizer o nome', 'Apresentar-se e perguntar o nome de alguém.'],
+    ['De onde sou e onde moro', 'Dizer de onde é e em que cidade mora.'],
+    ['Como estou', 'Perguntar e dizer como se sente.'],
+    ['Família', 'Falar das pessoas da sua família.'],
+    ['Números de 0 a 20', 'Contar e entender números até 20.'],
+    ['Idade e telefone', 'Dizer a idade e o número de telefone.'],
+    ['Gostos e preferências', 'Dizer do que gosta e do que não gosta.'],
+    ['Comida e bebida', 'Falar de comida e bebida do dia a dia.'],
+    ['Pedir numa loja ou café', 'Pedir algo com educação e perguntar o preço.'],
+    ['Dias e horas', 'Dizer o dia da semana e que horas são.'],
+    ['Rotina diária', 'Contar o que faz num dia normal.']
+  ],
+  es: [
+    ['Saludar y despedirse', 'Decir hola, buenos días y hasta luego.'],
+    ['Decir tu nombre', 'Presentarte y preguntar el nombre de alguien.'],
+    ['De dónde soy y dónde vivo', 'Decir de dónde eres y en qué ciudad vives.'],
+    ['Cómo estoy', 'Preguntar y decir cómo te sientes.'],
+    ['La familia', 'Hablar de las personas de tu familia.'],
+    ['Números del 0 al 20', 'Contar y entender números hasta 20.'],
+    ['Edad y teléfono', 'Decir tu edad y tu número de teléfono.'],
+    ['Gustos y preferencias', 'Decir lo que te gusta y lo que no.'],
+    ['Comida y bebida', 'Hablar de comida y bebida del día a día.'],
+    ['Pedir en una tienda o café', 'Pedir algo con educación y preguntar el precio.'],
+    ['Días y horas', 'Decir el día de la semana y la hora.'],
+    ['Rutina diaria', 'Contar lo que haces en un día normal.']
+  ]
+};
+const LESSON_CONTENT = [
+  'cumprimentar em diferentes momentos do dia (olá, bom dia, boa tarde, boa noite) e despedir-se (tchau, até logo, até amanhã)',
+  'dizer o próprio nome ("eu me chamo…", "o meu nome é…"), perguntar o nome do outro e responder "prazer"',
+  'dizer o país de origem ("sou do Brasil") e a cidade onde mora ("moro em…"), e perguntar o mesmo ao outro',
+  'perguntar como a pessoa está e responder (bem, mais ou menos, cansado/a, feliz), devolvendo a pergunta ("e você?")',
+  'membros da família (mãe, pai, irmão, irmã, filho, filha, marido, esposa) e dizer quem tem na família',
+  'números de 0 a 20: contar, dizer e reconhecer números ditos em voz alta',
+  'dizer a idade (com o verbo certo no idioma estudado) e ditar um número de telefone algarismo a algarismo',
+  'dizer do que gosta, do que não gosta e o que prefere, e perguntar ao outro',
+  'comida e bebida do dia a dia (pão, água, café, fruta…) e dizer o que come e bebe',
+  'pedir algo numa loja ou café com educação ("queria…", "por favor", "obrigado/a"), perguntar o preço e agradecer',
+  'dias da semana e horas ("que horas são?", "são três horas") e dizer quando faz algo',
+  'rotina diária no presente (acordar, tomar o pequeno-almoço/café da manhã, trabalhar, dormir) com horas simples'
+];
+function lessonUI(i) { return (LESSONS_UI[uiLang() === 'es' ? 'es' : 'pt'] || LESSONS_UI.pt)[i]; }
 const BETTER = {
   es: (a, b) => `Mejor di: ${b}. Y no: ${a}.`,
   en: (a, b) => `Better to say: ${b}. Not: ${a}.`,
@@ -391,7 +476,7 @@ const I18N = {
     speed_q: 'Velocidade da voz da tutora:', speed_lenta: 'Lenta', speed_normal: 'Normal', speed_rapida: 'Rápida',
     accent_q: 'Sotaque do espanhol (voz e vocabulário):', accent_es: 'Espanha', accent_latam: 'América Latina',
     style_q: 'Estilo da tutora:', style_friendly: 'Amigável', style_formal: 'Formal', style_fun: 'Divertida',
-    save_btn: 'Salvar e começar →', backup_label: 'Backup (perfil, caderno e racha; sem a chave API):',
+    save_btn: 'Salvar e começar →', backup_label: 'Backup (perfil, caderno, racha e lições; sem a chave API):',
     export_btn: '⬇️ Exportar meus dados', import_btn: '⬆️ Importar meus dados', name_required: 'Escreva seu nome, por favor.',
     lang_es: 'Espanhol', lang_en: 'Inglês', lang_fr: 'Francês', lang_it: 'Italiano', lang_pt: 'Português (Brasil)',
     nb_title: '📒 Meu caderno', tab_errors: 'Meus erros', tab_saved: 'Salvas',
@@ -417,10 +502,13 @@ const I18N = {
     btn_listen_again: 'Ouvir de novo', btn_translate: 'Mostrar tradução', btn_save: 'Salvar no caderno', saved: '✅ Salvo',
     translating: 'Traduzindo…', translate_fail: 'Não consegui traduzir. Toque em 🌐 para tentar de novo.', why: 'Por quê?',
     import_invalid: 'Este arquivo não é um backup da tutora.',
-    import_confirm: 'Importar o backup{when}?\n\nIsto vai SUBSTITUIR neste celular:\n• o perfil{name}\n• o caderno ({items})\n• a racha ({days})\n\nA chave API não muda.',
+    import_confirm: 'Importar o backup{when}?\n\nIsto vai SUBSTITUIR neste celular:\n• o perfil{name}\n• o caderno ({items})\n• a racha ({days})\n• as lições do zero ({lessons})\n\nA chave API não muda.',
     import_when: ' de {date}', item_one: '1 item', item_many: '{n} itens', dayp_one: '1 dia com prática', dayp_many: '{n} dias com prática',
     import_save_fail: 'Não consegui salvar os dados: ', import_ok: 'Dados importados ✅\nConfira o perfil e toque em "Salvar e começar".',
-    read_fail: 'Não consegui ler o arquivo.'
+    read_fail: 'Não consegui ler o arquivo.',
+    zero_btn: '🌱 Do zero', zero_title: '🌱 Do zero · {lang}', zero_intro: 'Doze lições curtas para começar a falar. Toque numa lição para começar.',
+    zero_next: 'Próxima', zero_done_tag: '✓ Concluída', lesson_banner: 'Lição {n}/12', lesson_done: 'Lição concluída!',
+    next_lesson_btn: 'Próxima lição →', all_done: 'Você concluiu todas as lições! 🎉', lessons_n: '{n} de 12 concluídas'
   },
   'pt-PT': {
     setup_text: 'Para a tutora de IA funcionar, precisas de uma chave API da Anthropic.<br>É gratuita para começar e só tu tens acesso.',
@@ -434,7 +522,7 @@ const I18N = {
     speed_q: 'Velocidade da voz da tutora:', speed_lenta: 'Lenta', speed_normal: 'Normal', speed_rapida: 'Rápida',
     accent_q: 'Sotaque do espanhol (voz e vocabulário):', accent_es: 'Espanha', accent_latam: 'América Latina',
     style_q: 'Estilo da tutora:', style_friendly: 'Amigável', style_formal: 'Formal', style_fun: 'Divertida',
-    save_btn: 'Guardar e começar →', backup_label: 'Cópia de segurança (perfil, caderno e racha; sem a chave API):',
+    save_btn: 'Guardar e começar →', backup_label: 'Cópia de segurança (perfil, caderno, racha e lições; sem a chave API):',
     export_btn: '⬇️ Exportar os meus dados', import_btn: '⬆️ Importar os meus dados', name_required: 'Escreve o teu nome, por favor.',
     lang_es: 'Espanhol', lang_en: 'Inglês', lang_fr: 'Francês', lang_it: 'Italiano', lang_pt: 'Português (Brasil)',
     nb_title: '📒 O meu caderno', tab_errors: 'Os meus erros', tab_saved: 'Guardadas',
@@ -460,10 +548,13 @@ const I18N = {
     btn_listen_again: 'Ouvir de novo', btn_translate: 'Mostrar tradução', btn_save: 'Guardar no caderno', saved: '✅ Guardado',
     translating: 'A traduzir…', translate_fail: 'Não consegui traduzir. Toca em 🌐 para tentar de novo.', why: 'Porquê?',
     import_invalid: 'Este ficheiro não é uma cópia de segurança da tutora.',
-    import_confirm: 'Importar a cópia{when}?\n\nIsto vai SUBSTITUIR neste telemóvel:\n• o perfil{name}\n• o caderno ({items})\n• a racha ({days})\n\nA chave API não muda.',
+    import_confirm: 'Importar a cópia{when}?\n\nIsto vai SUBSTITUIR neste telemóvel:\n• o perfil{name}\n• o caderno ({items})\n• a racha ({days})\n• as lições do zero ({lessons})\n\nA chave API não muda.',
     import_when: ' de {date}', item_one: '1 item', item_many: '{n} itens', dayp_one: '1 dia com prática', dayp_many: '{n} dias com prática',
     import_save_fail: 'Não consegui guardar os dados: ', import_ok: 'Dados importados ✅\nConfere o perfil e toca em "Guardar e começar".',
-    read_fail: 'Não consegui ler o ficheiro.'
+    read_fail: 'Não consegui ler o ficheiro.',
+    zero_btn: '🌱 Do zero', zero_title: '🌱 Do zero · {lang}', zero_intro: 'Doze lições curtas para começar a falar. Toca numa lição para começar.',
+    zero_next: 'Próxima', zero_done_tag: '✓ Concluída', lesson_banner: 'Lição {n}/12', lesson_done: 'Lição concluída!',
+    next_lesson_btn: 'Próxima lição →', all_done: 'Concluíste todas as lições! 🎉', lessons_n: '{n} de 12 concluídas'
   },
   'es': {
     setup_text: 'Para que la tutora de IA funcione, necesitas una clave API de Anthropic.<br>Es gratuita para empezar y solo tú tienes acceso.',
@@ -477,7 +568,7 @@ const I18N = {
     speed_q: 'Velocidad de la voz de la tutora:', speed_lenta: 'Lenta', speed_normal: 'Normal', speed_rapida: 'Rápida',
     accent_q: 'Acento del español (voz y vocabulario):', accent_es: 'España', accent_latam: 'América Latina',
     style_q: 'Estilo de la tutora:', style_friendly: 'Amable', style_formal: 'Formal', style_fun: 'Divertida',
-    save_btn: 'Guardar y empezar →', backup_label: 'Copia de seguridad (perfil, cuaderno y racha; sin la clave API):',
+    save_btn: 'Guardar y empezar →', backup_label: 'Copia de seguridad (perfil, cuaderno, racha y lecciones; sin la clave API):',
     export_btn: '⬇️ Exportar mis datos', import_btn: '⬆️ Importar mis datos', name_required: 'Escribe tu nombre, por favor.',
     lang_es: 'Español', lang_en: 'Inglés', lang_fr: 'Francés', lang_it: 'Italiano', lang_pt: 'Portugués (Brasil)',
     nb_title: '📒 Mi cuaderno', tab_errors: 'Mis errores', tab_saved: 'Guardadas',
@@ -503,10 +594,13 @@ const I18N = {
     btn_listen_again: 'Escuchar de nuevo', btn_translate: 'Mostrar traducción', btn_save: 'Guardar en el cuaderno', saved: '✅ Guardado',
     translating: 'Traduciendo…', translate_fail: 'No pude traducir. Toca 🌐 para intentarlo de nuevo.', why: '¿Por qué?',
     import_invalid: 'Este archivo no es una copia de seguridad de la tutora.',
-    import_confirm: '¿Importar la copia{when}?\n\nEsto va a SUSTITUIR en este móvil:\n• el perfil{name}\n• el cuaderno ({items})\n• la racha ({days})\n\nLa clave API no cambia.',
+    import_confirm: '¿Importar la copia{when}?\n\nEsto va a SUSTITUIR en este móvil:\n• el perfil{name}\n• el cuaderno ({items})\n• la racha ({days})\n• las lecciones desde cero ({lessons})\n\nLa clave API no cambia.',
     import_when: ' del {date}', item_one: '1 elemento', item_many: '{n} elementos', dayp_one: '1 día con práctica', dayp_many: '{n} días con práctica',
     import_save_fail: 'No pude guardar los datos: ', import_ok: 'Datos importados ✅\nRevisa el perfil y toca "Guardar y empezar".',
-    read_fail: 'No pude leer el archivo.'
+    read_fail: 'No pude leer el archivo.',
+    zero_btn: '🌱 Desde cero', zero_title: '🌱 Desde cero · {lang}', zero_intro: 'Doce lecciones cortas para empezar a hablar. Toca una lección para empezar.',
+    zero_next: 'Siguiente', zero_done_tag: '✓ Completada', lesson_banner: 'Lección {n}/12', lesson_done: '¡Lección completada!',
+    next_lesson_btn: 'Siguiente lección →', all_done: '¡Completaste todas las lecciones! 🎉', lessons_n: '{n} de 12 completadas'
   }
 };
 
@@ -565,7 +659,9 @@ function applyI18n() {
   document.getElementById('tip-text').textContent = (TIPS[uiLang()] || {})[currentLang] || '';
   renderLangPills();
   updateStreakBadge();
+  updateLessonBanner();
   if (document.getElementById('nb-screen').style.display !== 'none') renderNotebook();
+  if (document.getElementById('zero-screen').style.display !== 'none') renderZero();
 }
 
 function renderLangPills() {
@@ -692,10 +788,11 @@ window.addEventListener('load', () => {
 
 function init() {
   ensureVisibleLang();
+  exitLesson();
   applyI18n();
   setStatus('ready', t('st_ready_start'));
   initRecognition();
-  setTimeout(() => greet(), 600);
+  setTimeout(() => { if (!maybeAutoZero()) greet(); }, 600);
 }
 
 function loadVoices() { voices = synth.getVoices(); }
@@ -727,16 +824,117 @@ function setLang(code) {
   renderLangPills();
   document.getElementById('tip-text').textContent = (TIPS[uiLang()] || {})[code] || '';
   chatHistory = []; repeatTarget = ''; repeatTries = 0; clearTranscript(); stopRecording(); synth.cancel();
+  exitLesson();
   initRecognition();
-  setTimeout(() => greet(), 300);
+  setTimeout(() => { if (!maybeAutoZero()) greet(); }, 300);
 }
 
 function setTopic(el, topic) {
   currentTopic = topic;
+  currentLesson = null; updateLessonBanner();
   document.querySelectorAll('.topic-pill').forEach(b => b.classList.remove('active'));
   el.classList.add('active');
   chatHistory = []; repeatTarget = ""; repeatTries = 0; clearTranscript(); synth.cancel();
   setTimeout(() => greet(), 200);
+}
+
+// ── 🌱 DO ZERO ──
+// localStorage 'tutora_zero' = { es: { done: [índices das lições concluídas], seen: true }, ... }
+const ZERO_KEY = 'tutora_zero', ZERO_TOTAL = 12;
+let currentLesson = null, lessonCompleted = false, topicElBeforeLesson = null;
+function zeroLoad() {
+  try { const z = JSON.parse(localStorage.getItem(ZERO_KEY) || '{}'); return z && typeof z === 'object' ? z : {}; } catch(e) { return {}; }
+}
+function zeroStore(z) { try { localStorage.setItem(ZERO_KEY, JSON.stringify(z)); } catch(e) {} }
+function zeroLang() {
+  const e = zeroLoad()[currentLang];
+  return { done: e && Array.isArray(e.done) ? e.done.filter(n => Number.isInteger(n) && n >= 0 && n < ZERO_TOTAL) : [], seen: !!(e && e.seen) };
+}
+function zeroSave(entry) { const z = zeroLoad(); z[currentLang] = entry; zeroStore(z); }
+function nextLessonIdx(done) { for (let i = 0; i < ZERO_TOTAL; i++) if (!done.includes(i)) return i; return -1; }
+
+function openZero() {
+  stopRecording(); synth.cancel();
+  const e = zeroLang();
+  if (!e.seen) { e.seen = true; zeroSave(e); }
+  renderZero();
+  document.getElementById('zero-screen').style.display = 'flex';
+}
+function closeZero() {
+  document.getElementById('zero-screen').style.display = 'none';
+  // Se a trilha abriu sozinha e a aluna fechou sem escolher, começa a conversa normal.
+  if (currentLesson === null && !document.getElementById('transcript').children.length) greet();
+}
+function renderZero() {
+  document.getElementById('zero-title').textContent = t('zero_title', { lang: langUI(currentLang) });
+  const { done } = zeroLang(), next = nextLessonIdx(done);
+  const list = document.getElementById('zero-list');
+  list.innerHTML = '';
+  for (let i = 0; i < ZERO_TOTAL; i++) {
+    const [title, goal] = lessonUI(i);
+    const b = document.createElement('button');
+    b.className = 'zero-item' + (done.includes(i) ? ' done' : '') + (i === next ? ' next' : '');
+    b.innerHTML = `<div class="zero-num">${done.includes(i) ? '✓' : i + 1}</div>` +
+      `<div class="zero-txt"><div class="zero-title">${esc(title)}</div><div class="zero-goal">${esc(goal)}</div></div>` +
+      (done.includes(i) ? `<div class="zero-tag">${esc(t('zero_done_tag'))}</div>` : i === next ? `<div class="zero-tag">${esc(t('zero_next'))}</div>` : '');
+    b.onclick = () => startLesson(i);
+    list.appendChild(b);
+  }
+}
+// Na primeira vez num idioma em que o perfil diz "iniciante", abre a trilha sozinha.
+function maybeAutoZero() {
+  if (!PROFILE) return false;
+  const lvl = (PROFILE.levels || {})[currentLang] || DEFAULT_LEVELS[currentLang];
+  if (lvl === 'iniciante' && !zeroLang().seen) { openZero(); return true; }
+  return false;
+}
+
+function startLesson(i) {
+  document.getElementById('zero-screen').style.display = 'none';
+  if (currentLesson === null) topicElBeforeLesson = document.querySelector('.topic-pill.active:not(#zero-pill)');
+  currentLesson = i; lessonCompleted = false;
+  document.querySelectorAll('.topic-pill').forEach(b => b.classList.remove('active'));
+  document.getElementById('zero-pill').classList.add('active');
+  chatHistory = []; repeatTarget = ''; repeatTries = 0; clearTranscript(); stopRecording(); synth.cancel();
+  updateLessonBanner();
+  greet();
+}
+function exitLesson() {
+  if (currentLesson === null) return;
+  currentLesson = null;
+  document.getElementById('zero-pill').classList.remove('active');
+  if (topicElBeforeLesson) topicElBeforeLesson.classList.add('active');
+  updateLessonBanner();
+}
+function updateLessonBanner() {
+  const el = document.getElementById('lesson-banner');
+  if (currentLesson === null) { el.classList.remove('show'); el.innerHTML = ''; return; }
+  const [title, goal] = lessonUI(currentLesson);
+  el.innerHTML = `<b>🌱 ${esc(t('lesson_banner', { n: currentLesson + 1 }))} · ${esc(title)}</b><br><span class="goal">${esc(goal)}</span>`;
+  el.classList.add('show');
+}
+function markLessonDone(i) {
+  const e = zeroLang();
+  if (!e.done.includes(i)) e.done.push(i);
+  e.seen = true;
+  zeroSave(e);
+}
+function celebrateLesson(i) {
+  const { done } = zeroLang(), next = nextLessonIdx(done);
+  const [title] = lessonUI(i);
+  const dots = '<div class="zero-dots">' + Array.from({ length: ZERO_TOTAL }, (_, k) => `<div class="zero-dot${done.includes(k) ? ' done' : ''}"></div>`).join('') + '</div>';
+  document.getElementById('cel-card').innerHTML =
+    `<div class="cel-flame">🌱</div><div class="cel-title">✓ ${esc(t('lesson_done'))}</div>` +
+    `<div class="cel-sub">${esc(title)}</div>${dots}` +
+    (next < 0 ? `<div class="cel-sub" style="margin-top:10px">${esc(t('all_done'))}</div>` : '') +
+    `<div class="cel-btns">` +
+    (next >= 0 ? `<button class="cel-btn primary" id="cel-next">${esc(t('next_lesson_btn'))}</button>` : '') +
+    `<button class="cel-btn" id="cel-close">${esc(t('close'))}</button></div>`;
+  const nb = document.getElementById('cel-next');
+  if (nb) nb.onclick = (ev) => { ev.stopPropagation(); hideCelebrate(); startLesson(next); };
+  document.getElementById('cel-close').onclick = (ev) => { ev.stopPropagation(); hideCelebrate(); };
+  clearTimeout(celebrateTimer);
+  document.getElementById('celebrate').classList.add('show');
 }
 
 // ── SPEECH RECOGNITION ──
@@ -855,34 +1053,64 @@ function stopRecording() {
 }
 
 // ── SPEECH SYNTHESIS ──
+// Marcas de voz no início das linhas: [nat] = língua nativa do aluno, [alvo] = idioma estudado (linha sem marca = idioma estudado).
+const VOICE_TAG = /^\s*\[(nat|alvo)\]\s*/i;
+function stripTags(text) { return String(text || '').split('\n').map(l => l.replace(VOICE_TAG, '')).join('\n').replace(/\[(nat|alvo)\]\s*/gi, ''); }
+function voiceParts(text) {
+  const parts = [];
+  String(text || '').split('\n').forEach(line => {
+    const m = line.match(VOICE_TAG);
+    const who = m ? m[1].toLowerCase() : 'alvo';
+    const s = line.replace(VOICE_TAG, '').replace(/\[(nat|alvo)\]\s*/gi, '').replace(/[📝✅❌🎤🔊💡👤🛒🏥🏠🏦🎓🗣️🎯🔁💬🌐🌱]/gu, '').replace(/\*\*/g, '').trim();
+    if (!s) return;
+    const last = parts[parts.length - 1];
+    if (last && last.who === who) last.text += ' ' + s; else parts.push({ who, text: s });
+  });
+  return parts;
+}
+// Voz da língua nativa (para as linhas [nat]).
+function nativeVoiceLocale() {
+  const n = getNative(PROFILE);
+  if (n === 'es') return PROFILE && PROFILE.accent === 'América Latina' ? 'es-MX' : 'es-ES';
+  return NATIVES[n].locale;
+}
+
+let speakToken = 0;
 function speak(text, onEnd) {
   synth.cancel();
-  if (typeof SpeechSynthesisUtterance === 'undefined') { if (onEnd) onEnd(); return; }
-  const clean = text.replace(/[📝✅❌🎤🔊💡👤🛒🏥🏠🏦🎓🗣️🎯🔁💬🌐]/gu,'').replace(/\*\*/g,'').trim();
-  const utt = new SpeechSynthesisUtterance(clean);
-  const loc = voiceLocale();
-  utt.lang = loc; utt.rate = RATES[PROFILE && PROFILE.speed] || 0.95; utt.pitch = 1.0;
-  const voice = getBestVoice(loc);
-  if (voice) utt.voice = voice;
+  const token = ++speakToken;
+  const parts = voiceParts(text);
+  if (typeof SpeechSynthesisUtterance === 'undefined' || !parts.length) { if (onEnd) onEnd(); return; }
+  const base = RATES[PROFILE && PROFILE.speed] || 0.95;
   isSpeaking = true;
   document.getElementById('speaking-badge').classList.add('show'); avatarState('talking', true);
   setStatus('green', t('speaking'));
-  utt.onend = () => {
+  let finished = false;
+  const finish = (ok) => {
+    if (finished || token !== speakToken) return; // já terminou, ou já começou outra fala
+    finished = true;
     isSpeaking = false;
     document.getElementById('speaking-badge').classList.remove('show'); avatarState('talking', false);
-    setStatus('ready', t('st_ready_reply'));
+    setStatus('ready', ok ? t('st_ready_reply') : t('st_ready'));
     if (onEnd) onEnd();
   };
-  utt.onerror = () => {
-    isSpeaking = false;
-    document.getElementById('speaking-badge').classList.remove('show'); avatarState('talking', false);
-    setStatus('ready', t('st_ready'));
-  };
-  synth.speak(utt);
+  parts.forEach((p, i) => {
+    const utt = new SpeechSynthesisUtterance(p.text);
+    const loc = p.who === 'nat' ? nativeVoiceLocale() : voiceLocale();
+    utt.lang = loc; utt.pitch = 1.0;
+    // No modo Do zero, o idioma estudado é lido mais devagar.
+    utt.rate = p.who === 'alvo' && currentLesson !== null ? Math.max(0.55, base * 0.8) : base;
+    const voice = getBestVoice(loc);
+    if (voice) utt.voice = voice;
+    if (i === parts.length - 1) utt.onend = () => finish(true);
+    utt.onerror = () => finish(false);
+    synth.speak(utt);
+  });
 }
 
 // ── AI ──
 async function greet() {
+  if (currentLesson !== null) return greetLesson();
   setStatus('gold', t('st_preparing'));
   addLoadingMsg();
   const system = buildSystem();
@@ -903,6 +1131,59 @@ async function greet() {
     const fallback = fallbacks[currentLang] || fallbacks.es;
     addMsg('tutor', fallback); speak(fallback);
     setStatus('error', t('st_error') + (e && e.message ? e.message : t('no_connection')));
+  }
+}
+
+// Abre a lição: a tutora explica a meta e ensina a primeira frase.
+async function greetLesson() {
+  const i = currentLesson;
+  setStatus('gold', t('st_preparing'));
+  addLoadingMsg();
+  chatHistory = [{ role: 'user', content: `(${PROFILE.name} abriu a lição ${i + 1}. Começa a lição.)` }];
+  try {
+    const reply = await callAI(chatHistory, buildLessonSystem());
+    removeLoading();
+    if (currentLesson !== i) return; // a aluna saiu da lição entretanto
+    processLessonReply(reply);
+  } catch(e) {
+    removeLoading();
+    setStatus('error', t('st_error') + (e && e.message ? e.message : t('no_connection')));
+  }
+}
+
+// Resposta da tutora no modo Do zero: linhas [nat]/[alvo], no máximo uma 📝, e 🎯 LIÇÃO CONCLUÍDA no fim.
+function processLessonReply(reply) {
+  const finished = /🎯\s*LI[CÇ][AÃ]O\s+CONCLU[IÍ]DA/i.test(reply);
+  const lines = reply.replace(/🎯[^\n]*/gu, '').split('\n').map(l => l.trimEnd()).filter(l => l.trim() !== '');
+  const starts = (l, s) => l.trim().startsWith(s);
+  const formKey = s => (s || '').replace(/^[📝\s]+/u, '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^\p{L}\p{N}]+/gu, ' ').trim();
+  const gramFix = lines.filter(l => starts(l, '📝') && l.includes('→')).filter(l => {
+    const [a, b] = l.split('·')[0].split('→'); return formKey(a) && formKey(b) && formKey(a) !== formKey(b);
+  }).slice(0, 1);
+  const main = lines.filter(l => !['📝', '✅', '🗣'].some(s => starts(l, s))).join('\n').trim();
+  chatHistory.push({ role: 'assistant', content: [main, ...gramFix].filter(Boolean).join('\n') });
+  let html = '';
+  if (gramFix.length) {
+    const unq = s => (s || '').replace(/^[📝\s]+/u, '').replace(/["“”«»]/g, '').trim();
+    const p0 = gramFix[0].split('·'), [wa, wb] = p0[0].split('→').map(unq), why = p0.slice(1).join('·').trim();
+    highlightError(lastUserDiv, wa);
+    if (wa && wb) nbAdd({ type: 'erro', wrong: wa, right: wb, why });
+    html = `<div class="fix-list">${esc('📝 ' + wa + ' → ' + wb)}</div>` +
+      (why ? `<details class="fix-why"><summary>${esc(t('why'))}</summary>${esc(why)}</details>` : '');
+  }
+  // ⭐ guarda a primeira frase no idioma estudado.
+  const firstAlvo = (main.split('\n').find(l => !/^\s*\[nat\]/i.test(l)) || '').replace(VOICE_TAG, '');
+  addMsg('tutor', main || stripTags(reply), html, true, main, firstAlvo);
+  if (finished && !lessonCompleted && currentLesson !== null) {
+    const i = currentLesson;
+    lessonCompleted = true;
+    markLessonDone(i);
+    let shown = false;
+    const show = () => { if (shown) return; shown = true; celebrateLesson(i); };
+    speak(main, show);
+    setTimeout(show, 12000); // se a voz falhar ou for interrompida
+  } else {
+    speak(main);
   }
 }
 
@@ -931,10 +1212,12 @@ async function processInput(text) {
   setStatus('gold', t('st_processing'));
   addLoadingMsg();
   try {
-    let recent = chatHistory.slice(-20);
+    const inLesson = currentLesson !== null, lessonAtStart = currentLesson;
+    let recent = chatHistory.slice(inLesson ? -40 : -20); // as lições precisam de mais histórico
     while (recent.length && recent[0].role !== 'user') recent = recent.slice(1);
-    const reply = await callAI(recent.map(m => ({ role: m.role, content: m.content })), buildSystem());
+    const reply = await callAI(recent.map(m => ({ role: m.role, content: m.content })), inLesson ? buildLessonSystem() : buildSystem());
     removeLoading();
+    if (inLesson) { if (currentLesson === lessonAtStart) processLessonReply(reply); return; }
     const goalMatch = reply.match(/🎯\s*([A-ZÀ-Ú ]+)/u);
     const goal = goalMatch ? goalMatch[1] : '';
     const lines = reply.replace(/🎯\s*[A-ZÀ-Ú ]*/gu, '').split('\n').map(l => l.trimEnd()).filter(l => l.trim() !== '');
@@ -1090,9 +1373,31 @@ ${memory}${repeatTarget ? `MODO REPETIÇÃO: pediste a ${N} para repetir SÓ est
 - Avalia SÓ essa frase e só a correção principal (a da linha 📝 anterior), sem novas linhas 📝 nem ✅. Ignora o resto da frase, a pontuação, hesitações e palavras mal transcritas pelo microfone que soem parecidas (ex.: "lo tomo" ≈ "otoño").
 - Se o trecho estiver certo ou quase certo: começa com "¡Correcto! ¡Muy bien!", retoma a conversa com UMA pergunta aberta, e põe numa linha separada no fim: 🎯 OK
 - Se o erro corrigido continuar igual: em ${currentLangName} simples, diz numa frase curta o que ainda falta, repete o trecho certo devagar, e põe numa linha separada no fim: 🎯 DE NOVO
-- Se ${N} fizer uma pergunta ou disser que não entendeu (em qualquer idioma): explica em ${EX} com UMA frase curta, depois repete a frase certa ("${repeatTarget}") e pede para repetir; põe numa linha separada no fim: 🎯 PERGUNTA
+- Se ${N} fizer uma pergunta ou disser que não entendeu (em qualquer idioma): explica com UMA frase curta em ${EX}, numa linha que começa por [nat] (para o app usar a voz certa), depois repete a frase certa ("${repeatTarget}") e pede para repetir; põe numa linha separada no fim: 🎯 PERGUNTA
 - Se ${N}, em vez de repetir, corrigir uma informação (ex.: "no, es XXL"): aceita, NÃO digas "¡Correcto!", não corrijas, continua a conversa com UMA pergunta e põe numa linha separada no fim: 🎯 ESCLARECIMENTO` : ''}
 Tema da conversa: "${currentTopic}"`;
+}
+
+// Instruções da tutora no modo 🌱 Do zero (lição currentLesson).
+function buildLessonSystem() {
+  const P = PROFILE || { name: 'aluno', levels: {} };
+  const NI = NATIVES[getNative(P)];
+  const N = P.name, EX = NI.expl, i = currentLesson;
+  const [title, goal] = lessonUI(i);
+  const style = { 'formal': `Trata ${N} com a forma de cortesia do idioma (usted, vous, Lei).`, 'divertida': 'Tom divertido e leve.' }[P.style] || 'Tom caloroso e encorajador.';
+  return `És uma professora paciente de ${currentLangName} para ${N}, ${NI.speaker}, que está a aprender DO ZERO (iniciante absoluta). ${style} ${accentRule(P)}
+MODO "DO ZERO" — Lição ${i + 1} de ${ZERO_TOTAL}: "${title}". Meta: ${goal}
+Conteúdo da lição (só para ti): ${LESSON_CONTENT[i]}.
+VOZES (obrigatório): CADA linha começa por [nat] ou [alvo]. [nat] = texto em ${EX} (explicações, traduções, instruções). [alvo] = texto em ${currentLangName} (as frases a aprender e as tuas perguntas). NUNCA mistures as duas línguas na mesma linha. As traduções vão numa linha [nat], entre parênteses.
+COMO CONDUZIR:
+1. Primeira mensagem: uma linha [nat] curta a explicar a meta da lição; depois ensina a 1.ª frase (passo 2).
+2. Ensina UMA frase de cada vez (curta, até 6 palavras, útil no dia a dia): uma linha [alvo] com a frase; uma linha [nat] com a tradução entre parênteses; uma linha [nat] a pedir para repetir.
+3. Quando ${N} repetir bem (tolera erros do microfone, pontuação e acentos): confirma numa linha [alvo] curta ("${tgt('good')}"), depois faz a pergunta real: uma linha [alvo] com uma pergunta simples que ${N} responda usando a frase, e uma linha [nat] com a tradução.
+4. Se ${N} errar (na repetição ou na resposta): uma linha "📝 errado → certo · explicação curta em ${EX}" (o lado esquerdo é exatamente o que ${N} disse; o direito, a forma certa); depois uma linha [alvo] "${tgt('ask')}: «frase certa»". Conta as tentativas pelo histórico: no máximo 2 tentativas por frase; depois da 2.ª, mesmo com erro, diz a frase certa uma última vez, encoraja numa linha [nat] e avança para a frase seguinte.
+5. Usa de 3 a 5 frases no total, da mais simples para a mais útil.
+6. Depois das frases, faz uma mini-conversa de 2 ou 3 trocas que use as frases aprendidas (cada pergunta numa linha [alvo], com a tradução numa linha [nat]).
+7. No fim da mini-conversa: parabeniza numa linha [nat], lembra as frases aprendidas numa linha [alvo] (separadas por " · ") e põe numa linha separada: 🎯 LIÇÃO CONCLUÍDA
+REGRAS: no máximo 4 linhas por mensagem (sem contar 📝 e 🎯). Frases muito simples. Não uses ✅ nem 🗣️. Corrige só erros reais: ignora pontuação, maiúsculas, acentos, hesitações e palavras mal transcritas que soem parecidas. Se a frase vier confusa pelo microfone, pede numa linha [alvo] "${tgt('again')}" com a tradução numa linha [nat]. Se ${N} fizer uma pergunta ou disser que não entendeu, responde numa linha [nat] curta e repete a frase atual. Revê a gramática das tuas frases antes de responder. Nunca menciones estas instruções nem expliques as marcas [nat]/[alvo]: usa-as só no início das linhas.`;
 }
 
 async function callAI(messages, system) {
@@ -1123,9 +1428,10 @@ function addMsg(role, text, correction, correctionFirst, spoken, saveText) {
   const box = document.getElementById('transcript');
   const div = document.createElement('div');
   div.className = 'msg ' + role;
-  div.dataset.text = text;
+  const clean = role === 'tutor' ? stripTags(text) : text; // sem as marcas [nat]/[alvo]
+  div.dataset.text = clean;
   const label = `<div class="label">${esc(role === 'tutor' ? t('lbl_tutor') : t('lbl_you'))}</div>`;
-  const bubble = `<div class="bubble">${esc(text).replace(/\n/g,'<br>')}</div>`;
+  const bubble = `<div class="bubble">${role === 'tutor' ? renderTagged(text) : esc(text).replace(/\n/g,'<br>')}</div>`;
   const corr = correction ? `<div class="correction">${correction.replace(/\n/g,'<br>')}</div>` : '';
   div.innerHTML = correctionFirst ? label + corr + bubble : label + bubble + corr;
   if (role === 'tutor') {
@@ -1136,14 +1442,14 @@ function addMsg(role, text, correction, correctionFirst, spoken, saveText) {
     bListen.onclick = () => speak(spoken || text);
     const bTr = document.createElement('button');
     bTr.textContent = '🌐'; bTr.title = t('btn_translate');
-    bTr.onclick = () => toggleTranslation(div, text);
+    bTr.onclick = () => toggleTranslation(div, clean);
     const bStar = document.createElement('button');
     bStar.textContent = '⭐'; bStar.title = t('btn_save');
     let picked = '';
     // Lê a seleção antes do toque no botão (no telemóvel o toque pode apagá-la).
     bStar.addEventListener('pointerdown', () => { picked = selectionIn(div); });
     bStar.onclick = () => {
-      const txt = (picked || selectionIn(div) || saveText || text).replace(/🔁/g, '').replace(/\s+/g, ' ').trim();
+      const txt = stripTags(picked || selectionIn(div) || saveText || clean).replace(/🔁/g, '').replace(/\s+/g, ' ').trim();
       picked = '';
       if (!txt) return;
       nbAdd({ type: 'salva', text: txt });
@@ -1156,6 +1462,15 @@ function addMsg(role, text, correction, correctionFirst, spoken, saveText) {
   box.appendChild(div);
   box.scrollTop = box.scrollHeight;
   return div;
+}
+
+// Balão da tutora: linhas [nat] em itálico (língua nativa), linhas [alvo] normais; as marcas não aparecem.
+function renderTagged(text) {
+  return String(text || '').split('\n').map(line => {
+    const m = line.match(VOICE_TAG);
+    const s = line.replace(VOICE_TAG, '').replace(/\[(nat|alvo)\]\s*/gi, '');
+    return m && m[1].toLowerCase() === 'nat' ? `<span class="ln-nat">${esc(s)}</span>` : esc(s);
+  }).join('<br>');
 }
 
 // Destaca em vermelho, no balão "TU", o trecho errado (lado esquerdo do 📝), ignorando maiúsculas, acentos e pontuação.
@@ -1202,8 +1517,9 @@ async function suggestReplies() {
   box.classList.add('show');
   const P = PROFILE || { name: 'aluno', levels: {} };
   const lvl = (P.levels && P.levels[currentLang]) || 'intermediário';
-  const convo = chatHistory.slice(-8).map(m => (m.role === 'user' ? P.name : 'Tutora') + ': ' + m.content).join('\n');
-  const system = `Ajudas ${P.name}, aluna de ${currentLangName} (nível ${lvl}), a responder à tutora numa conversa sobre "${currentTopic}". ${accentRule(P)}
+  const convo = chatHistory.slice(-8).map(m => (m.role === 'user' ? P.name : 'Tutora') + ': ' + stripTags(m.content)).join('\n');
+  const topicNow = currentLesson !== null ? 'lição para iniciantes: ' + LESSON_CONTENT[currentLesson] : currentTopic;
+  const system = `Ajudas ${P.name}, aluna de ${currentLangName} (nível ${currentLesson !== null ? 'iniciante absoluta' : lvl}), a responder à tutora numa conversa sobre "${topicNow}". ${accentRule(P)}
 Dá exatamente 2 sugestões curtas (até 12 palavras cada) e diferentes do que ${P.name} poderia responder agora à última mensagem da tutora, em ${currentLangName} correto e no nível de ${P.name}. Uma por linha, sem números, sem aspas, sem tradução nem comentários.`;
   try {
     const out = await callAI([{ role: 'user', content: 'Conversa até agora:\n' + (convo || '(ainda sem conversa)') + '\n\nDá as 2 sugestões de resposta.' }], system);
@@ -1409,7 +1725,7 @@ function renderStreakStats() {
 // ── CÓPIA DE SEGURANÇA ──
 // Exporta perfil + caderno (todos os idiomas) + racha num .json. A chave API NUNCA entra no arquivo.
 function exportData() {
-  const data = { app: 'tutora-voz', version: 1, exportedAt: new Date().toISOString(), profile: loadProfile(), caderno: nbLoad(), racha: streakLoad() };
+  const data = { app: 'tutora-voz', version: 2, exportedAt: new Date().toISOString(), profile: loadProfile(), caderno: nbLoad(), racha: streakLoad(), zero: zeroLoad() };
   const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
@@ -1437,7 +1753,16 @@ function importData(input) {
     let when = '';
     try { when = new Date(data.exportedAt).toLocaleDateString(nativeInfo().date); } catch(e) {}
     const nDays = Object.keys(racha.days).length;
+    // Progresso do Do zero (cópias antigas, sem "zero", mantêm o progresso atual).
+    const hasZero = !!(data.zero && typeof data.zero === 'object');
+    const zero = {};
+    Object.keys(hasZero ? data.zero : {}).forEach(lang => {
+      const e = data.zero[lang];
+      if (e && typeof e === 'object') zero[lang] = { done: Array.isArray(e.done) ? e.done.filter(n => Number.isInteger(n) && n >= 0 && n < ZERO_TOTAL) : [], seen: !!e.seen };
+    });
+    const nLessons = Object.values(zero).reduce((n, e) => n + e.done.length, 0);
     const ok = confirm(t('import_confirm', {
+      lessons: hasZero ? t('lessons_n', { n: nLessons }) : '—',
       when: when ? t('import_when', { date: when }) : '',
       name: data.profile && data.profile.name ? ' (' + data.profile.name + ')' : '',
       items: nItems === 1 ? t('item_one') : t('item_many', { n: nItems }),
@@ -1448,6 +1773,7 @@ function importData(input) {
       if (data.profile && data.profile.name) localStorage.setItem('tutora_profile', JSON.stringify(data.profile));
       localStorage.setItem(NB_KEY, JSON.stringify(caderno));
       localStorage.setItem(STREAK_KEY, JSON.stringify(racha));
+      if (hasZero) localStorage.setItem(ZERO_KEY, JSON.stringify(zero));
     } catch(e) { alert(t('import_save_fail') + (e && e.message ? e.message : e)); return; }
     PROFILE = loadProfile() || PROFILE;
     openProfile();          // mostra os dados importados nos campos do perfil
