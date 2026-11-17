@@ -36,12 +36,13 @@ App de conversação para praticar idiomas (espanhol, inglês, francês, italian
 - Frase confusa por erro do microfone: a tutora não adivinha, pergunta "¿Puedes decirlo otra vez?" (ou o equivalente no idioma).
 - Letras, siglas, números e tamanhos ditos em voz alta ("ex el", "doble ex") são falhas de transcrição: nunca corrigir; ensinar como se fala (XL = "equis ele") numa linha 🗣️.
 - Se a aluna corrigir uma informação ("no, es XXL"), a tutora aceita e continua, sem "¡Correcto!" e sem corrigir. No modo repetição, isso vem com o marcador `🎯 ESCLARECIMENTO` e o app sai do modo repetição.
+- Erros de conjugação e de imperativo são sempre corrigidos, mesmo com o sentido claro e mesmo na primeira fala da conversa (ex.: "me cuenten más" → "cuéntame más").
 - Atenção especial ao "se" em vez do "si" condicional e ao pronome objeto que falta ("lo compro").
 - A cidade do perfil é só contexto: a tutora não a menciona, a não ser que a aluna fale dela primeiro.
 - Frase inteira em português não é erro: a IA responde com uma linha `💬 frase no idioma`, e o app mostra "Puedes decir: «…»" e pede para repetir (entra no modo repetição).
 - Quando há erro: a tutora fala "Mejor di: … Y no: …", mostra a caixa de correção ANTES do texto, e pede para repetir ("Repite conmigo 🔁: «…»") só o trecho da ✅ com a correção principal, escolhido pelo código (função `repeatPhrase`): a oração entre vírgulas/pontos que contém a correção do 📝; se não houver, a ✅ inteira quando tem até 10 palavras; senão 10 palavras a partir da correção. Nunca trechos soltos juntos com "…". Não continua o tema antes disso.
 - Modo repetição: avalia só a frase, tolera erros do microfone, máximo 2 tentativas, depois "¡Correcto!" e segue a conversa. Se a aluna perguntar algo ou disser que não entendeu, a tutora explica em português com uma frase curta e repete a frase certa (isso não conta como tentativa). Marcadores internos `🎯 OK` / `🎯 DE NOVO` / `🎯 PERGUNTA` / `🎯 ESCLARECIMENTO` nunca aparecem na tela.
-- Fazer a aluna falar mais: a tutora fala pouco (no máximo 2 frases curtas antes da pergunta) e faz perguntas abertas que exigem frases completas (porquê, como, o que farias, conta-me sobre…). Evita perguntas "A ou B?" e de sim/não. Se a aluna responder com só 1 a 3 palavras, de vez em quando pede com gentileza uma frase completa.
+- Fazer a aluna falar mais: a tutora fala pouco (no máximo 2 frases curtas antes da pergunta) e faz perguntas abertas que exigem frases completas (porquê, como, o que farias, conta-me sobre…). Evita perguntas "A ou B?" e de sim/não, e não acrescenta opções de resposta depois de uma pergunta aberta ("¿es por A, por B o por C?"). Se a aluna responder com só 1 a 3 palavras, de vez em quando pede com gentileza uma frase completa.
 - Explicações sempre em português (do Brasil ou de Portugal, conforme o perfil).
 
 ## Fluxo de trabalho
