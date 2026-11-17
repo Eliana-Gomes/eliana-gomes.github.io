@@ -54,6 +54,26 @@
   .suggest-box.show { display: flex; }
   .suggest-chip { text-align: left; background: rgba(184,154,0,0.12); border: 1px solid rgba(184,154,0,0.4); color: var(--cream); border-radius: 12px; padding: 9px 12px; font-size: 0.85rem; font-family: 'Inter', sans-serif; cursor: pointer; }
   .suggest-note { font-size: 0.78rem; color: var(--muted); text-align: center; }
+
+  /* MEU CADERNO */
+  .nb-screen { position: fixed; inset: 0; background: var(--petrol); z-index: 998; overflow-y: auto; padding: 20px 16px 30px; display: flex; flex-direction: column; align-items: center; }
+  .nb-wrap { width: 100%; max-width: 480px; display: flex; flex-direction: column; gap: 12px; }
+  .nb-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+  .nb-head h2 { font-family: 'Cormorant Garamond', serif; font-size: 1.5rem; font-weight: 400; color: var(--cream); }
+  .nb-close { background: transparent; border: 1px solid rgba(255,255,255,0.2); color: var(--cream); border-radius: 50%; width: 36px; height: 36px; font-size: 1rem; cursor: pointer; flex-shrink: 0; }
+  .nb-tabs { display: flex; gap: 8px; }
+  .nb-tab { flex: 1; padding: 9px; border-radius: 20px; border: 1.5px solid rgba(255,255,255,0.15); background: transparent; color: var(--muted); font-size: 0.85rem; font-family: 'Inter', sans-serif; cursor: pointer; }
+  .nb-tab.active { background: var(--gold); border-color: var(--gold); color: var(--white); }
+  .nb-list { display: flex; flex-direction: column; gap: 8px; }
+  .nb-item { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 10px 12px; display: flex; gap: 10px; align-items: flex-start; }
+  .nb-body { flex: 1; min-width: 0; font-size: 0.88rem; line-height: 1.5; overflow-wrap: anywhere; }
+  .nb-wrong { color: #e57368; text-decoration: line-through; }
+  .nb-right { color: #9be3a8; font-weight: 500; }
+  .nb-why { color: #b8b49a; font-size: 0.78rem; margin-top: 2px; }
+  .nb-date { color: var(--muted); font-size: 0.7rem; margin-top: 4px; }
+  .nb-actions { display: flex; flex-direction: column; gap: 6px; }
+  .nb-actions button { background: transparent; border: 1px solid rgba(255,255,255,0.15); border-radius: 10px; color: var(--cream); font-size: 0.85rem; width: 36px; height: 32px; cursor: pointer; }
+  .nb-empty { color: var(--muted); font-size: 0.85rem; text-align: center; padding: 30px 10px; line-height: 1.6; }
   .mic-section { display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 10px 0; }
   .mic-ring { position: relative; width: 96px; height: 96px; }
   .mic-ring-pulse { position: absolute; inset: -8px; border-radius: 50%; border: 2px solid var(--gold); opacity: 0; transition: all 0.3s; }
@@ -63,7 +83,7 @@
   .mic-btn.recording { background: #c0392b; box-shadow: 0 4px 24px rgba(192,57,43,0.5); animation: mic-pulse 1s ease-in-out infinite; }
   @keyframes mic-pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.06); } }
   .mic-label { font-size: 0.8rem; color: var(--muted); letter-spacing: 0.05em; text-align: center; }
-  .text-toggle { display: flex; gap: 8px; align-items: center; justify-content: center; }
+  .text-toggle { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: center; }
   .text-toggle span { font-size: 0.72rem; color: var(--muted); cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
   .text-input-row { display: none; gap: 8px; align-items: flex-end; }
   .text-input-row.show { display: flex; }
@@ -174,6 +194,21 @@
   <button class="api-btn" onclick="saveProfile()">Guardar e começar →</button>
 </div>
 
+<!-- MEU CADERNO -->
+<div class="nb-screen" id="nb-screen" style="display:none;">
+  <div class="nb-wrap">
+    <div class="nb-head">
+      <h2 id="nb-title">📒 Meu caderno</h2>
+      <button class="nb-close" onclick="closeNotebook()" aria-label="Fechar">✕</button>
+    </div>
+    <div class="nb-tabs">
+      <button class="nb-tab active" id="nb-tab-erro" onclick="nbTab('erro')">Meus erros</button>
+      <button class="nb-tab" id="nb-tab-salva" onclick="nbTab('salva')">Salvas</button>
+    </div>
+    <div class="nb-list" id="nb-list"></div>
+  </div>
+</div>
+
 <div class="header">
   <h1>🎤 Tutora de Voz</h1>
   <p>Luz em Movimento · Idiomas</p>
@@ -240,6 +275,8 @@
     <span onclick="toggleTextMode()">⌨️ Preferes escrever?</span>
     &nbsp;·&nbsp;
     <span onclick="openProfile()">👤 Perfil</span>
+    &nbsp;·&nbsp;
+    <span onclick="openNotebook()">📒 Caderno</span>
     &nbsp;·&nbsp;
     <span onclick="clearKey()" style="color:#c0392b;">🔑 Mudar chave</span>
   </div>
@@ -610,7 +647,7 @@ async function processInput(text) {
       repeatTarget = say; repeatTries = 0;
       chatHistory.push({ role: 'assistant', content: main });
       const spokenSay = `${canSay} ${say}. ${rep} ${say}.`;
-      addMsg('tutor', main, '', false, spokenSay);
+      addMsg('tutor', main, '', false, spokenSay, say);
       speak(spokenSay);
       return;
     }
@@ -623,7 +660,12 @@ async function processInput(text) {
     if (fixLines.length) {
       const fixed = okLine.replace('✅', '').trim();
       if (gramFix.length && !wasRepeating) { repeatTarget = fragment; repeatTries = 0; }
-      if (gramFix.length) highlightError(lastUserDiv, unq(gramFix[0].split('·')[0].split('→')[0]));
+      if (gramFix.length) {
+        const p0 = gramFix[0].split('·'), [wa, wb] = p0[0].split('→').map(t => unq(t || ''));
+        highlightError(lastUserDiv, wa);
+        // Guarda a correção no caderno (📒 Meus erros).
+        if (wa && wb) nbAdd({ type: 'erro', wrong: wa, right: wb, why: p0.slice(1).join('·').trim() });
+      }
       const short = fixLines.map(l => esc(l.split('·')[0].trim())).join('<br>');
       const why = fixLines.map(l => { const p = l.split('·'); return p[1] ? esc(p[0].replace(/^[📝🗣️\s]+/u,'').trim() + ': ' + p.slice(1).join('·').trim()) : ''; }).filter(Boolean).join('<br>');
       const html = (fixed ? `<div class="fix-main">✅ ${esc(fixed)}</div>` : '') +
@@ -641,7 +683,7 @@ async function processInput(text) {
       const sayFull = { es: 'Mejor dilo así:', en: 'Better to say:', fr: 'Il vaut mieux dire :', it: 'Meglio dire:' }[currentLang] || '';
       const spokenFix = pairs.length ? pairs.map(([a, b]) => better(a, b)).join(' ') : (fixed ? `${sayFull} ${fixed}.` : '');
       const spoken = gramFix.length && !wasRepeating ? `${spokenFix} ${rep} ${fragment}.` : (spokenFix ? `${spokenFix} ${main}` : main);
-      addMsg('tutor', main, html, true, spoken);
+      addMsg('tutor', main, html, true, spoken, fixed);
       speak(spoken);
     } else {
       addMsg('tutor', main || reply);
@@ -697,6 +739,11 @@ function buildSystem() {
     'formal': `Estilo: formal e educada; trata ${N} com a forma de cortesia do idioma (usted, vous, Lei).`,
     'divertida': 'Estilo: divertida e bem-humorada, com humor leve, sem perder o foco nas correções.'
   }[P.style] || 'Estilo: amigável, calorosa e encorajadora.';
+  const mem = topErrors(5);
+  const memory = mem.length ? `MEMÓRIA (só para ti): estes são os erros que ${N} mais repete em ${currentLangName}:
+${mem.map(e => `- "${e.wrong}" → "${e.right}"${e.why ? ' (' + e.why + ')' : ''}${e.count > 1 ? ' — ' + e.count + ' vezes' : ''}`).join('\n')}
+De vez em quando (não em todas as respostas), faz perguntas naturais que levem ${N} a usar essas estruturas. NUNCA anuncies que o estás a fazer nem menciones esta lista.
+` : '';
   return `És uma tutora de ${currentLangName} para ${N}, falante nativo de português. Nível de ${N} em ${currentLangName}: ${lvl}. Adapta o vocabulário e a velocidade a esse nível (no nível iniciante usa frases muito simples).
 ${style}${accentRule(P) ? ' ' + accentRule(P) : ''}
 ${P.city ? `Contexto (só para ti): ${N} mora em ${P.city}. NÃO menciones a cidade nas respostas, a não ser que ${N} fale dela primeiro.\n` : ''}Conversas com ${N} e corriges só os erros REAIS que comete.
@@ -723,7 +770,7 @@ QUANDO HOUVER ERRO: depois de corrigir, NÃO continues o tema; a conversa contin
 NUNCA inventes correções: se uma palavra parece mal transcrita pelo microfone (ex.: "Botía", "lo tomo" em vez de "otoño"), NÃO a corrijas como gramática; no máximo usa uma linha 🗣️. Alternativas corretas (ex.: "visto que", "ya que", "como") NÃO são erros.
 Atenção a erros reais frequentes de brasileiros: conjugação ("mi conté" → "me cuente"), concordância ("bajas"), "estar/hacer frío", artigos, preposições, palavras em português, "se" em vez do "si" condicional ("se tengo tiempo" → "si tengo tiempo"), e o pronome objeto que falta ("sí, compro" → "sí, lo compro").
 SE ${N} PEDIR AJUDA COM UMA PALAVRA OU PRONÚNCIA (ex.: "corrígeme la palabra desarrollar"): faz um mini-treino. Diz a palavra devagar, separada em sílabas (ex.: "de-sa-rro-llar"), dá uma dica curta em ${EX} numa linha 🗣️, e pede para repetir.
-${repeatTarget ? `MODO REPETIÇÃO: pediste a ${N} para repetir SÓ esta frase corrigida: "${repeatTarget}".
+${memory}${repeatTarget ? `MODO REPETIÇÃO: pediste a ${N} para repetir SÓ esta frase corrigida: "${repeatTarget}".
 - Avalia SÓ essa frase e só a correção principal (a da linha 📝 anterior), sem novas linhas 📝 nem ✅. Ignora o resto da frase, a pontuação, hesitações e palavras mal transcritas pelo microfone que soem parecidas (ex.: "lo tomo" ≈ "otoño").
 - Se o trecho estiver certo ou quase certo: começa com "¡Correcto! ¡Muy bien!", retoma a conversa com UMA pergunta aberta, e põe numa linha separada no fim: 🎯 OK
 - Se o erro corrigido continuar igual: em ${currentLangName} simples, diz numa frase curta o que ainda falta, repete o trecho certo devagar, e põe numa linha separada no fim: 🎯 DE NOVO
@@ -755,7 +802,8 @@ let lastUserDiv = null;
 function esc(t) { return String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
 // spoken: o texto que a tutora falou (o botão 🔊 repete-o); por omissão, o próprio texto.
-function addMsg(role, text, correction, correctionFirst, spoken) {
+// saveText: o que o ⭐ guarda no caderno (ex.: a frase ✅); se a aluna selecionar um trecho da mensagem, guarda o trecho.
+function addMsg(role, text, correction, correctionFirst, spoken, saveText) {
   const box = document.getElementById('transcript');
   const div = document.createElement('div');
   div.className = 'msg ' + role;
@@ -773,7 +821,20 @@ function addMsg(role, text, correction, correctionFirst, spoken) {
     const bTr = document.createElement('button');
     bTr.textContent = '🌐'; bTr.title = 'Mostrar tradução';
     bTr.onclick = () => toggleTranslation(div, text);
-    tools.append(bListen, bTr);
+    const bStar = document.createElement('button');
+    bStar.textContent = '⭐'; bStar.title = 'Salvar no caderno';
+    let picked = '';
+    // Lê a seleção antes do toque no botão (no telemóvel o toque pode apagá-la).
+    bStar.addEventListener('pointerdown', () => { picked = selectionIn(div); });
+    bStar.onclick = () => {
+      const t = (picked || selectionIn(div) || saveText || text).replace(/🔁/g, '').replace(/\s+/g, ' ').trim();
+      picked = '';
+      if (!t) return;
+      nbAdd({ type: 'salva', text: t });
+      bStar.textContent = '✅ Salvo';
+      setTimeout(() => { bStar.textContent = '⭐'; }, 1500);
+    };
+    tools.append(bListen, bTr, bStar);
     div.appendChild(tools);
   }
   box.appendChild(div);
@@ -847,6 +908,109 @@ Dá exatamente 2 sugestões curtas (até 12 palavras cada) e diferentes do que $
   } catch(e) {
     box.innerHTML = `<div class="suggest-note">Erro: ${esc(e && e.message ? e.message : 'sem ligação')}</div>`;
   }
+}
+
+function selectionIn(div) {
+  const s = window.getSelection && window.getSelection();
+  if (!s || s.isCollapsed || !div.contains(s.anchorNode)) return '';
+  return s.toString().trim();
+}
+
+// ── 📒 MEU CADERNO ──
+// localStorage 'tutora_caderno' = { es: [itens], en: [...], ... }, mais recentes primeiro, máx. 300 por idioma.
+// Item: { id, type: 'erro' | 'salva', date, wrong, right, why } ou { id, type: 'salva', date, text }.
+const NB_KEY = 'tutora_caderno', NB_MAX = 300;
+let nbCurrentTab = 'erro';
+
+function nbLoad() {
+  try { const nb = JSON.parse(localStorage.getItem(NB_KEY) || '{}'); return nb && typeof nb === 'object' ? nb : {}; } catch(e) { return {}; }
+}
+function nbStore(nb) { try { localStorage.setItem(NB_KEY, JSON.stringify(nb)); } catch(e) {} }
+function nbList() { const l = nbLoad()[currentLang]; return Array.isArray(l) ? l : []; }
+
+function nbAdd(item) {
+  const nb = nbLoad();
+  const list = Array.isArray(nb[currentLang]) ? nb[currentLang] : [];
+  list.unshift(Object.assign({ id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6), date: new Date().toISOString() }, item));
+  nb[currentLang] = list.slice(0, NB_MAX); // apaga os mais antigos
+  nbStore(nb);
+  if (document.getElementById('nb-screen').style.display !== 'none') renderNotebook();
+}
+
+function nbDelete(id) {
+  const nb = nbLoad();
+  nb[currentLang] = nbList().filter(i => i.id !== id);
+  nbStore(nb);
+  renderNotebook();
+}
+
+// Os erros que a aluna mais repete: agrupa por "errado → certo" (sem maiúsculas, acentos nem pontuação).
+function topErrors(n) {
+  const key = t => (t || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^\p{L}\p{N}]+/gu, ' ').trim();
+  const groups = new Map();
+  nbList().forEach((it, idx) => {
+    if (it.type !== 'erro') return;
+    const k = key(it.wrong) + '→' + key(it.right);
+    const g = groups.get(k);
+    if (g) g.count++; else groups.set(k, { wrong: it.wrong, right: it.right, why: it.why, count: 1, order: idx });
+  });
+  return [...groups.values()].sort((a, b) => b.count - a.count || a.order - b.order).slice(0, n || 5);
+}
+
+function openNotebook() {
+  stopRecording(); synth.cancel();
+  document.getElementById('nb-screen').style.display = 'flex';
+  renderNotebook();
+}
+function closeNotebook() {
+  synth.cancel();
+  document.getElementById('nb-screen').style.display = 'none';
+}
+function nbTab(tab) { nbCurrentTab = tab; renderNotebook(); }
+
+function renderNotebook() {
+  const all = nbList();
+  const errs = all.filter(i => i.type === 'erro'), saved = all.filter(i => i.type === 'salva');
+  document.getElementById('nb-title').textContent = '📒 Meu caderno · ' + currentLangName;
+  const tE = document.getElementById('nb-tab-erro'), tS = document.getElementById('nb-tab-salva');
+  tE.textContent = `Meus erros (${errs.length})`; tS.textContent = `Salvas (${saved.length})`;
+  tE.classList.toggle('active', nbCurrentTab === 'erro'); tS.classList.toggle('active', nbCurrentTab === 'salva');
+  const box = document.getElementById('nb-list');
+  box.innerHTML = '';
+  const items = nbCurrentTab === 'erro' ? errs : saved;
+  if (!items.length) {
+    box.innerHTML = nbCurrentTab === 'erro'
+      ? '<div class="nb-empty">Ainda não há erros guardados neste idioma.<br>Cada correção 📝 da tutora entra aqui sozinha.</div>'
+      : '<div class="nb-empty">Ainda não salvaste nenhuma frase neste idioma.<br>Toca em ⭐ numa mensagem da tutora (ou seleciona um trecho e toca em ⭐).</div>';
+    return;
+  }
+  const loc = (PROFILE && PROFILE.expl === 'português de Portugal') ? 'pt-PT' : 'pt-BR';
+  const mk = (cls, txt) => { const d = document.createElement('div'); d.className = cls; d.textContent = txt; return d; };
+  items.forEach(it => {
+    const row = document.createElement('div'); row.className = 'nb-item';
+    const body = document.createElement('div'); body.className = 'nb-body';
+    if (it.type === 'erro') {
+      const line = document.createElement('div');
+      const w = document.createElement('span'); w.className = 'nb-wrong'; w.textContent = it.wrong;
+      const r = document.createElement('span'); r.className = 'nb-right'; r.textContent = it.right;
+      line.append(w, ' → ', r);
+      body.appendChild(line);
+      if (it.why) body.appendChild(mk('nb-why', it.why));
+    } else {
+      body.appendChild(mk('', it.text));
+    }
+    let dateTxt = '';
+    try { dateTxt = new Date(it.date).toLocaleDateString(loc, { day: '2-digit', month: '2-digit', year: 'numeric' }); } catch(e) {}
+    body.appendChild(mk('nb-date', dateTxt));
+    const act = document.createElement('div'); act.className = 'nb-actions';
+    const bS = document.createElement('button'); bS.textContent = '🔊'; bS.title = 'Ouvir';
+    bS.onclick = () => speak(it.type === 'erro' ? it.right : it.text);
+    const bD = document.createElement('button'); bD.textContent = '🗑️'; bD.title = 'Apagar';
+    bD.onclick = () => nbDelete(it.id);
+    act.append(bS, bD);
+    row.append(body, act);
+    box.appendChild(row);
+  });
 }
 
 function hideSuggestions() {

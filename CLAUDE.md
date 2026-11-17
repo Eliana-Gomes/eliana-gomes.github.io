@@ -17,6 +17,11 @@ App de conversação para praticar idiomas (espanhol, inglês, francês, italian
 - **💡 O que dizer?** (perto do microfone): pede à IA 2 sugestões curtas de resposta, no idioma e no nível da aluna. Só mostra, não envia. Tocar numa sugestão lê-a em voz alta. As sugestões somem quando a aluna envia a frase.
 - **🔊 e 🌐 em cada mensagem da tutora:** 🔊 repete o que a tutora falou; 🌐 pede a tradução para a variante de português do perfil (pedida uma vez, depois só mostra/esconde).
 - **Erro destacado:** quando há correção, o trecho errado (lado esquerdo do 📝) fica em vermelho no balão "TU" (função `highlightError`, ignora maiúsculas, acentos e pontuação).
+- **📒 Meu caderno** (link "📒 Caderno" perto do Perfil), guardado no `localStorage` (`tutora_caderno`), separado por idioma, no máximo 300 itens por idioma (apaga os mais antigos):
+  - Cada correção 📝 é guardada sozinha em "Meus erros": o que a aluna disse, a forma correta, a explicação e a data.
+  - Botão ⭐ em cada mensagem da tutora guarda em "Salvas" a frase ✅ (nas correções), a frase "Puedes decir" ou a mensagem inteira; se a aluna selecionar um trecho antes, guarda só o trecho.
+  - A tela mostra o idioma atual, com as abas "Meus erros" e "Salvas", os mais recentes primeiro, e em cada item 🔊 (ouvir a forma certa) e 🗑️ (apagar).
+  - Memória da tutora: `topErrors(5)` agrupa os erros iguais ("errado → certo", sem maiúsculas, acentos e pontuação) e envia os 5 mais repetidos nas instruções. A tutora cria, de vez em quando, perguntas que levem a aluna a usar essas estruturas, sem anunciar nem mencionar a lista. Com poucos erros repetidos, a lista completa-se com os erros mais recentes.
 - **Perfil:**
   - Velocidade da voz: lenta (0.75), normal (0.95), rápida (1.15).
   - Sotaque do espanhol: Espanha (voz es-ES, vosotros/ordenador) ou América Latina (voz e microfone es-MX, ustedes/computadora). A tutora não corrige formas certas da outra variante.
