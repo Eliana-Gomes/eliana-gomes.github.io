@@ -537,7 +537,7 @@ async function greet() {
   setStatus('gold', 'A preparar tutora...');
   addLoadingMsg();
   const system = buildSystem();
-  const prompt = `Apresenta-te brevemente em ${currentLangName} e convida ${PROFILE.name} a praticar "${currentTopic}". Máximo 2 frases. Só boas-vindas calorosas, sem linhas 📝 nem ✅.`;
+  const prompt = `Apresenta-te brevemente em ${currentLangName} e convida ${PROFILE.name} a praticar "${currentTopic}". Máximo 2 frases curtas: boas-vindas calorosas e uma pergunta aberta (nada de "A ou B?"), sem linhas 📝 nem ✅.`;
   try {
     const reply = await callAI([{ role: 'user', content: prompt }], system);
     removeLoading(); addMsg('tutor', reply); speak(reply);
@@ -653,22 +653,23 @@ async function processInput(text) {
   }
 }
 
-// Frase para repetir, tirada da frase ✅ sem reescrever: inteira se tiver até 10 palavras;
-// senão a oração (entre vírgulas/pontos) que contém a correção; senão 10 palavras a partir da correção.
+// Frase para repetir, tirada da frase ✅ sem reescrever: a oração (entre vírgulas/pontos) que contém a
+// correção principal; senão a ✅ inteira se tiver até 10 palavras; senão 10 palavras a partir da correção.
 function repeatPhrase(ok, right) {
   const MAX = 10;
   const words = ok.split(/\s+/).filter(Boolean);
   if (!words.length) return right;
-  if (words.length <= MAX) return ok;
   const norm = w => w.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^\p{L}\p{N}]/gu, '');
   const rw = right.split(/\s+/).map(norm).filter(Boolean);
-  if (!rw.length) return right;
   const trimP = t => t.trim().replace(/^[,;:]+|[,;:]+$/g, '').trim();
-  const clause = ok.split(/(?<=[,;:.!?])\s+/).find(c => {
+  // A ✅ traz todos os erros corrigidos: prefere a oração que contém a correção principal.
+  const clause = rw.length && ok.split(/(?<=[,;:.!?])\s+/).find(c => {
     const cw = c.split(/\s+/).map(norm);
     return cw.length <= MAX && rw.every(w => cw.includes(w));
   });
   if (clause) return trimP(clause);
+  if (words.length <= MAX) return ok;
+  if (!rw.length) return right;
   const nw = words.map(norm);
   let start = -1;
   for (let i = 0; i + rw.length <= nw.length; i++) if (rw.every((w, j) => nw[i + j] === w)) { start = i; break; }
@@ -706,24 +707,25 @@ SE ${N} CORRIGIR UMA INFORMAÇÃO (ex.: "no, es XXL", "no, quise decir el martes
 FRASE EM PORTUGUÊS: se ${N} disser uma frase inteira em português, isso NÃO é erro: não uses 📝 nem ✅. Responde só com uma linha que começa por 💬 com essa frase dita em ${currentLangName}, simples e no nível de ${N}. Ex.: 💬 Quiero comprar una camiseta.
 O QUE CORRIGIR: só a FORMA — gramática, conjugação, concordância, preposição, palavras em português ou palavras que não existem em ${currentLangName}. NUNCA mudes o sentido do que ${N} disse nem acrescentes informação.
 O QUE NÃO CORRIGIR: frases corretas, frases aceitáveis no uso normal, ou alternativas apenas de estilo. Na dúvida, NÃO corrijas. Nunca repitas a frase se estiver certa.
-UMA CORREÇÃO POR VEZ: se houver vários erros, escolhe SÓ o mais importante e ignora os outros nesta rodada.
+UMA CORREÇÃO POR VEZ: se houver vários erros, a linha 📝 mostra SÓ o mais importante; os outros não ganham linha 📝 nem explicação, mas aparecem corrigidos na frase ✅.
+FAZER ${N} FALAR MAIS: o objetivo é ${N} falar muito e tu pouco. Faz perguntas ABERTAS que exijam frases completas (porquê, como, o que farias, conta-me sobre…). EVITA perguntas de escolha ("¿A o B?") e de sim/não. Se ${N} responder só com 1 a 3 palavras, de vez em quando (não sempre) pede com gentileza que diga uma frase completa (ex.: "¿Me lo cuentas con una frase completa?").
 FRASE CONFUSA: se a frase estiver confusa ou sem sentido por erro do microfone, NÃO adivinhes nem corrijas: responde só, em ${currentLangName}, "¿Puedes decirlo otra vez?" (ou o equivalente em ${currentLangName}), sem linhas 📝, 🗣️ nem ✅.
 FORMATO:
-- Primeiro, resposta natural e calorosa em ${currentLangName}: no máximo 2 frases curtas, terminando com uma pergunta.
+- Primeiro, resposta natural e calorosa em ${currentLangName}: no máximo 2 frases curtas, seguidas de UMA pergunta aberta.
 - SÓ se houver erro real, acrescenta no fim UMA ÚNICA linha 📝 (nunca mais de uma). O lado esquerdo do → é EXATAMENTE o trecho que ${N} disse, copiado sem mudar nada; o lado direito é esse mesmo trecho só com a forma corrigida. A explicação depois do · tem no máximo 10 palavras e é OBRIGATORIAMENTE em ${EX}, nunca em ${currentLangName}. Exemplo:
 📝 yo desenfoví → yo desarrollé · o verbo é "desarrollar"; no passado fica "desarrollé"
 - Se não houver erro de gramática mas o microfone entendeu uma palavra parecida (pronúncia), acrescenta uma linha, também em ${EX}:
 🗣️ entendi "tía" → acho que querias dizer "día" · treina o som do D, mais suave
 - Se houver a linha 📝, acrescenta depois:
-✅ a frase de ${N} com só essa correção, em ${currentLangName}, sem acrescentar nem tirar palavras
+✅ a frase de ${N} 100% correta em ${currentLangName}, com TODOS os erros corrigidos (também os que não estão na linha 📝), sem mudar o sentido nem acrescentar informação. Ex.: "vivo en la ciudad de España, me gusta saber más" → ✅ Vivo en una ciudad de España, me gustaría saber más.
 - Sem erros: nenhuma linha 📝, 🗣️ nem ✅.
 QUANDO HOUVER ERRO: depois de corrigir, NÃO continues o tema; a conversa continua depois de repetir.
 NUNCA inventes correções: se uma palavra parece mal transcrita pelo microfone (ex.: "Botía", "lo tomo" em vez de "otoño"), NÃO a corrijas como gramática; no máximo usa uma linha 🗣️. Alternativas corretas (ex.: "visto que", "ya que", "como") NÃO são erros.
 Atenção a erros reais frequentes de brasileiros: conjugação ("mi conté" → "me cuente"), concordância ("bajas"), "estar/hacer frío", artigos, preposições, palavras em português, "se" em vez do "si" condicional ("se tengo tiempo" → "si tengo tiempo"), e o pronome objeto que falta ("sí, compro" → "sí, lo compro").
 SE ${N} PEDIR AJUDA COM UMA PALAVRA OU PRONÚNCIA (ex.: "corrígeme la palabra desarrollar"): faz um mini-treino. Diz a palavra devagar, separada em sílabas (ex.: "de-sa-rro-llar"), dá uma dica curta em ${EX} numa linha 🗣️, e pede para repetir.
 ${repeatTarget ? `MODO REPETIÇÃO: pediste a ${N} para repetir SÓ esta frase corrigida: "${repeatTarget}".
-- Avalia SÓ essa frase, sem novas linhas 📝 nem ✅. Ignora o resto da frase, a pontuação, hesitações e palavras mal transcritas pelo microfone que soem parecidas (ex.: "lo tomo" ≈ "otoño").
-- Se o trecho estiver certo ou quase certo: começa com "¡Correcto! ¡Muy bien!", retoma a conversa com UMA pergunta, e põe numa linha separada no fim: 🎯 OK
+- Avalia SÓ essa frase e só a correção principal (a da linha 📝 anterior), sem novas linhas 📝 nem ✅. Ignora o resto da frase, a pontuação, hesitações e palavras mal transcritas pelo microfone que soem parecidas (ex.: "lo tomo" ≈ "otoño").
+- Se o trecho estiver certo ou quase certo: começa com "¡Correcto! ¡Muy bien!", retoma a conversa com UMA pergunta aberta, e põe numa linha separada no fim: 🎯 OK
 - Se o erro corrigido continuar igual: em ${currentLangName} simples, diz numa frase curta o que ainda falta, repete o trecho certo devagar, e põe numa linha separada no fim: 🎯 DE NOVO
 - Se ${N} fizer uma pergunta ou disser que não entendeu (em qualquer idioma): explica em ${EX} com UMA frase curta, depois repete a frase certa ("${repeatTarget}") e pede para repetir; põe numa linha separada no fim: 🎯 PERGUNTA
 - Se ${N}, em vez de repetir, corrigir uma informação (ex.: "no, es XXL"): aceita, NÃO digas "¡Correcto!", não corrijas, continua a conversa com UMA pergunta e põe numa linha separada no fim: 🎯 ESCLARECIMENTO` : ''}

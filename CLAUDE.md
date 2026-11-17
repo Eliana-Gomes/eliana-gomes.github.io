@@ -27,15 +27,16 @@ App de conversação para praticar idiomas (espanhol, inglês, francês, italian
 - Corrige só erros reais. Não corrige frases certas, alternativas de estilo, hesitações ("eh", "pues") nem palavras mal transcritas pelo microfone (essas viram linha 🗣️ de pronúncia).
 - Corrige só a forma (gramática, conjugação, concordância, preposição, palavra em português). Nunca muda o sentido nem acrescenta informação.
 - Uma correção por vez: no máximo UMA linha 📝, com o erro mais importante; os outros erros ficam para outra rodada. O código também corta para uma só linha 📝.
-- Formato da resposta: `📝 errado → certo · explicação curta em português` (o lado esquerdo é exatamente o trecho que a aluna disse), e `✅ frase corrigida` (a frase da aluna só com essa correção, sem acrescentar palavras). A IA não escreve a frase para repetir.
+- Formato da resposta: `📝 errado → certo · explicação curta em português` (o lado esquerdo é exatamente o trecho que a aluna disse), e `✅ frase corrigida`: a frase da aluna 100% correta, com TODOS os erros corrigidos (também os que não têm linha 📝), sem mudar o sentido nem acrescentar informação. A IA não escreve a frase para repetir.
 - Frase confusa por erro do microfone: a tutora não adivinha, pergunta "¿Puedes decirlo otra vez?" (ou o equivalente no idioma).
 - Letras, siglas, números e tamanhos ditos em voz alta ("ex el", "doble ex") são falhas de transcrição: nunca corrigir; ensinar como se fala (XL = "equis ele") numa linha 🗣️.
 - Se a aluna corrigir uma informação ("no, es XXL"), a tutora aceita e continua, sem "¡Correcto!" e sem corrigir. No modo repetição, isso vem com o marcador `🎯 ESCLARECIMENTO` e o app sai do modo repetição.
 - Atenção especial ao "se" em vez do "si" condicional e ao pronome objeto que falta ("lo compro").
 - A cidade do perfil é só contexto: a tutora não a menciona, a não ser que a aluna fale dela primeiro.
 - Frase inteira em português não é erro: a IA responde com uma linha `💬 frase no idioma`, e o app mostra "Puedes decir: «…»" e pede para repetir (entra no modo repetição).
-- Quando há erro: a tutora fala "Mejor di: … Y no: …", mostra a caixa de correção ANTES do texto, e pede para repetir ("Repite conmigo 🔁: «…»") a própria frase ✅, escolhida pelo código (função `repeatPhrase`): inteira se tiver até 10 palavras; se for maior, só a parte que contém a correção (a oração entre vírgulas/pontos, ou 10 palavras a partir da correção). Nunca trechos soltos juntos com "…". Não continua o tema antes disso.
+- Quando há erro: a tutora fala "Mejor di: … Y no: …", mostra a caixa de correção ANTES do texto, e pede para repetir ("Repite conmigo 🔁: «…»") só o trecho da ✅ com a correção principal, escolhido pelo código (função `repeatPhrase`): a oração entre vírgulas/pontos que contém a correção do 📝; se não houver, a ✅ inteira quando tem até 10 palavras; senão 10 palavras a partir da correção. Nunca trechos soltos juntos com "…". Não continua o tema antes disso.
 - Modo repetição: avalia só a frase, tolera erros do microfone, máximo 2 tentativas, depois "¡Correcto!" e segue a conversa. Se a aluna perguntar algo ou disser que não entendeu, a tutora explica em português com uma frase curta e repete a frase certa (isso não conta como tentativa). Marcadores internos `🎯 OK` / `🎯 DE NOVO` / `🎯 PERGUNTA` / `🎯 ESCLARECIMENTO` nunca aparecem na tela.
+- Fazer a aluna falar mais: a tutora fala pouco (no máximo 2 frases curtas antes da pergunta) e faz perguntas abertas que exigem frases completas (porquê, como, o que farias, conta-me sobre…). Evita perguntas "A ou B?" e de sim/não. Se a aluna responder com só 1 a 3 palavras, de vez em quando pede com gentileza uma frase completa.
 - Explicações sempre em português (do Brasil ou de Portugal, conforme o perfil).
 
 ## Fluxo de trabalho
