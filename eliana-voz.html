@@ -55,6 +55,29 @@
   .suggest-chip { text-align: left; background: rgba(184,154,0,0.12); border: 1px solid rgba(184,154,0,0.4); color: var(--cream); border-radius: 12px; padding: 9px 12px; font-size: 0.85rem; font-family: 'Inter', sans-serif; cursor: pointer; }
   .suggest-note { font-size: 0.78rem; color: var(--muted); text-align: center; }
 
+  /* RACHA 🔥 */
+  .header { position: relative; }
+  .streak-badge { position: absolute; right: 16px; top: 50%; transform: translateY(-50%); background: rgba(122,98,0,0.25); border: 1px solid var(--gold); color: var(--gold-light); border-radius: 16px; padding: 4px 10px; font-size: 0.85rem; font-weight: 600; cursor: pointer; font-family: 'Inter', sans-serif; }
+  .streak-badge.off { opacity: 0.55; }
+  .celebrate { position: fixed; inset: 0; z-index: 1000; background: rgba(0,25,30,0.85); display: none; align-items: center; justify-content: center; padding: 16px; }
+  .celebrate.show { display: flex; }
+  .cel-card { background: var(--petrol); border: 2px solid var(--gold); border-radius: 20px; padding: 24px 18px; text-align: center; max-width: 340px; width: 100%; box-shadow: 0 0 40px rgba(184,154,0,0.35); }
+  .cel-flame { font-size: 4rem; display: inline-block; animation: flame-pop 0.9s ease-out, flame-flicker 1.4s ease-in-out 0.9s infinite; }
+  @keyframes flame-pop { 0% { transform: scale(0.3); opacity: 0; } 60% { transform: scale(1.25); opacity: 1; } 100% { transform: scale(1); } }
+  @keyframes flame-flicker { 0%,100% { transform: scale(1) rotate(0); } 50% { transform: scale(1.08) rotate(-3deg); } }
+  .cel-title { font-family: 'Cormorant Garamond', serif; font-size: 1.9rem; color: var(--gold-light); margin-top: 6px; }
+  .cel-sub { color: var(--cream); font-size: 0.9rem; margin-top: 4px; }
+  .week-row { display: flex; gap: 6px; justify-content: center; margin-top: 12px; }
+  .week-day { display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 0.65rem; color: var(--muted); }
+  .week-dot { width: 30px; height: 30px; border-radius: 50%; border: 1.5px solid rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; font-size: 0.8rem; }
+  .week-dot.done { background: var(--gold); border-color: var(--gold); }
+  .week-dot.today { box-shadow: 0 0 0 2px var(--gold-light); }
+  .streak-stats { width: 100%; background: rgba(122,98,0,0.15); border: 1px solid rgba(122,98,0,0.5); border-radius: 14px; padding: 14px 10px; }
+  .streak-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; text-align: center; }
+  .streak-num { font-size: 1.4rem; color: var(--gold-light); font-weight: 600; }
+  .streak-lbl { font-size: 0.68rem; color: var(--muted); }
+  .streak-today { font-size: 0.75rem; color: var(--muted); text-align: center; margin-top: 8px; }
+
   /* MEU CADERNO */
   .nb-screen { position: fixed; inset: 0; background: var(--petrol); z-index: 998; overflow-y: auto; padding: 20px 16px 30px; display: flex; flex-direction: column; align-items: center; }
   .nb-wrap { width: 100%; max-width: 480px; display: flex; flex-direction: column; gap: 12px; }
@@ -158,6 +181,7 @@
   <div style="font-size:2.4rem;">👤</div>
   <h2>O teu perfil</h2>
   <p>A tutora usa estes dados para te chamar pelo nome e adaptar a conversa ao teu nível. Fica guardado só neste telemóvel.</p>
+  <div class="streak-stats" id="pf-streak"></div>
   <div class="prof-label">Como te chamas?</div>
   <input class="api-input" id="pf-name" placeholder="Ex.: Eliana" />
   <div class="prof-label">Em que cidade moras?</div>
@@ -209,9 +233,13 @@
   </div>
 </div>
 
+<!-- CELEBRAÇÃO DA RACHA -->
+<div class="celebrate" id="celebrate" onclick="hideCelebrate()"><div class="cel-card" id="cel-card"></div></div>
+
 <div class="header">
   <h1>🎤 Tutora de Voz</h1>
   <p>Luz em Movimento · Idiomas</p>
+  <button class="streak-badge off" id="streak-badge" onclick="openProfile()" title="Racha de dias seguidos">🔥 0</button>
 </div>
 
 <div class="lang-row">
@@ -320,6 +348,7 @@ function openProfile() {
   document.getElementById('pf-speed').value = p.speed || 'normal';
   document.getElementById('pf-accent').value = p.accent || 'Espanha';
   document.getElementById('pf-style').value = p.style || 'amigável';
+  renderStreakStats();
   stopRecording(); synth.cancel();
   document.getElementById('profile-screen').style.display = 'flex';
 }
@@ -378,6 +407,7 @@ window.addEventListener('load', () => {
   }
   loadVoices();
   synth.onvoiceschanged = loadVoices;
+  updateStreakBadge();
 });
 
 function init() {
@@ -597,6 +627,7 @@ async function handleUserSpeech(text) {
   if (!text.trim()) return;
   hideSuggestions();
   lastUserDiv = addMsg('user', text);
+  countPractice();
   chatHistory.push({ role: 'user', content: text });
   await processInput(text);
 }
@@ -608,6 +639,7 @@ async function sendText() {
   inp.value = ''; inp.style.height = 'auto';
   hideSuggestions();
   lastUserDiv = addMsg('user', text);
+  countPractice();
   chatHistory.push({ role: 'user', content: text });
   await processInput(text);
 }
@@ -1012,6 +1044,83 @@ function renderNotebook() {
     row.append(body, act);
     box.appendChild(row);
   });
+}
+
+// ── 🔥 RACHA ──
+// localStorage 'tutora_racha' = { days: { 'AAAA-MM-DD': nº de falas enviadas nesse dia } }.
+// Um dia conta como praticado com pelo menos 5 falas; a racha são os dias seguidos até hoje (ou até ontem, se hoje ainda não completou).
+const STREAK_KEY = 'tutora_racha', STREAK_GOAL = 5;
+function dayKey(d) { d = d || new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); }
+function addDays(d, n) { const x = new Date(d); x.setDate(x.getDate() + n); return x; }
+function streakLoad() {
+  try { const s = JSON.parse(localStorage.getItem(STREAK_KEY) || 'null'); return s && s.days && typeof s.days === 'object' ? s : { days: {} }; } catch(e) { return { days: {} }; }
+}
+function streakStore(s) { try { localStorage.setItem(STREAK_KEY, JSON.stringify(s)); } catch(e) {} }
+
+function streakStats() {
+  const s = streakLoad(), today = new Date(), tk = dayKey(today);
+  const done = k => (s.days[k] || 0) >= STREAK_GOAL;
+  let cur = 0, d = done(tk) ? today : addDays(today, -1);
+  while (done(dayKey(d))) { cur++; d = addDays(d, -1); }
+  const doneDays = Object.keys(s.days).filter(done).sort();
+  let best = 0, run = 0, prev = '';
+  doneDays.forEach(k => {
+    run = prev && dayKey(addDays(new Date(prev + 'T12:00:00'), 1)) === k ? run + 1 : 1;
+    best = Math.max(best, run); prev = k;
+  });
+  const mon = addDays(today, -((today.getDay() + 6) % 7)); // semana de segunda a domingo
+  const week = ['seg', 'ter', 'qua', 'qui', 'sex', 'sáb', 'dom'].map((label, i) => {
+    const k = dayKey(addDays(mon, i));
+    return { label, done: done(k), today: k === tk };
+  });
+  return { cur, best: Math.max(best, cur), total: doneDays.length, todayCount: s.days[tk] || 0, todayDone: done(tk), week };
+}
+
+function weekHtml(week) {
+  return '<div class="week-row">' + week.map(w =>
+    `<div class="week-day"><div class="week-dot${w.done ? ' done' : ''}${w.today ? ' today' : ''}">${w.done ? '🔥' : ''}</div>${w.label}</div>`
+  ).join('') + '</div>';
+}
+
+// Chamada a cada fala enviada; na 5.ª fala do dia, celebra.
+function countPractice() {
+  const s = streakLoad(), k = dayKey();
+  s.days[k] = (s.days[k] || 0) + 1;
+  streakStore(s);
+  updateStreakBadge();
+  if (s.days[k] === STREAK_GOAL) celebrate();
+}
+
+function updateStreakBadge() {
+  const st = streakStats(), b = document.getElementById('streak-badge');
+  if (!b) return;
+  b.textContent = '🔥 ' + st.cur;
+  b.classList.toggle('off', !st.todayDone);
+  b.title = st.todayDone ? 'Dia completo! Racha: ' + st.cur : `Hoje: ${st.todayCount}/${STREAK_GOAL} falas`;
+}
+
+let celebrateTimer = null;
+function celebrate() {
+  const st = streakStats();
+  const phrase = { es: '¡Eres genial!', en: "You're awesome!", fr: 'Tu es formidable !', it: 'Sei grande!' }[currentLang] || '¡Eres genial!';
+  document.getElementById('cel-card').innerHTML =
+    `<div class="cel-flame">🔥</div><div class="cel-title">${phrase}</div>` +
+    `<div class="cel-sub">${st.cur} ${st.cur === 1 ? 'dia seguido' : 'dias seguidos'} a praticar</div>` + weekHtml(st.week);
+  document.getElementById('celebrate').classList.add('show');
+  clearTimeout(celebrateTimer);
+  celebrateTimer = setTimeout(hideCelebrate, 4000);
+}
+function hideCelebrate() { clearTimeout(celebrateTimer); document.getElementById('celebrate').classList.remove('show'); }
+
+function renderStreakStats() {
+  const st = streakStats(), el = document.getElementById('pf-streak');
+  if (!el) return;
+  el.innerHTML = `<div class="streak-grid">
+      <div><div class="streak-num">🔥 ${st.cur}</div><div class="streak-lbl">Racha atual</div></div>
+      <div><div class="streak-num">${st.best}</div><div class="streak-lbl">Melhor racha</div></div>
+      <div><div class="streak-num">${st.total}</div><div class="streak-lbl">Total de dias</div></div>
+    </div>${weekHtml(st.week)}
+    <div class="streak-today">${st.todayDone ? 'Dia de hoje completo ✅' : `Hoje: ${st.todayCount}/${STREAK_GOAL} falas para completar o dia`}</div>`;
 }
 
 function hideSuggestions() {
