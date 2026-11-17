@@ -21,9 +21,6 @@
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: 'Inter', sans-serif; background: var(--petrol); color: var(--cream); min-height: 100vh; display: flex; flex-direction: column; align-items: center; }
-  .header { width: 100%; padding: 20px 24px 12px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.08); }
-  .header h1 { font-family: 'Cormorant Garamond', serif; font-size: 1.3rem; color: var(--cream); letter-spacing: 0.05em; font-weight: 400; }
-  .header p { font-size: 0.72rem; color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase; margin-top: 3px; }
   .lang-row { display: flex; gap: 8px; padding: 14px 20px; overflow-x: auto; scrollbar-width: none; width: 100%; }
   .lang-row::-webkit-scrollbar { display: none; }
   .lang-pill { flex-shrink: 0; padding: 6px 16px; border-radius: 20px; border: 1.5px solid rgba(255,255,255,0.15); background: transparent; color: var(--muted); font-size: 0.8rem; font-weight: 500; cursor: pointer; transition: all 0.2s; font-family: 'Inter', sans-serif; }
@@ -56,7 +53,6 @@
   .suggest-note { font-size: 0.78rem; color: var(--muted); text-align: center; }
 
   /* RACHA 🔥 */
-  .header { position: relative; }
   .streak-badge { flex-shrink: 0; background: rgba(122,98,0,0.25); border: 1px solid var(--gold); color: var(--gold-light); border-radius: 16px; padding: 4px 10px; font-size: 0.85rem; font-weight: 600; cursor: pointer; font-family: 'Inter', sans-serif; }
   .streak-badge.off { opacity: 0.55; }
   .celebrate { position: fixed; inset: 0; z-index: 1000; background: rgba(0,25,30,0.85); display: none; align-items: center; justify-content: center; padding: 16px; }
@@ -111,7 +107,6 @@
   .home-card .ctxt { flex: 1; min-width: 0; }
   .home-card .ct { display: block; font-size: 1rem; font-weight: 600; }
   .home-card .cd { display: block; font-size: 0.8rem; color: var(--muted); margin-top: 2px; }
-  .home-card .soon { flex-shrink: 0; font-size: 0.7rem; color: var(--gold-light); border: 1px solid var(--gold); border-radius: 10px; padding: 2px 8px; }
 
   /* 👤 PERFIL E FOTO */
   .prof-view.active { gap: 20px; max-width: 480px; margin: 0 auto; padding: 24px 24px 110px; }
@@ -705,7 +700,7 @@ const I18N = {
     mic_tap: 'Toque para falar', mic_listening: 'Ouvindo… toque ⏹ quando terminar', cancel_btn: '✕ Cancelar esta frase',
     hint_btn: '💡 O que dizer?', sug_thinking: 'Pensando em sugestões…', sug_none: 'Sem sugestões. Tente de novo.',
     sug_note: 'Toque numa sugestão para ouvir, depois fale no 🎤.',
-    write_toggle: '⌨️ Prefere escrever?', link_profile: '👤 Perfil', link_notebook: '📒 Caderno', link_key: '🔑 Trocar chave',
+    write_toggle: '⌨️ Prefere escrever?', link_key: '🔑 Trocar chave',
     text_ph: 'Escreva aqui...', tip_label: '💡 Dica:', lbl_tutor: '🎓 Tutora', lbl_you: '🎤 Você',
     btn_listen_again: 'Ouvir de novo', btn_translate: 'Mostrar tradução', btn_save: 'Salvar no caderno', saved: '✅ Salvo',
     translating: 'Traduzindo…', translate_fail: 'Não consegui traduzir. Toque em 🌐 para tentar de novo.', why: 'Por quê?',
@@ -722,7 +717,7 @@ const I18N = {
     back_home: '← Início',
     tab_home: 'Início', tab_chat: 'Conversar', tab_notebook: 'Caderno', tab_profile: 'Perfil',
     photo_gallery: '🖼️ Galeria', photo_camera: '📷 Câmera', photo_remove: '✕ Remover foto', photo_fail: 'Não consegui abrir a foto.', photo_save_fail: 'Não consegui salvar a foto.',
-    empty_reply: 'A tutora não respondeu', lang_changed: 'A sua língua mudou: as lições guardadas vão recomeçar.',
+    empty_reply: 'A tutora não respondeu', ai_timeout: 'A tutora demorou demais a responder. Tente de novo.', lang_changed: 'A sua língua mudou: as lições guardadas vão recomeçar.',
     hint_label: '💡 Dica', readnat_q: 'Ler explicações em voz alta (além das frases no idioma)',
     test_banner: '📊 Teste de nível · pergunta {n}/{total}', test_evaluating: '📊 Teste de nível · avaliando…', test_done_banner: '📊 Teste de nível concluído',
     test_skip_btn: '🤷 Não sei', test_skip_said: 'Não sei',
@@ -766,7 +761,7 @@ const I18N = {
     mic_tap: 'Toca para falar', mic_listening: 'A ouvir… toca ⏹ quando terminares', cancel_btn: '✕ Cancelar esta frase',
     hint_btn: '💡 O que dizer?', sug_thinking: 'A pensar em sugestões…', sug_none: 'Sem sugestões. Tenta de novo.',
     sug_note: 'Toca numa sugestão para ouvir, depois fala no 🎤.',
-    write_toggle: '⌨️ Preferes escrever?', link_profile: '👤 Perfil', link_notebook: '📒 Caderno', link_key: '🔑 Mudar chave',
+    write_toggle: '⌨️ Preferes escrever?', link_key: '🔑 Mudar chave',
     text_ph: 'Escreve aqui...', tip_label: '💡 Dica:', lbl_tutor: '🎓 Tutora', lbl_you: '🎤 Tu',
     btn_listen_again: 'Ouvir de novo', btn_translate: 'Mostrar tradução', btn_save: 'Guardar no caderno', saved: '✅ Guardado',
     translating: 'A traduzir…', translate_fail: 'Não consegui traduzir. Toca em 🌐 para tentar de novo.', why: 'Porquê?',
@@ -783,7 +778,7 @@ const I18N = {
     back_home: '← Início',
     tab_home: 'Início', tab_chat: 'Conversar', tab_notebook: 'Caderno', tab_profile: 'Perfil',
     photo_gallery: '🖼️ Galeria', photo_camera: '📷 Câmara', photo_remove: '✕ Remover foto', photo_fail: 'Não consegui abrir a foto.', photo_save_fail: 'Não consegui guardar a foto.',
-    empty_reply: 'A tutora não respondeu', lang_changed: 'A tua língua mudou: as lições guardadas vão recomeçar.',
+    empty_reply: 'A tutora não respondeu', ai_timeout: 'A tutora demorou demasiado a responder. Tenta de novo.', lang_changed: 'A tua língua mudou: as lições guardadas vão recomeçar.',
     hint_label: '💡 Dica', readnat_q: 'Ler explicações em voz alta (além das frases no idioma)',
     test_banner: '📊 Teste de nível · pergunta {n}/{total}', test_evaluating: '📊 Teste de nível · a avaliar…', test_done_banner: '📊 Teste de nível concluído',
     test_skip_btn: '🤷 Não sei', test_skip_said: 'Não sei',
@@ -827,7 +822,7 @@ const I18N = {
     mic_tap: 'Toca para hablar', mic_listening: 'Escuchando… toca ⏹ cuando termines', cancel_btn: '✕ Cancelar esta frase',
     hint_btn: '💡 ¿Qué digo?', sug_thinking: 'Pensando en sugerencias…', sug_none: 'Sin sugerencias. Inténtalo de nuevo.',
     sug_note: 'Toca una sugerencia para escucharla y luego habla con el 🎤.',
-    write_toggle: '⌨️ ¿Prefieres escribir?', link_profile: '👤 Perfil', link_notebook: '📒 Cuaderno', link_key: '🔑 Cambiar clave',
+    write_toggle: '⌨️ ¿Prefieres escribir?', link_key: '🔑 Cambiar clave',
     text_ph: 'Escribe aquí...', tip_label: '💡 Consejo:', lbl_tutor: '🎓 Tutora', lbl_you: '🎤 Tú',
     btn_listen_again: 'Escuchar de nuevo', btn_translate: 'Mostrar traducción', btn_save: 'Guardar en el cuaderno', saved: '✅ Guardado',
     translating: 'Traduciendo…', translate_fail: 'No pude traducir. Toca 🌐 para intentarlo de nuevo.', why: '¿Por qué?',
@@ -844,7 +839,7 @@ const I18N = {
     back_home: '← Inicio',
     tab_home: 'Inicio', tab_chat: 'Conversar', tab_notebook: 'Cuaderno', tab_profile: 'Perfil',
     photo_gallery: '🖼️ Galería', photo_camera: '📷 Cámara', photo_remove: '✕ Quitar foto', photo_fail: 'No pude abrir la foto.', photo_save_fail: 'No pude guardar la foto.',
-    empty_reply: 'La tutora no respondió', lang_changed: 'Tu idioma cambió: las lecciones guardadas volverán a empezar.',
+    empty_reply: 'La tutora no respondió', ai_timeout: 'La tutora tardó demasiado en responder. Inténtalo de nuevo.', lang_changed: 'Tu idioma cambió: las lecciones guardadas volverán a empezar.',
     hint_label: '💡 Pista', readnat_q: 'Leer las explicaciones en voz alta (además de las frases en el idioma)',
     test_banner: '📊 Prueba de nivel · pregunta {n}/{total}', test_evaluating: '📊 Prueba de nivel · evaluando…', test_done_banner: '📊 Prueba de nivel completada',
     test_skip_btn: '🤷 No sé', test_skip_said: 'No sé',
@@ -888,7 +883,7 @@ const I18N = {
     mic_tap: 'Tap to speak', mic_listening: 'Listening… tap ⏹ when you finish', cancel_btn: '✕ Cancel this sentence',
     hint_btn: '💡 What can I say?', sug_thinking: 'Thinking of suggestions…', sug_none: 'No suggestions. Try again.',
     sug_note: 'Tap a suggestion to hear it, then speak with the 🎤.',
-    write_toggle: '⌨️ Prefer to type?', link_profile: '👤 Profile', link_notebook: '📒 Notebook', link_key: '🔑 Change key',
+    write_toggle: '⌨️ Prefer to type?', link_key: '🔑 Change key',
     text_ph: 'Type here...', tip_label: '💡 Tip:', lbl_tutor: '🎓 Tutor', lbl_you: '🎤 You',
     btn_listen_again: 'Listen again', btn_translate: 'Show translation', btn_save: 'Save to notebook', saved: '✅ Saved',
     translating: 'Translating…', translate_fail: 'I could not translate. Tap 🌐 to try again.', why: 'Why?',
@@ -905,7 +900,7 @@ const I18N = {
     back_home: '← Home',
     tab_home: 'Home', tab_chat: 'Talk', tab_notebook: 'Notebook', tab_profile: 'Profile',
     photo_gallery: '🖼️ Gallery', photo_camera: '📷 Camera', photo_remove: '✕ Remove photo', photo_fail: 'I could not open the photo.', photo_save_fail: 'I could not save the photo.',
-    empty_reply: 'The tutor did not answer', lang_changed: 'Your language changed: saved lessons will start again.',
+    empty_reply: 'The tutor did not answer', ai_timeout: 'The tutor took too long to answer. Please try again.', lang_changed: 'Your language changed: saved lessons will start again.',
     hint_label: '💡 Hint', readnat_q: 'Read explanations aloud (as well as the phrases in the language)',
     test_banner: '📊 Level test · question {n}/{total}', test_evaluating: '📊 Level test · evaluating…', test_done_banner: '📊 Level test complete',
     test_skip_btn: '🤷 I don’t know', test_skip_said: 'I don’t know',
@@ -949,7 +944,7 @@ const I18N = {
     mic_tap: 'Touche pour parler', mic_listening: 'Je t’écoute… touche ⏹ quand tu as fini', cancel_btn: '✕ Annuler cette phrase',
     hint_btn: '💡 Que dire ?', sug_thinking: 'Je cherche des suggestions…', sug_none: 'Aucune suggestion. Réessaie.',
     sug_note: 'Touche une suggestion pour l’écouter, puis parle avec le 🎤.',
-    write_toggle: '⌨️ Tu préfères écrire ?', link_profile: '👤 Profil', link_notebook: '📒 Carnet', link_key: '🔑 Changer de clé',
+    write_toggle: '⌨️ Tu préfères écrire ?', link_key: '🔑 Changer de clé',
     text_ph: 'Écris ici...', tip_label: '💡 Astuce :', lbl_tutor: '🎓 Tutrice', lbl_you: '🎤 Toi',
     btn_listen_again: 'Réécouter', btn_translate: 'Afficher la traduction', btn_save: 'Enregistrer dans le carnet', saved: '✅ Enregistré',
     translating: 'Traduction…', translate_fail: 'Je n’ai pas pu traduire. Touche 🌐 pour réessayer.', why: 'Pourquoi ?',
@@ -966,7 +961,7 @@ const I18N = {
     back_home: '← Accueil',
     tab_home: 'Accueil', tab_chat: 'Converser', tab_notebook: 'Carnet', tab_profile: 'Profil',
     photo_gallery: '🖼️ Galerie', photo_camera: '📷 Appareil photo', photo_remove: '✕ Retirer la photo', photo_fail: 'Je n’ai pas pu ouvrir la photo.', photo_save_fail: 'Je n’ai pas pu enregistrer la photo.',
-    empty_reply: 'La tutrice n’a pas répondu', lang_changed: 'Ta langue a changé : les leçons enregistrées vont recommencer.',
+    empty_reply: 'La tutrice n’a pas répondu', ai_timeout: 'La tutrice a mis trop de temps à répondre. Réessaie.', lang_changed: 'Ta langue a changé : les leçons enregistrées vont recommencer.',
     hint_label: '💡 Indice', readnat_q: 'Lire les explications à voix haute (en plus des phrases dans la langue)',
     test_banner: '📊 Test de niveau · question {n}/{total}', test_evaluating: '📊 Test de niveau · évaluation…', test_done_banner: '📊 Test de niveau terminé',
     test_skip_btn: '🤷 Je ne sais pas', test_skip_said: 'Je ne sais pas',
@@ -1010,7 +1005,7 @@ const I18N = {
     mic_tap: 'Tocca per parlare', mic_listening: 'Ti ascolto… tocca ⏹ quando hai finito', cancel_btn: '✕ Annulla questa frase',
     hint_btn: '💡 Cosa dico?', sug_thinking: 'Cerco dei suggerimenti…', sug_none: 'Nessun suggerimento. Riprova.',
     sug_note: 'Tocca un suggerimento per ascoltarlo, poi parla con il 🎤.',
-    write_toggle: '⌨️ Preferisci scrivere?', link_profile: '👤 Profilo', link_notebook: '📒 Quaderno', link_key: '🔑 Cambia chiave',
+    write_toggle: '⌨️ Preferisci scrivere?', link_key: '🔑 Cambia chiave',
     text_ph: 'Scrivi qui...', tip_label: '💡 Consiglio:', lbl_tutor: '🎓 Tutor', lbl_you: '🎤 Tu',
     btn_listen_again: 'Riascolta', btn_translate: 'Mostra traduzione', btn_save: 'Salva nel quaderno', saved: '✅ Salvato',
     translating: 'Traduzione…', translate_fail: 'Non sono riuscita a tradurre. Tocca 🌐 per riprovare.', why: 'Perché?',
@@ -1027,7 +1022,7 @@ const I18N = {
     back_home: '← Home',
     tab_home: 'Home', tab_chat: 'Conversare', tab_notebook: 'Quaderno', tab_profile: 'Profilo',
     photo_gallery: '🖼️ Galleria', photo_camera: '📷 Fotocamera', photo_remove: '✕ Rimuovi foto', photo_fail: 'Non sono riuscita ad aprire la foto.', photo_save_fail: 'Non sono riuscita a salvare la foto.',
-    empty_reply: 'La tutor non ha risposto', lang_changed: 'La tua lingua è cambiata: le lezioni salvate ricominceranno.',
+    empty_reply: 'La tutor non ha risposto', ai_timeout: 'La tutor ci ha messo troppo a rispondere. Riprova.', lang_changed: 'La tua lingua è cambiata: le lezioni salvate ricominceranno.',
     hint_label: '💡 Suggerimento', readnat_q: 'Leggere ad alta voce le spiegazioni (oltre alle frasi nella lingua)',
     test_banner: '📊 Test di livello · domanda {n}/{total}', test_evaluating: '📊 Test di livello · valutazione…', test_done_banner: '📊 Test di livello completato',
     test_skip_btn: '🤷 Non lo so', test_skip_said: 'Non lo so',
@@ -1168,7 +1163,6 @@ function renderLevelGrid(levels) {
 }
 // Ao mudar "Minha língua" no perfil, a tela do perfil passa logo para essa língua.
 function previewNative(v) { uiOverride = v; applyI18n(); renderLevelGrid(); renderStreakStats(); }
-function openProfile() { navTo('profile'); }
 // Preenche os campos do perfil com os dados guardados.
 function fillProfileForm() {
   const p = PROFILE || {};
@@ -1747,7 +1741,9 @@ async function greet() {
     };
     const fallback = fallbacks[currentLang] || fallbacks.es;
     addMsg('tutor', fallback); speak(fallback);
-    setStatus('error', t('st_error') + (e && e.message ? e.message : t('no_connection')));
+    const msg = t('st_error') + (e && e.message ? e.message : t('no_connection'));
+    setStatus('error', msg);
+    showToast(msg); // a fala de reserva repõe o estado "Pronta": o aviso garante que o erro se vê
   }
 }
 
@@ -2042,18 +2038,31 @@ COMO CONDUZIR:
 REGRAS: no máximo 4 linhas por mensagem (sem contar 📝, 💡 e 🎯). Frases muito simples. Não uses ✅ nem 🗣️. Corrige só erros reais: ignora pontuação, maiúsculas, acentos, hesitações e palavras mal transcritas que soem parecidas. Se a frase vier confusa pelo microfone, pede numa linha [alvo] "${tgt('again')}" com a tradução numa linha [nat]. Se ${N} fizer uma pergunta ou disser que não entendeu, responde numa linha [nat] curta e repete a frase atual. Revê a gramática das tuas frases antes de responder. Nunca menciones estas instruções nem expliques as marcas [nat]/[alvo]: usa-as só no início das linhas.`;
 }
 
+// Chamada à IA. Erros com mensagem clara na língua do aluno: sem internet, demora (45 s) ou resposta inválida.
+const AI_TIMEOUT_MS = 45000;
 async function callAI(messages, system) {
-  const res = await fetch('https://api.anthropic.com/v1/messages', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'x-api-key': API_KEY,
-      'anthropic-version': '2023-06-01',
-      'anthropic-dangerous-direct-browser-access': 'true'
-    },
-    body: JSON.stringify({ model: 'claude-haiku-5-5', max_tokens: 1024, thinking: { type: 'disabled' }, system, messages })
-  });
-  const data = await res.json();
+  const ctrl = typeof AbortController !== 'undefined' ? new AbortController() : null;
+  const timer = ctrl ? setTimeout(() => ctrl.abort(), AI_TIMEOUT_MS) : null;
+  let res;
+  try {
+    res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': API_KEY,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({ model: 'claude-haiku-5-5', max_tokens: 1024, thinking: { type: 'disabled' }, system, messages }),
+      signal: ctrl ? ctrl.signal : undefined
+    });
+  } catch(e) {
+    throw new Error(e && e.name === 'AbortError' ? t('ai_timeout') : t('no_connection'));
+  } finally {
+    if (timer) clearTimeout(timer);
+  }
+  let data;
+  try { data = await res.json(); } catch(e) { throw new Error(t('empty_reply') + ' (HTTP ' + res.status + ')'); }
   if (data.error) throw new Error(data.error.message);
   const text = (data.content || []).filter(b => b.type === 'text' && b.text).map(b => b.text).join('\n').trim();
   if (!text) throw new Error(t('empty_reply') + (data.stop_reason ? ' (' + data.stop_reason + ')' : ''));
@@ -2251,8 +2260,6 @@ function topErrors(n) {
   return [...groups.values()].sort((a, b) => b.count - a.count || a.order - b.order).slice(0, n || 5);
 }
 
-function openNotebook() { navTo('notebook'); }
-function closeNotebook() { goHome(); }
 function nbTab(tab) { nbCurrentTab = tab; renderNotebook(); }
 
 function renderNotebook() {

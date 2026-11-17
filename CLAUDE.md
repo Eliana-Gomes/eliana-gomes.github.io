@@ -8,7 +8,7 @@ App de conversação para praticar idiomas (espanhol, inglês, francês, italian
 - O resto do repositório é o site pessoal da Eliana: não mexer sem pedido.
 
 ## Como funciona
-- IA: API da Anthropic chamada direto do navegador, modelo `claude-haiku-5-5`, `thinking: { type: 'disabled' }`, `max_tokens: 1024`.
+- IA: API da Anthropic chamada direto do navegador, modelo `claude-haiku-5-5`, `thinking: { type: 'disabled' }`, `max_tokens: 1024`. `callAI` desiste ao fim de 45 s e transforma os erros em mensagens claras na língua do aluno (sem internet, demora, resposta inválida); se a saudação falhar, o erro aparece também num aviso curto.
 - A chave API e o perfil (língua nativa, nome, cidade, nível por idioma, velocidade da voz, sotaque do espanhol, estilo da tutora) ficam no `localStorage` de cada telemóvel.
 - **Foto do perfil** (`localStorage` `tutora_foto`, data URL JPEG): no Perfil, "Galeria" (`<input accept="image/*">`) ou "Câmara" (`capture="user"`), reduzida num canvas para caber em 256×256; botão para remover. Aparece no Perfil, no Início e no lugar do 🎤 ao lado das falas da aluna. O botão "🔑 Mudar chave" fica no fim do Perfil.
 - Voz: reconhecimento do Chrome (Web Speech API, modo contínuo, envio só ao tocar ⏹, botão "Cancelar esta frase") e leitura pela síntese de voz do aparelho (prefere vozes "Natural"/"Google").
