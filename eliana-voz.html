@@ -121,6 +121,10 @@
   .pf-photo { width: 84px; height: 84px; font-size: 2.4rem; }
   .pf-photo-btns { flex: 1; display: flex; flex-wrap: wrap; gap: 8px; }
   .pf-photo-btns .backup-btn { flex: 1 1 45%; padding: 9px 6px; }
+  .pf-check { width: 100%; display: flex; align-items: center; gap: 10px; font-size: 0.85rem; color: var(--cream); cursor: pointer; }
+  .pf-check input { width: 20px; height: 20px; accent-color: var(--gold); flex-shrink: 0; }
+  .msg-hint { margin-top: 5px; font-size: 0.85rem; color: #9be3a8; }
+  .msg-hint.hide { display: none; }
   .key-btn { width: 100%; border-color: rgba(192,57,43,0.7); color: #e57368; }
   .lbl-photo { width: 20px; height: 20px; border-radius: 50%; object-fit: cover; vertical-align: middle; margin-right: 4px; border: 1px solid #7ab8c0; }
   .nb-view.active { padding: 20px 16px 100px; }
@@ -284,6 +288,7 @@
     <option value="formal" data-i18n="style_formal"></option>
     <option value="divertida" data-i18n="style_fun"></option>
   </select>
+  <label class="pf-check"><input type="checkbox" id="pf-readnat" /> <span data-i18n="readnat_q"></span></label>
   <button class="api-btn" onclick="saveProfile()" data-i18n="save_btn"></button>
   <div class="prof-label" data-i18n="backup_label"></div>
   <div class="backup-row">
@@ -457,9 +462,12 @@ const LEVELS = ['iniciante', 'básico', 'intermediário', 'avançado'];
 // ── LÍNGUA NATIVA DO ALUNO ──
 // ui: dicionário da interface; expl: língua das explicações (nas instruções da tutora); hide: idioma escondido da lista.
 const NATIVES = {
-  'pt-BR': { ui: 'pt-BR', expl: 'português do Brasil', speaker: 'falante nativo de português do Brasil', short: 'português', locale: 'pt-BR', hide: 'pt', group: 'pt', date: 'pt-BR' },
-  'pt-PT': { ui: 'pt-PT', expl: 'português de Portugal', speaker: 'falante nativo de português de Portugal', short: 'português', locale: 'pt-PT', hide: 'pt', group: 'pt', date: 'pt-PT' },
-  'es':    { ui: 'es', expl: 'espanhol', speaker: 'falante nativo de espanhol', short: 'espanhol', locale: 'es-ES', hide: 'es', group: 'es', date: 'es-ES' }
+  'pt-BR': { ui: 'pt-BR', expl: 'português do Brasil', speaker: 'falante nativo de português do Brasil', short: 'português', locale: 'pt-BR', hide: 'pt', group: 'pt', date: 'pt-BR',
+             repeatEx: 'Repita comigo', variant: 'escreve em português do Brasil, tratando o aluno por "você" (ex.: "Repita comigo", "Ouça", "Diga"; celular, ônibus)' },
+  'pt-PT': { ui: 'pt-PT', expl: 'português de Portugal', speaker: 'falante nativo de português de Portugal', short: 'português', locale: 'pt-PT', hide: 'pt', group: 'pt', date: 'pt-PT',
+             repeatEx: 'Repete comigo', variant: 'escreve em português de Portugal, tratando o aluno por "tu" (ex.: "Repete comigo", "Ouve", "Diz"; telemóvel, autocarro)' },
+  'es':    { ui: 'es', expl: 'espanhol', speaker: 'falante nativo de espanhol', short: 'espanhol', locale: 'es-ES', hide: 'es', group: 'es', date: 'es-ES',
+             repeatEx: 'Repite conmigo', variant: 'escreve em espanhol, tratando o aluno por "tú" (ex.: "Repite conmigo", "Escucha", "Di")' }
 };
 
 // Erros típicos de quem tem esta língua nativa (grupo) e aprende este idioma.
@@ -487,7 +495,8 @@ const TARGET_TXT = {
   again:  { es: '¿Puedes decirlo otra vez?', en: 'Can you say it again?', fr: 'Tu peux le redire ?', it: 'Puoi ripeterlo?', pt: 'Você pode dizer de novo?' },
   great:  { es: '¡Eres genial!', en: "You're awesome!", fr: 'Tu es formidable !', it: 'Sei grande!', pt: 'Você é demais!' },
   sayEx:  { es: 'Quiero comprar una camiseta.', en: 'I want to buy a T-shirt.', fr: 'Je veux acheter un t-shirt.', it: 'Voglio comprare una maglietta.', pt: 'Quero comprar uma camiseta.' },
-  good:   { es: '¡Muy bien!', en: 'Very good!', fr: 'Très bien !', it: 'Molto bene!', pt: 'Muito bem!' }
+  good:   { es: '¡Muy bien!', en: 'Very good!', fr: 'Très bien !', it: 'Molto bene!', pt: 'Muito bem!' },
+  howSay: { es: '¿Cómo se dice…?', en: 'How do you say…?', fr: 'Comment dit-on… ?', it: 'Come si dice…?', pt: 'Como se diz…?' }
 };
 
 // ── 🌱 DO ZERO: 12 LIÇÕES (iguais para todos os idiomas) ──
@@ -597,7 +606,8 @@ const I18N = {
     card_chat_t: 'Conversar', card_chat_d: 'Temas do dia a dia e conversa livre', card_test_t: 'Teste de nível', card_test_d: 'Descubra o seu nível no idioma',
     soon: 'Em breve', test_soon: 'O teste de nível chega numa próxima versão.', back_home: '← Início',
     tab_home: 'Início', tab_chat: 'Conversar', tab_notebook: 'Caderno', tab_profile: 'Perfil',
-    photo_gallery: '🖼️ Galeria', photo_camera: '📷 Câmera', photo_remove: '✕ Remover foto', photo_fail: 'Não consegui abrir a foto.', photo_save_fail: 'Não consegui salvar a foto.'
+    photo_gallery: '🖼️ Galeria', photo_camera: '📷 Câmera', photo_remove: '✕ Remover foto', photo_fail: 'Não consegui abrir a foto.', photo_save_fail: 'Não consegui salvar a foto.',
+    hint_label: '💡 Dica', readnat_q: 'Ler explicações em voz alta (além das frases no idioma)'
   },
   'pt-PT': {
     setup_text: 'Para a tutora de IA funcionar, precisas de uma chave API da Anthropic.<br>É gratuita para começar e só tu tens acesso.',
@@ -648,7 +658,8 @@ const I18N = {
     card_chat_t: 'Conversar', card_chat_d: 'Temas do dia a dia e conversa livre', card_test_t: 'Teste de nível', card_test_d: 'Descobre o teu nível no idioma',
     soon: 'Em breve', test_soon: 'O teste de nível chega numa próxima versão.', back_home: '← Início',
     tab_home: 'Início', tab_chat: 'Conversar', tab_notebook: 'Caderno', tab_profile: 'Perfil',
-    photo_gallery: '🖼️ Galeria', photo_camera: '📷 Câmara', photo_remove: '✕ Remover foto', photo_fail: 'Não consegui abrir a foto.', photo_save_fail: 'Não consegui guardar a foto.'
+    photo_gallery: '🖼️ Galeria', photo_camera: '📷 Câmara', photo_remove: '✕ Remover foto', photo_fail: 'Não consegui abrir a foto.', photo_save_fail: 'Não consegui guardar a foto.',
+    hint_label: '💡 Dica', readnat_q: 'Ler explicações em voz alta (além das frases no idioma)'
   },
   'es': {
     setup_text: 'Para que la tutora de IA funcione, necesitas una clave API de Anthropic.<br>Es gratuita para empezar y solo tú tienes acceso.',
@@ -699,7 +710,8 @@ const I18N = {
     card_chat_t: 'Conversar', card_chat_d: 'Temas del día a día y conversación libre', card_test_t: 'Prueba de nivel', card_test_d: 'Descubre tu nivel en el idioma',
     soon: 'Pronto', test_soon: 'La prueba de nivel llegará en una próxima versión.', back_home: '← Inicio',
     tab_home: 'Inicio', tab_chat: 'Conversar', tab_notebook: 'Cuaderno', tab_profile: 'Perfil',
-    photo_gallery: '🖼️ Galería', photo_camera: '📷 Cámara', photo_remove: '✕ Quitar foto', photo_fail: 'No pude abrir la foto.', photo_save_fail: 'No pude guardar la foto.'
+    photo_gallery: '🖼️ Galería', photo_camera: '📷 Cámara', photo_remove: '✕ Quitar foto', photo_fail: 'No pude abrir la foto.', photo_save_fail: 'No pude guardar la foto.',
+    hint_label: '💡 Pista', readnat_q: 'Leer las explicaciones en voz alta (además de las frases en el idioma)'
   }
 };
 
@@ -820,6 +832,7 @@ function fillProfileForm() {
   document.getElementById('pf-speed').value = p.speed || 'normal';
   document.getElementById('pf-accent').value = p.accent || 'Espanha';
   document.getElementById('pf-style').value = p.style || 'amigável';
+  document.getElementById('pf-readnat').checked = !!p.readNative;
   applyI18n();
   renderLevelGrid(p.levels || DEFAULT_LEVELS);
   renderStreakStats();
@@ -835,7 +848,8 @@ function saveProfile() {
     native: document.getElementById('pf-native').value, levels,
     speed: document.getElementById('pf-speed').value,
     accent: document.getElementById('pf-accent').value,
-    style: document.getElementById('pf-style').value
+    style: document.getElementById('pf-style').value,
+    readNative: document.getElementById('pf-readnat').checked
   };
   uiOverride = null;
   try { localStorage.setItem('tutora_profile', JSON.stringify(PROFILE)); } catch(e) {}
@@ -969,7 +983,8 @@ function renderHome() {
   }
   renderPhotos();
 }
-// "Continuar lição": se a lição ainda está aberta na conversa, volta a ela; senão, recomeça-a.
+// "Continuar lição": se a lição ainda está aberta na conversa, volta a ela; senão, repõe a conversa guardada
+// (startLesson retoma a sessão gravada) ou, se não houver, começa-a.
 function continueLesson() {
   const e = zeroLang();
   if (!Number.isInteger(e.current)) return;
@@ -1073,7 +1088,25 @@ function maybeAutoZero() {
   return false;
 }
 
-function startLesson(i) {
+// ── Conversa da lição em andamento (para "Continuar lição" retomar de onde parou) ──
+// localStorage 'tutora_licao' = { idioma: { lesson, history: chatHistory, log: [mensagens mostradas] } }
+const LESSON_KEY = 'tutora_licao';
+let lessonLog = [], restoringLesson = false;
+function lessonSessions() { try { const s = JSON.parse(localStorage.getItem(LESSON_KEY) || '{}'); return s && typeof s === 'object' ? s : {}; } catch(e) { return {}; } }
+function saveLessonSession() {
+  if (currentLesson === null || restoringLesson || lessonCompleted) return;
+  const all = lessonSessions();
+  all[currentLang] = { lesson: currentLesson, history: chatHistory.slice(-60), log: lessonLog.slice(-80) };
+  try { localStorage.setItem(LESSON_KEY, JSON.stringify(all)); } catch(e) {}
+}
+function clearLessonSession() {
+  const all = lessonSessions();
+  delete all[currentLang];
+  try { localStorage.setItem(LESSON_KEY, JSON.stringify(all)); } catch(e) {}
+}
+
+// Abre a lição i. Se houver conversa guardada dessa lição (e resume não for false), retoma-a; senão começa do início.
+function startLesson(i, resume) {
   document.getElementById('zero-screen').style.display = 'none';
   if (currentLesson === null) topicElBeforeLesson = document.querySelector('.topic-pill.active:not(#zero-pill)');
   currentLesson = i; lessonCompleted = false;
@@ -1081,7 +1114,24 @@ function startLesson(i) {
   document.querySelectorAll('.topic-pill').forEach(b => b.classList.remove('active'));
   document.getElementById('zero-pill').classList.add('active');
   chatHistory = []; repeatTarget = ''; repeatTries = 0; clearTranscript(); stopRecording(); synth.cancel();
+  lessonLog = [];
   updateLessonBanner();
+  const sess = lessonSessions()[currentLang];
+  if (resume !== false && sess && sess.lesson === i && Array.isArray(sess.log) && sess.log.length && Array.isArray(sess.history)) {
+    restoringLesson = true;
+    chatHistory = sess.history.filter(m => m && (m.role === 'user' || m.role === 'assistant') && typeof m.content === 'string');
+    sess.log.forEach(m => {
+      if (!m || (m.role !== 'user' && m.role !== 'tutor')) return;
+      const div = addMsg(m.role, String(m.text || ''), m.correction, m.correctionFirst, m.spoken, m.saveText, m.hint);
+      lessonLog.push(m);
+      div.dataset.log = lessonLog.length - 1;
+      if (m.role === 'user') { lastUserDiv = div; if (m.hl) highlightError(div, m.hl); }
+    });
+    restoringLesson = false;
+    setStatus('ready', t('st_ready_reply'));
+    return;
+  }
+  clearLessonSession();
   greet();
 }
 function exitLesson() {
@@ -1104,6 +1154,7 @@ function markLessonDone(i) {
   e.seen = true;
   if (e.current === i) e.current = null;
   zeroSave(e);
+  clearLessonSession(); // lição concluída: a conversa guardada já não é precisa
 }
 function celebrateLesson(i) {
   const { done } = zeroLang(), next = nextLessonIdx(done);
@@ -1242,12 +1293,17 @@ function stopRecording() {
 // Marcas de voz no início das linhas: [nat] = língua nativa do aluno, [alvo] = idioma estudado (linha sem marca = idioma estudado).
 const VOICE_TAG = /^\s*\[(nat|alvo)\]\s*/i;
 function stripTags(text) { return String(text || '').split('\n').map(l => l.replace(VOICE_TAG, '')).join('\n').replace(/\[(nat|alvo)\]\s*/gi, ''); }
+// Só as linhas [alvo] são lidas em voz alta; as [nat] só se o perfil tiver "Ler explicações em voz alta".
+// As traduções entre parênteses ficam sempre só escritas.
 function voiceParts(text) {
   const parts = [];
+  const readNat = !!(PROFILE && PROFILE.readNative);
   String(text || '').split('\n').forEach(line => {
     const m = line.match(VOICE_TAG);
     const who = m ? m[1].toLowerCase() : 'alvo';
-    const s = line.replace(VOICE_TAG, '').replace(/\[(nat|alvo)\]\s*/gi, '').replace(/[📝✅❌🎤🔊💡👤🛒🏥🏠🏦🎓🗣️🎯🔁💬🌐🌱]/gu, '').replace(/\*\*/g, '').trim();
+    if (who === 'nat' && !readNat) return;
+    const s = line.replace(VOICE_TAG, '').replace(/\[(nat|alvo)\]\s*/gi, '').replace(/[📝✅❌🎤🔊💡👤🛒🏥🏠🏦🎓🗣️🎯🔁💬🌐🌱]/gu, '').replace(/\*\*/g, '')
+      .replace(/\([^)]*\)/g, ' ').replace(/\s+/g, ' ').trim();
     if (!s) return;
     const last = parts[parts.length - 1];
     if (last && last.who === who) last.text += ' ' + s; else parts.push({ who, text: s });
@@ -1346,8 +1402,10 @@ function processLessonReply(reply) {
   const gramFix = lines.filter(l => starts(l, '📝') && l.includes('→')).filter(l => {
     const [a, b] = l.split('·')[0].split('→'); return formKey(a) && formKey(b) && formKey(a) !== formKey(b);
   }).slice(0, 1);
-  const main = lines.filter(l => !['📝', '✅', '🗣'].some(s => starts(l, s))).join('\n').trim();
-  chatHistory.push({ role: 'assistant', content: [main, ...gramFix].filter(Boolean).join('\n') });
+  // 💡 = resposta do passo LEMBRAR: fica escondida num botão "Dica" (nem escrita no balão, nem lida).
+  const hint = lines.filter(l => starts(l, '💡')).map(l => l.trim().replace(/^💡\s*/u, '').replace(VOICE_TAG, '')).join(' · ');
+  const main = lines.filter(l => !['📝', '✅', '🗣', '💡'].some(s => starts(l, s))).join('\n').trim();
+  chatHistory.push({ role: 'assistant', content: [main, ...gramFix, hint ? '💡 ' + hint : ''].filter(Boolean).join('\n') });
   let html = '';
   if (gramFix.length) {
     const unq = s => (s || '').replace(/^[📝\s]+/u, '').replace(/["“”«»]/g, '').trim();
@@ -1359,7 +1417,7 @@ function processLessonReply(reply) {
   }
   // ⭐ guarda a primeira frase no idioma estudado.
   const firstAlvo = (main.split('\n').find(l => !/^\s*\[nat\]/i.test(l)) || '').replace(VOICE_TAG, '');
-  addMsg('tutor', main || stripTags(reply), html, true, main, firstAlvo);
+  addMsg('tutor', main || stripTags(reply), html, true, main, firstAlvo, hint);
   if (finished && !lessonCompleted && currentLesson !== null) {
     const i = currentLesson;
     lessonCompleted = true;
@@ -1379,6 +1437,7 @@ async function handleUserSpeech(text) {
   lastUserDiv = addMsg('user', text);
   countPractice();
   chatHistory.push({ role: 'user', content: text });
+  saveLessonSession();
   await processInput(text);
 }
 
@@ -1391,6 +1450,7 @@ async function sendText() {
   lastUserDiv = addMsg('user', text);
   countPractice();
   chatHistory.push({ role: 'user', content: text });
+  saveLessonSession();
   await processInput(text);
 }
 
@@ -1528,7 +1588,7 @@ function buildSystem() {
 ${mem.map(e => `- "${e.wrong}" → "${e.right}"${e.why ? ' (' + e.why + ')' : ''}${e.count > 1 ? ' — ' + e.count + ' vezes' : ''}`).join('\n')}
 De vez em quando (não em todas as respostas), faz perguntas naturais que levem ${N} a usar essas estruturas. NUNCA anuncies que o estás a fazer nem menciones esta lista.
 ` : '';
-  return `És uma tutora de ${currentLangName} para ${N}, ${NI.speaker}. Todas as explicações para ${N} são em ${EX}. Nível de ${N} em ${currentLangName}: ${lvl}. Adapta o vocabulário e a velocidade a esse nível (no nível iniciante usa frases muito simples).
+  return `És uma tutora de ${currentLangName} para ${N}, ${NI.speaker}. Todas as explicações para ${N} são em ${EX}: ${NI.variant}. Nível de ${N} em ${currentLangName}: ${lvl}. Adapta o vocabulário e a velocidade a esse nível (no nível iniciante usa frases muito simples).
 ${style}${accentRule(P) ? ' ' + accentRule(P) : ''}
 ${P.city ? `Contexto (só para ti): ${N} mora em ${P.city}. NÃO menciones a cidade nas respostas, a não ser que ${N} fale dela primeiro.\n` : ''}Conversas com ${N} e corriges só os erros REAIS que comete.
 O texto vem de reconhecimento de voz: ignora pontuação, maiúsculas e acentos. Palavras repetidas seguidas (ex.: "el clima el clima") são falhas do microfone, e hesitações como "eh", "em", "este", "pues", "um" são normais na fala: ignora-as sempre.
@@ -1574,16 +1634,19 @@ function buildLessonSystem() {
   return `És uma professora paciente de ${currentLangName} para ${N}, ${NI.speaker}, que está a aprender DO ZERO (iniciante absoluta). ${style} ${accentRule(P)}
 MODO "DO ZERO" — Lição ${i + 1} de ${ZERO_TOTAL}: "${title}". Meta: ${goal}
 Conteúdo da lição (só para ti): ${LESSON_CONTENT[i]}.
-VOZES (obrigatório): CADA linha começa por [nat] ou [alvo]. [nat] = texto em ${EX} (explicações, traduções, instruções). [alvo] = texto em ${currentLangName} (as frases a aprender e as tuas perguntas). NUNCA mistures as duas línguas na mesma linha. As traduções vão numa linha [nat], entre parênteses.
+VOZES (obrigatório): CADA linha começa por [nat] ou [alvo]. [nat] = texto em ${EX} (explicações, traduções, instruções), só escrito. [alvo] = texto em ${currentLangName} (as frases a aprender e as tuas perguntas), o único que o app lê em voz alta. NUNCA mistures as duas línguas na mesma linha. As traduções vão numa linha [nat], entre parênteses.
+LÍNGUA NATIVA: nas linhas [nat] e nas explicações, ${NI.variant}.
+DOIS TIPOS DE PASSO:
+- ENSINAR (frase nova): uma linha [alvo] com a frase (curta, até 6 palavras, útil no dia a dia); uma linha [nat] com a tradução entre parênteses; uma linha [nat] a pedir para repetir (ex.: "${NI.repeatEx}").
+- LEMBRAR (frase já ensinada, mais adiante na lição): uma linha [alvo] "${tgt('howSay')}" e uma linha [nat] com a frase em ${EX} entre «…», SEM dar a resposta; e uma linha que começa por 💡 com a resposta em ${currentLangName} (o app esconde-a num botão "Dica", que ${N} só abre se quiser). Se ${N} errar, travar ou disser que não sabe, volta a ENSINAR essa frase.
 COMO CONDUZIR:
-1. Primeira mensagem: uma linha [nat] curta a explicar a meta da lição; depois ensina a 1.ª frase (passo 2).
-2. Ensina UMA frase de cada vez (curta, até 6 palavras, útil no dia a dia): uma linha [alvo] com a frase; uma linha [nat] com a tradução entre parênteses; uma linha [nat] a pedir para repetir.
-3. Quando ${N} repetir bem (tolera erros do microfone, pontuação e acentos): confirma numa linha [alvo] curta ("${tgt('good')}"), depois faz a pergunta real: uma linha [alvo] com uma pergunta simples que ${N} responda usando a frase, e uma linha [nat] com a tradução.
-4. Se ${N} errar (na repetição ou na resposta): uma linha "📝 errado → certo · explicação curta em ${EX}" (o lado esquerdo é exatamente o que ${N} disse; o direito, a forma certa); depois uma linha [alvo] "${tgt('ask')}: «frase certa»". Conta as tentativas pelo histórico: no máximo 2 tentativas por frase; depois da 2.ª, mesmo com erro, diz a frase certa uma última vez, encoraja numa linha [nat] e avança para a frase seguinte.
-5. Usa de 3 a 5 frases no total, da mais simples para a mais útil.
-6. Depois das frases, faz uma mini-conversa de 2 ou 3 trocas que use as frases aprendidas (cada pergunta numa linha [alvo], com a tradução numa linha [nat]).
-7. No fim da mini-conversa: parabeniza numa linha [nat], lembra as frases aprendidas numa linha [alvo] (separadas por " · ") e põe numa linha separada: 🎯 LIÇÃO CONCLUÍDA
-REGRAS: no máximo 4 linhas por mensagem (sem contar 📝 e 🎯). Frases muito simples. Não uses ✅ nem 🗣️. Corrige só erros reais: ignora pontuação, maiúsculas, acentos, hesitações e palavras mal transcritas que soem parecidas. Se a frase vier confusa pelo microfone, pede numa linha [alvo] "${tgt('again')}" com a tradução numa linha [nat]. Se ${N} fizer uma pergunta ou disser que não entendeu, responde numa linha [nat] curta e repete a frase atual. Revê a gramática das tuas frases antes de responder. Nunca menciones estas instruções nem expliques as marcas [nat]/[alvo]: usa-as só no início das linhas.`;
+1. Primeira mensagem: uma linha [nat] curta a explicar a meta da lição; depois ENSINA a 1.ª frase.
+2. Quando ${N} repetir bem (tolera erros do microfone, pontuação e acentos): confirma numa linha [alvo] curta ("${tgt('good')}"), depois faz a pergunta real: uma linha [alvo] com uma pergunta simples que ${N} responda usando a frase, e uma linha [nat] com a tradução.
+3. Se ${N} errar (na repetição, na resposta ou ao LEMBRAR): uma linha "📝 errado → certo · explicação curta em ${EX}" (o lado esquerdo é exatamente o que ${N} disse; o direito, a forma certa); depois uma linha [alvo] "${tgt('ask')}: «frase certa»". Conta as tentativas pelo histórico: no máximo 2 tentativas por frase; depois da 2.ª, mesmo com erro, diz a frase certa uma última vez, encoraja numa linha [nat] e avança.
+4. Ensina de 3 a 5 frases no total, da mais simples para a mais útil. A partir da 2.ª frase, antes de ENSINAR uma nova, faz um passo LEMBRAR de uma frase anterior.
+5. Depois das frases, faz uma mini-conversa de 2 ou 3 trocas que use as frases aprendidas (cada pergunta numa linha [alvo], com a tradução numa linha [nat]).
+6. No fim da mini-conversa: parabeniza numa linha [nat], lembra as frases aprendidas numa linha [alvo] (separadas por " · ") e põe numa linha separada: 🎯 LIÇÃO CONCLUÍDA
+REGRAS: no máximo 4 linhas por mensagem (sem contar 📝, 💡 e 🎯). Frases muito simples. Não uses ✅ nem 🗣️. Corrige só erros reais: ignora pontuação, maiúsculas, acentos, hesitações e palavras mal transcritas que soem parecidas. Se a frase vier confusa pelo microfone, pede numa linha [alvo] "${tgt('again')}" com a tradução numa linha [nat]. Se ${N} fizer uma pergunta ou disser que não entendeu, responde numa linha [nat] curta e repete a frase atual. Revê a gramática das tuas frases antes de responder. Nunca menciones estas instruções nem expliques as marcas [nat]/[alvo]: usa-as só no início das linhas.`;
 }
 
 async function callAI(messages, system) {
@@ -1610,7 +1673,9 @@ function esc(t) { return String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').re
 
 // spoken: o texto que a tutora falou (o botão 🔊 repete-o); por omissão, o próprio texto.
 // saveText: o que o ⭐ guarda no caderno (ex.: a frase ✅); se a aluna selecionar um trecho da mensagem, guarda o trecho.
-function addMsg(role, text, correction, correctionFirst, spoken, saveText) {
+// hint: resposta escondida no botão "💡 Dica" (passo LEMBRAR das lições).
+// No modo Do zero, cada mensagem entra no registo da lição (lessonLog) para "Continuar lição" a poder repor.
+function addMsg(role, text, correction, correctionFirst, spoken, saveText, hint) {
   const box = document.getElementById('transcript');
   const div = document.createElement('div');
   div.className = 'msg ' + role;
@@ -1643,10 +1708,26 @@ function addMsg(role, text, correction, correctionFirst, spoken, saveText) {
       setTimeout(() => { bStar.textContent = '⭐'; }, 1500);
     };
     tools.append(bListen, bTr, bStar);
-    div.appendChild(tools);
+    if (hint) {
+      const bHint = document.createElement('button');
+      bHint.textContent = t('hint_label');
+      const hd = document.createElement('div');
+      hd.className = 'msg-hint hide'; hd.textContent = '💡 ' + hint;
+      bHint.onclick = () => hd.classList.toggle('hide');
+      tools.appendChild(bHint);
+      div.appendChild(tools);
+      div.appendChild(hd);
+    } else {
+      div.appendChild(tools);
+    }
   }
   box.appendChild(div);
   box.scrollTop = box.scrollHeight;
+  if (currentLesson !== null && !restoringLesson) {
+    lessonLog.push({ role, text, correction: correction || '', correctionFirst: !!correctionFirst, spoken: spoken || '', saveText: saveText || '', hint: hint || '' });
+    div.dataset.log = lessonLog.length - 1;
+    saveLessonSession();
+  }
   return div;
 }
 
@@ -1675,6 +1756,8 @@ function highlightError(div, left) {
   const html = parts.map((p, i) => (i === a ? '<mark class="err">' : '') + esc(p) + (i === b ? '</mark>' : '')).join('');
   const bubble = div.querySelector('.bubble');
   if (bubble) bubble.innerHTML = html;
+  // Guarda o destaque no registo da lição (para repor ao continuar).
+  if (div.dataset.log && !restoringLesson && lessonLog[+div.dataset.log]) { lessonLog[+div.dataset.log].hl = left; saveLessonSession(); }
 }
 
 // 🌐 Tradução da mensagem da tutora para a língua nativa do perfil (pedida uma vez, depois só mostra/esconde).
