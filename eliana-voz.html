@@ -137,6 +137,9 @@
 
   .toast { position: fixed; left: 50%; bottom: 84px; transform: translateX(-50%); z-index: 1100; max-width: 90%; background: #0b3d47; border: 1px solid var(--gold); color: var(--cream); border-radius: 12px; padding: 10px 14px; font-size: 0.85rem; text-align: center; box-shadow: 0 6px 20px rgba(0,0,0,0.4); opacity: 0; pointer-events: none; transition: opacity 0.3s; }
   .toast.show { opacity: 1; }
+  .modal { position: fixed; inset: 0; z-index: 1060; background: rgba(0,25,30,0.85); display: none; align-items: center; justify-content: center; padding: 16px; }
+  .modal.show { display: flex; }
+  .modal .cel-title { font-size: 1.5rem; }
 
   /* 🌱 DO ZERO */
   .zero-intro { font-size: 0.82rem; color: var(--muted); line-height: 1.6; }
@@ -459,6 +462,17 @@
 
 <div class="toast" id="toast" role="status"></div>
 
+<!-- ALTERAÇÕES NÃO SALVAS NO PERFIL -->
+<div class="modal" id="unsaved-modal" role="dialog" aria-modal="true">
+  <div class="cel-card">
+    <div class="cel-title" data-i18n="unsaved_q"></div>
+    <div class="cel-btns">
+      <button class="cel-btn" id="unsaved-discard" data-i18n="unsaved_discard"></button>
+      <button class="cel-btn primary" id="unsaved-save" data-i18n="unsaved_save"></button>
+    </div>
+  </div>
+</div>
+
 <!-- BARRA DE NAVEGAÇÃO -->
 <nav class="tabbar" id="tabbar">
   <button data-view="home" onclick="navTo('home')"><span class="tab-ico">🏠</span><span data-i18n="tab_home"></span></button>
@@ -723,7 +737,7 @@ const I18N = {
     back_home: '← Início',
     tab_home: 'Início', tab_chat: 'Conversar', tab_notebook: 'Caderno', tab_profile: 'Perfil',
     photo_gallery: '🖼️ Galeria', photo_camera: '📷 Câmera', photo_remove: '✕ Remover foto', photo_fail: 'Não consegui abrir a foto.', photo_save_fail: 'Não consegui salvar a foto.',
-    empty_reply: 'A tutora não respondeu', ai_timeout: 'A tutora demorou demais a responder. Tente de novo.', busy_thinking: 'A tutora está pensando…', busy_speaking: 'A tutora está falando… toque no avatar ou em 🔊 para interromper', lang_changed: 'A sua língua mudou: as lições guardadas vão recomeçar.',
+    empty_reply: 'A tutora não respondeu', ai_timeout: 'A tutora demorou demais a responder. Tente de novo.', busy_thinking: 'A tutora está pensando…', busy_speaking: 'A tutora está falando… toque no avatar ou em 🔊 para interromper', unsaved_q: 'Salvar alterações?', unsaved_save: 'Salvar', unsaved_discard: 'Descartar', lang_changed: 'A sua língua mudou: as lições guardadas vão recomeçar.',
     hint_label: '💡 Dica', readnat_q: 'Ler explicações em voz alta (além das frases no idioma)',
     test_banner: '📊 Teste de nível · pergunta {n}/{total}', test_evaluating: '📊 Teste de nível · avaliando…', test_done_banner: '📊 Teste de nível concluído',
     test_skip_btn: '🤷 Não sei', test_skip_said: 'Não sei',
@@ -784,7 +798,7 @@ const I18N = {
     back_home: '← Início',
     tab_home: 'Início', tab_chat: 'Conversar', tab_notebook: 'Caderno', tab_profile: 'Perfil',
     photo_gallery: '🖼️ Galeria', photo_camera: '📷 Câmara', photo_remove: '✕ Remover foto', photo_fail: 'Não consegui abrir a foto.', photo_save_fail: 'Não consegui guardar a foto.',
-    empty_reply: 'A tutora não respondeu', ai_timeout: 'A tutora demorou demasiado a responder. Tenta de novo.', busy_thinking: 'A tutora está a pensar…', busy_speaking: 'A tutora está a falar… toca no avatar ou em 🔊 para interromper', lang_changed: 'A tua língua mudou: as lições guardadas vão recomeçar.',
+    empty_reply: 'A tutora não respondeu', ai_timeout: 'A tutora demorou demasiado a responder. Tenta de novo.', busy_thinking: 'A tutora está a pensar…', busy_speaking: 'A tutora está a falar… toca no avatar ou em 🔊 para interromper', unsaved_q: 'Guardar as alterações?', unsaved_save: 'Guardar', unsaved_discard: 'Descartar', lang_changed: 'A tua língua mudou: as lições guardadas vão recomeçar.',
     hint_label: '💡 Dica', readnat_q: 'Ler explicações em voz alta (além das frases no idioma)',
     test_banner: '📊 Teste de nível · pergunta {n}/{total}', test_evaluating: '📊 Teste de nível · a avaliar…', test_done_banner: '📊 Teste de nível concluído',
     test_skip_btn: '🤷 Não sei', test_skip_said: 'Não sei',
@@ -845,7 +859,7 @@ const I18N = {
     back_home: '← Inicio',
     tab_home: 'Inicio', tab_chat: 'Conversar', tab_notebook: 'Cuaderno', tab_profile: 'Perfil',
     photo_gallery: '🖼️ Galería', photo_camera: '📷 Cámara', photo_remove: '✕ Quitar foto', photo_fail: 'No pude abrir la foto.', photo_save_fail: 'No pude guardar la foto.',
-    empty_reply: 'La tutora no respondió', ai_timeout: 'La tutora tardó demasiado en responder. Inténtalo de nuevo.', busy_thinking: 'La tutora está pensando…', busy_speaking: 'La tutora está hablando… toca el avatar o 🔊 para interrumpir', lang_changed: 'Tu idioma cambió: las lecciones guardadas volverán a empezar.',
+    empty_reply: 'La tutora no respondió', ai_timeout: 'La tutora tardó demasiado en responder. Inténtalo de nuevo.', busy_thinking: 'La tutora está pensando…', busy_speaking: 'La tutora está hablando… toca el avatar o 🔊 para interrumpir', unsaved_q: '¿Guardar los cambios?', unsaved_save: 'Guardar', unsaved_discard: 'Descartar', lang_changed: 'Tu idioma cambió: las lecciones guardadas volverán a empezar.',
     hint_label: '💡 Pista', readnat_q: 'Leer las explicaciones en voz alta (además de las frases en el idioma)',
     test_banner: '📊 Prueba de nivel · pregunta {n}/{total}', test_evaluating: '📊 Prueba de nivel · evaluando…', test_done_banner: '📊 Prueba de nivel completada',
     test_skip_btn: '🤷 No sé', test_skip_said: 'No sé',
@@ -906,7 +920,7 @@ const I18N = {
     back_home: '← Home',
     tab_home: 'Home', tab_chat: 'Talk', tab_notebook: 'Notebook', tab_profile: 'Profile',
     photo_gallery: '🖼️ Gallery', photo_camera: '📷 Camera', photo_remove: '✕ Remove photo', photo_fail: 'I could not open the photo.', photo_save_fail: 'I could not save the photo.',
-    empty_reply: 'The tutor did not answer', ai_timeout: 'The tutor took too long to answer. Please try again.', busy_thinking: 'The tutor is thinking…', busy_speaking: 'The tutor is speaking… tap the avatar or 🔊 to stop', lang_changed: 'Your language changed: saved lessons will start again.',
+    empty_reply: 'The tutor did not answer', ai_timeout: 'The tutor took too long to answer. Please try again.', busy_thinking: 'The tutor is thinking…', busy_speaking: 'The tutor is speaking… tap the avatar or 🔊 to stop', unsaved_q: 'Save changes?', unsaved_save: 'Save', unsaved_discard: 'Discard', lang_changed: 'Your language changed: saved lessons will start again.',
     hint_label: '💡 Hint', readnat_q: 'Read explanations aloud (as well as the phrases in the language)',
     test_banner: '📊 Level test · question {n}/{total}', test_evaluating: '📊 Level test · evaluating…', test_done_banner: '📊 Level test complete',
     test_skip_btn: '🤷 I don’t know', test_skip_said: 'I don’t know',
@@ -967,7 +981,7 @@ const I18N = {
     back_home: '← Accueil',
     tab_home: 'Accueil', tab_chat: 'Converser', tab_notebook: 'Carnet', tab_profile: 'Profil',
     photo_gallery: '🖼️ Galerie', photo_camera: '📷 Appareil photo', photo_remove: '✕ Retirer la photo', photo_fail: 'Je n’ai pas pu ouvrir la photo.', photo_save_fail: 'Je n’ai pas pu enregistrer la photo.',
-    empty_reply: 'La tutrice n’a pas répondu', ai_timeout: 'La tutrice a mis trop de temps à répondre. Réessaie.', busy_thinking: 'La tutrice réfléchit…', busy_speaking: 'La tutrice parle… touche l’avatar ou 🔊 pour l’interrompre', lang_changed: 'Ta langue a changé : les leçons enregistrées vont recommencer.',
+    empty_reply: 'La tutrice n’a pas répondu', ai_timeout: 'La tutrice a mis trop de temps à répondre. Réessaie.', busy_thinking: 'La tutrice réfléchit…', busy_speaking: 'La tutrice parle… touche l’avatar ou 🔊 pour l’interrompre', unsaved_q: 'Enregistrer les modifications ?', unsaved_save: 'Enregistrer', unsaved_discard: 'Ignorer', lang_changed: 'Ta langue a changé : les leçons enregistrées vont recommencer.',
     hint_label: '💡 Indice', readnat_q: 'Lire les explications à voix haute (en plus des phrases dans la langue)',
     test_banner: '📊 Test de niveau · question {n}/{total}', test_evaluating: '📊 Test de niveau · évaluation…', test_done_banner: '📊 Test de niveau terminé',
     test_skip_btn: '🤷 Je ne sais pas', test_skip_said: 'Je ne sais pas',
@@ -1028,7 +1042,7 @@ const I18N = {
     back_home: '← Home',
     tab_home: 'Home', tab_chat: 'Conversare', tab_notebook: 'Quaderno', tab_profile: 'Profilo',
     photo_gallery: '🖼️ Galleria', photo_camera: '📷 Fotocamera', photo_remove: '✕ Rimuovi foto', photo_fail: 'Non sono riuscita ad aprire la foto.', photo_save_fail: 'Non sono riuscita a salvare la foto.',
-    empty_reply: 'La tutor non ha risposto', ai_timeout: 'La tutor ci ha messo troppo a rispondere. Riprova.', busy_thinking: 'La tutor sta pensando…', busy_speaking: 'La tutor sta parlando… tocca l’avatar o 🔊 per interrompere', lang_changed: 'La tua lingua è cambiata: le lezioni salvate ricominceranno.',
+    empty_reply: 'La tutor non ha risposto', ai_timeout: 'La tutor ci ha messo troppo a rispondere. Riprova.', busy_thinking: 'La tutor sta pensando…', busy_speaking: 'La tutor sta parlando… tocca l’avatar o 🔊 per interrompere', unsaved_q: 'Salvare le modifiche?', unsaved_save: 'Salva', unsaved_discard: 'Scarta', lang_changed: 'La tua lingua è cambiata: le lezioni salvate ricominceranno.',
     hint_label: '💡 Suggerimento', readnat_q: 'Leggere ad alta voce le spiegazioni (oltre alle frasi nella lingua)',
     test_banner: '📊 Test di livello · domanda {n}/{total}', test_evaluating: '📊 Test di livello · valutazione…', test_done_banner: '📊 Test di livello completato',
     test_skip_btn: '🤷 Non lo so', test_skip_said: 'Non lo so',
@@ -1186,10 +1200,36 @@ function fillProfileForm() {
   renderStreakStats();
   renderTestsSummary();
   renderPhotos();
+  profileBaseline = profileSnapshot(); // para detetar alterações não salvas
 }
+// ── Alterações não salvas no Perfil ──
+let profileBaseline = null;
+function profileSnapshot() {
+  const v = id => { const el = document.getElementById(id); return el ? (el.type === 'checkbox' ? el.checked : el.value) : null; };
+  const levels = {};
+  LANGS.forEach(l => { const s = document.getElementById('pf-lv-' + l.code); if (s) levels[l.code] = s.value; });
+  return JSON.stringify([v('pf-native'), v('pf-name').trim(), v('pf-city').trim(), levels, v('pf-speed'), v('pf-accent'), v('pf-ptvar'), v('pf-style'), v('pf-readnat')]);
+}
+function profileDirty() { return !!PROFILE && currentView === 'profile' && profileBaseline !== null && profileSnapshot() !== profileBaseline; }
+// Pergunta "Salvar alterações?" e depois segue para a tela pedida.
+function askUnsaved(target) {
+  const m = document.getElementById('unsaved-modal');
+  m.classList.add('show');
+  const go = () => { if (target === 'home') goHome(); else navTo(target); };
+  document.getElementById('unsaved-save').onclick = () => {
+    m.classList.remove('show');
+    if (saveProfile() && target !== 'home') navTo(target); // saveProfile volta ao Início; depois segue para a aba pedida
+  };
+  document.getElementById('unsaved-discard').onclick = () => {
+    m.classList.remove('show');
+    profileBaseline = null; uiOverride = null; applyI18n();
+    go();
+  };
+}
+
 function saveProfile() {
   const name = document.getElementById('pf-name').value.trim();
-  if (!name) { alert(t('name_required')); return; }
+  if (!name) { alert(t('name_required')); return false; }
   const old = PROFILE;
   const levels = Object.assign({}, DEFAULT_LEVELS, (PROFILE && PROFILE.levels) || {});
   LANGS.forEach(l => { const s = document.getElementById('pf-lv-' + l.code); if (s) levels[l.code] = s.value; });
@@ -1207,9 +1247,11 @@ function saveProfile() {
   if (langChanged) { try { localStorage.removeItem(LESSON_KEY); } catch(e) {} }
   try { localStorage.setItem('tutora_profile', JSON.stringify(PROFILE)); } catch(e) {}
   chatHistory = []; repeatTarget = ""; repeatTries = 0; clearTranscript();
+  profileBaseline = null;
   init();
   goHome();
   if (langChanged) showToast(t('lang_changed'));
+  return true;
 }
 function startApp() {
   PROFILE = loadProfile();
@@ -1300,6 +1342,7 @@ let backPending = false, pendingNav = null;
 function navTo(v) {
   if (v === 'home') { goHome(); return; }
   if (!PROFILE) return;
+  if (v !== 'profile' && profileDirty()) { askUnsaved(v); return; }
   if (backPending) { pendingNav = v; return; }
   const st = history.state;
   try {
@@ -1309,6 +1352,7 @@ function navTo(v) {
   showView(v);
 }
 function goHome() {
+  if (profileDirty()) { askUnsaved('home'); return; }
   pendingNav = null;
   if (backPending) return;
   const st = history.state;
@@ -1318,6 +1362,12 @@ function goHome() {
 window.addEventListener('popstate', (e) => {
   backPending = false;
   if (!PROFILE) return; // ainda no primeiro perfil
+  // Voltar com alterações não salvas no Perfil: fica no Perfil e pergunta.
+  if (profileDirty() && !(e.state && e.state.view === 'profile')) {
+    try { history.pushState({ view: 'profile' }, ''); } catch(err) {}
+    askUnsaved('home');
+    return;
+  }
   document.getElementById('zero-screen').style.display = 'none';
   hideCelebrate();
   showView((e.state && e.state.view) || 'home');
