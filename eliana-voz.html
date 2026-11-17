@@ -140,6 +140,9 @@
   .lbl-photo { width: 20px; height: 20px; border-radius: 50%; object-fit: cover; vertical-align: middle; margin-right: 4px; border: 1px solid #7ab8c0; }
   .nb-view.active { padding: 20px 16px 100px; }
 
+  .toast { position: fixed; left: 50%; bottom: 84px; transform: translateX(-50%); z-index: 1100; max-width: 90%; background: #0b3d47; border: 1px solid var(--gold); color: var(--cream); border-radius: 12px; padding: 10px 14px; font-size: 0.85rem; text-align: center; box-shadow: 0 6px 20px rgba(0,0,0,0.4); opacity: 0; pointer-events: none; transition: opacity 0.3s; }
+  .toast.show { opacity: 1; }
+
   /* 🌱 DO ZERO */
   .zero-intro { font-size: 0.82rem; color: var(--muted); line-height: 1.6; }
   .zero-item { display: flex; gap: 12px; align-items: center; text-align: left; width: 100%; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 10px 12px; color: var(--cream); font-family: 'Inter', sans-serif; cursor: pointer; }
@@ -455,6 +458,8 @@
   </div>
 </div>
 </section>
+
+<div class="toast" id="toast" role="status"></div>
 
 <!-- BARRA DE NAVEGAÇÃO -->
 <nav class="tabbar" id="tabbar">
@@ -1185,6 +1190,7 @@ function fillProfileForm() {
 function saveProfile() {
   const name = document.getElementById('pf-name').value.trim();
   if (!name) { alert(t('name_required')); return; }
+  const old = PROFILE;
   const levels = Object.assign({}, DEFAULT_LEVELS, (PROFILE && PROFILE.levels) || {});
   LANGS.forEach(l => { const s = document.getElementById('pf-lv-' + l.code); if (s) levels[l.code] = s.value; });
   PROFILE = {
@@ -1197,10 +1203,13 @@ function saveProfile() {
     readNative: document.getElementById('pf-readnat').checked
   };
   uiOverride = null;
+  const langChanged = old && (getNative(old) !== PROFILE.native || (old.ptVariant || 'Brasil') !== PROFILE.ptVariant);
+  if (langChanged) { try { localStorage.removeItem(LESSON_KEY); } catch(e) {} }
   try { localStorage.setItem('tutora_profile', JSON.stringify(PROFILE)); } catch(e) {}
   chatHistory = []; repeatTarget = ""; repeatTries = 0; clearTranscript();
   init();
   goHome();
+  if (langChanged) showToast(t('lang_changed'));
 }
 function startApp() {
   PROFILE = loadProfile();
@@ -1239,6 +1248,8 @@ window.addEventListener('load', () => {
   try { history.replaceState({ view: 'home' }, ''); } catch(e) {}
   document.getElementById('home-avatar').innerHTML = document.getElementById('avatar').innerHTML;
   PROFILE = loadProfile();
+  // Idioma escolhido da última vez (se ainda estiver visível para a língua nativa).
+  try { const sl = localStorage.getItem('tutora_idioma'); if (LANGS.some(l => l.code === sl)) currentLang = sl; } catch(e) {}
   ensureVisibleLang();
   applyI18n();
   setStatus('ready', t('st_starting'));
@@ -1368,6 +1379,7 @@ function setLang(code) {
   const l = LANGS.find(x => x.code === code);
   if (!l) return;
   currentLang = l.code; applyLangVars();
+  try { localStorage.setItem('tutora_idioma', l.code); } catch(e) {}
   renderLangPills();
   document.getElementById('tip-text').textContent = (TIPS[uiLang()] || {})[code] || '';
   chatHistory = []; repeatTarget = ''; repeatTries = 0; clearTranscript(); stopRecording(); synth.cancel();
@@ -1448,7 +1460,7 @@ function lessonSessions() { try { const s = JSON.parse(localStorage.getItem(LESS
 function saveLessonSession() {
   if (currentLesson === null || restoringLesson || lessonCompleted) return;
   const all = lessonSessions();
-  all[currentLang] = { lesson: currentLesson, history: chatHistory.slice(-60), log: lessonLog.slice(-80) };
+  all[currentLang] = { lesson: currentLesson, native: getNative(PROFILE), ptVariant: (PROFILE && PROFILE.ptVariant) || 'Brasil', history: chatHistory.slice(-60), log: lessonLog.slice(-80) };
   try { localStorage.setItem(LESSON_KEY, JSON.stringify(all)); } catch(e) {}
 }
 function clearLessonSession() {
@@ -1470,7 +1482,10 @@ function startLesson(i, resume) {
   lessonLog = [];
   updateLessonBanner();
   const sess = lessonSessions()[currentLang];
-  if (resume !== false && sess && sess.lesson === i && Array.isArray(sess.log) && sess.log.length && Array.isArray(sess.history)) {
+  // Só se retoma uma conversa criada com a mesma língua nativa e a mesma variante do português.
+  const sameLang = sess && sess.native === getNative(PROFILE) && (sess.ptVariant || 'Brasil') === ((PROFILE && PROFILE.ptVariant) || 'Brasil');
+  if (resume !== false && sess && sess.lesson === i && !sameLang) showToast(t('lang_changed'));
+  if (resume !== false && sameLang && sess.lesson === i && Array.isArray(sess.log) && sess.log.length && Array.isArray(sess.history)) {
     restoringLesson = true;
     chatHistory = sess.history.filter(m => m && (m.role === 'user' || m.role === 'assistant') && typeof m.content === 'string');
     sess.log.forEach(m => {
@@ -2611,7 +2626,7 @@ function importData(input) {
     const zero = {};
     Object.keys(hasZero ? data.zero : {}).forEach(lang => {
       const e = data.zero[lang];
-      if (e && typeof e === 'object') zero[lang] = { done: Array.isArray(e.done) ? e.done.filter(n => Number.isInteger(n) && n >= 0 && n < ZERO_TOTAL) : [], seen: !!e.seen };
+      if (e && typeof e === 'object') zero[lang] = { done: Array.isArray(e.done) ? e.done.filter(n => Number.isInteger(n) && n >= 0 && n < ZERO_TOTAL) : [], seen: !!e.seen, current: Number.isInteger(e.current) && e.current >= 0 && e.current < ZERO_TOTAL ? e.current : null };
     });
     const nLessons = Object.values(zero).reduce((n, e) => n + e.done.length, 0);
     const ok = confirm(t('import_confirm', {
@@ -2641,13 +2656,24 @@ function importData(input) {
       if (typeof data.foto === 'string' && /^data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+/=]+$/.test(data.foto)) localStorage.setItem(PHOTO_KEY, data.foto);
     } catch(e) { alert(t('import_save_fail') + (e && e.message ? e.message : e)); return; }
     PROFILE = loadProfile() || PROFILE;
+    // Recomeça a conversa com os dados importados (outra língua, outros níveis…).
+    chatHistory = []; repeatTarget = ''; repeatTries = 0; clearTranscript();
+    init();
     fillProfileForm();      // mostra os dados importados nos campos do perfil
-    renderHome();
     updateStreakBadge();
     alert(t('import_ok'));
   };
   reader.onerror = () => alert(t('read_fail'));
   reader.readAsText(file);
+}
+
+// Aviso curto, por cima da barra de navegação.
+let toastTimer = null;
+function showToast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg; el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 4500);
 }
 
 function hideSuggestions() {
