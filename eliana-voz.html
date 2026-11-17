@@ -44,6 +44,16 @@
   .fix-list { margin-top: 4px; color: #d4b800; }
   .fix-why { margin-top: 6px; color: #b8b49a; }
   .fix-why summary { cursor: pointer; color: #d4b800; text-decoration: underline; list-style: none; }
+  .msg-tools { display: flex; gap: 6px; margin-top: 5px; }
+  .msg-tools button { background: transparent; border: 1px solid rgba(255,255,255,0.15); border-radius: 12px; color: var(--muted); font-size: 0.75rem; padding: 3px 9px; cursor: pointer; font-family: 'Inter', sans-serif; }
+  .msg-tr { margin-top: 5px; font-size: 0.8rem; color: #b8b49a; font-style: italic; line-height: 1.5; }
+  .msg-tr.hide { display: none; }
+  .msg.user mark.err { background: rgba(192,57,43,0.35); color: #ffd0c9; border-bottom: 2px solid #e57368; border-radius: 3px; padding: 0 2px; }
+  .hint-btn { background: transparent; border: 1px solid rgba(184,154,0,0.6); color: var(--gold-light); border-radius: 20px; padding: 7px 16px; font-size: 0.82rem; font-family: 'Inter', sans-serif; cursor: pointer; }
+  .suggest-box { display: none; width: 100%; flex-direction: column; gap: 6px; }
+  .suggest-box.show { display: flex; }
+  .suggest-chip { text-align: left; background: rgba(184,154,0,0.12); border: 1px solid rgba(184,154,0,0.4); color: var(--cream); border-radius: 12px; padding: 9px 12px; font-size: 0.85rem; font-family: 'Inter', sans-serif; cursor: pointer; }
+  .suggest-note { font-size: 0.78rem; color: var(--muted); text-align: center; }
   .mic-section { display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 10px 0; }
   .mic-ring { position: relative; width: 96px; height: 96px; }
   .mic-ring-pulse { position: absolute; inset: -8px; border-radius: 50%; border: 2px solid var(--gold); opacity: 0; transition: all 0.3s; }
@@ -144,6 +154,23 @@
     <label class="prof-label" style="margin:0">🇫🇷 Francês<select class="api-select" id="pf-lv-fr"><option value="iniciante" selected>iniciante</option><option value="básico">básico</option><option value="intermediário">intermediário</option><option value="avançado">avançado</option></select></label>
     <label class="prof-label" style="margin:0">🇮🇹 Italiano<select class="api-select" id="pf-lv-it"><option value="iniciante" selected>iniciante</option><option value="básico">básico</option><option value="intermediário">intermediário</option><option value="avançado">avançado</option></select></label>
   </div>
+  <div class="prof-label">Velocidade da voz da tutora:</div>
+  <select class="api-select" id="pf-speed">
+    <option value="lenta">Lenta</option>
+    <option value="normal" selected>Normal</option>
+    <option value="rápida">Rápida</option>
+  </select>
+  <div class="prof-label">Sotaque do espanhol (voz e vocabulário):</div>
+  <select class="api-select" id="pf-accent">
+    <option value="Espanha">Espanha</option>
+    <option value="América Latina">América Latina</option>
+  </select>
+  <div class="prof-label">Estilo da tutora:</div>
+  <select class="api-select" id="pf-style">
+    <option value="amigável">Amigável</option>
+    <option value="formal">Formal</option>
+    <option value="divertida">Divertida</option>
+  </select>
   <button class="api-btn" onclick="saveProfile()">Guardar e começar →</button>
 </div>
 
@@ -205,6 +232,8 @@
     </div>
     <div class="mic-label" id="mic-label">Toca para falar</div>
     <button class="cancel-btn" id="cancel-btn" onclick="cancelRecording()">✕ Cancelar esta frase</button>
+    <button class="hint-btn" id="hint-btn" onclick="suggestReplies()">💡 O que dizer?</button>
+    <div class="suggest-box" id="suggest-box"></div>
   </div>
 
   <div class="text-toggle">
@@ -251,6 +280,9 @@ function openProfile() {
   document.getElementById('pf-city').value = p.city || '';
   if (p.expl) document.getElementById('pf-expl').value = p.expl;
   ['es','en','fr','it'].forEach(c => { if (p.levels && p.levels[c]) document.getElementById('pf-lv-' + c).value = p.levels[c]; });
+  document.getElementById('pf-speed').value = p.speed || 'normal';
+  document.getElementById('pf-accent').value = p.accent || 'Espanha';
+  document.getElementById('pf-style').value = p.style || 'amigável';
   stopRecording(); synth.cancel();
   document.getElementById('profile-screen').style.display = 'flex';
 }
@@ -259,7 +291,12 @@ function saveProfile() {
   if (!name) { alert('Escreve o teu nome, por favor.'); return; }
   const levels = {};
   ['es','en','fr','it'].forEach(c => levels[c] = document.getElementById('pf-lv-' + c).value);
-  PROFILE = { name, city: document.getElementById('pf-city').value.trim(), expl: document.getElementById('pf-expl').value, levels };
+  PROFILE = {
+    name, city: document.getElementById('pf-city').value.trim(), expl: document.getElementById('pf-expl').value, levels,
+    speed: document.getElementById('pf-speed').value,
+    accent: document.getElementById('pf-accent').value,
+    style: document.getElementById('pf-style').value
+  };
   try { localStorage.setItem('tutora_profile', JSON.stringify(PROFILE)); } catch(e) {}
   document.getElementById('profile-screen').style.display = 'none';
   chatHistory = []; repeatTarget = ""; repeatTries = 0; clearTranscript();
@@ -315,15 +352,24 @@ function init() {
 
 function loadVoices() { voices = synth.getVoices(); }
 
+// Locale da voz e do microfone: espanhol da América Latina usa es-MX (conforme o perfil).
+function voiceLocale() {
+  return currentLang === 'es' && PROFILE && PROFILE.accent === 'América Latina' ? 'es-MX' : currentLocale;
+}
+
 function getBestVoice(locale) {
-  const base = locale.split('-')[0];
-  const norm = l => (l || '').replace('_', '-');
-  const same = voices.filter(v => norm(v.lang) === locale);
-  const lang = voices.filter(v => norm(v.lang).startsWith(base));
+  const base = locale.split('-')[0].toLowerCase();
+  const norm = l => (l || '').replace('_', '-').toLowerCase();
+  const latam = locale === 'es-MX';
+  const same = voices.filter(v => latam ? /^es-(mx|us|419|ar|co|cl|pe)$/.test(norm(v.lang)) : norm(v.lang) === locale.toLowerCase());
+  const lang = voices.filter(v => norm(v.lang).startsWith(base) && !(latam && norm(v.lang) === 'es-es'));
+  const any = voices.filter(v => norm(v.lang).startsWith(base));
   const rank = v => /natural|neural|online|premium|enhanced/i.test(v.name) ? 0 : /google/i.test(v.name) ? 1 : v.localService === false ? 2 : 3;
   const pick = list => list.slice().sort((a, b) => rank(a) - rank(b))[0];
-  return pick(same) || pick(lang) || voices[0];
+  return pick(same) || pick(lang) || pick(any) || voices[0];
 }
+
+const RATES = { lenta: 0.75, normal: 0.95, 'rápida': 1.15 };
 
 // ── LANGUAGE & TOPIC ──
 function setLang(code, name, locale, el) {
@@ -377,7 +423,7 @@ function initRecognition() {
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
   if (!SR) { setStatus('error', 'Usa o Chrome para reconhecimento de voz.'); return; }
   recognition = new SR();
-  recognition.lang = currentLocale;
+  recognition.lang = voiceLocale();
   recognition.continuous = true;
   recognition.interimResults = true;
 
@@ -465,8 +511,9 @@ function speak(text, onEnd) {
   if (typeof SpeechSynthesisUtterance === 'undefined') { if (onEnd) onEnd(); return; }
   const clean = text.replace(/[📝✅❌🎤🔊💡👤🛒🏥🏠🏦🎓🗣️🎯🔁💬🌐]/gu,'').replace(/\*\*/g,'').trim();
   const utt = new SpeechSynthesisUtterance(clean);
-  utt.lang = currentLocale; utt.rate = 0.95; utt.pitch = 1.0;
-  const voice = getBestVoice(currentLocale);
+  const loc = voiceLocale();
+  utt.lang = loc; utt.rate = RATES[PROFILE && PROFILE.speed] || 0.95; utt.pitch = 1.0;
+  const voice = getBestVoice(loc);
   if (voice) utt.voice = voice;
   isSpeaking = true;
   document.getElementById('speaking-badge').classList.add('show'); avatarState('talking', true);
@@ -511,7 +558,8 @@ async function greet() {
 
 async function handleUserSpeech(text) {
   if (!text.trim()) return;
-  addMsg('user', text);
+  hideSuggestions();
+  lastUserDiv = addMsg('user', text);
   chatHistory.push({ role: 'user', content: text });
   await processInput(text);
 }
@@ -521,7 +569,8 @@ async function sendText() {
   const text = inp.value.trim();
   if (!text) return;
   inp.value = ''; inp.style.height = 'auto';
-  addMsg('user', text);
+  hideSuggestions();
+  lastUserDiv = addMsg('user', text);
   chatHistory.push({ role: 'user', content: text });
   await processInput(text);
 }
@@ -560,8 +609,9 @@ async function processInput(text) {
       main = `${canSay} «${say}»\n${ask}`;
       repeatTarget = say; repeatTries = 0;
       chatHistory.push({ role: 'assistant', content: main });
-      addMsg('tutor', main);
-      speak(`${canSay} ${say}. ${rep} ${say}.`);
+      const spokenSay = `${canSay} ${say}. ${rep} ${say}.`;
+      addMsg('tutor', main, '', false, spokenSay);
+      speak(spokenSay);
       return;
     }
     // Frase para repetir: a própria frase ✅ (até 10 palavras, senão só a parte com a correção).
@@ -573,13 +623,12 @@ async function processInput(text) {
     if (fixLines.length) {
       const fixed = okLine.replace('✅', '').trim();
       if (gramFix.length && !wasRepeating) { repeatTarget = fragment; repeatTries = 0; }
-      const esc = t => t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+      if (gramFix.length) highlightError(lastUserDiv, unq(gramFix[0].split('·')[0].split('→')[0]));
       const short = fixLines.map(l => esc(l.split('·')[0].trim())).join('<br>');
       const why = fixLines.map(l => { const p = l.split('·'); return p[1] ? esc(p[0].replace(/^[📝🗣️\s]+/u,'').trim() + ': ' + p.slice(1).join('·').trim()) : ''; }).filter(Boolean).join('<br>');
       const html = (fixed ? `<div class="fix-main">✅ ${esc(fixed)}</div>` : '') +
         `<div class="fix-list">${short}</div>` +
         (why ? `<details class="fix-why"><summary>Por quê?</summary>${why}</details>` : '');
-      addMsg('tutor', main, html, true);
       const pairs = gramFix.map(l => {
         const [a, b] = l.split('·')[0].split('→'); return [unq(a), unq(b)];
       }).filter(([a, b]) => a && b);
@@ -591,7 +640,9 @@ async function processInput(text) {
       }[currentLang] || ((a, b) => `${b}.`);
       const sayFull = { es: 'Mejor dilo así:', en: 'Better to say:', fr: 'Il vaut mieux dire :', it: 'Meglio dire:' }[currentLang] || '';
       const spokenFix = pairs.length ? pairs.map(([a, b]) => better(a, b)).join(' ') : (fixed ? `${sayFull} ${fixed}.` : '');
-      speak(gramFix.length && !wasRepeating ? `${spokenFix} ${rep} ${fragment}.` : (spokenFix ? `${spokenFix} ${main}` : main));
+      const spoken = gramFix.length && !wasRepeating ? `${spokenFix} ${rep} ${fragment}.` : (spokenFix ? `${spokenFix} ${main}` : main);
+      addMsg('tutor', main, html, true, spoken);
+      speak(spoken);
     } else {
       addMsg('tutor', main || reply);
       speak(main || reply);
@@ -628,11 +679,25 @@ function repeatPhrase(ok, right) {
   return trimP(words.slice(s, e).join(' '));
 }
 
+// Variante do espanhol conforme o perfil (vazio nos outros idiomas).
+function accentRule(P) {
+  if (currentLang !== 'es') return '';
+  return P && P.accent === 'América Latina'
+    ? 'Usa espanhol da América Latina (ustedes, computadora, carro, celular). Não corrijas formas corretas do espanhol de Espanha.'
+    : 'Usa espanhol de Espanha (vosotros, ordenador, coche, móvil). Não corrijas formas corretas do espanhol da América Latina.';
+}
+
 function buildSystem() {
   const P = PROFILE || { name: 'aluno', city: '', expl: 'português do Brasil', levels: {} };
   const N = P.name, EX = P.expl || 'português do Brasil';
   const lvl = (P.levels && P.levels[currentLang]) || 'intermediário';
+  const style = {
+    'amigável': 'Estilo: amigável, calorosa e encorajadora.',
+    'formal': `Estilo: formal e educada; trata ${N} com a forma de cortesia do idioma (usted, vous, Lei).`,
+    'divertida': 'Estilo: divertida e bem-humorada, com humor leve, sem perder o foco nas correções.'
+  }[P.style] || 'Estilo: amigável, calorosa e encorajadora.';
   return `És uma tutora de ${currentLangName} para ${N}, falante nativo de português. Nível de ${N} em ${currentLangName}: ${lvl}. Adapta o vocabulário e a velocidade a esse nível (no nível iniciante usa frases muito simples).
+${style}${accentRule(P) ? ' ' + accentRule(P) : ''}
 ${P.city ? `Contexto (só para ti): ${N} mora em ${P.city}. NÃO menciones a cidade nas respostas, a não ser que ${N} fale dela primeiro.\n` : ''}Conversas com ${N} e corriges só os erros REAIS que comete.
 O texto vem de reconhecimento de voz: ignora pontuação, maiúsculas e acentos. Palavras repetidas seguidas (ex.: "el clima el clima") são falhas do microfone, e hesitações como "eh", "em", "este", "pues", "um" são normais na fala: ignora-as sempre.
 Se uma palavra não faz sentido mas soa parecida com a palavra certa (ex.: "mi tía ha ido bien" quando queria dizer "mi día"), isso é PRONÚNCIA, não gramática: responde como se tivesse dito a palavra certa e usa a linha 🗣️.
@@ -684,17 +749,107 @@ async function callAI(messages, system) {
 }
 
 // ── UI ──
-function addMsg(role, text, correction, correctionFirst) {
+let lastUserDiv = null;
+function esc(t) { return String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+// spoken: o texto que a tutora falou (o botão 🔊 repete-o); por omissão, o próprio texto.
+function addMsg(role, text, correction, correctionFirst, spoken) {
   const box = document.getElementById('transcript');
   const div = document.createElement('div');
   div.className = 'msg ' + role;
+  div.dataset.text = text;
   const label = `<div class="label">${role === 'tutor' ? '🎓 Tutora' : '🎤 Tu'}</div>`;
-  const bubble = `<div class="bubble">${text.replace(/\n/g,'<br>')}</div>`;
+  const bubble = `<div class="bubble">${esc(text).replace(/\n/g,'<br>')}</div>`;
   const corr = correction ? `<div class="correction">${correction.replace(/\n/g,'<br>')}</div>` : '';
-  let html = correctionFirst ? label + corr + bubble : label + bubble + corr;
-  div.innerHTML = html;
+  div.innerHTML = correctionFirst ? label + corr + bubble : label + bubble + corr;
+  if (role === 'tutor') {
+    const tools = document.createElement('div');
+    tools.className = 'msg-tools';
+    const bListen = document.createElement('button');
+    bListen.textContent = '🔊'; bListen.title = 'Ouvir de novo';
+    bListen.onclick = () => speak(spoken || text);
+    const bTr = document.createElement('button');
+    bTr.textContent = '🌐'; bTr.title = 'Mostrar tradução';
+    bTr.onclick = () => toggleTranslation(div, text);
+    tools.append(bListen, bTr);
+    div.appendChild(tools);
+  }
   box.appendChild(div);
   box.scrollTop = box.scrollHeight;
+  return div;
+}
+
+// Destaca em vermelho, no balão "TU", o trecho errado (lado esquerdo do 📝), ignorando maiúsculas, acentos e pontuação.
+function highlightError(div, left) {
+  if (!div || !left) return;
+  const norm = w => w.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^\p{L}\p{N}]/gu, '');
+  const lw = left.split(/\s+/).map(norm).filter(Boolean);
+  if (!lw.length) return;
+  const parts = (div.dataset.text || '').split(/(\s+)/);
+  const widx = parts.map((p, i) => (i % 2 === 0 && norm(p)) ? i : -1).filter(i => i >= 0);
+  const wn = widx.map(i => norm(parts[i]));
+  let s = -1;
+  for (let i = 0; i + lw.length <= wn.length; i++) if (lw.every((w, j) => wn[i + j] === w)) { s = i; break; }
+  if (s < 0) return;
+  const a = widx[s], b = widx[s + lw.length - 1];
+  const html = parts.map((p, i) => (i === a ? '<mark class="err">' : '') + esc(p) + (i === b ? '</mark>' : '')).join('');
+  const bubble = div.querySelector('.bubble');
+  if (bubble) bubble.innerHTML = html;
+}
+
+// 🌐 Tradução da mensagem da tutora para a variante de português do perfil (pedida uma vez, depois só mostra/esconde).
+async function toggleTranslation(div, text) {
+  let tr = div.querySelector('.msg-tr');
+  if (tr && tr.dataset.err) { tr.remove(); tr = null; }
+  if (tr) { tr.classList.toggle('hide'); return; }
+  tr = document.createElement('div');
+  tr.className = 'msg-tr'; tr.textContent = 'A traduzir…';
+  div.appendChild(tr);
+  const EX = (PROFILE && PROFILE.expl) || 'português do Brasil';
+  try {
+    const out = await callAI([{ role: 'user', content: text.replace(/🔁/g, '').trim() }],
+      `Traduz o texto do utilizador de ${currentLangName} para ${EX}. Responde só com a tradução, sem comentários.`);
+    tr.textContent = '🌐 ' + out;
+  } catch(e) {
+    tr.dataset.err = '1';
+    tr.textContent = 'Não consegui traduzir. Toca em 🌐 para tentar de novo.';
+  }
+}
+
+// 💡 Duas sugestões curtas de resposta, no idioma e nível da aluna. Não envia nada; tocar numa sugestão lê-a em voz alta.
+async function suggestReplies() {
+  const box = document.getElementById('suggest-box');
+  box.innerHTML = '<div class="suggest-note">A pensar em sugestões…</div>';
+  box.classList.add('show');
+  const P = PROFILE || { name: 'aluno', levels: {} };
+  const lvl = (P.levels && P.levels[currentLang]) || 'intermediário';
+  const convo = chatHistory.slice(-8).map(m => (m.role === 'user' ? P.name : 'Tutora') + ': ' + m.content).join('\n');
+  const system = `Ajudas ${P.name}, aluna de ${currentLangName} (nível ${lvl}), a responder à tutora numa conversa sobre "${currentTopic}". ${accentRule(P)}
+Dá exatamente 2 sugestões curtas (até 12 palavras cada) e diferentes do que ${P.name} poderia responder agora à última mensagem da tutora, em ${currentLangName} correto e no nível de ${P.name}. Uma por linha, sem números, sem aspas, sem tradução nem comentários.`;
+  try {
+    const out = await callAI([{ role: 'user', content: 'Conversa até agora:\n' + (convo || '(ainda sem conversa)') + '\n\nDá as 2 sugestões de resposta.' }], system);
+    const sugs = out.split('\n')
+      .map(s => s.replace(/^\s*(?:[-*•]|\d+[.)])\s*/, '').replace(/^["“«]+|["”»]+$/g, '').trim())
+      .filter(Boolean).slice(0, 2);
+    box.innerHTML = '';
+    if (!sugs.length) { box.innerHTML = '<div class="suggest-note">Sem sugestões. Tenta de novo.</div>'; return; }
+    sugs.forEach(s => {
+      const b = document.createElement('button');
+      b.className = 'suggest-chip'; b.textContent = '🔊 ' + s;
+      b.onclick = () => speak(s);
+      box.appendChild(b);
+    });
+    const note = document.createElement('div');
+    note.className = 'suggest-note'; note.textContent = 'Toca numa sugestão para ouvir, depois fala no 🎤.';
+    box.appendChild(note);
+  } catch(e) {
+    box.innerHTML = `<div class="suggest-note">Erro: ${esc(e && e.message ? e.message : 'sem ligação')}</div>`;
+  }
+}
+
+function hideSuggestions() {
+  const box = document.getElementById('suggest-box');
+  if (box) { box.classList.remove('show'); box.innerHTML = ''; }
 }
 
 function addLoadingMsg() {
@@ -707,7 +862,7 @@ function addLoadingMsg() {
 }
 
 function removeLoading() { const el = document.getElementById('loading-msg'); if (el) el.remove(); }
-function clearTranscript() { document.getElementById('transcript').innerHTML = ''; }
+function clearTranscript() { document.getElementById('transcript').innerHTML = ''; lastUserDiv = null; hideSuggestions(); }
 function setStatus(type, text) {
   const dot = document.getElementById('status-dot');
   dot.className = 'status-dot';
