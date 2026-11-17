@@ -1760,6 +1760,8 @@ function nativeVoiceLocale() {
 }
 
 let speakToken = 0, speakStopper = null;
+// Tempo estimado da fala (para a segurança do fim da fala): ~13 caracteres por segundo à velocidade 1, mais 3 s.
+const SPEECH_CHARS_PER_SEC = 13, SPEECH_GRACE_MS = 3000;
 // Interromper a fala (toque no avatar ou no 🔊 enquanto a tutora fala).
 function stopSpeaking() { if (isSpeaking && speakStopper) speakStopper(); }
 // 🔊: se a tutora está a falar, para; senão, fala o texto.
@@ -1785,18 +1787,23 @@ function speak(text, onEnd) {
     if (onEnd) onEnd();
   };
   speakStopper = () => { finish(true); synth.cancel(); };
+  let estMs = 0;
   parts.forEach((p, i) => {
     const utt = new SpeechSynthesisUtterance(p.text);
     const loc = p.who === 'nat' ? nativeVoiceLocale() : voiceLocale();
     utt.lang = loc; utt.pitch = 1.0;
     // No modo Do zero, o idioma estudado é lido mais devagar.
     utt.rate = p.who === 'alvo' && currentLesson !== null ? Math.max(0.55, base * 0.8) : base;
+    estMs += p.text.length / (SPEECH_CHARS_PER_SEC * utt.rate) * 1000;
     const voice = getBestVoice(loc);
     if (voice) utt.voice = voice;
     if (i === parts.length - 1) utt.onend = () => finish(true);
     utt.onerror = () => finish(false);
     synth.speak(utt);
   });
+  // Segurança: alguns aparelhos não avisam o fim da fala. Depois do tempo estimado + 3 s, sai do estado "falando"
+  // (sem cortar o som, para não interromper uma voz que seja só mais lenta do que o previsto).
+  setTimeout(() => { if (!finished && token === speakToken) finish(true); }, estMs + SPEECH_GRACE_MS);
 }
 
 // ── AI ──
