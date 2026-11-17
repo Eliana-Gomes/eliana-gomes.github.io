@@ -463,7 +463,7 @@ function stopRecording() {
 function speak(text, onEnd) {
   synth.cancel();
   if (typeof SpeechSynthesisUtterance === 'undefined') { if (onEnd) onEnd(); return; }
-  const clean = text.replace(/[📝✅❌🎤🔊💡👤🛒🏥🏠🏦🎓🗣️🎯🔁]/gu,'').replace(/\*\*/g,'').trim();
+  const clean = text.replace(/[📝✅❌🎤🔊💡👤🛒🏥🏠🏦🎓🗣️🎯🔁💬🌐]/gu,'').replace(/\*\*/g,'').trim();
   const utt = new SpeechSynthesisUtterance(clean);
   utt.lang = currentLocale; utt.rate = 0.95; utt.pitch = 1.0;
   const voice = getBestVoice(currentLocale);
@@ -537,7 +537,8 @@ async function processInput(text) {
     const goalMatch = reply.match(/🎯\s*([A-ZÀ-Ú ]+)/u);
     const goal = goalMatch ? goalMatch[1] : '';
     const lines = reply.replace(/🎯\s*[A-ZÀ-Ú ]*/gu, '').split('\n').map(l => l.trimEnd()).filter(l => l.trim() !== '');
-    if (repeatTarget && !/PERGUNTA/i.test(goal)) {
+    if (repeatTarget && /ESCLARECIMENTO/i.test(goal)) { repeatTarget = ''; repeatTries = 0; }
+    else if (repeatTarget && !/PERGUNTA/i.test(goal)) {
       repeatTries++;
       if (/OK/i.test(goal) || repeatTries >= 2) { repeatTarget = ''; repeatTries = 0; }
     }
@@ -546,13 +547,26 @@ async function processInput(text) {
     const gramFix = lines.filter(l => starts(l, '📝') && l.includes('→')).slice(0, 1);
     const fixLines = gramFix.length ? gramFix : lines.filter(l => starts(l, '🗣')).slice(0, 1);
     const okLine = lines.find(l => starts(l, '✅')) || '';
-    let main = lines.filter(l => !['📝', '🗣', '✅', '🔁'].some(s => starts(l, s))).join('\n').trim();
+    const sayLine = lines.find(l => starts(l, '💬')) || '';
+    let main = lines.filter(l => !['📝', '🗣', '✅', '🔁', '💬'].some(s => starts(l, s))).join('\n').trim();
     const wasRepeating = !!repeatTarget;
-    const unq = t => t.replace(/^[📝✅🔁🗣️\s]+/u, '').replace(/["“”«»]/g, '').trim();
+    const unq = t => t.replace(/^[📝✅🔁💬🗣️\s]+/u, '').replace(/["“”«»]/g, '').trim();
+    const ask = { es: 'Repite conmigo 🔁', en: 'Repeat after me 🔁', fr: 'Répète avec moi 🔁', it: 'Ripeti con me 🔁' }[currentLang] || '🔁';
+    const rep = { es: 'Repite:', en: 'Repeat:', fr: 'Répète :', it: 'Ripeti:' }[currentLang] || '';
+    // Frase inteira em português: não é erro; mostra como dizer no idioma e pede para repetir.
+    if (!gramFix.length && sayLine && unq(sayLine) && !wasRepeating) {
+      const say = unq(sayLine);
+      const canSay = { es: 'Puedes decir:', en: 'You can say:', fr: 'Tu peux dire :', it: 'Puoi dire:' }[currentLang] || '';
+      main = `${canSay} «${say}»\n${ask}`;
+      repeatTarget = say; repeatTries = 0;
+      chatHistory.push({ role: 'assistant', content: main });
+      addMsg('tutor', main);
+      speak(`${canSay} ${say}. ${rep} ${say}.`);
+      return;
+    }
     // Frase para repetir: a própria frase ✅ (até 10 palavras, senão só a parte com a correção).
     const fragment = gramFix.length ? repeatPhrase(unq(okLine), unq(gramFix[0].split('·')[0].split('→')[1] || '')) : '';
     if (gramFix.length && !wasRepeating) {
-      const ask = { es: 'Repite conmigo 🔁', en: 'Repeat after me 🔁', fr: 'Répète avec moi 🔁', it: 'Ripeti con me 🔁' }[currentLang] || '🔁';
       main = `${ask}: «${fragment}»`;
     }
     chatHistory.push({ role: 'assistant', content: [main, ...fixLines, okLine].filter(Boolean).join('\n') });
@@ -577,7 +591,6 @@ async function processInput(text) {
       }[currentLang] || ((a, b) => `${b}.`);
       const sayFull = { es: 'Mejor dilo así:', en: 'Better to say:', fr: 'Il vaut mieux dire :', it: 'Meglio dire:' }[currentLang] || '';
       const spokenFix = pairs.length ? pairs.map(([a, b]) => better(a, b)).join(' ') : (fixed ? `${sayFull} ${fixed}.` : '');
-      const rep = { es: 'Repite:', en: 'Repeat:', fr: 'Répète :', it: 'Ripeti:' }[currentLang] || '';
       speak(gramFix.length && !wasRepeating ? `${spokenFix} ${rep} ${fragment}.` : (spokenFix ? `${spokenFix} ${main}` : main));
     } else {
       addMsg('tutor', main || reply);
@@ -619,10 +632,13 @@ function buildSystem() {
   const P = PROFILE || { name: 'aluno', city: '', expl: 'português do Brasil', levels: {} };
   const N = P.name, EX = P.expl || 'português do Brasil';
   const lvl = (P.levels && P.levels[currentLang]) || 'intermediário';
-  return `És uma tutora de ${currentLangName} para ${N}, falante nativo de português${P.city ? ', que mora em ' + P.city : ''}. Nível de ${N} em ${currentLangName}: ${lvl}. Adapta o vocabulário e a velocidade a esse nível (no nível iniciante usa frases muito simples).
-Conversas com ${N} e corriges só os erros REAIS que comete.
+  return `És uma tutora de ${currentLangName} para ${N}, falante nativo de português. Nível de ${N} em ${currentLangName}: ${lvl}. Adapta o vocabulário e a velocidade a esse nível (no nível iniciante usa frases muito simples).
+${P.city ? `Contexto (só para ti): ${N} mora em ${P.city}. NÃO menciones a cidade nas respostas, a não ser que ${N} fale dela primeiro.\n` : ''}Conversas com ${N} e corriges só os erros REAIS que comete.
 O texto vem de reconhecimento de voz: ignora pontuação, maiúsculas e acentos. Palavras repetidas seguidas (ex.: "el clima el clima") são falhas do microfone, e hesitações como "eh", "em", "este", "pues", "um" são normais na fala: ignora-as sempre.
 Se uma palavra não faz sentido mas soa parecida com a palavra certa (ex.: "mi tía ha ido bien" quando queria dizer "mi día"), isso é PRONÚNCIA, não gramática: responde como se tivesse dito a palavra certa e usa a linha 🗣️.
+LETRAS, SIGLAS, NÚMEROS E TAMANHOS ditos em voz alta (ex.: "ex el", "doble ex", "ese eme") são falhas de transcrição: NUNCA os corrijas como gramática. Entende o que ${N} quis dizer (ex.: "ex el" = XL) e ensina como se diz em ${currentLangName} numa linha 🗣️, com a explicação em ${EX}. Ex.: 🗣️ "XL" → diz-se "equis ele" · em espanhol cada letra tem nome próprio
+SE ${N} CORRIGIR UMA INFORMAÇÃO (ex.: "no, es XXL", "no, quise decir el martes"): aceita a informação nova com naturalidade e continua a conversa. NÃO digas "¡Correcto!" e NÃO corrijas esse esclarecimento.
+FRASE EM PORTUGUÊS: se ${N} disser uma frase inteira em português, isso NÃO é erro: não uses 📝 nem ✅. Responde só com uma linha que começa por 💬 com essa frase dita em ${currentLangName}, simples e no nível de ${N}. Ex.: 💬 Quiero comprar una camiseta.
 O QUE CORRIGIR: só a FORMA — gramática, conjugação, concordância, preposição, palavras em português ou palavras que não existem em ${currentLangName}. NUNCA mudes o sentido do que ${N} disse nem acrescentes informação.
 O QUE NÃO CORRIGIR: frases corretas, frases aceitáveis no uso normal, ou alternativas apenas de estilo. Na dúvida, NÃO corrijas. Nunca repitas a frase se estiver certa.
 UMA CORREÇÃO POR VEZ: se houver vários erros, escolhe SÓ o mais importante e ignora os outros nesta rodada.
@@ -638,13 +654,14 @@ FORMATO:
 - Sem erros: nenhuma linha 📝, 🗣️ nem ✅.
 QUANDO HOUVER ERRO: depois de corrigir, NÃO continues o tema; a conversa continua depois de repetir.
 NUNCA inventes correções: se uma palavra parece mal transcrita pelo microfone (ex.: "Botía", "lo tomo" em vez de "otoño"), NÃO a corrijas como gramática; no máximo usa uma linha 🗣️. Alternativas corretas (ex.: "visto que", "ya que", "como") NÃO são erros.
-Atenção a erros reais frequentes de brasileiros: conjugação ("mi conté" → "me cuente"), concordância ("bajas"), "estar/hacer frío", artigos, preposições, palavras em português.
+Atenção a erros reais frequentes de brasileiros: conjugação ("mi conté" → "me cuente"), concordância ("bajas"), "estar/hacer frío", artigos, preposições, palavras em português, "se" em vez do "si" condicional ("se tengo tiempo" → "si tengo tiempo"), e o pronome objeto que falta ("sí, compro" → "sí, lo compro").
 SE ${N} PEDIR AJUDA COM UMA PALAVRA OU PRONÚNCIA (ex.: "corrígeme la palabra desarrollar"): faz um mini-treino. Diz a palavra devagar, separada em sílabas (ex.: "de-sa-rro-llar"), dá uma dica curta em ${EX} numa linha 🗣️, e pede para repetir.
 ${repeatTarget ? `MODO REPETIÇÃO: pediste a ${N} para repetir SÓ esta frase corrigida: "${repeatTarget}".
 - Avalia SÓ essa frase, sem novas linhas 📝 nem ✅. Ignora o resto da frase, a pontuação, hesitações e palavras mal transcritas pelo microfone que soem parecidas (ex.: "lo tomo" ≈ "otoño").
 - Se o trecho estiver certo ou quase certo: começa com "¡Correcto! ¡Muy bien!", retoma a conversa com UMA pergunta, e põe numa linha separada no fim: 🎯 OK
 - Se o erro corrigido continuar igual: em ${currentLangName} simples, diz numa frase curta o que ainda falta, repete o trecho certo devagar, e põe numa linha separada no fim: 🎯 DE NOVO
-- Se ${N} fizer uma pergunta ou disser que não entendeu (em qualquer idioma): explica em ${EX} com UMA frase curta, depois repete a frase certa ("${repeatTarget}") e pede para repetir; põe numa linha separada no fim: 🎯 PERGUNTA` : ''}
+- Se ${N} fizer uma pergunta ou disser que não entendeu (em qualquer idioma): explica em ${EX} com UMA frase curta, depois repete a frase certa ("${repeatTarget}") e pede para repetir; põe numa linha separada no fim: 🎯 PERGUNTA
+- Se ${N}, em vez de repetir, corrigir uma informação (ex.: "no, es XXL"): aceita, NÃO digas "¡Correcto!", não corrijas, continua a conversa com UMA pergunta e põe numa linha separada no fim: 🎯 ESCLARECIMENTO` : ''}
 Tema da conversa: "${currentTopic}"`;
 }
 
