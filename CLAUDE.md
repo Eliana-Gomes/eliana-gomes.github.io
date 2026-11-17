@@ -33,12 +33,13 @@ App de conversação para praticar idiomas (espanhol, inglês, francês, italian
 ## Regras da tutora (não quebrar)
 - Corrige só erros reais. Não corrige frases certas, alternativas de estilo, hesitações ("eh", "pues") nem palavras mal transcritas pelo microfone (essas viram linha 🗣️ de pronúncia).
 - Corrige só a forma (gramática, conjugação, concordância, preposição, palavra em português). Nunca muda o sentido nem acrescenta informação.
-- Uma correção por vez: no máximo UMA linha 📝, com o erro mais importante; os outros erros ficam para outra rodada. O código também corta para uma só linha 📝.
-- Formato da resposta: `📝 errado → certo · explicação curta em português` (o lado esquerdo é exatamente o trecho que a aluna disse), e `✅ frase corrigida`: a frase da aluna 100% correta, com TODOS os erros corrigidos (também os que não têm linha 📝), sem mudar o sentido nem acrescentar informação. A IA não escreve a frase para repetir.
+- Uma correção por vez: no máximo UMA linha 📝, com o erro mais importante; os outros erros ficam para outra rodada. O código também corta para uma só linha 📝 e ignora linhas 📝 cujos dois lados só diferem em maiúsculas, acentos ou pontuação: essas não aparecem, não pedem repetição e não entram no caderno. Palavra estranha por erro do microfone vai para a linha 🗣️, nunca para a 📝.
+- A tutora revê a gramática das próprias frases antes de responder (ex.: "¿qué necesitaste hacer la última vez que fuiste?", não "¿qué necesitas…?").
+- Formato da resposta: `📝 errado → certo · explicação curta em português` (o lado esquerdo é exatamente o trecho que a aluna disse; o lado direito é a correção real, igual ao trecho correspondente da ✅, ex.: "tengo muchos gerais → tengo muchas dudas"), e `✅ frase corrigida`: a frase da aluna 100% correta, com TODOS os erros corrigidos (também os que não têm linha 📝), sem mudar o sentido nem acrescentar informação. A IA não escreve a frase para repetir.
 - Frase confusa por erro do microfone: a tutora não adivinha, pergunta "¿Puedes decirlo otra vez?" (ou o equivalente no idioma).
 - Letras, siglas, números e tamanhos ditos em voz alta ("ex el", "doble ex") são falhas de transcrição: nunca corrigir; ensinar como se fala (XL = "equis ele") numa linha 🗣️.
 - Se a aluna corrigir uma informação ("no, es XXL"), a tutora aceita e continua, sem "¡Correcto!" e sem corrigir. No modo repetição, isso vem com o marcador `🎯 ESCLARECIMENTO` e o app sai do modo repetição.
-- Erros de conjugação e de imperativo são sempre corrigidos, mesmo com o sentido claro e mesmo na primeira fala da conversa (ex.: "me cuenten más" → "cuéntame más").
+- Erros de conjugação e de imperativo são sempre corrigidos, mesmo com o sentido claro e mesmo na primeira fala da conversa (ex.: "me cuenten más" → "cuéntame más", "me explico primero los documentos" → "explícame primero los documentos").
 - Atenção especial ao "se" em vez do "si" condicional e ao pronome objeto que falta ("lo compro").
 - A cidade do perfil é só contexto: a tutora não a menciona, a não ser que a aluna fale dela primeiro.
 - Frase inteira em português não é erro: a IA responde com uma linha `💬 frase no idioma`, e o app mostra "Puedes decir: «…»" e pede para repetir (entra no modo repetição).

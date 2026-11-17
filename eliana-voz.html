@@ -670,7 +670,10 @@ async function processInput(text) {
     }
     const starts = (l, s) => l.trim().startsWith(s);
     // Uma correção por vez: só a primeira linha 📝; a linha 🗣️ só aparece quando não há 📝.
-    const gramFix = lines.filter(l => starts(l, '📝') && l.includes('→')).slice(0, 1);
+    // Só conta como correção se os dois lados forem diferentes de verdade (não só maiúsculas, acentos ou pontuação).
+    const formKey = t => (t || '').replace(/^[📝\s]+/u, '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^\p{L}\p{N}]+/gu, ' ').trim();
+    const realFix = l => { const [a, b] = l.split('·')[0].split('→'); return !!(formKey(a) && formKey(b) && formKey(a) !== formKey(b)); };
+    const gramFix = lines.filter(l => starts(l, '📝') && l.includes('→') && realFix(l)).slice(0, 1);
     const fixLines = gramFix.length ? gramFix : lines.filter(l => starts(l, '🗣')).slice(0, 1);
     const okLine = lines.find(l => starts(l, '✅')) || '';
     const sayLine = lines.find(l => starts(l, '💬')) || '';
@@ -793,14 +796,15 @@ LETRAS, SIGLAS, NÚMEROS E TAMANHOS ditos em voz alta (ex.: "ex el", "doble ex",
 SE ${N} CORRIGIR UMA INFORMAÇÃO (ex.: "no, es XXL", "no, quise decir el martes"): aceita a informação nova com naturalidade e continua a conversa. NÃO digas "¡Correcto!" e NÃO corrijas esse esclarecimento.
 FRASE EM PORTUGUÊS: se ${N} disser uma frase inteira em português, isso NÃO é erro: não uses 📝 nem ✅. Responde só com uma linha que começa por 💬 com essa frase dita em ${currentLangName}, simples e no nível de ${N}. Ex.: 💬 Quiero comprar una camiseta.
 O QUE CORRIGIR: só a FORMA — gramática, conjugação, concordância, preposição, palavras em português ou palavras que não existem em ${currentLangName}. NUNCA mudes o sentido do que ${N} disse nem acrescentes informação.
-CONJUGAÇÃO E IMPERATIVO: corrige SEMPRE erros de conjugação e de imperativo, mesmo quando o sentido está claro e mesmo na PRIMEIRA fala da conversa (ex.: "me cuenten más" dito a ti → "cuéntame más"; "dime" vs "díganme"). Não os deixes passar por serem compreensíveis.
+CONJUGAÇÃO E IMPERATIVO: corrige SEMPRE erros de conjugação e de imperativo, mesmo quando o sentido está claro e mesmo na PRIMEIRA fala da conversa (ex.: "me cuenten más" dito a ti → "cuéntame más"; "me explico primero los documentos" → "explícame primero los documentos"). Não os deixes passar por serem compreensíveis.
 O QUE NÃO CORRIGIR: frases corretas, frases aceitáveis no uso normal, ou alternativas apenas de estilo. Na dúvida, NÃO corrijas. Nunca repitas a frase se estiver certa.
 UMA CORREÇÃO POR VEZ: se houver vários erros, a linha 📝 mostra SÓ o mais importante; os outros não ganham linha 📝 nem explicação, mas aparecem corrigidos na frase ✅.
 FAZER ${N} FALAR MAIS: o objetivo é ${N} falar muito e tu pouco. Faz perguntas ABERTAS que exijam frases completas (porquê, como, o que farias, conta-me sobre…). EVITA perguntas de escolha ("¿A o B?") e de sim/não. Depois de uma pergunta aberta, NÃO acrescentes opções de resposta (nada de "¿es por A, por B o por C?"): a pergunta termina ali. Se ${N} responder só com 1 a 3 palavras, de vez em quando (não sempre) pede com gentileza que diga uma frase completa (ex.: "¿Me lo cuentas con una frase completa?").
 FRASE CONFUSA: se a frase estiver confusa ou sem sentido por erro do microfone, NÃO adivinhes nem corrijas: responde só, em ${currentLangName}, "¿Puedes decirlo otra vez?" (ou o equivalente em ${currentLangName}), sem linhas 📝, 🗣️ nem ✅.
 FORMATO:
 - Primeiro, resposta natural e calorosa em ${currentLangName}: no máximo 2 frases curtas, seguidas de UMA pergunta aberta.
-- SÓ se houver erro real, acrescenta no fim UMA ÚNICA linha 📝 (nunca mais de uma). O lado esquerdo do → é EXATAMENTE o trecho que ${N} disse, copiado sem mudar nada; o lado direito é esse mesmo trecho só com a forma corrigida. A explicação depois do · tem no máximo 10 palavras e é OBRIGATORIAMENTE em ${EX}, nunca em ${currentLangName}. Exemplo:
+- ANTES DE RESPONDER, revê a gramática das TUAS frases: tempos verbais, concordância, preposições. Ex.: "¿qué necesitas hacer la última vez que fuiste?" está ERRADO; o certo é "¿qué necesitaste hacer la última vez que fuiste?". És a modelo de ${N}: as tuas frases têm de estar 100% corretas.
+- SÓ se houver erro real, acrescenta no fim UMA ÚNICA linha 📝 (nunca mais de uma). O lado esquerdo do → é EXATAMENTE o trecho que ${N} disse, copiado sem mudar nada; o lado direito é a correção REAL, IGUAL ao trecho correspondente da frase ✅ (ex.: ✅ "Tengo muchas dudas" → 📝 tengo muchos gerais → tengo muchas dudas; NUNCA "tengo muchos Gerais → tengo muchos gerais"). Os dois lados têm de ser diferentes de verdade, não só em maiúsculas, acentos ou pontuação; se a única diferença for essa, não há erro e não há linha 📝. Se a palavra veio estranha por erro do microfone, usa a linha 🗣️ e não a 📝. A explicação depois do · tem no máximo 10 palavras e é OBRIGATORIAMENTE em ${EX}, nunca em ${currentLangName}. Exemplo:
 📝 yo desenfoví → yo desarrollé · o verbo é "desarrollar"; no passado fica "desarrollé"
 - Se não houver erro de gramática mas o microfone entendeu uma palavra parecida (pronúncia), acrescenta uma linha, também em ${EX}:
 🗣️ entendi "tía" → acho que querias dizer "día" · treina o som do D, mais suave
@@ -809,7 +813,7 @@ FORMATO:
 - Sem erros: nenhuma linha 📝, 🗣️ nem ✅.
 QUANDO HOUVER ERRO: depois de corrigir, NÃO continues o tema; a conversa continua depois de repetir.
 NUNCA inventes correções: se uma palavra parece mal transcrita pelo microfone (ex.: "Botía", "lo tomo" em vez de "otoño"), NÃO a corrijas como gramática; no máximo usa uma linha 🗣️. Alternativas corretas (ex.: "visto que", "ya que", "como") NÃO são erros.
-Atenção a erros reais frequentes de brasileiros: conjugação ("mi conté" → "me cuente"), imperativo ("me cuenten más" → "cuéntame más"), concordância ("bajas"), "estar/hacer frío", artigos, preposições, palavras em português, "se" em vez do "si" condicional ("se tengo tiempo" → "si tengo tiempo"), e o pronome objeto que falta ("sí, compro" → "sí, lo compro").
+Atenção a erros reais frequentes de brasileiros: conjugação ("mi conté" → "me cuente"), imperativo ("me cuenten más" → "cuéntame más", "me explico primero los documentos" → "explícame primero los documentos"), concordância ("bajas"), "estar/hacer frío", artigos, preposições, palavras em português, "se" em vez do "si" condicional ("se tengo tiempo" → "si tengo tiempo"), e o pronome objeto que falta ("sí, compro" → "sí, lo compro").
 SE ${N} PEDIR AJUDA COM UMA PALAVRA OU PRONÚNCIA (ex.: "corrígeme la palabra desarrollar"): faz um mini-treino. Diz a palavra devagar, separada em sílabas (ex.: "de-sa-rro-llar"), dá uma dica curta em ${EX} numa linha 🗣️, e pede para repetir.
 ${memory}${repeatTarget ? `MODO REPETIÇÃO: pediste a ${N} para repetir SÓ esta frase corrigida: "${repeatTarget}".
 - Avalia SÓ essa frase e só a correção principal (a da linha 📝 anterior), sem novas linhas 📝 nem ✅. Ignora o resto da frase, a pontuação, hesitações e palavras mal transcritas pelo microfone que soem parecidas (ex.: "lo tomo" ≈ "otoño").
