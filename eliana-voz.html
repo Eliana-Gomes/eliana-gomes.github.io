@@ -1361,7 +1361,10 @@ function goHome() {
 }
 window.addEventListener('popstate', (e) => {
   backPending = false;
+  if (zeroPopSkip) { zeroPopSkip = false; return; } // entrada da lista retirada ao escolher uma lição
   if (!PROFILE) return; // ainda no primeiro perfil
+  // Voltar com a lista de lições aberta: fecha só a lista e fica na conversa.
+  if (zeroOpen() && e.state && e.state.view === 'chat' && !e.state.zero) { hideZeroList(); return; }
   // Voltar com alterações não salvas no Perfil: fica no Perfil e pergunta.
   if (profileDirty() && !(e.state && e.state.view === 'profile')) {
     try { history.pushState({ view: 'profile' }, ''); } catch(err) {}
@@ -1472,11 +1475,25 @@ function openZero() {
   if (!e.seen) { e.seen = true; zeroSave(e); }
   renderZero();
   document.getElementById('zero-screen').style.display = 'flex';
+  // A lista tem a sua própria entrada no histórico: o "voltar" fecha só a lista e fica na conversa.
+  if (!(history.state && history.state.zero)) { try { history.pushState({ view: 'chat', zero: true }, ''); } catch(e) {} }
 }
+function zeroOpen() { return document.getElementById('zero-screen').style.display !== 'none'; }
+// Fechar a lista pelo ✕: volta uma entrada no histórico (o popstate fecha a lista).
 function closeZero() {
+  if (history.state && history.state.zero) { history.back(); return; }
+  hideZeroList();
+}
+function hideZeroList() {
   document.getElementById('zero-screen').style.display = 'none';
   // Se a trilha abriu sozinha e a aluna fechou sem escolher, começa a conversa normal.
   if (currentLesson === null && !document.getElementById('transcript').children.length) greet();
+}
+// Fecha a lista ao escolher uma lição, tirando também a entrada dela do histórico (sem mais efeitos).
+let zeroPopSkip = false;
+function closeZeroForLesson() {
+  document.getElementById('zero-screen').style.display = 'none';
+  if (history.state && history.state.zero) { zeroPopSkip = true; history.back(); }
 }
 function renderZero() {
   document.getElementById('zero-title').textContent = t('zero_title', { lang: langUI(currentLang) });
@@ -1522,7 +1539,7 @@ function clearLessonSession() {
 // Abre a lição i. Se houver conversa guardada dessa lição (e resume não for false), retoma-a; senão começa do início.
 function startLesson(i, resume) {
   exitTest();
-  document.getElementById('zero-screen').style.display = 'none';
+  closeZeroForLesson();
   if (currentLesson === null) topicElBeforeLesson = document.querySelector('.topic-pill.active:not(#zero-pill)');
   currentLesson = i; lessonCompleted = false;
   const ze = zeroLang(); ze.current = i; ze.seen = true; zeroSave(ze); // lição em andamento (cartão "Continuar" no Início)
