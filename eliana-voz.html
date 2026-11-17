@@ -3,12 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>Tutora de Voz — Luz em Movimento</title>
+<title>Parlia</title>
 <meta name="theme-color" content="#00343d">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Tutora">
+<meta name="apple-mobile-web-app-title" content="Parlia">
 <link rel="apple-touch-icon" href="/tutora-icon-192.png">
 <link rel="icon" type="image/png" href="/tutora-icon-192.png">
 <link rel="manifest" href="/tutora-manifest.json">
@@ -96,6 +96,7 @@
   .home-photo { width: 56px; height: 56px; font-size: 1.6rem; }
   .home-hello { flex: 1; min-width: 0; }
   .home-hello h2 { font-family: 'Cormorant Garamond', serif; font-size: 1.55rem; font-weight: 400; color: var(--cream); overflow-wrap: anywhere; }
+  .brand-sign { font-size: 0.7rem; color: var(--muted); letter-spacing: 0.08em; text-transform: uppercase; margin-top: -12px; }
   .home-brand { font-size: 0.66rem; color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .home-tutor { display: flex; flex-direction: column; align-items: center; gap: 8px; }
   .home-avatar { width: 120px; height: 120px; }
@@ -251,7 +252,8 @@
 <!-- SETUP SCREEN -->
 <div class="setup-screen" id="setup-screen">
   <div style="font-size:3rem;">🎤</div>
-  <h2>Tutora de Voz<br>Luz em Movimento</h2>
+  <h2>Parlia</h2>
+  <div class="brand-sign">Parlia · by Luz em Movimento</div>
   <p data-i18n-html="setup_text"></p>
   <input class="api-input" id="api-key-input" type="password" data-i18n-ph="key_ph" />
   <button class="api-btn" onclick="saveKey()" data-i18n="enter_btn"></button>
@@ -361,7 +363,7 @@
   <div class="home-top">
     <div class="photo-circle home-photo" id="home-photo"></div>
     <div class="home-hello">
-      <div class="home-brand">Tutora de Voz · Luz em Movimento</div>
+      <div class="home-brand">Parlia · by Luz em Movimento</div>
       <h2 id="home-hello"></h2>
     </div>
     <button class="streak-badge off" id="streak-badge" onclick="navTo('profile')">🔥 0</button>
@@ -402,7 +404,7 @@
   </div>
 
   <div class="avatar-wrap"><div class="avatar" id="avatar" onclick="stopSpeaking()">
-    <svg viewBox="0 0 120 120" width="100%" height="100%" aria-label="Tutora">
+    <svg viewBox="0 0 120 120" width="100%" height="100%" aria-label="Lia">
       <path d="M22 120 C24 96 40 88 60 88 C80 88 96 96 98 120 Z" fill="#00343d"/>
       <path d="M50 84 L70 84 L68 96 Q60 101 52 96 Z" fill="#e2b48f"/>
       <path d="M26 62 C22 30 40 16 60 16 C82 16 98 30 94 62 C93 78 88 92 84 98 L36 98 C31 90 27 78 26 62 Z" fill="#3b2418"/>
@@ -687,44 +689,44 @@ function tgt(key) {
 // ── DICIONÁRIO DA INTERFACE (pt-BR, pt-PT, es) ──
 const I18N = {
   'pt-BR': {
-    setup_text: 'Para a tutora de IA funcionar, você precisa de uma chave API da Anthropic.<br>É gratuita para começar e só você tem acesso.',
-    key_ph: 'Cole aqui sua chave: sk-ant-...', enter_btn: 'Entrar na tutora →',
+    setup_text: 'Para a Lia, a sua tutora de IA, funcionar, você precisa de uma chave API da Anthropic.<br>É gratuita para começar e só você tem acesso.',
+    key_ph: 'Cole aqui sua chave: sk-ant-...', enter_btn: 'Entrar no Parlia →',
     key_note_html: 'Obtenha sua chave gratuita em:<br><a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a><br><br>A chave fica guardada só no seu celular (localStorage).<br>Ninguém mais tem acesso.',
     key_invalid: 'A chave deve começar com "sk-ant-". Verifique e tente de novo.',
-    profile_title: 'Seu perfil', profile_text: 'A tutora usa estes dados para chamar você pelo nome e adaptar a conversa ao seu nível. Fica guardado só neste celular.',
+    profile_title: 'Seu perfil', profile_text: 'A Lia usa estes dados para chamar você pelo nome e adaptar a conversa ao seu nível. Fica guardado só neste celular.',
     native_q: 'Minha língua (explicações, menus e traduções):', name_q: 'Como você se chama?', name_ph: 'Ex.: Eliana',
     city_q: 'Em que cidade você mora?', city_ph: 'Ex.: Huelva, Espanha', level_q: 'Seu nível em cada idioma:',
     lvl_iniciante: 'iniciante', 'lvl_básico': 'básico', 'lvl_intermediário': 'intermediário', 'lvl_avançado': 'avançado',
-    speed_q: 'Velocidade da voz da tutora:', speed_lenta: 'Lenta', speed_normal: 'Normal', speed_rapida: 'Rápida',
+    speed_q: 'Velocidade da voz da Lia:', speed_lenta: 'Lenta', speed_normal: 'Normal', speed_rapida: 'Rápida',
     accent_q: 'Sotaque do espanhol (voz e vocabulário):', accent_es: 'Espanha', accent_latam: 'América Latina',
     ptvar_q: 'Variante do português (voz, vocabulário e correções):', ptvar_br: 'Brasil', ptvar_pt: 'Portugal',
-    style_q: 'Estilo da tutora:', style_friendly: 'Amigável', style_formal: 'Formal', style_fun: 'Divertida',
+    style_q: 'Estilo da Lia:', style_friendly: 'Amigável', style_formal: 'Formal', style_fun: 'Divertida',
     save_btn: 'Salvar e começar →', backup_label: 'Backup (perfil, foto, caderno, racha, lições e testes; sem a chave API):',
     export_btn: '⬇️ Exportar meus dados', import_btn: '⬆️ Importar meus dados', name_required: 'Escreva seu nome, por favor.',
     lang_es: 'Espanhol', lang_en: 'Inglês', lang_fr: 'Francês', lang_it: 'Italiano', lang_pt: 'Português',
     nb_title: '📒 Meu caderno', tab_errors: 'Meus erros', tab_saved: 'Salvas',
-    nb_empty_errors: 'Ainda não há erros salvos neste idioma.<br>Cada correção 📝 da tutora entra aqui sozinha.',
-    nb_empty_saved: 'Você ainda não salvou nenhuma frase neste idioma.<br>Toque em ⭐ numa mensagem da tutora (ou selecione um trecho e toque em ⭐).',
+    nb_empty_errors: 'Ainda não há erros salvos neste idioma.<br>Cada correção 📝 da Lia entra aqui sozinha.',
+    nb_empty_saved: 'Você ainda não salvou nenhuma frase neste idioma.<br>Toque em ⭐ numa mensagem da Lia (ou selecione um trecho e toque em ⭐).',
     listen: 'Ouvir', delete: 'Apagar', close: 'Fechar',
     day_one: '1 dia seguido praticando', day_many: '{n} dias seguidos praticando',
     week: 'seg,ter,qua,qui,sex,sáb,dom', st_current: 'Racha atual', st_best: 'Melhor racha', st_total: 'Total de dias',
     today_done: 'Dia de hoje completo ✅', today_left: 'Hoje: {n}/{g} falas para completar o dia',
     badge_done: 'Dia completo! Racha: {n}', badge_left: 'Hoje: {n}/{g} falas',
     topic_free: '🗣️ Livre', topic_market: '🛒 Supermercado', topic_doctor: '🏥 Médico', topic_landlord: '🏠 Aluguel', topic_bank: '🏦 Banco', topic_intro: '👤 Apresentação',
-    speaking: '🔊 Tutora falando...', st_starting: 'Iniciando...', st_ready_start: 'Pronta! Toque no microfone para começar.',
+    speaking: '🔊 Lia falando...', st_starting: 'Iniciando...', st_ready_start: 'Pronta! Toque no microfone para começar.',
     st_chrome: 'Use o Chrome para reconhecimento de voz.', st_mic_blocked: 'Microfone bloqueado. Permita nas configurações do Chrome.',
     st_listening: 'Ouvindo sua voz… você pode fazer pausas.', st_cancelled: 'Frase cancelada. Toque no 🎤 para falar de novo.',
     st_sending: 'Enviando...', st_nothing: 'Não ouvi nada. Toque e fale de novo.', st_ready: 'Pronta. Toque para falar.',
-    st_ready_reply: 'Pronta. Toque para responder.', st_processing: 'Processando...', st_preparing: 'Preparando a tutora...',
+    st_ready_reply: 'Pronta. Toque para responder.', st_processing: 'Processando...', st_preparing: 'Preparando a Lia...',
     st_error: 'Erro: ', no_connection: 'sem conexão',
     mic_tap: 'Toque para falar', mic_listening: 'Ouvindo… toque ⏹ quando terminar', cancel_btn: '✕ Cancelar esta frase',
     hint_btn: '💡 O que dizer?', sug_thinking: 'Pensando em sugestões…', sug_none: 'Sem sugestões. Tente de novo.',
     sug_note: 'Toque numa sugestão para ouvir, depois fale no 🎤.',
     write_toggle: '⌨️ Prefere escrever?', link_key: '🔑 Trocar chave',
-    text_ph: 'Escreva aqui...', tip_label: '💡 Dica:', lbl_tutor: '🎓 Tutora', lbl_you: '🎤 Você',
+    text_ph: 'Escreva aqui...', tip_label: '💡 Dica:', lbl_tutor: '🎓 Lia', lbl_you: '🎤 Você',
     btn_listen_again: 'Ouvir de novo', btn_translate: 'Mostrar tradução', btn_save: 'Salvar no caderno', saved: '✅ Salvo',
     translating: 'Traduzindo…', translate_fail: 'Não consegui traduzir. Toque em 🌐 para tentar de novo.', why: 'Por quê?',
-    import_invalid: 'Este arquivo não é um backup da tutora.',
+    import_invalid: 'Este arquivo não é um backup do Parlia.',
     import_confirm: 'Importar o backup{when}?\n\nIsto vai SUBSTITUIR neste celular:\n• o perfil{name}\n• o caderno ({items})\n• a racha ({days})\n• as lições do zero ({lessons})\n\nA chave API não muda.',
     import_when: ' de {date}', item_one: '1 item', item_many: '{n} itens', dayp_one: '1 dia com prática', dayp_many: '{n} dias com prática',
     import_save_fail: 'Não consegui salvar os dados: ', import_ok: 'Dados importados ✅\nConfira o perfil e toque em "Salvar e começar".',
@@ -737,7 +739,7 @@ const I18N = {
     back_home: '← Início',
     tab_home: 'Início', tab_chat: 'Conversar', tab_notebook: 'Caderno', tab_profile: 'Perfil',
     photo_gallery: '🖼️ Galeria', photo_camera: '📷 Câmera', photo_remove: '✕ Remover foto', photo_fail: 'Não consegui abrir a foto.', photo_save_fail: 'Não consegui salvar a foto.',
-    empty_reply: 'A tutora não respondeu', ai_timeout: 'A tutora demorou demais a responder. Tente de novo.', busy_thinking: 'A tutora está pensando…', busy_speaking: 'A tutora está falando… toque no avatar ou em 🔊 para interromper', unsaved_q: 'Salvar alterações?', unsaved_save: 'Salvar', unsaved_discard: 'Descartar', lang_changed: 'A sua língua mudou: as lições guardadas vão recomeçar.',
+    empty_reply: 'A Lia não respondeu', ai_timeout: 'A Lia demorou demais a responder. Tente de novo.', busy_thinking: 'A Lia está pensando…', busy_speaking: 'A Lia está falando… toque no avatar ou em 🔊 para interromper', unsaved_q: 'Salvar alterações?', unsaved_save: 'Salvar', unsaved_discard: 'Descartar', lang_changed: 'A sua língua mudou: as lições guardadas vão recomeçar.',
     hint_label: '💡 Dica', readnat_q: 'Ler explicações em voz alta (além das frases no idioma)',
     test_banner: '📊 Teste de nível · pergunta {n}/{total}', test_evaluating: '📊 Teste de nível · avaliando…', test_done_banner: '📊 Teste de nível concluído',
     test_skip_btn: '🤷 Não sei', test_skip_said: 'Não sei',
@@ -748,44 +750,44 @@ const I18N = {
     pf_tests_label: '📊 Último teste de nível:', pf_tests_none: 'Você ainda não fez nenhum teste.', card_test_last: 'Último resultado: {level}. Toque para refazer.'
   },
   'pt-PT': {
-    setup_text: 'Para a tutora de IA funcionar, precisas de uma chave API da Anthropic.<br>É gratuita para começar e só tu tens acesso.',
-    key_ph: 'Cola aqui a tua chave: sk-ant-...', enter_btn: 'Entrar na tutora →',
+    setup_text: 'Para a Lia, a tua tutora de IA, funcionar, precisas de uma chave API da Anthropic.<br>É gratuita para começar e só tu tens acesso.',
+    key_ph: 'Cola aqui a tua chave: sk-ant-...', enter_btn: 'Entrar no Parlia →',
     key_note_html: 'Obtém a tua chave gratuita em:<br><a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a><br><br>A chave é guardada só no teu telemóvel (localStorage).<br>Ninguém mais tem acesso.',
     key_invalid: 'A chave deve começar com "sk-ant-". Verifica e tenta de novo.',
-    profile_title: 'O teu perfil', profile_text: 'A tutora usa estes dados para te chamar pelo nome e adaptar a conversa ao teu nível. Fica guardado só neste telemóvel.',
+    profile_title: 'O teu perfil', profile_text: 'A Lia usa estes dados para te chamar pelo nome e adaptar a conversa ao teu nível. Fica guardado só neste telemóvel.',
     native_q: 'A minha língua (explicações, menus e traduções):', name_q: 'Como te chamas?', name_ph: 'Ex.: Eliana',
     city_q: 'Em que cidade moras?', city_ph: 'Ex.: Huelva, Espanha', level_q: 'O teu nível em cada idioma:',
     lvl_iniciante: 'iniciante', 'lvl_básico': 'básico', 'lvl_intermediário': 'intermédio', 'lvl_avançado': 'avançado',
-    speed_q: 'Velocidade da voz da tutora:', speed_lenta: 'Lenta', speed_normal: 'Normal', speed_rapida: 'Rápida',
+    speed_q: 'Velocidade da voz da Lia:', speed_lenta: 'Lenta', speed_normal: 'Normal', speed_rapida: 'Rápida',
     accent_q: 'Sotaque do espanhol (voz e vocabulário):', accent_es: 'Espanha', accent_latam: 'América Latina',
     ptvar_q: 'Variante do português (voz, vocabulário e correções):', ptvar_br: 'Brasil', ptvar_pt: 'Portugal',
-    style_q: 'Estilo da tutora:', style_friendly: 'Amigável', style_formal: 'Formal', style_fun: 'Divertida',
+    style_q: 'Estilo da Lia:', style_friendly: 'Amigável', style_formal: 'Formal', style_fun: 'Divertida',
     save_btn: 'Guardar e começar →', backup_label: 'Cópia de segurança (perfil, foto, caderno, racha, lições e testes; sem a chave API):',
     export_btn: '⬇️ Exportar os meus dados', import_btn: '⬆️ Importar os meus dados', name_required: 'Escreve o teu nome, por favor.',
     lang_es: 'Espanhol', lang_en: 'Inglês', lang_fr: 'Francês', lang_it: 'Italiano', lang_pt: 'Português',
     nb_title: '📒 O meu caderno', tab_errors: 'Os meus erros', tab_saved: 'Guardadas',
-    nb_empty_errors: 'Ainda não há erros guardados neste idioma.<br>Cada correção 📝 da tutora entra aqui sozinha.',
-    nb_empty_saved: 'Ainda não guardaste nenhuma frase neste idioma.<br>Toca em ⭐ numa mensagem da tutora (ou seleciona um trecho e toca em ⭐).',
+    nb_empty_errors: 'Ainda não há erros guardados neste idioma.<br>Cada correção 📝 da Lia entra aqui sozinha.',
+    nb_empty_saved: 'Ainda não guardaste nenhuma frase neste idioma.<br>Toca em ⭐ numa mensagem da Lia (ou seleciona um trecho e toca em ⭐).',
     listen: 'Ouvir', delete: 'Apagar', close: 'Fechar',
     day_one: '1 dia seguido a praticar', day_many: '{n} dias seguidos a praticar',
     week: 'seg,ter,qua,qui,sex,sáb,dom', st_current: 'Racha atual', st_best: 'Melhor racha', st_total: 'Total de dias',
     today_done: 'Dia de hoje completo ✅', today_left: 'Hoje: {n}/{g} falas para completar o dia',
     badge_done: 'Dia completo! Racha: {n}', badge_left: 'Hoje: {n}/{g} falas',
     topic_free: '🗣️ Livre', topic_market: '🛒 Supermercado', topic_doctor: '🏥 Médico', topic_landlord: '🏠 Senhorio', topic_bank: '🏦 Banco', topic_intro: '👤 Apresentação',
-    speaking: '🔊 Tutora a falar...', st_starting: 'A iniciar...', st_ready_start: 'Pronta! Toca no microfone para começar.',
+    speaking: '🔊 Lia a falar...', st_starting: 'A iniciar...', st_ready_start: 'Pronta! Toca no microfone para começar.',
     st_chrome: 'Usa o Chrome para reconhecimento de voz.', st_mic_blocked: 'Microfone bloqueado. Permite nas definições do Chrome.',
     st_listening: 'A ouvir a tua voz… podes fazer pausas.', st_cancelled: 'Frase cancelada. Toca no 🎤 para falar de novo.',
     st_sending: 'A enviar...', st_nothing: 'Não ouvi nada. Toca e fala de novo.', st_ready: 'Pronta. Toca para falar.',
-    st_ready_reply: 'Pronta. Toca para responder.', st_processing: 'A processar...', st_preparing: 'A preparar a tutora...',
+    st_ready_reply: 'Pronta. Toca para responder.', st_processing: 'A processar...', st_preparing: 'A preparar a Lia...',
     st_error: 'Erro: ', no_connection: 'sem ligação',
     mic_tap: 'Toca para falar', mic_listening: 'A ouvir… toca ⏹ quando terminares', cancel_btn: '✕ Cancelar esta frase',
     hint_btn: '💡 O que dizer?', sug_thinking: 'A pensar em sugestões…', sug_none: 'Sem sugestões. Tenta de novo.',
     sug_note: 'Toca numa sugestão para ouvir, depois fala no 🎤.',
     write_toggle: '⌨️ Preferes escrever?', link_key: '🔑 Mudar chave',
-    text_ph: 'Escreve aqui...', tip_label: '💡 Dica:', lbl_tutor: '🎓 Tutora', lbl_you: '🎤 Tu',
+    text_ph: 'Escreve aqui...', tip_label: '💡 Dica:', lbl_tutor: '🎓 Lia', lbl_you: '🎤 Tu',
     btn_listen_again: 'Ouvir de novo', btn_translate: 'Mostrar tradução', btn_save: 'Guardar no caderno', saved: '✅ Guardado',
     translating: 'A traduzir…', translate_fail: 'Não consegui traduzir. Toca em 🌐 para tentar de novo.', why: 'Porquê?',
-    import_invalid: 'Este ficheiro não é uma cópia de segurança da tutora.',
+    import_invalid: 'Este ficheiro não é uma cópia de segurança do Parlia.',
     import_confirm: 'Importar a cópia{when}?\n\nIsto vai SUBSTITUIR neste telemóvel:\n• o perfil{name}\n• o caderno ({items})\n• a racha ({days})\n• as lições do zero ({lessons})\n\nA chave API não muda.',
     import_when: ' de {date}', item_one: '1 item', item_many: '{n} itens', dayp_one: '1 dia com prática', dayp_many: '{n} dias com prática',
     import_save_fail: 'Não consegui guardar os dados: ', import_ok: 'Dados importados ✅\nConfere o perfil e toca em "Guardar e começar".',
@@ -798,7 +800,7 @@ const I18N = {
     back_home: '← Início',
     tab_home: 'Início', tab_chat: 'Conversar', tab_notebook: 'Caderno', tab_profile: 'Perfil',
     photo_gallery: '🖼️ Galeria', photo_camera: '📷 Câmara', photo_remove: '✕ Remover foto', photo_fail: 'Não consegui abrir a foto.', photo_save_fail: 'Não consegui guardar a foto.',
-    empty_reply: 'A tutora não respondeu', ai_timeout: 'A tutora demorou demasiado a responder. Tenta de novo.', busy_thinking: 'A tutora está a pensar…', busy_speaking: 'A tutora está a falar… toca no avatar ou em 🔊 para interromper', unsaved_q: 'Guardar as alterações?', unsaved_save: 'Guardar', unsaved_discard: 'Descartar', lang_changed: 'A tua língua mudou: as lições guardadas vão recomeçar.',
+    empty_reply: 'A Lia não respondeu', ai_timeout: 'A Lia demorou demasiado a responder. Tenta de novo.', busy_thinking: 'A Lia está a pensar…', busy_speaking: 'A Lia está a falar… toca no avatar ou em 🔊 para interromper', unsaved_q: 'Guardar as alterações?', unsaved_save: 'Guardar', unsaved_discard: 'Descartar', lang_changed: 'A tua língua mudou: as lições guardadas vão recomeçar.',
     hint_label: '💡 Dica', readnat_q: 'Ler explicações em voz alta (além das frases no idioma)',
     test_banner: '📊 Teste de nível · pergunta {n}/{total}', test_evaluating: '📊 Teste de nível · a avaliar…', test_done_banner: '📊 Teste de nível concluído',
     test_skip_btn: '🤷 Não sei', test_skip_said: 'Não sei',
@@ -809,44 +811,44 @@ const I18N = {
     pf_tests_label: '📊 Último teste de nível:', pf_tests_none: 'Ainda não fizeste nenhum teste.', card_test_last: 'Último resultado: {level}. Toca para repetir.'
   },
   'es': {
-    setup_text: 'Para que la tutora de IA funcione, necesitas una clave API de Anthropic.<br>Es gratuita para empezar y solo tú tienes acceso.',
-    key_ph: 'Pega aquí tu clave: sk-ant-...', enter_btn: 'Entrar en la tutora →',
+    setup_text: 'Para que Lia, tu tutora de IA, funcione, necesitas una clave API de Anthropic.<br>Es gratuita para empezar y solo tú tienes acceso.',
+    key_ph: 'Pega aquí tu clave: sk-ant-...', enter_btn: 'Entrar en Parlia →',
     key_note_html: 'Consigue tu clave gratuita en:<br><a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a><br><br>La clave se guarda solo en tu móvil (localStorage).<br>Nadie más tiene acceso.',
     key_invalid: 'La clave debe empezar por "sk-ant-". Revísala e inténtalo de nuevo.',
-    profile_title: 'Tu perfil', profile_text: 'La tutora usa estos datos para llamarte por tu nombre y adaptar la conversación a tu nivel. Se guarda solo en este móvil.',
+    profile_title: 'Tu perfil', profile_text: 'Lia usa estos datos para llamarte por tu nombre y adaptar la conversación a tu nivel. Se guarda solo en este móvil.',
     native_q: 'Mi lengua (explicaciones, menús y traducciones):', name_q: '¿Cómo te llamas?', name_ph: 'Ej.: Eliana',
     city_q: '¿En qué ciudad vives?', city_ph: 'Ej.: Huelva, España', level_q: 'Tu nivel en cada idioma:',
     lvl_iniciante: 'principiante', 'lvl_básico': 'básico', 'lvl_intermediário': 'intermedio', 'lvl_avançado': 'avanzado',
-    speed_q: 'Velocidad de la voz de la tutora:', speed_lenta: 'Lenta', speed_normal: 'Normal', speed_rapida: 'Rápida',
+    speed_q: 'Velocidad de la voz de Lia:', speed_lenta: 'Lenta', speed_normal: 'Normal', speed_rapida: 'Rápida',
     accent_q: 'Acento del español (voz y vocabulario):', accent_es: 'España', accent_latam: 'América Latina',
     ptvar_q: 'Variante del portugués (voz, vocabulario y correcciones):', ptvar_br: 'Brasil', ptvar_pt: 'Portugal',
-    style_q: 'Estilo de la tutora:', style_friendly: 'Amable', style_formal: 'Formal', style_fun: 'Divertida',
+    style_q: 'Estilo de Lia:', style_friendly: 'Amable', style_formal: 'Formal', style_fun: 'Divertida',
     save_btn: 'Guardar y empezar →', backup_label: 'Copia de seguridad (perfil, foto, cuaderno, racha, lecciones y pruebas; sin la clave API):',
     export_btn: '⬇️ Exportar mis datos', import_btn: '⬆️ Importar mis datos', name_required: 'Escribe tu nombre, por favor.',
     lang_es: 'Español', lang_en: 'Inglés', lang_fr: 'Francés', lang_it: 'Italiano', lang_pt: 'Portugués',
     nb_title: '📒 Mi cuaderno', tab_errors: 'Mis errores', tab_saved: 'Guardadas',
-    nb_empty_errors: 'Todavía no hay errores guardados en este idioma.<br>Cada corrección 📝 de la tutora entra aquí sola.',
-    nb_empty_saved: 'Todavía no has guardado ninguna frase en este idioma.<br>Toca ⭐ en un mensaje de la tutora (o selecciona un fragmento y toca ⭐).',
+    nb_empty_errors: 'Todavía no hay errores guardados en este idioma.<br>Cada corrección 📝 de Lia entra aquí sola.',
+    nb_empty_saved: 'Todavía no has guardado ninguna frase en este idioma.<br>Toca ⭐ en un mensaje de Lia (o selecciona un fragmento y toca ⭐).',
     listen: 'Escuchar', delete: 'Borrar', close: 'Cerrar',
     day_one: '1 día seguido practicando', day_many: '{n} días seguidos practicando',
     week: 'lun,mar,mié,jue,vie,sáb,dom', st_current: 'Racha actual', st_best: 'Mejor racha', st_total: 'Total de días',
     today_done: 'Día de hoy completo ✅', today_left: 'Hoy: {n}/{g} frases para completar el día',
     badge_done: '¡Día completo! Racha: {n}', badge_left: 'Hoy: {n}/{g} frases',
     topic_free: '🗣️ Libre', topic_market: '🛒 Supermercado', topic_doctor: '🏥 Médico', topic_landlord: '🏠 Casero', topic_bank: '🏦 Banco', topic_intro: '👤 Presentación',
-    speaking: '🔊 La tutora está hablando...', st_starting: 'Iniciando...', st_ready_start: '¡Lista! Toca el micrófono para empezar.',
+    speaking: '🔊 Lia está hablando...', st_starting: 'Iniciando...', st_ready_start: '¡Lista! Toca el micrófono para empezar.',
     st_chrome: 'Usa Chrome para el reconocimiento de voz.', st_mic_blocked: 'Micrófono bloqueado. Permítelo en los ajustes de Chrome.',
     st_listening: 'Escuchando tu voz… puedes hacer pausas.', st_cancelled: 'Frase cancelada. Toca el 🎤 para hablar de nuevo.',
     st_sending: 'Enviando...', st_nothing: 'No oí nada. Toca y habla de nuevo.', st_ready: 'Lista. Toca para hablar.',
-    st_ready_reply: 'Lista. Toca para responder.', st_processing: 'Procesando...', st_preparing: 'Preparando a la tutora...',
+    st_ready_reply: 'Lista. Toca para responder.', st_processing: 'Procesando...', st_preparing: 'Preparando a Lia...',
     st_error: 'Error: ', no_connection: 'sin conexión',
     mic_tap: 'Toca para hablar', mic_listening: 'Escuchando… toca ⏹ cuando termines', cancel_btn: '✕ Cancelar esta frase',
     hint_btn: '💡 ¿Qué digo?', sug_thinking: 'Pensando en sugerencias…', sug_none: 'Sin sugerencias. Inténtalo de nuevo.',
     sug_note: 'Toca una sugerencia para escucharla y luego habla con el 🎤.',
     write_toggle: '⌨️ ¿Prefieres escribir?', link_key: '🔑 Cambiar clave',
-    text_ph: 'Escribe aquí...', tip_label: '💡 Consejo:', lbl_tutor: '🎓 Tutora', lbl_you: '🎤 Tú',
+    text_ph: 'Escribe aquí...', tip_label: '💡 Consejo:', lbl_tutor: '🎓 Lia', lbl_you: '🎤 Tú',
     btn_listen_again: 'Escuchar de nuevo', btn_translate: 'Mostrar traducción', btn_save: 'Guardar en el cuaderno', saved: '✅ Guardado',
     translating: 'Traduciendo…', translate_fail: 'No pude traducir. Toca 🌐 para intentarlo de nuevo.', why: '¿Por qué?',
-    import_invalid: 'Este archivo no es una copia de seguridad de la tutora.',
+    import_invalid: 'Este archivo no es una copia de seguridad de Parlia.',
     import_confirm: '¿Importar la copia{when}?\n\nEsto va a SUSTITUIR en este móvil:\n• el perfil{name}\n• el cuaderno ({items})\n• la racha ({days})\n• las lecciones desde cero ({lessons})\n\nLa clave API no cambia.',
     import_when: ' del {date}', item_one: '1 elemento', item_many: '{n} elementos', dayp_one: '1 día con práctica', dayp_many: '{n} días con práctica',
     import_save_fail: 'No pude guardar los datos: ', import_ok: 'Datos importados ✅\nRevisa el perfil y toca "Guardar y empezar".',
@@ -859,7 +861,7 @@ const I18N = {
     back_home: '← Inicio',
     tab_home: 'Inicio', tab_chat: 'Conversar', tab_notebook: 'Cuaderno', tab_profile: 'Perfil',
     photo_gallery: '🖼️ Galería', photo_camera: '📷 Cámara', photo_remove: '✕ Quitar foto', photo_fail: 'No pude abrir la foto.', photo_save_fail: 'No pude guardar la foto.',
-    empty_reply: 'La tutora no respondió', ai_timeout: 'La tutora tardó demasiado en responder. Inténtalo de nuevo.', busy_thinking: 'La tutora está pensando…', busy_speaking: 'La tutora está hablando… toca el avatar o 🔊 para interrumpir', unsaved_q: '¿Guardar los cambios?', unsaved_save: 'Guardar', unsaved_discard: 'Descartar', lang_changed: 'Tu idioma cambió: las lecciones guardadas volverán a empezar.',
+    empty_reply: 'Lia no respondió', ai_timeout: 'Lia tardó demasiado en responder. Inténtalo de nuevo.', busy_thinking: 'Lia está pensando…', busy_speaking: 'Lia está hablando… toca el avatar o 🔊 para interrumpir', unsaved_q: '¿Guardar los cambios?', unsaved_save: 'Guardar', unsaved_discard: 'Descartar', lang_changed: 'Tu idioma cambió: las lecciones guardadas volverán a empezar.',
     hint_label: '💡 Pista', readnat_q: 'Leer las explicaciones en voz alta (además de las frases en el idioma)',
     test_banner: '📊 Prueba de nivel · pregunta {n}/{total}', test_evaluating: '📊 Prueba de nivel · evaluando…', test_done_banner: '📊 Prueba de nivel completada',
     test_skip_btn: '🤷 No sé', test_skip_said: 'No sé',
@@ -870,44 +872,44 @@ const I18N = {
     pf_tests_label: '📊 Última prueba de nivel:', pf_tests_none: 'Todavía no has hecho ninguna prueba.', card_test_last: 'Último resultado: {level}. Toca para repetirla.'
   },
   'en': {
-    setup_text: 'For the AI tutor to work, you need an Anthropic API key.<br>It is free to start and only you have access to it.',
-    key_ph: 'Paste your key here: sk-ant-...', enter_btn: 'Open the tutor →',
+    setup_text: 'For Lia, your AI tutor, to work, you need an Anthropic API key.<br>It is free to start and only you have access to it.',
+    key_ph: 'Paste your key here: sk-ant-...', enter_btn: 'Open Parlia →',
     key_note_html: 'Get your free key at:<br><a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a><br><br>The key is stored only on your phone (localStorage).<br>Nobody else has access to it.',
     key_invalid: 'The key must start with "sk-ant-". Please check it and try again.',
-    profile_title: 'Your profile', profile_text: 'The tutor uses this information to call you by your name and adapt the conversation to your level. It is stored only on this phone.',
+    profile_title: 'Your profile', profile_text: 'Lia uses this information to call you by your name and adapt the conversation to your level. It is stored only on this phone.',
     native_q: 'My language (explanations, menus and translations):', name_q: 'What is your name?', name_ph: 'E.g.: Eliana',
     city_q: 'Which city do you live in?', city_ph: 'E.g.: Huelva, Spain', level_q: 'Your level in each language:',
     lvl_iniciante: 'beginner', 'lvl_básico': 'elementary', 'lvl_intermediário': 'intermediate', 'lvl_avançado': 'advanced',
-    speed_q: 'Tutor voice speed:', speed_lenta: 'Slow', speed_normal: 'Normal', speed_rapida: 'Fast',
+    speed_q: 'Lia’s voice speed:', speed_lenta: 'Slow', speed_normal: 'Normal', speed_rapida: 'Fast',
     accent_q: 'Spanish accent (voice and vocabulary):', accent_es: 'Spain', accent_latam: 'Latin America',
     ptvar_q: 'Portuguese variant (voice, vocabulary and corrections):', ptvar_br: 'Brazil', ptvar_pt: 'Portugal',
-    style_q: 'Tutor style:', style_friendly: 'Friendly', style_formal: 'Formal', style_fun: 'Fun',
+    style_q: 'Lia’s style:', style_friendly: 'Friendly', style_formal: 'Formal', style_fun: 'Fun',
     save_btn: 'Save and start →', backup_label: 'Backup (profile, photo, notebook, streak, lessons and tests; without the API key):',
     export_btn: '⬇️ Export my data', import_btn: '⬆️ Import my data', name_required: 'Please write your name.',
     lang_es: 'Spanish', lang_en: 'English', lang_fr: 'French', lang_it: 'Italian', lang_pt: 'Portuguese',
     nb_title: '📒 My notebook', tab_errors: 'My mistakes', tab_saved: 'Saved',
-    nb_empty_errors: 'No mistakes saved in this language yet.<br>Every 📝 correction from the tutor is added here automatically.',
-    nb_empty_saved: 'You have not saved any phrases in this language yet.<br>Tap ⭐ on a tutor message (or select part of it and tap ⭐).',
+    nb_empty_errors: 'No mistakes saved in this language yet.<br>Every 📝 correction from Lia is added here automatically.',
+    nb_empty_saved: 'You have not saved any phrases in this language yet.<br>Tap ⭐ on one of Lia’s messages (or select part of it and tap ⭐).',
     listen: 'Listen', delete: 'Delete', close: 'Close',
     day_one: '1 day in a row practising', day_many: '{n} days in a row practising',
     week: 'Mon,Tue,Wed,Thu,Fri,Sat,Sun', st_current: 'Current streak', st_best: 'Best streak', st_total: 'Total days',
     today_done: 'Today is complete ✅', today_left: 'Today: {n}/{g} sentences to complete the day',
     badge_done: 'Day complete! Streak: {n}', badge_left: 'Today: {n}/{g} sentences',
     topic_free: '🗣️ Free talk', topic_market: '🛒 Supermarket', topic_doctor: '🏥 Doctor', topic_landlord: '🏠 Landlord', topic_bank: '🏦 Bank', topic_intro: '👤 Introductions',
-    speaking: '🔊 Tutor speaking...', st_starting: 'Starting...', st_ready_start: 'Ready! Tap the microphone to start.',
+    speaking: '🔊 Lia is speaking...', st_starting: 'Starting...', st_ready_start: 'Ready! Tap the microphone to start.',
     st_chrome: 'Use Chrome for speech recognition.', st_mic_blocked: 'Microphone blocked. Allow it in Chrome settings.',
     st_listening: 'Listening… you can pause.', st_cancelled: 'Sentence cancelled. Tap 🎤 to speak again.',
     st_sending: 'Sending...', st_nothing: 'I did not hear anything. Tap and speak again.', st_ready: 'Ready. Tap to speak.',
-    st_ready_reply: 'Ready. Tap to answer.', st_processing: 'Processing...', st_preparing: 'Getting the tutor ready...',
+    st_ready_reply: 'Ready. Tap to answer.', st_processing: 'Processing...', st_preparing: 'Getting Lia ready...',
     st_error: 'Error: ', no_connection: 'no connection',
     mic_tap: 'Tap to speak', mic_listening: 'Listening… tap ⏹ when you finish', cancel_btn: '✕ Cancel this sentence',
     hint_btn: '💡 What can I say?', sug_thinking: 'Thinking of suggestions…', sug_none: 'No suggestions. Try again.',
     sug_note: 'Tap a suggestion to hear it, then speak with the 🎤.',
     write_toggle: '⌨️ Prefer to type?', link_key: '🔑 Change key',
-    text_ph: 'Type here...', tip_label: '💡 Tip:', lbl_tutor: '🎓 Tutor', lbl_you: '🎤 You',
+    text_ph: 'Type here...', tip_label: '💡 Tip:', lbl_tutor: '🎓 Lia', lbl_you: '🎤 You',
     btn_listen_again: 'Listen again', btn_translate: 'Show translation', btn_save: 'Save to notebook', saved: '✅ Saved',
     translating: 'Translating…', translate_fail: 'I could not translate. Tap 🌐 to try again.', why: 'Why?',
-    import_invalid: 'This file is not a tutor backup.',
+    import_invalid: 'This file is not a Parlia backup.',
     import_confirm: 'Import the backup{when}?\n\nThis will REPLACE on this phone:\n• the profile{name}\n• the notebook ({items})\n• the streak ({days})\n• the lessons from scratch ({lessons})\n\nThe API key does not change.',
     import_when: ' from {date}', item_one: '1 item', item_many: '{n} items', dayp_one: '1 day of practice', dayp_many: '{n} days of practice',
     import_save_fail: 'I could not save the data: ', import_ok: 'Data imported ✅\nCheck the profile and tap "Save and start".',
@@ -920,7 +922,7 @@ const I18N = {
     back_home: '← Home',
     tab_home: 'Home', tab_chat: 'Talk', tab_notebook: 'Notebook', tab_profile: 'Profile',
     photo_gallery: '🖼️ Gallery', photo_camera: '📷 Camera', photo_remove: '✕ Remove photo', photo_fail: 'I could not open the photo.', photo_save_fail: 'I could not save the photo.',
-    empty_reply: 'The tutor did not answer', ai_timeout: 'The tutor took too long to answer. Please try again.', busy_thinking: 'The tutor is thinking…', busy_speaking: 'The tutor is speaking… tap the avatar or 🔊 to stop', unsaved_q: 'Save changes?', unsaved_save: 'Save', unsaved_discard: 'Discard', lang_changed: 'Your language changed: saved lessons will start again.',
+    empty_reply: 'Lia did not answer', ai_timeout: 'Lia took too long to answer. Please try again.', busy_thinking: 'Lia is thinking…', busy_speaking: 'Lia is speaking… tap the avatar or 🔊 to stop', unsaved_q: 'Save changes?', unsaved_save: 'Save', unsaved_discard: 'Discard', lang_changed: 'Your language changed: saved lessons will start again.',
     hint_label: '💡 Hint', readnat_q: 'Read explanations aloud (as well as the phrases in the language)',
     test_banner: '📊 Level test · question {n}/{total}', test_evaluating: '📊 Level test · evaluating…', test_done_banner: '📊 Level test complete',
     test_skip_btn: '🤷 I don’t know', test_skip_said: 'I don’t know',
@@ -931,44 +933,44 @@ const I18N = {
     pf_tests_label: '📊 Latest level test:', pf_tests_none: 'You have not taken any test yet.', card_test_last: 'Latest result: {level}. Tap to retake.'
   },
   'fr': {
-    setup_text: 'Pour que la tutrice IA fonctionne, tu as besoin d’une clé API d’Anthropic.<br>C’est gratuit pour commencer et toi seul·e y as accès.',
-    key_ph: 'Colle ta clé ici : sk-ant-...', enter_btn: 'Entrer →',
+    setup_text: 'Pour que Lia, ta tutrice IA, fonctionne, tu as besoin d’une clé API d’Anthropic.<br>C’est gratuit pour commencer et toi seul·e y as accès.',
+    key_ph: 'Colle ta clé ici : sk-ant-...', enter_btn: 'Entrer dans Parlia →',
     key_note_html: 'Obtiens ta clé gratuite sur :<br><a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a><br><br>La clé est enregistrée uniquement sur ton téléphone (localStorage).<br>Personne d’autre n’y a accès.',
     key_invalid: 'La clé doit commencer par « sk-ant- ». Vérifie-la et réessaie.',
-    profile_title: 'Ton profil', profile_text: 'La tutrice utilise ces informations pour t’appeler par ton prénom et adapter la conversation à ton niveau. Elles sont enregistrées uniquement sur ce téléphone.',
+    profile_title: 'Ton profil', profile_text: 'Lia utilise ces informations pour t’appeler par ton prénom et adapter la conversation à ton niveau. Elles sont enregistrées uniquement sur ce téléphone.',
     native_q: 'Ma langue (explications, menus et traductions) :', name_q: 'Comment tu t’appelles ?', name_ph: 'Ex. : Eliana',
     city_q: 'Dans quelle ville habites-tu ?', city_ph: 'Ex. : Huelva, Espagne', level_q: 'Ton niveau dans chaque langue :',
     lvl_iniciante: 'débutant', 'lvl_básico': 'élémentaire', 'lvl_intermediário': 'intermédiaire', 'lvl_avançado': 'avancé',
-    speed_q: 'Vitesse de la voix de la tutrice :', speed_lenta: 'Lente', speed_normal: 'Normale', speed_rapida: 'Rapide',
+    speed_q: 'Vitesse de la voix de Lia :', speed_lenta: 'Lente', speed_normal: 'Normale', speed_rapida: 'Rapide',
     accent_q: 'Accent de l’espagnol (voix et vocabulaire) :', accent_es: 'Espagne', accent_latam: 'Amérique latine',
     ptvar_q: 'Variante du portugais (voix, vocabulaire et corrections) :', ptvar_br: 'Brésil', ptvar_pt: 'Portugal',
-    style_q: 'Style de la tutrice :', style_friendly: 'Sympathique', style_formal: 'Formel', style_fun: 'Drôle',
+    style_q: 'Style de Lia :', style_friendly: 'Sympathique', style_formal: 'Formel', style_fun: 'Drôle',
     save_btn: 'Enregistrer et commencer →', backup_label: 'Sauvegarde (profil, photo, carnet, série, leçons et tests ; sans la clé API) :',
     export_btn: '⬇️ Exporter mes données', import_btn: '⬆️ Importer mes données', name_required: 'Écris ton prénom, s’il te plaît.',
     lang_es: 'Espagnol', lang_en: 'Anglais', lang_fr: 'Français', lang_it: 'Italien', lang_pt: 'Portugais',
     nb_title: '📒 Mon carnet', tab_errors: 'Mes erreurs', tab_saved: 'Enregistrées',
-    nb_empty_errors: 'Aucune erreur enregistrée dans cette langue pour l’instant.<br>Chaque correction 📝 de la tutrice arrive ici toute seule.',
-    nb_empty_saved: 'Tu n’as encore enregistré aucune phrase dans cette langue.<br>Touche ⭐ sur un message de la tutrice (ou sélectionne un passage et touche ⭐).',
+    nb_empty_errors: 'Aucune erreur enregistrée dans cette langue pour l’instant.<br>Chaque correction 📝 de Lia arrive ici toute seule.',
+    nb_empty_saved: 'Tu n’as encore enregistré aucune phrase dans cette langue.<br>Touche ⭐ sur un message de Lia (ou sélectionne un passage et touche ⭐).',
     listen: 'Écouter', delete: 'Supprimer', close: 'Fermer',
     day_one: '1 jour d’affilée de pratique', day_many: '{n} jours d’affilée de pratique',
     week: 'lun,mar,mer,jeu,ven,sam,dim', st_current: 'Série actuelle', st_best: 'Meilleure série', st_total: 'Total de jours',
     today_done: 'Journée complète ✅', today_left: 'Aujourd’hui : {n}/{g} phrases pour compléter la journée',
     badge_done: 'Journée complète ! Série : {n}', badge_left: 'Aujourd’hui : {n}/{g} phrases',
     topic_free: '🗣️ Libre', topic_market: '🛒 Supermarché', topic_doctor: '🏥 Médecin', topic_landlord: '🏠 Propriétaire', topic_bank: '🏦 Banque', topic_intro: '👤 Présentation',
-    speaking: '🔊 La tutrice parle...', st_starting: 'Démarrage...', st_ready_start: 'Prête ! Touche le micro pour commencer.',
+    speaking: '🔊 Lia parle...', st_starting: 'Démarrage...', st_ready_start: 'Prête ! Touche le micro pour commencer.',
     st_chrome: 'Utilise Chrome pour la reconnaissance vocale.', st_mic_blocked: 'Micro bloqué. Autorise-le dans les paramètres de Chrome.',
     st_listening: 'Je t’écoute… tu peux faire des pauses.', st_cancelled: 'Phrase annulée. Touche le 🎤 pour parler à nouveau.',
     st_sending: 'Envoi...', st_nothing: 'Je n’ai rien entendu. Touche et parle à nouveau.', st_ready: 'Prête. Touche pour parler.',
-    st_ready_reply: 'Prête. Touche pour répondre.', st_processing: 'Traitement...', st_preparing: 'Préparation de la tutrice...',
+    st_ready_reply: 'Prête. Touche pour répondre.', st_processing: 'Traitement...', st_preparing: 'Préparation de Lia...',
     st_error: 'Erreur : ', no_connection: 'pas de connexion',
     mic_tap: 'Touche pour parler', mic_listening: 'Je t’écoute… touche ⏹ quand tu as fini', cancel_btn: '✕ Annuler cette phrase',
     hint_btn: '💡 Que dire ?', sug_thinking: 'Je cherche des suggestions…', sug_none: 'Aucune suggestion. Réessaie.',
     sug_note: 'Touche une suggestion pour l’écouter, puis parle avec le 🎤.',
     write_toggle: '⌨️ Tu préfères écrire ?', link_key: '🔑 Changer de clé',
-    text_ph: 'Écris ici...', tip_label: '💡 Astuce :', lbl_tutor: '🎓 Tutrice', lbl_you: '🎤 Toi',
+    text_ph: 'Écris ici...', tip_label: '💡 Astuce :', lbl_tutor: '🎓 Lia', lbl_you: '🎤 Toi',
     btn_listen_again: 'Réécouter', btn_translate: 'Afficher la traduction', btn_save: 'Enregistrer dans le carnet', saved: '✅ Enregistré',
     translating: 'Traduction…', translate_fail: 'Je n’ai pas pu traduire. Touche 🌐 pour réessayer.', why: 'Pourquoi ?',
-    import_invalid: 'Ce fichier n’est pas une sauvegarde de la tutrice.',
+    import_invalid: 'Ce fichier n’est pas une sauvegarde de Parlia.',
     import_confirm: 'Importer la sauvegarde{when} ?\n\nCela va REMPLACER sur ce téléphone :\n• le profil{name}\n• le carnet ({items})\n• la série ({days})\n• les leçons à partir de zéro ({lessons})\n\nLa clé API ne change pas.',
     import_when: ' du {date}', item_one: '1 élément', item_many: '{n} éléments', dayp_one: '1 jour de pratique', dayp_many: '{n} jours de pratique',
     import_save_fail: 'Je n’ai pas pu enregistrer les données : ', import_ok: 'Données importées ✅\nVérifie le profil et touche « Enregistrer et commencer ».',
@@ -981,7 +983,7 @@ const I18N = {
     back_home: '← Accueil',
     tab_home: 'Accueil', tab_chat: 'Converser', tab_notebook: 'Carnet', tab_profile: 'Profil',
     photo_gallery: '🖼️ Galerie', photo_camera: '📷 Appareil photo', photo_remove: '✕ Retirer la photo', photo_fail: 'Je n’ai pas pu ouvrir la photo.', photo_save_fail: 'Je n’ai pas pu enregistrer la photo.',
-    empty_reply: 'La tutrice n’a pas répondu', ai_timeout: 'La tutrice a mis trop de temps à répondre. Réessaie.', busy_thinking: 'La tutrice réfléchit…', busy_speaking: 'La tutrice parle… touche l’avatar ou 🔊 pour l’interrompre', unsaved_q: 'Enregistrer les modifications ?', unsaved_save: 'Enregistrer', unsaved_discard: 'Ignorer', lang_changed: 'Ta langue a changé : les leçons enregistrées vont recommencer.',
+    empty_reply: 'Lia n’a pas répondu', ai_timeout: 'Lia a mis trop de temps à répondre. Réessaie.', busy_thinking: 'Lia réfléchit…', busy_speaking: 'Lia parle… touche l’avatar ou 🔊 pour l’interrompre', unsaved_q: 'Enregistrer les modifications ?', unsaved_save: 'Enregistrer', unsaved_discard: 'Ignorer', lang_changed: 'Ta langue a changé : les leçons enregistrées vont recommencer.',
     hint_label: '💡 Indice', readnat_q: 'Lire les explications à voix haute (en plus des phrases dans la langue)',
     test_banner: '📊 Test de niveau · question {n}/{total}', test_evaluating: '📊 Test de niveau · évaluation…', test_done_banner: '📊 Test de niveau terminé',
     test_skip_btn: '🤷 Je ne sais pas', test_skip_said: 'Je ne sais pas',
@@ -992,44 +994,44 @@ const I18N = {
     pf_tests_label: '📊 Dernier test de niveau :', pf_tests_none: 'Tu n’as encore fait aucun test.', card_test_last: 'Dernier résultat : {level}. Touche pour le refaire.'
   },
   'it': {
-    setup_text: 'Perché la tutor IA funzioni, ti serve una chiave API di Anthropic.<br>È gratuita per iniziare e solo tu ci hai accesso.',
-    key_ph: 'Incolla qui la tua chiave: sk-ant-...', enter_btn: 'Entra →',
+    setup_text: 'Perché Lia, la tua tutor IA, funzioni, ti serve una chiave API di Anthropic.<br>È gratuita per iniziare e solo tu ci hai accesso.',
+    key_ph: 'Incolla qui la tua chiave: sk-ant-...', enter_btn: 'Entra in Parlia →',
     key_note_html: 'Ottieni la tua chiave gratuita su:<br><a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a><br><br>La chiave è salvata solo sul tuo telefono (localStorage).<br>Nessun altro vi ha accesso.',
     key_invalid: 'La chiave deve iniziare con "sk-ant-". Controllala e riprova.',
-    profile_title: 'Il tuo profilo', profile_text: 'La tutor usa questi dati per chiamarti per nome e adattare la conversazione al tuo livello. Sono salvati solo su questo telefono.',
+    profile_title: 'Il tuo profilo', profile_text: 'Lia usa questi dati per chiamarti per nome e adattare la conversazione al tuo livello. Sono salvati solo su questo telefono.',
     native_q: 'La mia lingua (spiegazioni, menu e traduzioni):', name_q: 'Come ti chiami?', name_ph: 'Es.: Eliana',
     city_q: 'In che città vivi?', city_ph: 'Es.: Huelva, Spagna', level_q: 'Il tuo livello in ogni lingua:',
     lvl_iniciante: 'principiante', 'lvl_básico': 'elementare', 'lvl_intermediário': 'intermedio', 'lvl_avançado': 'avanzato',
-    speed_q: 'Velocità della voce della tutor:', speed_lenta: 'Lenta', speed_normal: 'Normale', speed_rapida: 'Veloce',
+    speed_q: 'Velocità della voce di Lia:', speed_lenta: 'Lenta', speed_normal: 'Normale', speed_rapida: 'Veloce',
     accent_q: 'Accento dello spagnolo (voce e vocabolario):', accent_es: 'Spagna', accent_latam: 'America Latina',
     ptvar_q: 'Variante del portoghese (voce, vocabolario e correzioni):', ptvar_br: 'Brasile', ptvar_pt: 'Portogallo',
-    style_q: 'Stile della tutor:', style_friendly: 'Amichevole', style_formal: 'Formale', style_fun: 'Divertente',
+    style_q: 'Stile di Lia:', style_friendly: 'Amichevole', style_formal: 'Formale', style_fun: 'Divertente',
     save_btn: 'Salva e inizia →', backup_label: 'Backup (profilo, foto, quaderno, serie, lezioni e test; senza la chiave API):',
     export_btn: '⬇️ Esporta i miei dati', import_btn: '⬆️ Importa i miei dati', name_required: 'Scrivi il tuo nome, per favore.',
     lang_es: 'Spagnolo', lang_en: 'Inglese', lang_fr: 'Francese', lang_it: 'Italiano', lang_pt: 'Portoghese',
     nb_title: '📒 Il mio quaderno', tab_errors: 'I miei errori', tab_saved: 'Salvate',
-    nb_empty_errors: 'Ancora nessun errore salvato in questa lingua.<br>Ogni correzione 📝 della tutor arriva qui da sola.',
-    nb_empty_saved: 'Non hai ancora salvato nessuna frase in questa lingua.<br>Tocca ⭐ su un messaggio della tutor (o seleziona una parte e tocca ⭐).',
+    nb_empty_errors: 'Ancora nessun errore salvato in questa lingua.<br>Ogni correzione 📝 di Lia arriva qui da sola.',
+    nb_empty_saved: 'Non hai ancora salvato nessuna frase in questa lingua.<br>Tocca ⭐ su un messaggio di Lia (o seleziona una parte e tocca ⭐).',
     listen: 'Ascolta', delete: 'Elimina', close: 'Chiudi',
     day_one: '1 giorno di fila di pratica', day_many: '{n} giorni di fila di pratica',
     week: 'lun,mar,mer,gio,ven,sab,dom', st_current: 'Serie attuale', st_best: 'Serie migliore', st_total: 'Giorni totali',
     today_done: 'Giornata completata ✅', today_left: 'Oggi: {n}/{g} frasi per completare la giornata',
     badge_done: 'Giornata completata! Serie: {n}', badge_left: 'Oggi: {n}/{g} frasi',
     topic_free: '🗣️ Libera', topic_market: '🛒 Supermercato', topic_doctor: '🏥 Medico', topic_landlord: '🏠 Padrone di casa', topic_bank: '🏦 Banca', topic_intro: '👤 Presentazione',
-    speaking: '🔊 La tutor sta parlando...', st_starting: 'Avvio...', st_ready_start: 'Pronta! Tocca il microfono per iniziare.',
+    speaking: '🔊 Lia sta parlando...', st_starting: 'Avvio...', st_ready_start: 'Pronta! Tocca il microfono per iniziare.',
     st_chrome: 'Usa Chrome per il riconoscimento vocale.', st_mic_blocked: 'Microfono bloccato. Consentilo nelle impostazioni di Chrome.',
     st_listening: 'Ti ascolto… puoi fare delle pause.', st_cancelled: 'Frase annullata. Tocca il 🎤 per parlare di nuovo.',
     st_sending: 'Invio...', st_nothing: 'Non ho sentito niente. Tocca e parla di nuovo.', st_ready: 'Pronta. Tocca per parlare.',
-    st_ready_reply: 'Pronta. Tocca per rispondere.', st_processing: 'Elaborazione...', st_preparing: 'Preparo la tutor...',
+    st_ready_reply: 'Pronta. Tocca per rispondere.', st_processing: 'Elaborazione...', st_preparing: 'Preparo Lia...',
     st_error: 'Errore: ', no_connection: 'nessuna connessione',
     mic_tap: 'Tocca per parlare', mic_listening: 'Ti ascolto… tocca ⏹ quando hai finito', cancel_btn: '✕ Annulla questa frase',
     hint_btn: '💡 Cosa dico?', sug_thinking: 'Cerco dei suggerimenti…', sug_none: 'Nessun suggerimento. Riprova.',
     sug_note: 'Tocca un suggerimento per ascoltarlo, poi parla con il 🎤.',
     write_toggle: '⌨️ Preferisci scrivere?', link_key: '🔑 Cambia chiave',
-    text_ph: 'Scrivi qui...', tip_label: '💡 Consiglio:', lbl_tutor: '🎓 Tutor', lbl_you: '🎤 Tu',
+    text_ph: 'Scrivi qui...', tip_label: '💡 Consiglio:', lbl_tutor: '🎓 Lia', lbl_you: '🎤 Tu',
     btn_listen_again: 'Riascolta', btn_translate: 'Mostra traduzione', btn_save: 'Salva nel quaderno', saved: '✅ Salvato',
     translating: 'Traduzione…', translate_fail: 'Non sono riuscita a tradurre. Tocca 🌐 per riprovare.', why: 'Perché?',
-    import_invalid: 'Questo file non è un backup della tutor.',
+    import_invalid: 'Questo file non è un backup di Parlia.',
     import_confirm: 'Importare il backup{when}?\n\nQuesto SOSTITUIRÀ su questo telefono:\n• il profilo{name}\n• il quaderno ({items})\n• la serie ({days})\n• le lezioni da zero ({lessons})\n\nLa chiave API non cambia.',
     import_when: ' del {date}', item_one: '1 elemento', item_many: '{n} elementi', dayp_one: '1 giorno di pratica', dayp_many: '{n} giorni di pratica',
     import_save_fail: 'Non sono riuscita a salvare i dati: ', import_ok: 'Dati importati ✅\nControlla il profilo e tocca "Salva e inizia".',
@@ -1042,7 +1044,7 @@ const I18N = {
     back_home: '← Home',
     tab_home: 'Home', tab_chat: 'Conversare', tab_notebook: 'Quaderno', tab_profile: 'Profilo',
     photo_gallery: '🖼️ Galleria', photo_camera: '📷 Fotocamera', photo_remove: '✕ Rimuovi foto', photo_fail: 'Non sono riuscita ad aprire la foto.', photo_save_fail: 'Non sono riuscita a salvare la foto.',
-    empty_reply: 'La tutor non ha risposto', ai_timeout: 'La tutor ci ha messo troppo a rispondere. Riprova.', busy_thinking: 'La tutor sta pensando…', busy_speaking: 'La tutor sta parlando… tocca l’avatar o 🔊 per interrompere', unsaved_q: 'Salvare le modifiche?', unsaved_save: 'Salva', unsaved_discard: 'Scarta', lang_changed: 'La tua lingua è cambiata: le lezioni salvate ricominceranno.',
+    empty_reply: 'Lia non ha risposto', ai_timeout: 'Lia ci ha messo troppo a rispondere. Riprova.', busy_thinking: 'Lia sta pensando…', busy_speaking: 'Lia sta parlando… tocca l’avatar o 🔊 per interrompere', unsaved_q: 'Salvare le modifiche?', unsaved_save: 'Salva', unsaved_discard: 'Scarta', lang_changed: 'La tua lingua è cambiata: le lezioni salvate ricominceranno.',
     hint_label: '💡 Suggerimento', readnat_q: 'Leggere ad alta voce le spiegazioni (oltre alle frasi nella lingua)',
     test_banner: '📊 Test di livello · domanda {n}/{total}', test_evaluating: '📊 Test di livello · valutazione…', test_done_banner: '📊 Test di livello completato',
     test_skip_btn: '🤷 Non lo so', test_skip_said: 'Non lo so',
@@ -1812,7 +1814,7 @@ async function greet() {
   setStatus('gold', t('st_preparing'));
   addLoadingMsg();
   const system = buildSystem();
-  const prompt = `Briefly introduce yourself in ${currentLangName} and invite ${PROFILE.name} to practise "${currentTopic}". At most 2 short sentences: a warm welcome and one open question (no "A or B?"), with no 📝 or ✅ lines.`;
+  const prompt = `Briefly introduce yourself as Lia, in ${currentLangName}, and invite ${PROFILE.name} to practise "${currentTopic}". At most 2 short sentences: a warm welcome and one open question (no "A or B?"), with no 📝 or ✅ lines.`;
   try {
     const reply = await busyAI([{ role: 'user', content: prompt }], system);
     removeLoading(); addMsg('tutor', reply); speak(reply);
@@ -1820,11 +1822,11 @@ async function greet() {
   } catch(e) {
     removeLoading();
     const fallbacks = {
-      es: `¡Hola, ${PROFILE.name}! Soy tu tutora. ¡Habla cuando quieras y practicamos!`,
-      en: `Hello ${PROFILE.name}! I'm your tutor. Speak whenever you're ready and we'll practise together!`,
-      fr: `Bonjour ${PROFILE.name} ! Je suis ta tutrice. Parle quand tu veux et on pratique ensemble !`,
-      it: `Ciao ${PROFILE.name}! Sono la tua tutor. Parla quando vuoi e pratichiamo insieme!`,
-      pt: ptIsPT() ? `Olá, ${PROFILE.name}! Sou a tua tutora. Fala quando quiseres e vamos praticar juntos!` : `Olá, ${PROFILE.name}! Sou sua tutora. Fale quando quiser e vamos praticar juntos!`
+      es: `¡Hola, ${PROFILE.name}! Soy Lia, tu tutora. ¡Habla cuando quieras y practicamos!`,
+      en: `Hello ${PROFILE.name}! I'm Lia, your tutor. Speak whenever you're ready and we'll practise together!`,
+      fr: `Bonjour ${PROFILE.name} ! Je suis Lia, ta tutrice. Parle quand tu veux et on pratique ensemble !`,
+      it: `Ciao ${PROFILE.name}! Sono Lia, la tua tutor. Parla quando vuoi e pratichiamo insieme!`,
+      pt: ptIsPT() ? `Olá, ${PROFILE.name}! Sou a Lia, a tua tutora. Fala quando quiseres e vamos praticar juntos!` : `Olá, ${PROFILE.name}! Sou a Lia, sua tutora. Fale quando quiser e vamos praticar juntos!`
     };
     const fallback = fallbacks[currentLang] || fallbacks.es;
     addMsg('tutor', fallback); speak(fallback);
@@ -2067,7 +2069,7 @@ ${mem.map(e => `- "${e.wrong}" → "${e.right}"${e.why ? ' (' + e.why + ')' : ''
 Now and then (not in every reply), ask natural questions that lead ${N} to use these structures. NEVER announce that you are doing this or mention this list.
 ` : '';
   return `${langRule(NI)}
-You are a ${L} tutor for ${N}, ${NI.speaker}. All explanations for ${N} are in ${EX}: ${NI.variant}. ${N}'s level in ${L}: ${lvl}. Adapt vocabulary and pace to that level (at beginner level, use very simple sentences).
+You are Lia, a ${L} tutor for ${N}, ${NI.speaker}. All explanations for ${N} are in ${EX}: ${NI.variant}. ${N}'s level in ${L}: ${lvl}. Adapt vocabulary and pace to that level (at beginner level, use very simple sentences).
 ${style}${accentRule(P) ? ' ' + accentRule(P) : ''}
 ${P.city ? `Context (for you only): ${N} lives in ${P.city}. Do NOT mention the city in your replies unless ${N} brings it up first.\n` : ''}You talk with ${N} and correct only REAL mistakes.
 The text comes from speech recognition: ignore punctuation, capital letters and accents. Repeated consecutive words (e.g. "el clima el clima") are microphone glitches, and hesitations like "eh", "em", "este", "pues", "um" are normal in speech: always ignore them.
@@ -2111,7 +2113,7 @@ function buildLessonSystem() {
   const [title, goal] = lessonUI(i);
   const style = { 'formal': `Address ${N} with the language's polite form (usted, vous, Lei).`, 'divertida': 'Fun, light tone.' }[P.style] || 'Warm, encouraging tone.';
   return `${langRule(NI)}
-You are a patient ${L} teacher for ${N}, ${NI.speaker}, who is learning FROM SCRATCH (absolute beginner). ${style} ${accentRule(P)}
+You are Lia, a patient ${L} teacher for ${N}, ${NI.speaker}, who is learning FROM SCRATCH (absolute beginner). ${style} ${accentRule(P)}
 "FROM SCRATCH" MODE — Lesson ${i + 1} of ${ZERO_TOTAL}: "${title}". Goal: ${goal}
 Lesson content (for you only): ${LESSON_CONTENT[i]}.
 VOICES (mandatory): EVERY line starts with [nat] or [alvo]. [nat] = text in ${EX} (explanations, translations, instructions), written only. [alvo] = text in ${L} (the sentences to learn and your questions), the only text the app reads aloud. NEVER mix the two languages on the same line. Translations go on a [nat] line, in brackets.
@@ -2296,10 +2298,10 @@ async function suggestReplies() {
   box.classList.add('show');
   const P = PROFILE || { name: 'aluno', levels: {} };
   const lvl = (P.levels && P.levels[currentLang]) || 'intermediário';
-  const convo = chatHistory.slice(-8).map(m => (m.role === 'user' ? P.name : 'Tutor') + ': ' + stripTags(m.content)).join('\n');
+  const convo = chatHistory.slice(-8).map(m => (m.role === 'user' ? P.name : 'Lia') + ': ' + stripTags(m.content)).join('\n');
   const topicNow = currentLesson !== null ? 'beginner lesson: ' + LESSON_CONTENT[currentLesson] : currentTopic;
-  const system = `You help ${P.name}, a learner of ${currentLangName} (level: ${currentLesson !== null ? 'absolute beginner' : lvl}), reply to the tutor in a conversation about "${topicNow}". ${accentRule(P)}
-Give exactly 2 short suggestions (up to 12 words each), different from each other, of what ${P.name} could answer now to the tutor's last message, in correct ${currentLangName} at ${P.name}'s level. One per line, with no numbers, no quotes, no translation and no comments.`;
+  const system = `You help ${P.name}, a learner of ${currentLangName} (level: ${currentLesson !== null ? 'absolute beginner' : lvl}), reply to Lia, the tutor, in a conversation about "${topicNow}". ${accentRule(P)}
+Give exactly 2 short suggestions (up to 12 words each), different from each other, of what ${P.name} could answer now to Lia's last message, in correct ${currentLangName} at ${P.name}'s level. One per line, with no numbers, no quotes, no translation and no comments.`;
   try {
     const out = await callAI([{ role: 'user', content: 'Conversation so far:\n' + (convo || '(no conversation yet)') + '\n\nGive the 2 reply suggestions.' }], system);
     const sugs = out.split('\n')
@@ -2712,7 +2714,7 @@ function exportData() {
   const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
-  a.href = url; a.download = `tutora-dados-${dayKey()}.json`;
+  a.href = url; a.download = `parlia-dados-${dayKey()}.json`;
   document.body.appendChild(a); a.click(); a.remove();
   setTimeout(() => URL.revokeObjectURL(url), 2000);
 }

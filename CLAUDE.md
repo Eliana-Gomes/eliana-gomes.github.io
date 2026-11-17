@@ -1,10 +1,14 @@
-# Tutora de Voz — Luz em Movimento
+# Parlia — by Luz em Movimento
 
 App de conversação para praticar idiomas (espanhol, inglês, francês, italiano e português, do Brasil ou de Portugal) por voz, com correção de erros. A interface e as explicações saem na língua nativa do aluno (português do Brasil, português de Portugal, espanhol, inglês, francês ou italiano). Publicado no GitHub Pages: https://eliana-gomes.github.io/eliana-voz.html
 
+## Nome
+- O app chama-se **Parlia** e a tutora **Lia**. Assinatura pequena: "Parlia · by Luz em Movimento" (Início e tela da chave). O título da página e o manifest (`name` e `short_name`) são "Parlia"; nos seis dicionários a tutora aparece como Lia (rótulo dos balões "🎓 Lia"), e as instruções da IA dizem "You are Lia…".
+- O endereço continua `eliana-voz.html`. Os identificadores internos ficam com o nome antigo para não partir dados já guardados: `app: 'tutora-voz'` nos backups, as chaves do `localStorage` (`tutora_*`) e os arquivos `tutora-manifest.json` e `tutora-icon-*.png`.
+
 ## Arquivos
 - `eliana-voz.html` — o app inteiro (HTML, CSS e JavaScript num só arquivo).
-- `tutora-manifest.json`, `tutora-icon-192.png`, `tutora-icon-512.png` — instalação como app no telemóvel (PWA).
+- `tutora-manifest.json`, `tutora-icon-192.png`, `tutora-icon-512.png` — instalação como app no telemóvel (PWA), com o nome "Parlia".
 - O resto do repositório é o site pessoal da Eliana: não mexer sem pedido.
 
 ## Como funciona
@@ -84,6 +88,10 @@ App de conversação para praticar idiomas (espanhol, inglês, francês, italian
 - Modo repetição: avalia só a frase, tolera erros do microfone, máximo 2 tentativas, depois "¡Correcto!" (no idioma estudado: `tgt('correct')`) e segue a conversa. Se a aluna perguntar algo ou disser que não entendeu, a tutora explica na língua nativa com uma frase curta e repete a frase certa (isso não conta como tentativa). Marcadores internos `🎯 OK` / `🎯 DE NOVO` / `🎯 PERGUNTA` / `🎯 ESCLARECIMENTO` nunca aparecem na tela.
 - Fazer a aluna falar mais: a tutora fala pouco (no máximo 2 frases curtas antes da pergunta) e faz perguntas abertas que exigem frases completas (porquê, como, o que farias, conta-me sobre…). Evita perguntas "A ou B?" e de sim/não, e não acrescenta opções de resposta depois de uma pergunta aberta ("¿es por A, por B o por C?"). Se a aluna responder com só 1 a 3 palavras, de vez em quando pede com gentileza uma frase completa.
 - Explicações sempre na língua nativa do perfil (uma das 6), na variante certa (`NATIVES[...].variant`).
+
+## Decisões tomadas
+- As conversas de lição em andamento (`tutora_licao`) ficam fora do backup; só o progresso das lições é exportado.
+- O caderno do português é um só para pt-BR e pt-PT.
 
 ## Fluxo de trabalho
 - Depois de cada mudança: testar a sintaxe do JavaScript, fazer commit com mensagem clara em português e push para `main`.
