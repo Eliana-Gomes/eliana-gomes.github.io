@@ -156,6 +156,7 @@
   .lesson-banner.show { display: block; }
   .lesson-banner b { color: var(--gold-light); }
   .lesson-banner .goal { color: var(--muted); }
+  .lesson-banner .lb-restart { float: right; margin: 0 0 4px 8px; background: none; border: 1px solid rgba(201,162,39,0.6); color: var(--gold-light); border-radius: 10px; padding: 2px 8px; font-size: 0.72rem; cursor: pointer; font-family: inherit; }
   .ln-nat { color: #b8b49a; font-style: italic; }
   .zero-dots { display: flex; gap: 5px; justify-content: center; margin-top: 12px; flex-wrap: wrap; }
   .zero-dot { width: 12px; height: 12px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.3); }
@@ -475,6 +476,18 @@
   </div>
 </div>
 
+<!-- PERGUNTA COM DOIS BOTÕES (lição em andamento: Continuar / Recomeçar) -->
+<div class="modal" id="choice-modal" role="dialog" aria-modal="true">
+  <div class="cel-card">
+    <div class="cel-title" id="choice-q"></div>
+    <div class="cel-sub" id="choice-sub"></div>
+    <div class="cel-btns">
+      <button class="cel-btn" id="choice-b"></button>
+      <button class="cel-btn primary" id="choice-a"></button>
+    </div>
+  </div>
+</div>
+
 <!-- BARRA DE NAVEGAÇÃO -->
 <nav class="tabbar" id="tabbar">
   <button data-view="home" onclick="navTo('home')"><span class="tab-ico">🏠</span><span data-i18n="tab_home"></span></button>
@@ -516,27 +529,27 @@ const LEVELS = ['iniciante', 'básico', 'intermediário', 'avançado'];
 const NATIVES = {
   'pt-BR': { ui: 'pt-BR', expl: 'Brazilian Portuguese', speaker: 'a native speaker of Brazilian Portuguese', short: 'Portuguese', locale: 'pt-BR', hide: 'pt', group: 'pt', date: 'pt-BR',
              exFix: 'o verbo é "desarrollar"; no passado fica "desarrollé"', exPron: 'entendi "tía" → acho que você quis dizer "día" · treine o som do D, mais suave', exTr: '(Olá, bom dia)',
-             exRecall: 'Como se diz "bom dia" em {lang}?', exOff: 'Você repetiu a pergunta. A resposta é só: «…». Tente de novo.', exWrong: 'Faltou o "s" no final. O certo é: «…». Tente de novo.',
+             exOff: 'Você repetiu a pergunta. A resposta é só: «…». Tente de novo.', exWrong: 'Faltou o "s" no final. O certo é: «…». Tente de novo.',
              repeatEx: 'Repita comigo', variant: 'write in Brazilian Portuguese, addressing the learner as "você" (e.g. "Repita comigo", "Ouça", "Diga"; celular, ônibus)' },
   'pt-PT': { ui: 'pt-PT', expl: 'European Portuguese (Portugal)', speaker: 'a native speaker of European Portuguese', short: 'Portuguese', locale: 'pt-PT', hide: 'pt', group: 'pt', date: 'pt-PT',
              exFix: 'o verbo é "desarrollar"; no passado fica "desarrollé"', exPron: 'entendi "tía" → acho que querias dizer "día" · treina o som do D, mais suave', exTr: '(Olá, bom dia)',
-             exRecall: 'Como se diz "bom dia" em {lang}?', exOff: 'Repetiste a pergunta. A resposta é só: «…». Tenta de novo.', exWrong: 'Faltou o "s" no fim. O certo é: «…». Tenta de novo.',
+             exOff: 'Repetiste a pergunta. A resposta é só: «…». Tenta de novo.', exWrong: 'Faltou o "s" no fim. O certo é: «…». Tenta de novo.',
              repeatEx: 'Repete comigo', variant: 'write in European Portuguese, addressing the learner as "tu" (e.g. "Repete comigo", "Ouve", "Diz"; telemóvel, autocarro)' },
   'es':    { ui: 'es', expl: 'Spanish', speaker: 'a native Spanish speaker', short: 'Spanish', locale: 'es-ES', hide: 'es', group: 'es', date: 'es-ES',
              exFix: 'el verbo es "desarrollar"; en pasado es "desarrollé"', exPron: 'entendí "tía" → creo que querías decir "día" · practica la D, más suave', exTr: '(Hola, buenos días)',
-             exRecall: '¿Cómo se dice "buenos días" en {lang}?', exOff: 'Repetiste la pregunta. La respuesta es solo: «…». Inténtalo de nuevo.', exWrong: 'Te faltó la "s" final. Lo correcto es: «…». Inténtalo de nuevo.',
+             exOff: 'Repetiste la pregunta. La respuesta es solo: «…». Inténtalo de nuevo.', exWrong: 'Te faltó la "s" final. Lo correcto es: «…». Inténtalo de nuevo.',
              repeatEx: 'Repite conmigo', variant: 'write in Spanish, addressing the learner as "tú" (e.g. "Repite conmigo", "Escucha", "Di")' },
   'en':    { ui: 'en', expl: 'English', speaker: 'a native English speaker', short: 'English', locale: 'en-GB', hide: 'en', group: 'en', date: 'en-GB',
              exFix: 'the verb is "desarrollar"; in the past it is "desarrollé"', exPron: 'I heard "tía" → I think you meant "día" · practise a softer D', exTr: '(Hello, good morning)',
-             exRecall: 'How do you say "good morning" in {lang}?', exOff: 'You repeated the question. The answer is just: «…». Try again.', exWrong: 'The final "s" is missing. The right form is: «…». Try again.',
+             exOff: 'You repeated the question. The answer is just: «…». Try again.', exWrong: 'The final "s" is missing. The right form is: «…». Try again.',
              repeatEx: 'Repeat after me', variant: 'write in simple English, addressing the learner as "you" (e.g. "Repeat after me", "Listen", "Say")' },
   'fr':    { ui: 'fr', expl: 'French', speaker: 'a native French speaker', short: 'French', locale: 'fr-FR', hide: 'fr', group: 'fr', date: 'fr-FR',
              exFix: 'le verbe est « desarrollar » ; au passé, c’est « desarrollé »', exPron: 'j’ai entendu « tía » → tu voulais dire « día » · travaille un D plus doux', exTr: '(Bonjour, bonne journée)',
-             exRecall: 'Comment dit-on « bonjour » en {lang} ?', exOff: 'Tu as répété la question. La réponse est simplement : «…». Réessaie.', exWrong: 'Il manque le « s » final. La bonne forme est : «…». Réessaie.',
+             exOff: 'Tu as répété la question. La réponse est simplement : «…». Réessaie.', exWrong: 'Il manque le « s » final. La bonne forme est : «…». Réessaie.',
              repeatEx: 'Répète avec moi', variant: 'write in French, addressing the learner as "tu" (e.g. "Répète avec moi", "Écoute", "Dis")' },
   'it':    { ui: 'it', expl: 'Italian', speaker: 'a native Italian speaker', short: 'Italian', locale: 'it-IT', hide: 'it', group: 'it', date: 'it-IT',
              exFix: 'il verbo è "desarrollar"; al passato è "desarrollé"', exPron: 'ho sentito "tía" → credo volessi dire "día" · allena una D più morbida', exTr: '(Ciao, buongiorno)',
-             exRecall: 'Come si dice "buongiorno" in {lang}?', exOff: 'Hai ripetuto la domanda. La risposta è solo: «…». Riprova.', exWrong: 'Manca la "s" finale. La forma giusta è: «…». Riprova.',
+             exOff: 'Hai ripetuto la domanda. La risposta è solo: «…». Riprova.', exWrong: 'Manca la "s" finale. La forma giusta è: «…». Riprova.',
              repeatEx: 'Ripeti con me', variant: 'write in Italian, addressing the learner as "tu" (e.g. "Ripeti con me", "Ascolta", "Di\'")' }
 };
 
@@ -661,20 +674,332 @@ const LESSONS_UI = {
     ['La routine quotidiana', 'Raccontare cosa fai in una giornata normale.']
   ]
 };
-const LESSON_CONTENT = [
-  'greeting people at different times of day (hello, good morning, good afternoon, good evening) and saying goodbye (bye, see you later, see you tomorrow)',
-  'saying your own name ("my name is…", "I am called…"), asking the other person\'s name and answering "nice to meet you"',
-  'saying your country of origin ("I am from…") and the city where you live ("I live in…"), and asking the other person the same',
-  'asking how someone is and answering (fine, so-so, tired, happy), returning the question ("and you?")',
-  'family members (mother, father, brother, sister, son, daughter, husband, wife) and saying who is in your family',
-  'numbers from 0 to 20: counting, saying and recognising numbers said aloud',
-  'saying your age (with the right verb in the language being learned) and giving a phone number digit by digit',
-  'saying what you like, what you do not like and what you prefer, and asking the other person',
-  'everyday food and drink (bread, water, coffee, fruit…) and saying what you eat and drink',
-  'ordering something politely in a shop or café ("I would like…", "please", "thank you"), asking the price and thanking',
-  'days of the week and telling the time ("what time is it?", "it is three o\'clock") and saying when you do something',
-  'daily routine in the present (wake up, have breakfast, work, sleep) with simple times'
-];
+// Frases fixas de cada lição, por idioma estudado: 'frase | tradução | tradução | …', com as traduções na ordem
+// pt, es, en, fr, it (sem o próprio idioma). Uma só tradução = igual para todas as línguas (números).
+// 'Brasil~Portugal' quando as variantes do português diferem (na frase ou na tradução).
+// "…" = a aluna completa com os seus dados. Entre parênteses no fim da tradução: quando se usa.
+const LESSON_PHRASES = {
+  fr: [
+    ['Bonjour ! | olá / bom dia (durante o dia, também à tarde) | hola / buenos días (durante el día, también por la tarde) | hello / good morning (during the day, also in the afternoon) | buongiorno (di giorno, anche il pomeriggio)',
+     'Bonsoir ! | boa noite (ao chegar, à noite) | buenas noches (al llegar, por la noche) | good evening (when arriving) | buonasera (arrivando, di sera)',
+     'Salut ! | oi (informal)~olá (informal) | hola (informal) | hi (informal) | ciao (informale)',
+     'Au revoir ! | tchau~adeus | adiós | goodbye | arrivederci',
+     'À bientôt ! | até logo~até breve | hasta pronto | see you soon | a presto'],
+    ['Comment tu t’appelles ? | Como você se chama?~Como te chamas? | ¿Cómo te llamas? | What’s your name? | Come ti chiami?',
+     'Je m’appelle … | Eu me chamo …~Chamo-me … | Me llamo … | My name is … | Mi chiamo …',
+     'Enchanté ! / Enchantée ! | Muito prazer! | ¡Encantado! / ¡Encantada! | Nice to meet you! | Piacere!',
+     'Et toi ? | E você?~E tu? | ¿Y tú? | And you? | E tu?',
+     'Moi, c’est … | Eu sou … (informal) | Yo soy … (informal) | I’m … (informal) | Io sono … (informale)'],
+    ['Tu viens d’où ? | De onde você é?~De onde és? | ¿De dónde eres? | Where are you from? | Di dove sei?',
+     'Je viens de … | Eu sou de …~Sou de … | Soy de … | I’m from … | Vengo da …',
+     'Tu habites où ? | Onde você mora?~Onde moras? | ¿Dónde vives? | Where do you live? | Dove abiti?',
+     'J’habite à … | Eu moro em …~Moro em … | Vivo en … | I live in … | Abito a …',
+     'C’est une belle ville. | É uma cidade bonita. | Es una ciudad bonita. | It’s a beautiful city. | È una bella città.'],
+    ['Ça va ? | Tudo bem?~Como estás? | ¿Qué tal? | How are you? | Come stai?',
+     'Ça va bien, merci. | Tudo bem, obrigado/a.~Estou bem, obrigado/a. | Bien, gracias. | I’m fine, thanks. | Sto bene, grazie.',
+     'Et toi ? | E você?~E tu? | ¿Y tú? | And you? | E tu?',
+     'Comme ci, comme ça. | Mais ou menos. | Más o menos. | So-so. | Così così.',
+     'Je suis fatigué. / Je suis fatiguée. | Estou cansado. / Estou cansada. | Estoy cansado. / Estoy cansada. | I’m tired. | Sono stanco. / Sono stanca.'],
+    ['Voici ma famille. | Esta é a minha família. | Esta es mi familia. | This is my family. | Questa è la mia famiglia.',
+     'C’est ma mère. | É a minha mãe. | Es mi madre. | She’s my mother. | È mia madre.',
+     'C’est mon père. | É o meu pai. | Es mi padre. | He’s my father. | È mio padre.',
+     'J’ai un frère et une sœur. | Eu tenho um irmão e uma irmã.~Tenho um irmão e uma irmã. | Tengo un hermano y una hermana. | I have a brother and a sister. | Ho un fratello e una sorella.',
+     'Tu as des enfants ? | Você tem filhos?~Tens filhos? | ¿Tienes hijos? | Do you have children? | Hai figli?'],
+    ['zéro, un, deux, trois, quatre, cinq | 0, 1, 2, 3, 4, 5',
+     'six, sept, huit, neuf, dix | 6, 7, 8, 9, 10',
+     'onze, douze, treize, quatorze, quinze | 11, 12, 13, 14, 15',
+     'seize, dix-sept, dix-huit, dix-neuf, vingt | 16, 17, 18, 19, 20'],
+    ['Tu as quel âge ? | Quantos anos você tem?~Quantos anos tens? | ¿Cuántos años tienes? | How old are you? | Quanti anni hai?',
+     'J’ai … ans. | Eu tenho … anos.~Tenho … anos. | Tengo … años. | I’m … years old. | Ho … anni.',
+     'C’est quoi, ton numéro ? | Qual é o seu número?~Qual é o teu número? | ¿Cuál es tu número? | What’s your number? | Qual è il tuo numero?',
+     'Mon numéro, c’est le … | Meu número é …~O meu número é … | Mi número es el … | My number is … | Il mio numero è …'],
+    ['J’aime le café. | Eu gosto de café.~Gosto de café. | Me gusta el café. | I like coffee. | Mi piace il caffè.',
+     'Je n’aime pas le thé. | Eu não gosto de chá.~Não gosto de chá. | No me gusta el té. | I don’t like tea. | Non mi piace il tè.',
+     'Je préfère le chocolat. | Eu prefiro chocolate.~Prefiro chocolate. | Prefiero el chocolate. | I prefer chocolate. | Preferisco il cioccolato.',
+     'Tu aimes la musique ? | Você gosta de música?~Gostas de música? | ¿Te gusta la música? | Do you like music? | Ti piace la musica?',
+     'Moi aussi ! | Eu também! | ¡Yo también! / ¡A mí también! | Me too! | Anche io! / Anche a me!'],
+    ['J’ai faim. | Estou com fome.~Tenho fome. | Tengo hambre. | I’m hungry. | Ho fame.',
+     'J’ai soif. | Estou com sede.~Tenho sede. | Tengo sed. | I’m thirsty. | Ho sete.',
+     'Je mange du pain. | Eu como pão.~Como pão. | Como pan. | I eat bread. | Mangio il pane.',
+     'Je bois de l’eau. | Eu bebo água.~Bebo água. | Bebo agua. | I drink water. | Bevo acqua.',
+     'Le matin, je mange des fruits. | De manhã, eu como frutas.~De manhã, como fruta. | Por la mañana como fruta. | In the morning, I eat fruit. | La mattina mangio la frutta.'],
+    ['Je voudrais un café, s’il vous plaît. | Eu queria um café, por favor.~Queria um café, por favor. | Quería un café, por favor. | I’d like a coffee, please. | Vorrei un caffè, per favore.',
+     'C’est combien ? | Quanto é? | ¿Cuánto es? | How much is it? | Quant’è?',
+     'L’addition, s’il vous plaît. | A conta, por favor. | La cuenta, por favor. | The bill, please. | Il conto, per favore.',
+     'Merci beaucoup ! | Muito obrigado! / Muito obrigada! | ¡Muchas gracias! | Thank you very much! | Grazie mille!',
+     'Bonne journée ! | Tenha um bom dia! (ao sair) | ¡Que tenga un buen día! (al irse) | Have a nice day! (when leaving) | Buona giornata! (andando via)'],
+    ['On est quel jour ? | Que dia é hoje? | ¿Qué día es hoy? | What day is it today? | Che giorno è oggi?',
+     'Aujourd’hui, on est lundi. | Hoje é segunda-feira. | Hoy es lunes. | Today is Monday. | Oggi è lunedì.',
+     'Quelle heure est-il ? | Que horas são? | ¿Qué hora es? | What time is it? | Che ore sono?',
+     'Il est trois heures. | São três horas. | Son las tres. | It’s three o’clock. | Sono le tre.',
+     'Demain, c’est samedi. | Amanhã é sábado. | Mañana es sábado. | Tomorrow is Saturday. | Domani è sabato.'],
+    ['Je me lève à sept heures. | Eu me levanto às sete.~Levanto-me às sete. | Me levanto a las siete. | I get up at seven. | Mi alzo alle sette.',
+     'Je prends le petit-déjeuner. | Eu tomo café da manhã.~Tomo o pequeno-almoço. | Desayuno. | I have breakfast. | Faccio colazione.',
+     'Je travaille le matin. | Eu trabalho de manhã.~Trabalho de manhã. | Trabajo por la mañana. | I work in the morning. | Lavoro la mattina.',
+     'Je dîne à huit heures. | Eu janto às oito.~Janto às oito. | Ceno a las ocho. | I have dinner at eight. | Ceno alle otto.',
+     'Je me couche à onze heures. | Eu vou dormir às onze.~Deito-me às onze. | Me acuesto a las once. | I go to bed at eleven. | Vado a letto alle undici.']
+  ],
+  es: [
+    ['¡Hola! | oi / olá~olá | hello / hi | salut / bonjour | ciao',
+     '¡Buenos días! | bom dia (de manhã) | good morning | bonjour (le matin) | buongiorno',
+     '¡Buenas tardes! | boa tarde | good afternoon | bonjour (l’après-midi) | buon pomeriggio',
+     '¡Buenas noches! | boa noite (ao chegar e ao sair) | good evening / good night | bonsoir / bonne nuit | buonasera / buonanotte',
+     '¡Hasta luego! | até logo / tchau~até logo / adeus | see you later / bye | à plus tard / au revoir | a dopo / ciao'],
+    ['¿Cómo te llamas? | Como você se chama?~Como te chamas? | What’s your name? | Comment tu t’appelles ? | Come ti chiami?',
+     'Me llamo … | Eu me chamo …~Chamo-me … | My name is … | Je m’appelle … | Mi chiamo …',
+     '¡Mucho gusto! | Muito prazer! | Nice to meet you! | Enchanté(e) ! | Piacere!',
+     '¿Y tú? | E você?~E tu? | And you? | Et toi ? | E tu?',
+     'Soy … | Eu sou …~Sou … | I’m … | Je suis … / Moi, c’est … | Sono …'],
+    ['¿De dónde eres? | De onde você é?~De onde és? | Where are you from? | Tu viens d’où ? | Di dove sei?',
+     'Soy de … | Eu sou de …~Sou de … | I’m from … | Je viens de … | Sono di … / Vengo da …',
+     '¿Dónde vives? | Onde você mora?~Onde moras? | Where do you live? | Tu habites où ? | Dove abiti?',
+     'Vivo en … | Eu moro em …~Moro em … | I live in … | J’habite à … | Abito a …',
+     'Es una ciudad bonita. | É uma cidade bonita. | It’s a beautiful city. | C’est une belle ville. | È una bella città.'],
+    ['¿Cómo estás? | Como você está?~Como estás? | How are you? | Comment ça va ? | Come stai?',
+     'Estoy bien, gracias. | Estou bem, obrigado/a. | I’m fine, thanks. | Ça va bien, merci. | Sto bene, grazie.',
+     '¿Y tú? | E você?~E tu? | And you? | Et toi ? | E tu?',
+     'Más o menos. | Mais ou menos. | So-so. | Comme ci, comme ça. | Così così.',
+     'Estoy cansado. / Estoy cansada. | Estou cansado. / Estou cansada. | I’m tired. | Je suis fatigué(e). | Sono stanco. / Sono stanca.'],
+    ['Esta es mi familia. | Esta é a minha família. | This is my family. | Voici ma famille. | Questa è la mia famiglia.',
+     'Esta es mi madre. | Esta é a minha mãe. | This is my mother. | C’est ma mère. | Questa è mia madre.',
+     'Este es mi padre. | Este é o meu pai. | This is my father. | C’est mon père. | Questo è mio padre.',
+     'Tengo un hermano y una hermana. | Eu tenho um irmão e uma irmã.~Tenho um irmão e uma irmã. | I have a brother and a sister. | J’ai un frère et une sœur. | Ho un fratello e una sorella.',
+     '¿Tienes hijos? | Você tem filhos?~Tens filhos? | Do you have children? | Tu as des enfants ? | Hai figli?'],
+    ['cero, uno, dos, tres, cuatro, cinco | 0, 1, 2, 3, 4, 5',
+     'seis, siete, ocho, nueve, diez | 6, 7, 8, 9, 10',
+     'once, doce, trece, catorce, quince | 11, 12, 13, 14, 15',
+     'dieciséis, diecisiete, dieciocho, diecinueve, veinte | 16, 17, 18, 19, 20'],
+    ['¿Cuántos años tienes? | Quantos anos você tem?~Quantos anos tens? | How old are you? | Tu as quel âge ? | Quanti anni hai?',
+     'Tengo … años. | Eu tenho … anos.~Tenho … anos. | I’m … years old. | J’ai … ans. | Ho … anni.',
+     '¿Cuál es tu número de teléfono? | Qual é o seu número de telefone?~Qual é o teu número de telefone? | What’s your phone number? | C’est quoi, ton numéro de téléphone ? | Qual è il tuo numero di telefono?',
+     'Mi número es el … | Meu número é …~O meu número é … | My number is … | Mon numéro, c’est le … | Il mio numero è …'],
+    ['Me gusta el café. | Eu gosto de café.~Gosto de café. | I like coffee. | J’aime le café. | Mi piace il caffè.',
+     'No me gusta el té. | Eu não gosto de chá.~Não gosto de chá. | I don’t like tea. | Je n’aime pas le thé. | Non mi piace il tè.',
+     'Prefiero el chocolate. | Eu prefiro chocolate.~Prefiro chocolate. | I prefer chocolate. | Je préfère le chocolat. | Preferisco il cioccolato.',
+     '¿Te gusta la música? | Você gosta de música?~Gostas de música? | Do you like music? | Tu aimes la musique ? | Ti piace la musica?',
+     '¡A mí también! | Eu também! | Me too! | Moi aussi ! | Anche a me!'],
+    ['Tengo hambre. | Estou com fome.~Tenho fome. | I’m hungry. | J’ai faim. | Ho fame.',
+     'Tengo sed. | Estou com sede.~Tenho sede. | I’m thirsty. | J’ai soif. | Ho sete.',
+     'Como pan. | Eu como pão.~Como pão. | I eat bread. | Je mange du pain. | Mangio il pane.',
+     'Bebo agua. | Eu bebo água.~Bebo água. | I drink water. | Je bois de l’eau. | Bevo acqua.',
+     'Por la mañana como fruta. | De manhã, eu como frutas.~De manhã, como fruta. | In the morning, I eat fruit. | Le matin, je mange des fruits. | La mattina mangio la frutta.'],
+    ['Un café, por favor. | Um café, por favor. | A coffee, please. | Un café, s’il vous plaît. | Un caffè, per favore.',
+     '¿Cuánto es? | Quanto é? | How much is it? | C’est combien ? | Quant’è?',
+     'La cuenta, por favor. | A conta, por favor. | The bill, please. | L’addition, s’il vous plaît. | Il conto, per favore.',
+     '¡Muchas gracias! | Muito obrigado! / Muito obrigada! | Thank you very much! | Merci beaucoup ! | Grazie mille!',
+     '¡Que tenga un buen día! | Tenha um bom dia! (ao sair) | Have a nice day! (when leaving) | Bonne journée ! (en partant) | Buona giornata! (andando via)'],
+    ['¿Qué día es hoy? | Que dia é hoje? | What day is it today? | On est quel jour ? | Che giorno è oggi?',
+     'Hoy es lunes. | Hoje é segunda-feira. | Today is Monday. | Aujourd’hui, on est lundi. | Oggi è lunedì.',
+     '¿Qué hora es? | Que horas são? | What time is it? | Quelle heure est-il ? | Che ore sono?',
+     'Son las tres. | São três horas. | It’s three o’clock. | Il est trois heures. | Sono le tre.',
+     'Mañana es sábado. | Amanhã é sábado. | Tomorrow is Saturday. | Demain, c’est samedi. | Domani è sabato.'],
+    ['Me levanto a las siete. | Eu me levanto às sete.~Levanto-me às sete. | I get up at seven. | Je me lève à sept heures. | Mi alzo alle sette.',
+     'Desayuno a las ocho. | Eu tomo café da manhã às oito.~Tomo o pequeno-almoço às oito. | I have breakfast at eight. | Je prends le petit-déjeuner à huit heures. | Faccio colazione alle otto.',
+     'Trabajo por la mañana. | Eu trabalho de manhã.~Trabalho de manhã. | I work in the morning. | Je travaille le matin. | Lavoro la mattina.',
+     'Ceno a las nueve. | Eu janto às nove.~Janto às nove. | I have dinner at nine. | Je dîne à neuf heures. | Ceno alle nove.',
+     'Me acuesto a las once. | Eu vou dormir às onze.~Deito-me às onze. | I go to bed at eleven. | Je me couche à onze heures. | Vado a letto alle undici.']
+  ],
+  en: [
+    ['Hello! | olá / oi~olá | ¡hola! | bonjour / salut | ciao / salve',
+     'Good morning! | bom dia | ¡buenos días! | bonjour (le matin) | buongiorno',
+     'Good afternoon! | boa tarde | ¡buenas tardes! | bonjour (l’après-midi) | buon pomeriggio',
+     'Goodbye! | tchau~adeus | ¡adiós! | au revoir | arrivederci',
+     'See you later! | até logo | ¡hasta luego! | à plus tard | a dopo'],
+    ['What’s your name? | Como você se chama?~Como te chamas? | ¿Cómo te llamas? | Comment tu t’appelles ? | Come ti chiami?',
+     'My name is … | Meu nome é …~O meu nome é … | Me llamo … | Je m’appelle … | Mi chiamo …',
+     'I’m … | Eu sou …~Sou … | Soy … | Je suis … / Moi, c’est … | Sono …',
+     'Nice to meet you! | Muito prazer! | ¡Mucho gusto! | Enchanté(e) ! | Piacere!',
+     'And you? | E você?~E tu? | ¿Y tú? | Et toi ? | E tu?'],
+    ['Where are you from? | De onde você é?~De onde és? | ¿De dónde eres? | Tu viens d’où ? | Di dove sei?',
+     'I’m from … | Eu sou de …~Sou de … | Soy de … | Je viens de … | Sono di … / Vengo da …',
+     'Where do you live? | Onde você mora?~Onde moras? | ¿Dónde vives? | Tu habites où ? | Dove abiti?',
+     'I live in … | Eu moro em …~Moro em … | Vivo en … | J’habite à … | Abito a …',
+     'It’s a beautiful city. | É uma cidade bonita. | Es una ciudad bonita. | C’est une belle ville. | È una bella città.'],
+    ['How are you? | Como você está?~Como estás? | ¿Cómo estás? | Comment ça va ? | Come stai?',
+     'I’m fine, thanks. | Estou bem, obrigado/a. | Estoy bien, gracias. | Ça va bien, merci. | Sto bene, grazie.',
+     'And you? | E você?~E tu? | ¿Y tú? | Et toi ? | E tu?',
+     'Not bad. | Nada mal. | No está mal. | Pas mal. | Non c’è male.',
+     'I’m tired. | Estou cansado. / Estou cansada. | Estoy cansado. / Estoy cansada. | Je suis fatigué(e). | Sono stanco. / Sono stanca.'],
+    ['This is my family. | Esta é a minha família. | Esta es mi familia. | Voici ma famille. | Questa è la mia famiglia.',
+     'This is my mother. | Esta é a minha mãe. | Esta es mi madre. | C’est ma mère. | Questa è mia madre.',
+     'This is my father. | Este é o meu pai. | Este es mi padre. | C’est mon père. | Questo è mio padre.',
+     'I have a brother and a sister. | Eu tenho um irmão e uma irmã.~Tenho um irmão e uma irmã. | Tengo un hermano y una hermana. | J’ai un frère et une sœur. | Ho un fratello e una sorella.',
+     'Do you have children? | Você tem filhos?~Tens filhos? | ¿Tienes hijos? | Tu as des enfants ? | Hai figli?'],
+    ['zero, one, two, three, four, five | 0, 1, 2, 3, 4, 5',
+     'six, seven, eight, nine, ten | 6, 7, 8, 9, 10',
+     'eleven, twelve, thirteen, fourteen, fifteen | 11, 12, 13, 14, 15',
+     'sixteen, seventeen, eighteen, nineteen, twenty | 16, 17, 18, 19, 20'],
+    ['How old are you? | Quantos anos você tem?~Quantos anos tens? | ¿Cuántos años tienes? | Tu as quel âge ? | Quanti anni hai?',
+     'I’m … years old. | Eu tenho … anos.~Tenho … anos. | Tengo … años. | J’ai … ans. | Ho … anni.',
+     'What’s your phone number? | Qual é o seu número de telefone?~Qual é o teu número de telefone? | ¿Cuál es tu número de teléfono? | C’est quoi, ton numéro de téléphone ? | Qual è il tuo numero di telefono?',
+     'My number is … | Meu número é …~O meu número é … | Mi número es el … | Mon numéro, c’est le … | Il mio numero è …'],
+    ['I like coffee. | Eu gosto de café.~Gosto de café. | Me gusta el café. | J’aime le café. | Mi piace il caffè.',
+     'I don’t like tea. | Eu não gosto de chá.~Não gosto de chá. | No me gusta el té. | Je n’aime pas le thé. | Non mi piace il tè.',
+     'I prefer chocolate. | Eu prefiro chocolate.~Prefiro chocolate. | Prefiero el chocolate. | Je préfère le chocolat. | Preferisco il cioccolato.',
+     'Do you like music? | Você gosta de música?~Gostas de música? | ¿Te gusta la música? | Tu aimes la musique ? | Ti piace la musica?',
+     'Me too! | Eu também! | ¡Yo también! / ¡A mí también! | Moi aussi ! | Anche io! / Anche a me!'],
+    ['I’m hungry. | Estou com fome.~Tenho fome. | Tengo hambre. | J’ai faim. | Ho fame.',
+     'I’m thirsty. | Estou com sede.~Tenho sede. | Tengo sed. | J’ai soif. | Ho sete.',
+     'I eat bread every day. | Eu como pão todos os dias.~Como pão todos os dias. | Como pan todos los días. | Je mange du pain tous les jours. | Mangio il pane tutti i giorni.',
+     'I drink a lot of water. | Eu bebo muita água.~Bebo muita água. | Bebo mucha agua. | Je bois beaucoup d’eau. | Bevo molta acqua.',
+     'In the morning, I eat fruit. | De manhã, eu como frutas.~De manhã, como fruta. | Por la mañana como fruta. | Le matin, je mange des fruits. | La mattina mangio la frutta.'],
+    ['Can I have a coffee, please? | Pode me dar um café, por favor?~Pode dar-me um café, por favor? | ¿Me da un café, por favor? | Je peux avoir un café, s’il vous plaît ? | Posso avere un caffè, per favore?',
+     'How much is it? | Quanto é? | ¿Cuánto es? | C’est combien ? | Quant’è?',
+     'The bill, please. | A conta, por favor. | La cuenta, por favor. | L’addition, s’il vous plaît. | Il conto, per favore.',
+     'Thank you very much! | Muito obrigado! / Muito obrigada! | ¡Muchas gracias! | Merci beaucoup ! | Grazie mille!',
+     'Have a nice day! | Tenha um bom dia! (ao sair) | ¡Que tenga un buen día! (al irse) | Bonne journée ! (en partant) | Buona giornata! (andando via)'],
+    ['What day is it today? | Que dia é hoje? | ¿Qué día es hoy? | On est quel jour ? | Che giorno è oggi?',
+     'Today is Monday. | Hoje é segunda-feira. | Hoy es lunes. | Aujourd’hui, on est lundi. | Oggi è lunedì.',
+     'What time is it? | Que horas são? | ¿Qué hora es? | Quelle heure est-il ? | Che ore sono?',
+     'It’s three o’clock. | São três horas. | Son las tres. | Il est trois heures. | Sono le tre.',
+     'Tomorrow is Saturday. | Amanhã é sábado. | Mañana es sábado. | Demain, c’est samedi. | Domani è sabato.'],
+    ['I get up at seven. | Eu me levanto às sete.~Levanto-me às sete. | Me levanto a las siete. | Je me lève à sept heures. | Mi alzo alle sette.',
+     'I have breakfast. | Eu tomo café da manhã.~Tomo o pequeno-almoço. | Desayuno. | Je prends le petit-déjeuner. | Faccio colazione.',
+     'I work in the morning. | Eu trabalho de manhã.~Trabalho de manhã. | Trabajo por la mañana. | Je travaille le matin. | Lavoro la mattina.',
+     'I have dinner at eight. | Eu janto às oito.~Janto às oito. | Ceno a las ocho. | Je dîne à huit heures. | Ceno alle otto.',
+     'I go to bed at eleven. | Eu vou dormir às onze.~Deito-me às onze. | Me acuesto a las once. | Je me couche à onze heures. | Vado a letto alle undici.']
+  ],
+  it: [
+    ['Ciao! | oi / tchau (informal, ao chegar e ao sair)~olá / adeus (informal, ao chegar e ao sair) | hola / chao (informal, al llegar y al irse) | hi / bye (informal, when arriving and leaving) | salut (informel, en arrivant et en partant)',
+     'Buongiorno! | bom dia (de manhã e no início da tarde) | buenos días (por la mañana y a primera hora de la tarde) | good morning (until early afternoon) | bonjour (le matin et en début d’après-midi)',
+     'Buonasera! | boa tarde / boa noite (a partir da tarde) | buenas tardes / buenas noches (desde la tarde) | good afternoon / good evening (from the afternoon) | bonsoir (à partir de l’après-midi)',
+     'Arrivederci! | tchau~adeus | adiós | goodbye | au revoir',
+     'A presto! | até logo~até breve | hasta pronto | see you soon | à bientôt'],
+    ['Come ti chiami? | Como você se chama?~Como te chamas? | ¿Cómo te llamas? | What’s your name? | Comment tu t’appelles ?',
+     'Mi chiamo … | Eu me chamo …~Chamo-me … | Me llamo … | My name is … | Je m’appelle …',
+     'Piacere! | Muito prazer! | ¡Mucho gusto! | Nice to meet you! | Enchanté(e) !',
+     'E tu? | E você?~E tu? | ¿Y tú? | And you? | Et toi ?',
+     'Sono … | Eu sou …~Sou … | Soy … | I’m … | Je suis … / Moi, c’est …'],
+    ['Di dove sei? | De onde você é?~De onde és? | ¿De dónde eres? | Where are you from? | Tu viens d’où ?',
+     'Sono di … | Eu sou de … (cidade)~Sou de … (cidade) | Soy de … (ciudad) | I’m from … (city) | Je viens de … (ville)',
+     'Dove abiti? | Onde você mora?~Onde moras? | ¿Dónde vives? | Where do you live? | Tu habites où ?',
+     'Abito a … | Eu moro em …~Moro em … | Vivo en … | I live in … | J’habite à …',
+     'È una bella città. | É uma cidade bonita. | Es una ciudad bonita. | It’s a beautiful city. | C’est une belle ville.'],
+    ['Come stai? | Como você está?~Como estás? | ¿Cómo estás? | How are you? | Comment ça va ?',
+     'Sto bene, grazie. | Estou bem, obrigado/a. | Estoy bien, gracias. | I’m fine, thanks. | Ça va bien, merci.',
+     'E tu? | E você?~E tu? | ¿Y tú? | And you? | Et toi ?',
+     'Così così. | Mais ou menos. | Más o menos. | So-so. | Comme ci, comme ça.',
+     'Sono stanco. / Sono stanca. | Estou cansado. / Estou cansada. | Estoy cansado. / Estoy cansada. | I’m tired. | Je suis fatigué(e).'],
+    ['Questa è la mia famiglia. | Esta é a minha família. | Esta es mi familia. | This is my family. | Voici ma famille.',
+     'Questa è mia madre. | Esta é a minha mãe. | Esta es mi madre. | This is my mother. | C’est ma mère.',
+     'Questo è mio padre. | Este é o meu pai. | Este es mi padre. | This is my father. | C’est mon père.',
+     'Ho un fratello e una sorella. | Eu tenho um irmão e uma irmã.~Tenho um irmão e uma irmã. | Tengo un hermano y una hermana. | I have a brother and a sister. | J’ai un frère et une sœur.',
+     'Hai figli? | Você tem filhos?~Tens filhos? | ¿Tienes hijos? | Do you have children? | Tu as des enfants ?'],
+    ['zero, uno, due, tre, quattro, cinque | 0, 1, 2, 3, 4, 5',
+     'sei, sette, otto, nove, dieci | 6, 7, 8, 9, 10',
+     'undici, dodici, tredici, quattordici, quindici | 11, 12, 13, 14, 15',
+     'sedici, diciassette, diciotto, diciannove, venti | 16, 17, 18, 19, 20'],
+    ['Quanti anni hai? | Quantos anos você tem?~Quantos anos tens? | ¿Cuántos años tienes? | How old are you? | Tu as quel âge ?',
+     'Ho … anni. | Eu tenho … anos.~Tenho … anos. | Tengo … años. | I’m … years old. | J’ai … ans.',
+     'Qual è il tuo numero di telefono? | Qual é o seu número de telefone?~Qual é o teu número de telefone? | ¿Cuál es tu número de teléfono? | What’s your phone number? | C’est quoi, ton numéro de téléphone ?',
+     'Il mio numero è … | Meu número é …~O meu número é … | Mi número es el … | My number is … | Mon numéro, c’est le …'],
+    ['Mi piace il caffè. | Eu gosto de café.~Gosto de café. | Me gusta el café. | I like coffee. | J’aime le café.',
+     'Non mi piace il tè. | Eu não gosto de chá.~Não gosto de chá. | No me gusta el té. | I don’t like tea. | Je n’aime pas le thé.',
+     'Preferisco il cioccolato. | Eu prefiro chocolate.~Prefiro chocolate. | Prefiero el chocolate. | I prefer chocolate. | Je préfère le chocolat.',
+     'Ti piace la musica? | Você gosta de música?~Gostas de música? | ¿Te gusta la música? | Do you like music? | Tu aimes la musique ?',
+     'Anche a me! | Eu também! | ¡A mí también! | Me too! | Moi aussi !'],
+    ['Ho fame. | Estou com fome.~Tenho fome. | Tengo hambre. | I’m hungry. | J’ai faim.',
+     'Ho sete. | Estou com sede.~Tenho sede. | Tengo sed. | I’m thirsty. | J’ai soif.',
+     'Mangio il pane. | Eu como pão.~Como pão. | Como pan. | I eat bread. | Je mange du pain.',
+     'Bevo acqua. | Eu bebo água.~Bebo água. | Bebo agua. | I drink water. | Je bois de l’eau.',
+     'La mattina mangio la frutta. | De manhã, eu como frutas.~De manhã, como fruta. | Por la mañana como fruta. | In the morning, I eat fruit. | Le matin, je mange des fruits.'],
+    ['Un caffè, per favore. | Um café, por favor. | Un café, por favor. | A coffee, please. | Un café, s’il vous plaît.',
+     'Quant’è? | Quanto é? | ¿Cuánto es? | How much is it? | C’est combien ?',
+     'Il conto, per favore. | A conta, por favor. | La cuenta, por favor. | The bill, please. | L’addition, s’il vous plaît.',
+     'Grazie mille! | Muito obrigado! / Muito obrigada! | ¡Muchas gracias! | Thank you very much! | Merci beaucoup !',
+     'Buona giornata! | Tenha um bom dia! (ao sair) | ¡Que tenga un buen día! (al irse) | Have a nice day! (when leaving) | Bonne journée ! (en partant)'],
+    ['Che giorno è oggi? | Que dia é hoje? | ¿Qué día es hoy? | What day is it today? | On est quel jour ?',
+     'Oggi è lunedì. | Hoje é segunda-feira. | Hoy es lunes. | Today is Monday. | Aujourd’hui, on est lundi.',
+     'Che ore sono? | Que horas são? | ¿Qué hora es? | What time is it? | Quelle heure est-il ?',
+     'Sono le tre. | São três horas. | Son las tres. | It’s three o’clock. | Il est trois heures.',
+     'Domani è sabato. | Amanhã é sábado. | Mañana es sábado. | Tomorrow is Saturday. | Demain, c’est samedi.'],
+    ['Mi alzo alle sette. | Eu me levanto às sete.~Levanto-me às sete. | Me levanto a las siete. | I get up at seven. | Je me lève à sept heures.',
+     'Faccio colazione. | Eu tomo café da manhã.~Tomo o pequeno-almoço. | Desayuno. | I have breakfast. | Je prends le petit-déjeuner.',
+     'Lavoro la mattina. | Eu trabalho de manhã.~Trabalho de manhã. | Trabajo por la mañana. | I work in the morning. | Je travaille le matin.',
+     'Ceno alle otto. | Eu janto às oito.~Janto às oito. | Ceno a las ocho. | I have dinner at eight. | Je dîne à huit heures.',
+     'Vado a letto alle undici. | Eu vou dormir às onze.~Deito-me às onze. | Me acuesto a las once. | I go to bed at eleven. | Je me couche à onze heures.']
+  ],
+  pt: [
+    ['Oi!~Olá! | ¡hola! | hi / hello | salut / bonjour | ciao',
+     'Bom dia! | ¡buenos días! | good morning | bonjour (le matin) | buongiorno',
+     'Boa tarde! | ¡buenas tardes! | good afternoon | bonjour (l’après-midi) | buon pomeriggio',
+     'Boa noite! | ¡buenas noches! (al llegar y al irse) | good evening / good night | bonsoir / bonne nuit | buonasera / buonanotte',
+     'Até logo! | ¡hasta luego! | see you later | à plus tard | a dopo'],
+    ['Como você se chama?~Como te chamas? | ¿Cómo te llamas? | What’s your name? | Comment tu t’appelles ? | Come ti chiami?',
+     'Eu me chamo …~Chamo-me … | Me llamo … | My name is … | Je m’appelle … | Mi chiamo …',
+     'Muito prazer! | ¡Mucho gusto! | Nice to meet you! | Enchanté(e) ! | Piacere!',
+     'E você?~E tu? | ¿Y tú? | And you? | Et toi ? | E tu?',
+     'Meu nome é …~O meu nome é … | Mi nombre es … | My name is … | Mon prénom, c’est … | Il mio nome è …'],
+    ['De onde você é?~De onde és? | ¿De dónde eres? | Where are you from? | Tu viens d’où ? | Di dove sei?',
+     'Eu sou de …~Sou de … | Soy de … | I’m from … | Je viens de … | Sono di … / Vengo da …',
+     'Onde você mora?~Onde moras? | ¿Dónde vives? | Where do you live? | Tu habites où ? | Dove abiti?',
+     'Eu moro em …~Moro em … | Vivo en … | I live in … | J’habite à … | Abito a …',
+     'É uma cidade bonita. | Es una ciudad bonita. | It’s a beautiful city. | C’est une belle ville. | È una bella città.'],
+    ['Tudo bem?~Como estás? | ¿Qué tal? / ¿Cómo estás? | How are you? | Ça va ? | Come stai?',
+     'Tudo bem, obrigado! / Tudo bem, obrigada!~Estou bem, obrigado! / Estou bem, obrigada! | Bien, gracias. | I’m fine, thanks. | Ça va bien, merci. | Sto bene, grazie.',
+     'E você?~E tu? | ¿Y tú? | And you? | Et toi ? | E tu?',
+     'Mais ou menos. | Más o menos. | So-so. | Comme ci, comme ça. | Così così.',
+     'Estou cansado. / Estou cansada. | Estoy cansado. / Estoy cansada. | I’m tired. | Je suis fatigué(e). | Sono stanco. / Sono stanca.'],
+    ['Esta é a minha família. | Esta es mi familia. | This is my family. | Voici ma famille. | Questa è la mia famiglia.',
+     'Esta é a minha mãe. | Esta es mi madre. | This is my mother. | C’est ma mère. | Questa è mia madre.',
+     'Este é o meu pai. | Este es mi padre. | This is my father. | C’est mon père. | Questo è mio padre.',
+     'Eu tenho um irmão e uma irmã.~Tenho um irmão e uma irmã. | Tengo un hermano y una hermana. | I have a brother and a sister. | J’ai un frère et une sœur. | Ho un fratello e una sorella.',
+     'Você tem filhos?~Tens filhos? | ¿Tienes hijos? | Do you have children? | Tu as des enfants ? | Hai figli?'],
+    ['zero, um, dois, três, quatro, cinco | 0, 1, 2, 3, 4, 5',
+     'seis, sete, oito, nove, dez | 6, 7, 8, 9, 10',
+     'onze, doze, treze, quatorze, quinze~onze, doze, treze, catorze, quinze | 11, 12, 13, 14, 15',
+     'dezesseis, dezessete, dezoito, dezenove, vinte~dezasseis, dezassete, dezoito, dezanove, vinte | 16, 17, 18, 19, 20'],
+    ['Quantos anos você tem?~Quantos anos tens? | ¿Cuántos años tienes? | How old are you? | Tu as quel âge ? | Quanti anni hai?',
+     'Eu tenho … anos.~Tenho … anos. | Tengo … años. | I’m … years old. | J’ai … ans. | Ho … anni.',
+     'Qual é o seu número de telefone?~Qual é o teu número de telefone? | ¿Cuál es tu número de teléfono? | What’s your phone number? | C’est quoi, ton numéro de téléphone ? | Qual è il tuo numero di telefono?',
+     'Meu número é …~O meu número é … | Mi número es el … | My number is … | Mon numéro, c’est le … | Il mio numero è …'],
+    ['Eu gosto de café.~Gosto de café. | Me gusta el café. | I like coffee. | J’aime le café. | Mi piace il caffè.',
+     'Eu não gosto de chá.~Não gosto de chá. | No me gusta el té. | I don’t like tea. | Je n’aime pas le thé. | Non mi piace il tè.',
+     'Eu prefiro chocolate.~Prefiro chocolate. | Prefiero el chocolate. | I prefer chocolate. | Je préfère le chocolat. | Preferisco il cioccolato.',
+     'Você gosta de música?~Gostas de música? | ¿Te gusta la música? | Do you like music? | Tu aimes la musique ? | Ti piace la musica?',
+     'Eu também! | ¡Yo también! / ¡A mí también! | Me too! | Moi aussi ! | Anche io! / Anche a me!'],
+    ['Estou com fome.~Tenho fome. | Tengo hambre. | I’m hungry. | J’ai faim. | Ho fame.',
+     'Estou com sede.~Tenho sede. | Tengo sed. | I’m thirsty. | J’ai soif. | Ho sete.',
+     'Eu como pão.~Como pão. | Como pan. | I eat bread. | Je mange du pain. | Mangio il pane.',
+     'Eu bebo água.~Bebo água. | Bebo agua. | I drink water. | Je bois de l’eau. | Bevo acqua.',
+     'De manhã, eu como frutas.~De manhã, como fruta. | Por la mañana como fruta. | In the morning, I eat fruit. | Le matin, je mange des fruits. | La mattina mangio la frutta.'],
+    ['Um café, por favor. | Un café, por favor. | A coffee, please. | Un café, s’il vous plaît. | Un caffè, per favore.',
+     'Quanto é? | ¿Cuánto es? | How much is it? | C’est combien ? | Quant’è?',
+     'A conta, por favor. | La cuenta, por favor. | The bill, please. | L’addition, s’il vous plaît. | Il conto, per favore.',
+     'Muito obrigado! / Muito obrigada! | ¡Muchas gracias! | Thank you very much! | Merci beaucoup ! | Grazie mille!',
+     'Tenha um bom dia! | ¡Que tenga un buen día! (al irse) | Have a nice day! (when leaving) | Bonne journée ! (en partant) | Buona giornata! (andando via)'],
+    ['Que dia é hoje? | ¿Qué día es hoy? | What day is it today? | On est quel jour ? | Che giorno è oggi?',
+     'Hoje é segunda-feira. | Hoy es lunes. | Today is Monday. | Aujourd’hui, on est lundi. | Oggi è lunedì.',
+     'Que horas são? | ¿Qué hora es? | What time is it? | Quelle heure est-il ? | Che ore sono?',
+     'São três horas. | Son las tres. | It’s three o’clock. | Il est trois heures. | Sono le tre.',
+     'Amanhã é sábado. | Mañana es sábado. | Tomorrow is Saturday. | Demain, c’est samedi. | Domani è sabato.'],
+    ['Eu acordo às sete.~Acordo às sete. | Me despierto a las siete. | I wake up at seven. | Je me réveille à sept heures. | Mi sveglio alle sette.',
+     'Eu tomo café da manhã.~Tomo o pequeno-almoço. | Desayuno. | I have breakfast. | Je prends le petit-déjeuner. | Faccio colazione.',
+     'Eu trabalho de manhã.~Trabalho de manhã. | Trabajo por la mañana. | I work in the morning. | Je travaille le matin. | Lavoro la mattina.',
+     'Eu janto às oito.~Janto às oito. | Ceno a las ocho. | I have dinner at eight. | Je dîne à huit heures. | Ceno alle otto.',
+     'Eu vou dormir às onze.~Vou dormir às onze. | Me voy a dormir a las once. | I go to bed at eleven. | Je vais me coucher à onze heures. | Vado a dormire alle undici.']
+  ]
+};
+// Partes da lição: ENSINAR cada frase, LEMBRAR cada uma (noutra ordem) e uma mini-conversa de LZ_CHAT trocas.
+const LZ_ORDER = ['pt', 'es', 'en', 'fr', 'it'], LZ_CHAT = 2;
+function lzVar(s, second) { const p = String(s || '').split('~'); return (second && p[1] !== undefined ? p[1] : p[0]).trim(); }
+// Frases da lição i no idioma atual, com a tradução na língua nativa: [{ t: frase, g: tradução }]
+function lessonItems(i) {
+  const rows = (LESSON_PHRASES[currentLang] || [])[i] || [];
+  const nat = getNative(PROFILE), grp = NATIVES[nat].group;
+  const others = LZ_ORDER.filter(c => c !== currentLang);
+  return rows.map(r => {
+    const f = r.split('|').map(s => s.trim());
+    const g = f.length === 2 ? f[1] : (f[1 + others.indexOf(grp)] || f[1]);
+    return { t: lzVar(f[0], currentLang === 'pt' && ptIsPT()), g: lzVar(g, nat === 'pt-PT') };
+  });
+}
+function lessonSteps(n) {
+  const idx = [...Array(n).keys()];
+  return idx.map(i => ({ k: 'teach', i }))
+    .concat(idx.filter(i => i % 2 === 0).concat(idx.filter(i => i % 2)).map(i => ({ k: 'recall', i })))
+    .concat([...Array(LZ_CHAT).keys()].map(i => ({ k: 'chat', i })));
+}
 
 function lessonUI(i) { const u = uiLang(); return (LESSONS_UI[u.startsWith('pt') ? 'pt' : u] || LESSONS_UI.pt)[i]; }
 const BETTER = {
@@ -745,6 +1070,7 @@ const I18N = {
     tab_home: 'Início', tab_chat: 'Conversar', tab_notebook: 'Caderno', tab_profile: 'Perfil',
     photo_gallery: '🖼️ Galeria', photo_camera: '📷 Câmera', photo_remove: '✕ Remover foto', photo_fail: 'Não consegui abrir a foto.', photo_save_fail: 'Não consegui salvar a foto.',
     empty_reply: 'A Lia não respondeu', ai_timeout: 'A Lia demorou demais a responder. Tente de novo.', busy_thinking: 'A Lia está pensando…', busy_speaking: 'A Lia está falando… toque no avatar ou em 🔊 para interromper', unsaved_q: 'Salvar alterações?', unsaved_save: 'Salvar', unsaved_discard: 'Descartar', lang_changed: 'A sua língua mudou: as lições guardadas vão recomeçar.',
+    lz_intro: 'Lição {n}: {title}. Você vai aprender {k} frases, uma de cada vez.', lz_fill: '(com os seus dados)', lz_recall_intro: 'Agora vamos lembrar as frases.', lz_recall_q: 'Como se diz "{txt}" em {lang}?', lz_end: 'Parabéns! Você terminou a lição. As frases que aprendeu:', lz_inprogress: 'A lição {n} está em andamento.', lz_continue: 'Continuar', lz_restart_full: 'Recomeçar do início', lz_restart_btn: '↺ Recomeçar', lz_restart_q: 'Recomeçar esta lição do início?', lz_restart: 'Recomeçar', lz_cancel: 'Cancelar', lz_tag_progress: 'Em andamento',
     hint_label: '💡 Dica', readnat_q: 'Ler explicações em voz alta (além das frases no idioma)',
     test_banner: '📊 Teste de nível · pergunta {n}/{total}', test_evaluating: '📊 Teste de nível · avaliando…', test_done_banner: '📊 Teste de nível concluído',
     test_skip_btn: '🤷 Não sei', test_skip_said: 'Não sei',
@@ -806,6 +1132,7 @@ const I18N = {
     tab_home: 'Início', tab_chat: 'Conversar', tab_notebook: 'Caderno', tab_profile: 'Perfil',
     photo_gallery: '🖼️ Galeria', photo_camera: '📷 Câmara', photo_remove: '✕ Remover foto', photo_fail: 'Não consegui abrir a foto.', photo_save_fail: 'Não consegui guardar a foto.',
     empty_reply: 'A Lia não respondeu', ai_timeout: 'A Lia demorou demasiado a responder. Tenta de novo.', busy_thinking: 'A Lia está a pensar…', busy_speaking: 'A Lia está a falar… toca no avatar ou em 🔊 para interromper', unsaved_q: 'Guardar as alterações?', unsaved_save: 'Guardar', unsaved_discard: 'Descartar', lang_changed: 'A tua língua mudou: as lições guardadas vão recomeçar.',
+    lz_intro: 'Lição {n}: {title}. Vais aprender {k} frases, uma de cada vez.', lz_fill: '(com os teus dados)', lz_recall_intro: 'Agora vamos lembrar as frases.', lz_recall_q: 'Como se diz "{txt}" em {lang}?', lz_end: 'Parabéns! Terminaste a lição. As frases que aprendeste:', lz_inprogress: 'A lição {n} está em curso.', lz_continue: 'Continuar', lz_restart_full: 'Recomeçar do início', lz_restart_btn: '↺ Recomeçar', lz_restart_q: 'Recomeçar esta lição do início?', lz_restart: 'Recomeçar', lz_cancel: 'Cancelar', lz_tag_progress: 'Em curso',
     hint_label: '💡 Dica', readnat_q: 'Ler explicações em voz alta (além das frases no idioma)',
     test_banner: '📊 Teste de nível · pergunta {n}/{total}', test_evaluating: '📊 Teste de nível · a avaliar…', test_done_banner: '📊 Teste de nível concluído',
     test_skip_btn: '🤷 Não sei', test_skip_said: 'Não sei',
@@ -867,6 +1194,7 @@ const I18N = {
     tab_home: 'Inicio', tab_chat: 'Conversar', tab_notebook: 'Cuaderno', tab_profile: 'Perfil',
     photo_gallery: '🖼️ Galería', photo_camera: '📷 Cámara', photo_remove: '✕ Quitar foto', photo_fail: 'No pude abrir la foto.', photo_save_fail: 'No pude guardar la foto.',
     empty_reply: 'Lia no respondió', ai_timeout: 'Lia tardó demasiado en responder. Inténtalo de nuevo.', busy_thinking: 'Lia está pensando…', busy_speaking: 'Lia está hablando… toca el avatar o 🔊 para interrumpir', unsaved_q: '¿Guardar los cambios?', unsaved_save: 'Guardar', unsaved_discard: 'Descartar', lang_changed: 'Tu idioma cambió: las lecciones guardadas volverán a empezar.',
+    lz_intro: 'Lección {n}: {title}. Vas a aprender {k} frases, una por una.', lz_fill: '(con tus datos)', lz_recall_intro: 'Ahora vamos a recordar las frases.', lz_recall_q: '¿Cómo se dice "{txt}" en {lang}?', lz_end: '¡Felicidades! Terminaste la lección. Las frases que aprendiste:', lz_inprogress: 'La lección {n} está en curso.', lz_continue: 'Continuar', lz_restart_full: 'Empezar de nuevo', lz_restart_btn: '↺ Empezar de nuevo', lz_restart_q: '¿Empezar esta lección de nuevo?', lz_restart: 'Empezar de nuevo', lz_cancel: 'Cancelar', lz_tag_progress: 'En curso',
     hint_label: '💡 Pista', readnat_q: 'Leer las explicaciones en voz alta (además de las frases en el idioma)',
     test_banner: '📊 Prueba de nivel · pregunta {n}/{total}', test_evaluating: '📊 Prueba de nivel · evaluando…', test_done_banner: '📊 Prueba de nivel completada',
     test_skip_btn: '🤷 No sé', test_skip_said: 'No sé',
@@ -928,6 +1256,7 @@ const I18N = {
     tab_home: 'Home', tab_chat: 'Talk', tab_notebook: 'Notebook', tab_profile: 'Profile',
     photo_gallery: '🖼️ Gallery', photo_camera: '📷 Camera', photo_remove: '✕ Remove photo', photo_fail: 'I could not open the photo.', photo_save_fail: 'I could not save the photo.',
     empty_reply: 'Lia did not answer', ai_timeout: 'Lia took too long to answer. Please try again.', busy_thinking: 'Lia is thinking…', busy_speaking: 'Lia is speaking… tap the avatar or 🔊 to stop', unsaved_q: 'Save changes?', unsaved_save: 'Save', unsaved_discard: 'Discard', lang_changed: 'Your language changed: saved lessons will start again.',
+    lz_intro: 'Lesson {n}: {title}. You will learn {k} phrases, one at a time.', lz_fill: '(with your own details)', lz_recall_intro: 'Now let’s remember the phrases.', lz_recall_q: 'How do you say "{txt}" in {lang}?', lz_end: 'Well done! You finished the lesson. The phrases you learned:', lz_inprogress: 'Lesson {n} is in progress.', lz_continue: 'Continue', lz_restart_full: 'Start again from the beginning', lz_restart_btn: '↺ Start again', lz_restart_q: 'Start this lesson again from the beginning?', lz_restart: 'Start again', lz_cancel: 'Cancel', lz_tag_progress: 'In progress',
     hint_label: '💡 Hint', readnat_q: 'Read explanations aloud (as well as the phrases in the language)',
     test_banner: '📊 Level test · question {n}/{total}', test_evaluating: '📊 Level test · evaluating…', test_done_banner: '📊 Level test complete',
     test_skip_btn: '🤷 I don’t know', test_skip_said: 'I don’t know',
@@ -989,6 +1318,7 @@ const I18N = {
     tab_home: 'Accueil', tab_chat: 'Converser', tab_notebook: 'Carnet', tab_profile: 'Profil',
     photo_gallery: '🖼️ Galerie', photo_camera: '📷 Appareil photo', photo_remove: '✕ Retirer la photo', photo_fail: 'Je n’ai pas pu ouvrir la photo.', photo_save_fail: 'Je n’ai pas pu enregistrer la photo.',
     empty_reply: 'Lia n’a pas répondu', ai_timeout: 'Lia a mis trop de temps à répondre. Réessaie.', busy_thinking: 'Lia réfléchit…', busy_speaking: 'Lia parle… touche l’avatar ou 🔊 pour l’interrompre', unsaved_q: 'Enregistrer les modifications ?', unsaved_save: 'Enregistrer', unsaved_discard: 'Ignorer', lang_changed: 'Ta langue a changé : les leçons enregistrées vont recommencer.',
+    lz_intro: 'Leçon {n} : {title}. Tu vas apprendre {k} phrases, une à la fois.', lz_fill: '(avec tes informations)', lz_recall_intro: 'Maintenant, on révise les phrases.', lz_recall_q: 'Comment dit-on « {txt} » en {lang} ?', lz_end: 'Bravo ! Tu as terminé la leçon. Les phrases que tu as apprises :', lz_inprogress: 'La leçon {n} est en cours.', lz_continue: 'Continuer', lz_restart_full: 'Recommencer depuis le début', lz_restart_btn: '↺ Recommencer', lz_restart_q: 'Recommencer cette leçon depuis le début ?', lz_restart: 'Recommencer', lz_cancel: 'Annuler', lz_tag_progress: 'En cours',
     hint_label: '💡 Indice', readnat_q: 'Lire les explications à voix haute (en plus des phrases dans la langue)',
     test_banner: '📊 Test de niveau · question {n}/{total}', test_evaluating: '📊 Test de niveau · évaluation…', test_done_banner: '📊 Test de niveau terminé',
     test_skip_btn: '🤷 Je ne sais pas', test_skip_said: 'Je ne sais pas',
@@ -1050,6 +1380,7 @@ const I18N = {
     tab_home: 'Home', tab_chat: 'Conversare', tab_notebook: 'Quaderno', tab_profile: 'Profilo',
     photo_gallery: '🖼️ Galleria', photo_camera: '📷 Fotocamera', photo_remove: '✕ Rimuovi foto', photo_fail: 'Non sono riuscita ad aprire la foto.', photo_save_fail: 'Non sono riuscita a salvare la foto.',
     empty_reply: 'Lia non ha risposto', ai_timeout: 'Lia ci ha messo troppo a rispondere. Riprova.', busy_thinking: 'Lia sta pensando…', busy_speaking: 'Lia sta parlando… tocca l’avatar o 🔊 per interrompere', unsaved_q: 'Salvare le modifiche?', unsaved_save: 'Salva', unsaved_discard: 'Scarta', lang_changed: 'La tua lingua è cambiata: le lezioni salvate ricominceranno.',
+    lz_intro: 'Lezione {n}: {title}. Imparerai {k} frasi, una alla volta.', lz_fill: '(con i tuoi dati)', lz_recall_intro: 'Ora ripassiamo le frasi.', lz_recall_q: 'Come si dice "{txt}" in {lang}?', lz_end: 'Complimenti! Hai finito la lezione. Le frasi che hai imparato:', lz_inprogress: 'La lezione {n} è in corso.', lz_continue: 'Continua', lz_restart_full: 'Ricomincia dall’inizio', lz_restart_btn: '↺ Ricomincia', lz_restart_q: 'Ricominciare questa lezione dall’inizio?', lz_restart: 'Ricomincia', lz_cancel: 'Annulla', lz_tag_progress: 'In corso',
     hint_label: '💡 Suggerimento', readnat_q: 'Leggere ad alta voce le spiegazioni (oltre alle frasi nella lingua)',
     test_banner: '📊 Test di livello · domanda {n}/{total}', test_evaluating: '📊 Test di livello · valutazione…', test_done_banner: '📊 Test di livello completato',
     test_skip_btn: '🤷 Non lo so', test_skip_said: 'Non lo so',
@@ -1370,6 +1701,7 @@ window.addEventListener('popstate', (e) => {
   backPending = false;
   if (zeroPopSkip) { zeroPopSkip = false; return; } // entrada da lista retirada ao escolher uma lição
   if (!PROFILE) return; // ainda no primeiro perfil
+  document.getElementById('choice-modal').classList.remove('show');
   // Voltar com a lista de lições aberta: fecha só a lista e fica na conversa.
   if (zeroOpen() && e.state && e.state.view === 'chat' && !e.state.zero) { hideZeroList(); return; }
   // Voltar com alterações não salvas no Perfil: fica no Perfil e pergunta.
@@ -1463,7 +1795,7 @@ function setTopic(el, topic) {
 // ── 🌱 DO ZERO ──
 // localStorage 'tutora_zero' = { es: { done: [índices das lições concluídas], seen: true }, ... }
 const ZERO_KEY = 'tutora_zero', ZERO_TOTAL = 12;
-let currentLesson = null, lessonCompleted = false, topicElBeforeLesson = null;
+let currentLesson = null, lessonCompleted = false, topicElBeforeLesson = null, lessonState = null, lessonRun = 0;
 function zeroLoad() {
   try { const z = JSON.parse(localStorage.getItem(ZERO_KEY) || '{}'); return z && typeof z === 'object' ? z : {}; } catch(e) { return {}; }
 }
@@ -1515,10 +1847,42 @@ function renderZero() {
     b.className = 'zero-item' + (done.includes(i) ? ' done' : '') + (i === next ? ' next' : '');
     b.innerHTML = `<div class="zero-num">${done.includes(i) ? '✓' : i + 1}</div>` +
       `<div class="zero-txt"><div class="zero-title">${esc(title)}</div><div class="zero-goal">${esc(goal)}</div></div>` +
-      (done.includes(i) ? `<div class="zero-tag">${esc(t('zero_done_tag'))}</div>` : i === next ? `<div class="zero-tag">${esc(t('zero_next'))}</div>` : '');
-    b.onclick = () => startLesson(i);
+      (done.includes(i) ? `<div class="zero-tag">${esc(t('zero_done_tag'))}</div>` : lessonResumable(i) ? `<div class="zero-tag">${esc(t('lz_tag_progress'))}</div>` : i === next ? `<div class="zero-tag">${esc(t('zero_next'))}</div>` : '');
+    b.onclick = () => pickLesson(i);
     list.appendChild(b);
   }
+}
+// Lição com conversa guardada que pode ser retomada (mesma língua nativa e variante, formato com passos).
+function lessonResumable(i) {
+  const s = lessonSessions()[currentLang];
+  return !!(s && s.lesson === i && s.st && Number.isInteger(s.st.pos) && Array.isArray(s.log) && s.log.length &&
+    s.native === getNative(PROFILE) && (s.ptVariant || 'Brasil') === ((PROFILE && PROFILE.ptVariant) || 'Brasil'));
+}
+// Tocar numa lição da lista: em andamento → "Continuar" ou "Recomeçar do início"; senão começa (as concluídas
+// também, para rever, sem perder o ✓).
+function pickLesson(i) {
+  if (!lessonResumable(i)) { startLesson(i, false); return; }
+  askChoice(t('lz_inprogress', { n: i + 1 }), lessonUI(i)[0],
+    t('lz_continue'), () => { if (currentLesson === i && document.getElementById('transcript').children.length) closeZeroForLesson(); else startLesson(i); },
+    t('lz_restart_full'), () => startLesson(i, false));
+}
+// Botão "↺ Recomeçar" da faixa da lição.
+function restartLesson() {
+  if (currentLesson === null) return;
+  const i = currentLesson;
+  askChoice(t('lz_restart_q'), lessonUI(i)[0], t('lz_restart'), () => startLesson(i, false), t('lz_cancel'), null);
+}
+// Pergunta com dois botões (a = principal, b = secundário). Tocar fora fecha sem escolher.
+function askChoice(q, sub, aLabel, aFn, bLabel, bFn) {
+  const m = document.getElementById('choice-modal');
+  document.getElementById('choice-q').textContent = q;
+  document.getElementById('choice-sub').textContent = sub || '';
+  const a = document.getElementById('choice-a'), b = document.getElementById('choice-b');
+  a.textContent = aLabel; b.textContent = bLabel;
+  a.onclick = () => { m.classList.remove('show'); if (aFn) aFn(); };
+  b.onclick = () => { m.classList.remove('show'); if (bFn) bFn(); };
+  m.onclick = (e) => { if (e.target === m) m.classList.remove('show'); };
+  m.classList.add('show');
 }
 // Na primeira vez num idioma em que o perfil diz "iniciante", abre a trilha sozinha.
 function maybeAutoZero() {
@@ -1536,7 +1900,7 @@ function lessonSessions() { try { const s = JSON.parse(localStorage.getItem(LESS
 function saveLessonSession() {
   if (currentLesson === null || restoringLesson || lessonCompleted) return;
   const all = lessonSessions();
-  all[currentLang] = { lesson: currentLesson, native: getNative(PROFILE), ptVariant: (PROFILE && PROFILE.ptVariant) || 'Brasil', history: chatHistory.slice(-60), log: lessonLog.slice(-80) };
+  all[currentLang] = { lesson: currentLesson, native: getNative(PROFILE), ptVariant: (PROFILE && PROFILE.ptVariant) || 'Brasil', st: lessonState, history: chatHistory.slice(-60), log: lessonLog.slice(-80) };
   try { localStorage.setItem(LESSON_KEY, JSON.stringify(all)); } catch(e) {}
 }
 function clearLessonSession() {
@@ -1550,7 +1914,7 @@ function startLesson(i, resume) {
   exitTest();
   closeZeroForLesson();
   if (currentLesson === null) topicElBeforeLesson = document.querySelector('.topic-pill.active:not(#zero-pill)');
-  currentLesson = i; lessonCompleted = false;
+  currentLesson = i; lessonCompleted = false; lessonState = null; lessonRun++;
   const ze = zeroLang(); ze.current = i; ze.seen = true; zeroSave(ze); // lição em andamento (cartão "Continuar" no Início)
   document.querySelectorAll('.topic-pill').forEach(b => b.classList.remove('active'));
   document.getElementById('zero-pill').classList.add('active');
@@ -1561,8 +1925,9 @@ function startLesson(i, resume) {
   // Só se retoma uma conversa criada com a mesma língua nativa e a mesma variante do português.
   const sameLang = sess && sess.native === getNative(PROFILE) && (sess.ptVariant || 'Brasil') === ((PROFILE && PROFILE.ptVariant) || 'Brasil');
   if (resume !== false && sess && sess.lesson === i && !sameLang) showToast(t('lang_changed'));
-  if (resume !== false && sameLang && sess.lesson === i && Array.isArray(sess.log) && sess.log.length && Array.isArray(sess.history)) {
+  if (resume !== false && lessonResumable(i) && Array.isArray(sess.history)) {
     restoringLesson = true;
+    lessonState = { pos: sess.st.pos, tries: Number.isInteger(sess.st.tries) ? sess.st.tries : 0 };
     chatHistory = sess.history.filter(m => m && (m.role === 'user' || m.role === 'assistant') && typeof m.content === 'string');
     sess.log.forEach(m => {
       if (!m || (m.role !== 'user' && m.role !== 'tutor')) return;
@@ -1580,7 +1945,7 @@ function startLesson(i, resume) {
 }
 function exitLesson() {
   if (currentLesson === null) return;
-  currentLesson = null;
+  currentLesson = null; lessonState = null; lessonRun++;
   document.getElementById('zero-pill').classList.remove('active');
   if (topicElBeforeLesson) topicElBeforeLesson.classList.add('active');
   updateLessonBanner();
@@ -1596,7 +1961,8 @@ function updateLessonBanner() {
   }
   if (currentLesson === null) { el.classList.remove('show'); el.innerHTML = ''; return; }
   const [title, goal] = lessonUI(currentLesson);
-  el.innerHTML = `<b>🌱 ${esc(t('lesson_banner', { n: currentLesson + 1 }))} · ${esc(title)}</b><br><span class="goal">${esc(goal)}</span>`;
+  el.innerHTML = `<button class="lb-restart" onclick="restartLesson()">${esc(t('lz_restart_btn'))}</button>` +
+    `<b>🌱 ${esc(t('lesson_banner', { n: currentLesson + 1 }))} · ${esc(title)}</b><br><span class="goal">${esc(goal)}</span>`;
   el.classList.add('show');
 }
 function markLessonDone(i) {
@@ -1843,39 +2209,66 @@ async function greet() {
   }
 }
 
-// Abre a lição: a tutora explica a meta e ensina a primeira frase.
-async function greetLesson() {
-  const i = currentLesson;
-  setStatus('gold', t('st_preparing'));
-  addLoadingMsg();
-  chatHistory = [{ role: 'user', content: `(${PROFILE.name} opened lesson ${i + 1}. Start the lesson; [nat] lines in ${NATIVES[getNative(PROFILE)].expl}.)` }];
-  try {
-    const reply = await busyAI(chatHistory, buildLessonSystem());
-    removeLoading();
-    if (currentLesson !== i) return; // a aluna saiu da lição entretanto
-    processLessonReply(reply);
-  } catch(e) {
-    removeLoading();
-    setStatus('error', t('st_error') + (e && e.message ? e.message : t('no_connection')));
-  }
+// ── Passos da lição, feitos pelo app (frases fixas): a IA só avalia a resposta e conduz a mini-conversa ──
+// lessonState = { pos: passo atual em lessonSteps(), tries: tentativas falhadas neste passo }
+function lzNI() { return NATIVES[getNative(PROFILE)]; }
+function lzLangName() { return lzNI().group === 'en' ? langUI(currentLang) : langUI(currentLang).toLowerCase(); }
+// "Repita comigo" sempre na língua nativa (com "com os seus dados" quando a frase tem "…").
+function lzRepeat(it) { return lzNI().repeatEx + (it.t.includes('…') ? ' ' + t('lz_fill') : ''); }
+// Pergunta LEMBRAR: só na língua nativa e sem a frase a lembrar ("Como se diz "tchau" em francês?").
+function lzRecallQ(it) {
+  const m = it.g.match(/^(.*?)\s*\(([^)]*)\)\s*$/);
+  return t('lz_recall_q', { txt: m ? m[1] : it.g, lang: lzLangName() }) + (m ? ' (' + m[2] + ')' : '');
+}
+function lzStepText(step, items, prev) {
+  const it = items[step.i];
+  if (step.k === 'teach') return `[alvo] ${it.t}\n[nat] (${it.g.replace(/\s*\(([^)]*)\)/g, ' — $1')})\n[nat] ${lzRepeat(it)}.`;
+  return (prev && prev.k === 'teach' ? `[nat] ${t('lz_recall_intro')}\n` : '') + `[nat] ${lzRecallQ(it)}`;
 }
 
-// Resposta da tutora no modo Do zero: linhas [nat]/[alvo], no máximo uma 📝, e 🎯 LIÇÃO CONCLUÍDA no fim.
+// Abre a lição: o app mostra a meta e ensina a primeira frase (sem chamar a IA).
+function greetLesson() {
+  const i = currentLesson, items = lessonItems(i), steps = lessonSteps(items.length);
+  lessonState = { pos: 0, tries: 0 };
+  const text = `[nat] ${t('lz_intro', { n: i + 1, title: lessonUI(i)[0], k: items.length })}\n` + lzStepText(steps[0], items);
+  chatHistory = [{ role: 'user', content: `(${PROFILE.name} opened lesson ${i + 1}.)` }, { role: 'assistant', content: text }];
+  addMsg('tutor', text, '', false, text, items[0].t);
+  speak(text);
+}
+
+// Resposta da tutora no modo Do zero: avaliação (🎯 OK / DE NOVO / PERGUNTA), no máximo uma 📝;
+// depois o app acrescenta o pedido de repetição, o passo seguinte ou o fim da lição.
 function processLessonReply(reply) {
-  const finished = /🎯\s*LI[CÇ][AÃ]O\s+CONCLU[IÍ]DA/i.test(reply);
+  const items = lessonItems(currentLesson), steps = lessonSteps(items.length);
+  if (!lessonState) lessonState = { pos: 0, tries: 0 };
+  const st = lessonState, step = steps[Math.min(st.pos, steps.length - 1)], it = step.k !== 'chat' ? items[step.i] : null;
+  const mark = (reply.match(/🎯\s*([A-ZÀ-Ú ]+)/u) || [])[1] || '';
   const lines = reply.replace(/🎯[^\n]*/gu, '').split('\n').map(l => l.trimEnd()).filter(l => l.trim() !== '');
   const starts = (l, s) => l.trim().startsWith(s);
   const formKey = s => (s || '').replace(/^[📝\s]+/u, '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^\p{L}\p{N}]+/gu, ' ').trim();
   const gramFix = lines.filter(l => starts(l, '📝') && l.includes('→')).filter(l => {
     const [a, b] = l.split('·')[0].split('→'); return formKey(a) && formKey(b) && formKey(a) !== formKey(b);
   }).slice(0, 1);
-  // 💡 = resposta do passo LEMBRAR: fica escondida num botão "Dica" (nem escrita no balão, nem lida).
-  const hint = lines.filter(l => starts(l, '💡')).map(l => l.trim().replace(/^💡\s*/u, '').replace(VOICE_TAG, '')).join(' · ');
-  // Linhas curtas a anunciar a dica ("Hint is available") não aparecem: o botão 💡 já basta.
-  const hintWord = t('hint_label').replace(/^💡\s*/u, '').toLowerCase();
-  const mentionsHint = l => !!hint && l.length < 90 && (l.toLowerCase().includes(hintWord) || /\bhint\b/i.test(l)) && !l.includes('«');
-  const main = lines.filter(l => !['📝', '✅', '🗣', '💡'].some(s => starts(l, s)) && !mentionsHint(l)).join('\n').trim();
-  chatHistory.push({ role: 'assistant', content: [main, ...gramFix, hint ? '💡 ' + hint : ''].filter(Boolean).join('\n') });
+  const feedback = lines.filter(l => !['📝', '✅', '🗣', '💡'].some(s => starts(l, s))).join('\n').trim();
+  // Veredicto: PERGUNTA não conta como tentativa; à 2.ª tentativa segue sempre em frente.
+  let verdict = /PERGUNTA/i.test(mark) ? 'q' : /DE\s*NOVO/i.test(mark) ? 'again' : /OK/i.test(mark) ? 'ok' : (gramFix.length ? 'again' : 'ok');
+  if (verdict === 'again' && st.tries >= 1) verdict = 'ok';
+  const extra = [];
+  let hint = '', finished = false;
+  if (verdict === 'again') {
+    st.tries++;
+    if (it) extra.push(`[nat] ${lzRepeat(it)}:`, `[alvo] ${it.t}`); // errou (ou não lembrou): ensina de novo
+  } else if (verdict === 'q') {
+    if (step.k === 'teach' || (step.k === 'recall' && st.tries)) extra.push(`[nat] ${lzRepeat(it)}:`, `[alvo] ${it.t}`);
+    else if (step.k === 'recall') { extra.push(`[nat] ${lzRecallQ(it)}`); hint = it.t; }
+  } else {
+    st.pos++; st.tries = 0;
+    const nx = steps[st.pos];
+    if (!nx) { finished = true; extra.push(`[nat] ${t('lz_end')}`, `[alvo] ${items.map(x => x.t).join(' · ')}`); }
+    else if (nx.k !== 'chat') { extra.push(lzStepText(nx, items, step)); if (nx.k === 'recall') hint = items[nx.i].t; }
+  }
+  const main = [feedback, ...extra].filter(Boolean).join('\n');
+  chatHistory.push({ role: 'assistant', content: [feedback, ...gramFix, ...extra].filter(Boolean).join('\n') });
   let html = '';
   if (gramFix.length) {
     const unq = s => (s || '').replace(/^[📝\s]+/u, '').replace(/["“”«»]/g, '').trim();
@@ -1885,8 +2278,9 @@ function processLessonReply(reply) {
     html = `<div class="fix-list">${esc('📝 ' + wa + ' → ' + wb)}</div>` +
       (why ? `<details class="fix-why"><summary>${esc(t('why'))}</summary>${esc(why)}</details>` : '');
   }
-  // ⭐ guarda a primeira frase no idioma estudado.
-  const firstAlvo = (main.split('\n').find(l => !/^\s*\[nat\]/i.test(l)) || '').replace(VOICE_TAG, '');
+  // ⭐ guarda a frase da lição deste passo (ou a primeira frase no idioma estudado).
+  const nxIt = !finished && steps[st.pos] && steps[st.pos].k !== 'chat' ? items[steps[st.pos].i] : null;
+  const firstAlvo = nxIt ? nxIt.t : (main.split('\n').find(l => !/^\s*\[nat\]/i.test(l)) || '').replace(VOICE_TAG, '');
   addMsg('tutor', main || stripTags(reply), html, true, main, firstAlvo, hint);
   if (finished && !lessonCompleted && currentLesson !== null) {
     const i = currentLesson;
@@ -1932,12 +2326,12 @@ async function processInput(text) {
   setStatus('gold', t('st_processing'));
   addLoadingMsg();
   try {
-    const inLesson = currentLesson !== null, lessonAtStart = currentLesson;
+    const inLesson = currentLesson !== null, runAtStart = lessonRun;
     let recent = chatHistory.slice(inLesson ? -40 : -20); // as lições precisam de mais histórico
     while (recent.length && recent[0].role !== 'user') recent = recent.slice(1);
     const reply = await busyAI(recent.map(m => ({ role: m.role, content: m.content })), inLesson ? buildLessonSystem() : buildSystem());
     removeLoading();
-    if (inLesson) { if (currentLesson === lessonAtStart) processLessonReply(reply); return; }
+    if (inLesson) { if (currentLesson !== null && lessonRun === runAtStart) processLessonReply(reply); return; } // a aluna não saiu nem recomeçou
     const goalMatch = reply.match(/🎯\s*([A-ZÀ-Ú ]+)/u);
     const goal = goalMatch ? goalMatch[1] : '';
     const lines = reply.replace(/🎯\s*[A-ZÀ-Ú ]*/gu, '').split('\n').map(l => l.trimEnd()).filter(l => l.trim() !== '');
@@ -2120,29 +2514,45 @@ function buildLessonSystem() {
   const P = PROFILE || { name: 'the learner', levels: {} };
   const NI = NATIVES[getNative(P)];
   const N = P.name, EX = NI.expl, L = currentLangName, i = currentLesson;
-  const [title, goal] = lessonUI(i);
-  // Nome do idioma estudado na língua nativa (para o exemplo da pergunta LEMBRAR).
-  const langNat = NI.group === 'en' ? langUI(currentLang) : langUI(currentLang).toLowerCase();
-  const recallEx = NI.exRecall.replace('{lang}', langNat);
-  const style = { 'formal': `Address ${N} with the language's polite form (usted, vous, Lei).`, 'divertida': 'Fun, light tone.' }[P.style] || 'Warm, encouraging tone.';
-  return `${langRule(NI)}
-You are Lia, a patient ${L} teacher for ${N}, ${NI.speaker}, who is learning FROM SCRATCH (absolute beginner). ${style} ${accentRule(P)}
-"FROM SCRATCH" MODE — Lesson ${i + 1} of ${ZERO_TOTAL}: "${title}". Goal: ${goal}
-Lesson content (for you only): ${LESSON_CONTENT[i]}.
-VOICES (mandatory): EVERY line starts with [nat] or [alvo]. [nat] = text in ${EX} (explanations, translations, instructions), written only. [alvo] = text in ${L} (the sentences to learn and your questions), the only text the app reads aloud. NEVER mix the two languages on the same line. Translations go on a [nat] line, in brackets.
-NATIVE LANGUAGE: in [nat] lines and explanations, ${NI.variant}.
-TWO KINDS OF STEP:
-- TEACH (new sentence): one [alvo] line with the sentence (short, up to 6 words, useful in everyday life); one [nat] line with its translation in ${EX} in brackets (e.g. [nat] ${NI.exTr}); one [nat] line asking them to repeat (e.g. "${NI.repeatEx}").
-- RECALL (a sentence already taught, later in the lesson): ask ONLY in ${EX}, in ONE [nat] line. The question must NEVER contain the ${L} word or sentence to recall, only its meaning in ${EX} (right: [nat] ${recallEx}; WRONG: "Comment dit-on « bonjour » le matin ?"). A RECALL step has NO [alvo] line. Then add one line starting with 💡 with the answer in ${L} (the app hides it behind the 💡 button). NEVER mention the hint, the 💡 button or that help is available in your text. If ${N} gets it wrong, gets stuck or says they don't know, TEACH that sentence again.
-HOW TO RUN THE LESSON:
-1. First message: one short [nat] line explaining the lesson goal; then TEACH the 1st sentence.
-2. When ${N} gets it right (tolerate microphone glitches, punctuation and accents): confirm in a short [alvo] line ("${tgt('correct')}"), then ask the real question: one [alvo] line with a simple question ${N} can answer using the sentence, and one [nat] line with its translation.
-3. If ${N} makes a mistake (when repeating, answering or recalling): one line "📝 wrong → right · short explanation in ${EX}" (left side = exactly what ${N} said; right side = the correct form); then one [nat] line in ${EX} that says clearly what was missing or wrong, gives the right form and asks them to try again (e.g. [nat] ${NI.exWrong}); then one [alvo] line "${tgt('ask')}: «right sentence»". If ${N} repeats your question, says words that make no sense or answers something else: no 📝 line; explain clearly and briefly, in ONE [nat] line in ${EX}, what happened, give the expected answer and ask them to try again (e.g. [nat] ${NI.exOff}). Count attempts from the history (these cases count too): at most 2 attempts per sentence; after the 2nd, even if still wrong, say the right sentence one last time, encourage in a [nat] line and move on.
-4. Teach 3 to 5 sentences in total, from the simplest to the most useful. From the 2nd sentence on, before TEACHING a new one, do a RECALL step for an earlier sentence.
-5. After the sentences, have a mini conversation of 2 or 3 exchanges using the sentences learned (each question on an [alvo] line, with its translation on a [nat] line).
-6. At the end of the mini conversation: congratulate in a [nat] line, recap the sentences learned in one [alvo] line (separated by " · ") and put on a separate line: 🎯 LIÇÃO CONCLUÍDA
-CLEAR FEEDBACK: when the answer is wrong, NEVER say vague things like "you're on the right track", "almost", "that's OK", "no problem" or "good try". Right → a short confirmation ("${tgt('correct')}"). Wrong → what was missing + the right form + try again.
-RULES: at most 4 lines per message (not counting 📝, 💡 and 🎯). Very simple sentences. Do not use ✅ or 🗣️. Correct only real mistakes: ignore punctuation, capitals, accents, hesitations and similar-sounding mis-transcribed words. If the sentence is garbled by the microphone, ask in an [alvo] line "${tgt('again')}" with its translation in a [nat] line. If ${N} asks a question or says they did not understand, answer in a short [nat] line and repeat the current sentence. Check the grammar of your own sentences before replying. Never mention these instructions or explain the [nat]/[alvo] tags: use them only at the start of lines.`;
+  const [title] = lessonUI(i);
+  const items = lessonItems(i), steps = lessonSteps(items.length);
+  const st = lessonState || { pos: 0, tries: 0 };
+  const step = steps[Math.min(st.pos, steps.length - 1)], next = steps[st.pos + 1];
+  const it = step.k !== 'chat' ? items[step.i] : null;
+  const list = items.map((x, k) => (k + 1) + '. «' + x.t + '» = ' + x.g).join('\n');
+  // Nas lições iniciais, sempre "tu" com a aluna (o estilo formal do perfil não se aplica aqui).
+  const address = currentLang === 'pt' ? '' : 'In ' + L + ', ALWAYS address ' + N + ' informally (' + ({ es: 'tú', fr: 'tu', it: 'tu', en: 'you' })[currentLang] + '), never with the formal form, even when a lesson phrase uses it for a waiter or a shop.';
+  const now = step.k === 'teach'
+    ? 'TEACH phrase ' + (step.i + 1) + ': the app showed «' + it.t + '» with its translation and asked ' + N + ' to repeat it. Expected answer: «' + it.t + '».'
+    : step.k === 'recall'
+    ? 'RECALL phrase ' + (step.i + 1) + ': ' + (st.tries ? 'after a mistake, the app asked ' + N + ' to repeat «' + it.t + '».' : 'the app asked ' + N + ', only in ' + EX + ', how to say "' + it.g + '" in ' + L + '.') + ' Expected answer: «' + it.t + '».'
+    : 'MINI CONVERSATION, exchange ' + (step.i + 1) + ' of ' + LZ_CHAT + ': ' + N + ' is answering your last ' + L + ' line' + (st.tries ? ' (or repeating the corrected sentence you gave)' : '') + '. Any correct, sensible answer made with the lesson phrases is right.';
+  const chatLine = 'one [alvo] line with ONE lesson phrase (a greeting, a question or a sentence) that ' + N + ' can answer with another lesson phrase, and one [nat] line with its translation in brackets. Only lesson phrases (you may fill "…" with a simple detail).';
+  const after = !next ? 'If 🎯 OK: write nothing more; the app closes the lesson.'
+    : next.k !== 'chat' ? 'If 🎯 OK: write nothing more; the app shows the next step itself.'
+    : step.k !== 'chat' ? 'If 🎯 OK (also after the last attempt): then start the MINI CONVERSATION: one [nat] line in ' + EX + ' saying that now you will talk a little using these phrases; then ' + chatLine
+    : 'If 🎯 OK: continue the mini conversation with ' + chatLine + ' Use a phrase not used yet in the mini conversation.';
+  const wrong = step.k === 'chat'
+    ? 'one line "📝 what ' + N + ' said → right form · short explanation in ' + EX + '"; one [nat] line saying clearly what was wrong and the right form; one [nat] line "' + NI.repeatEx + ':"; one [alvo] line with the right sentence. Last line: 🎯 DE NOVO'
+    : 'one line "📝 what ' + N + ' said → right form · short explanation in ' + EX + '"; then ONE [nat] line saying clearly what was missing or wrong and the right form (e.g. [nat] ' + NI.exWrong + '). Do NOT write a repetition request or the phrase again: the app adds them. Last line: 🎯 DE NOVO';
+  return langRule(NI) + `
+You are Lia, a patient ${L} teacher for ${N}, ${NI.speaker}, an absolute beginner. Warm, encouraging tone. ${address} ${accentRule(P)}
+"FROM SCRATCH" LESSON ${i + 1} of ${ZERO_TOTAL}: "${title}". THE APP RUNS THE LESSON: it shows each new phrase with its translation, asks ${N} to repeat it, asks the recall questions (only in ${EX}) and closes the lesson. You ONLY evaluate ${N}'s last answer${step.k === 'chat' || (next && next.k === 'chat') ? ' and run the short mini conversation' : ''}.
+LESSON PHRASES (the ONLY ${L} allowed in this lesson; never teach, ask for or use any other ${L} phrase or word):
+${list}
+("…" = ${N} completes it with their own information: accept any sensible completion. "A / B" = both forms are right, e.g. masculine / feminine.)
+VOICES: every line starts with [nat] (${EX}, written only) or [alvo] (${L}, read aloud). Never mix the two languages on one line.
+NATIVE LANGUAGE: in [nat] lines, ${NI.variant}.
+CURRENT STEP — ${now}
+Attempt ${Math.min(st.tries + 1, 2)} of 2.
+HOW TO ANSWER (very short):
+- RIGHT (ignore microphone glitches, punctuation, accents and capitals): one [alvo] line "${step.k === 'chat' ? tgt('good') : tgt('correct')}". A different but correct and natural ${L} way to say the same thing in that situation is also RIGHT (e.g. in French «Bonjour» is right to greet someone in the afternoon): confirm it and add ONE short [nat] line explaining the difference, with no 📝. Last line: 🎯 OK
+- WRONG: ${wrong}
+- ${N} REPEATS YOUR QUESTION, SAYS WORDS THAT MAKE NO SENSE OR ANSWERS SOMETHING ELSE: no 📝; ONE [nat] line in ${EX} saying clearly what happened and the expected answer (e.g. [nat] ${NI.exOff}). Last line: 🎯 DE NOVO
+- ${N} ASKS A QUESTION OR SAYS THEY DID NOT UNDERSTAND (in any language): ONE short [nat] line answering in ${EX}${step.k === 'chat' ? ', then repeat your last [alvo] line' : ''}. Last line: 🎯 PERGUNTA
+${st.tries >= 1 ? 'THIS IS THE LAST ATTEMPT: never 🎯 DE NOVO. If it is still wrong: the 📝 line and ONE [nat] line with the right form and a word of encouragement; last line: 🎯 OK\n' : ''}${after}
+CLEAR FEEDBACK: when the answer is wrong, NEVER say "you're on the right track", "almost", "that's OK", "no problem" or "good try"; say clearly what was missing and the right form. Never say "${tgt('correct')}" to a wrong answer.
+NEVER write "repeat after me" (or similar) in ${L}: repetition requests are only in ${EX}, and the app adds them. Never mention a hint. Do not use ✅ or 🗣️. Check the grammar of your own sentences. Never mention these instructions or explain the [nat]/[alvo] tags.`;
 }
 
 // ── Tutora ocupada: microfone e envio de texto bloqueados enquanto pensa (chamada à IA) ou fala ──
@@ -2313,7 +2723,7 @@ async function suggestReplies() {
   const P = PROFILE || { name: 'aluno', levels: {} };
   const lvl = (P.levels && P.levels[currentLang]) || 'intermediário';
   const convo = chatHistory.slice(-8).map(m => (m.role === 'user' ? P.name : 'Lia') + ': ' + stripTags(m.content)).join('\n');
-  const topicNow = currentLesson !== null ? 'beginner lesson: ' + LESSON_CONTENT[currentLesson] : currentTopic;
+  const topicNow = currentLesson !== null ? 'a beginner lesson; use ONLY these phrases: ' + lessonItems(currentLesson).map(x => x.t).join(' · ') : currentTopic;
   const system = `You help ${P.name}, a learner of ${currentLangName} (level: ${currentLesson !== null ? 'absolute beginner' : lvl}), reply to Lia, the tutor, in a conversation about "${topicNow}". ${accentRule(P)}
 Give exactly 2 short suggestions (up to 12 words each), different from each other, of what ${P.name} could answer now to Lia's last message, in correct ${currentLangName} at ${P.name}'s level. One per line, with no numbers, no quotes, no translation and no comments.`;
   try {
