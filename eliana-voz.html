@@ -76,6 +76,8 @@
   .streak-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; text-align: center; }
   .streak-num { font-size: 1.4rem; color: var(--gold-light); font-weight: 600; }
   .streak-lbl { font-size: 0.68rem; color: var(--muted); }
+  .backup-row { width: 100%; display: flex; gap: 10px; }
+  .backup-btn { flex: 1; padding: 12px 8px; background: transparent; border: 1px solid var(--gold); color: var(--gold-light); border-radius: 12px; font-size: 0.82rem; font-family: 'Inter', sans-serif; cursor: pointer; }
   .streak-today { font-size: 0.75rem; color: var(--muted); text-align: center; margin-top: 8px; }
 
   /* MEU CADERNO */
@@ -216,6 +218,12 @@
     <option value="divertida">Divertida</option>
   </select>
   <button class="api-btn" onclick="saveProfile()">Guardar e começar →</button>
+  <div class="prof-label">Cópia de segurança (perfil, caderno e racha; sem a chave API):</div>
+  <div class="backup-row">
+    <button class="backup-btn" onclick="exportData()">⬇️ Exportar meus dados</button>
+    <button class="backup-btn" onclick="document.getElementById('import-file').click()">⬆️ Importar meus dados</button>
+  </div>
+  <input type="file" id="import-file" accept=".json,application/json" style="display:none" onchange="importData(this)" />
 </div>
 
 <!-- MEU CADERNO -->
@@ -1121,6 +1129,52 @@ function renderStreakStats() {
       <div><div class="streak-num">${st.total}</div><div class="streak-lbl">Total de dias</div></div>
     </div>${weekHtml(st.week)}
     <div class="streak-today">${st.todayDone ? 'Dia de hoje completo ✅' : `Hoje: ${st.todayCount}/${STREAK_GOAL} falas para completar o dia`}</div>`;
+}
+
+// ── CÓPIA DE SEGURANÇA ──
+// Exporta perfil + caderno (todos os idiomas) + racha num .json. A chave API NUNCA entra no arquivo.
+function exportData() {
+  const data = { app: 'tutora-voz', version: 1, exportedAt: new Date().toISOString(), profile: loadProfile(), caderno: nbLoad(), racha: streakLoad() };
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = `tutora-dados-${dayKey()}.json`;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 2000);
+}
+
+function importData(input) {
+  const file = input.files && input.files[0];
+  input.value = '';
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    let data = null;
+    try { data = JSON.parse(reader.result); } catch(e) {}
+    if (!data || data.app !== 'tutora-voz') { alert('Este arquivo não é uma cópia de segurança da tutora.'); return; }
+    const caderno = {};
+    Object.keys(data.caderno && typeof data.caderno === 'object' ? data.caderno : {}).forEach(lang => {
+      const l = data.caderno[lang];
+      if (Array.isArray(l)) caderno[lang] = l.filter(i => i && typeof i === 'object' && i.type).slice(0, NB_MAX);
+    });
+    const racha = data.racha && data.racha.days && typeof data.racha.days === 'object' ? { days: data.racha.days } : { days: {} };
+    const nItems = Object.values(caderno).reduce((n, l) => n + l.length, 0);
+    let when = '';
+    try { when = new Date(data.exportedAt).toLocaleDateString('pt-BR'); } catch(e) {}
+    const ok = confirm(`Importar a cópia${when ? ' de ' + when : ''}?\n\nIsto vai SUBSTITUIR neste telemóvel:\n• o perfil${data.profile && data.profile.name ? ' (' + data.profile.name + ')' : ''}\n• o caderno (${nItems} ${nItems === 1 ? 'item' : 'itens'})\n• a racha (${Object.keys(racha.days).length} ${Object.keys(racha.days).length === 1 ? 'dia' : 'dias'} com prática)\n\nA chave API não muda.`);
+    if (!ok) return;
+    try {
+      if (data.profile && data.profile.name) localStorage.setItem('tutora_profile', JSON.stringify(data.profile));
+      localStorage.setItem(NB_KEY, JSON.stringify(caderno));
+      localStorage.setItem(STREAK_KEY, JSON.stringify(racha));
+    } catch(e) { alert('Não consegui guardar os dados: ' + (e && e.message ? e.message : e)); return; }
+    PROFILE = loadProfile() || PROFILE;
+    openProfile();          // mostra os dados importados nos campos do perfil
+    updateStreakBadge();
+    alert('Dados importados ✅\nConfere o perfil e toca em "Guardar e começar".');
+  };
+  reader.onerror = () => alert('Não consegui ler o arquivo.');
+  reader.readAsText(file);
 }
 
 function hideSuggestions() {
