@@ -277,6 +277,9 @@
     <option value="pt-BR">🇧🇷 Português (Brasil)</option>
     <option value="pt-PT">🇵🇹 Português (Portugal)</option>
     <option value="es">🇪🇸 Español</option>
+    <option value="en">🇬🇧 English</option>
+    <option value="fr">🇫🇷 Français</option>
+    <option value="it">🇮🇹 Italiano</option>
   </select>
   <div class="prof-label" data-i18n="name_q"></div>
   <input class="api-input" id="pf-name" data-i18n-ph="name_ph" />
@@ -480,7 +483,13 @@ const NATIVES = {
   'pt-PT': { ui: 'pt-PT', expl: 'português de Portugal', speaker: 'falante nativo de português de Portugal', short: 'português', locale: 'pt-PT', hide: 'pt', group: 'pt', date: 'pt-PT',
              repeatEx: 'Repete comigo', variant: 'escreve em português de Portugal, tratando o aluno por "tu" (ex.: "Repete comigo", "Ouve", "Diz"; telemóvel, autocarro)' },
   'es':    { ui: 'es', expl: 'espanhol', speaker: 'falante nativo de espanhol', short: 'espanhol', locale: 'es-ES', hide: 'es', group: 'es', date: 'es-ES',
-             repeatEx: 'Repite conmigo', variant: 'escreve em espanhol, tratando o aluno por "tú" (ex.: "Repite conmigo", "Escucha", "Di")' }
+             repeatEx: 'Repite conmigo', variant: 'escreve em espanhol, tratando o aluno por "tú" (ex.: "Repite conmigo", "Escucha", "Di")' },
+  'en':    { ui: 'en', expl: 'inglês', speaker: 'falante nativo de inglês', short: 'inglês', locale: 'en-GB', hide: 'en', group: 'en', date: 'en-GB',
+             repeatEx: 'Repeat after me', variant: 'escreve em inglês simples, tratando o aluno por "you" (ex.: "Repeat after me", "Listen", "Say")' },
+  'fr':    { ui: 'fr', expl: 'francês', speaker: 'falante nativo de francês', short: 'francês', locale: 'fr-FR', hide: 'fr', group: 'fr', date: 'fr-FR',
+             repeatEx: 'Répète avec moi', variant: 'escreve em francês, tratando o aluno por "tu" (ex.: "Répète avec moi", "Écoute", "Dis")' },
+  'it':    { ui: 'it', expl: 'italiano', speaker: 'falante nativo de italiano', short: 'italiano', locale: 'it-IT', hide: 'it', group: 'it', date: 'it-IT',
+             repeatEx: 'Ripeti con me', variant: 'escreve em italiano, tratando o aluno por "tu" (ex.: "Ripeti con me", "Ascolta", "Di\'")' }
 };
 
 // Erros típicos de quem tem esta língua nativa (grupo) e aprende este idioma.
@@ -496,6 +505,24 @@ const TYPICAL = {
     en: 'sujeito obrigatório ("is raining" → "it is raining"), idade com "be" ("I have 30 years" → "I am 30"), falsos amigos ("embarrassed" ≠ embarazada, "actually" = en realidad), vogais curtas e longas, "make" vs "do"',
     fr: 'negação "ne … pas", letras finais que não se pronunciam, artigos partitivos, vogais nasais, falsos amigos ("sale" = sujo)',
     it: 'consoantes duplas, artigos (lo, gli), "c/g" antes de e/i, falsos amigos ("burro" = manteiga, "caldo" = quente)'
+  },
+  en: {
+    es: 'ser vs estar, género e concordância de substantivos e adjetivos, subjuntivo ("quiero que vengas", "cuando llegue"), pretérito indefinido vs imperfecto, por vs para, pronomes de objeto antes do verbo, falsos amigos ("embarazada" ≠ embarrassed, "actual" = atual, "librería" = livraria)',
+    fr: 'género dos substantivos e concordância do adjetivo, passé composé com être ou avoir, subjonctif, pronomes "y" e "en", letras finais mudas e liaisons, vogais nasais, falsos amigos ("librairie" = livraria, "actuellement" = atualmente)',
+    it: 'género e plurais (-o/-i, -a/-e), artigos (il, lo, gli), preposições articuladas, passato prossimo com essere ou avere, consoantes duplas, congiuntivo, falsos amigos ("parenti" = familiares, "camera" = quarto)',
+    pt: 'vogais nasais e o som "ão", ser vs estar, género, artigo com possessivo ("a minha casa"), pretérito perfeito vs imperfeito, contrações (no, da, pelo), "você/tu", falsos amigos ("pretender" = tencionar, "puxar" = pull, "assistir" = ver)'
+  },
+  fr: {
+    es: 'ser vs estar, o som da "j" e do "r" forte, acento tónico, subjuntivo, pretérito indefinido vs imperfecto (não decalcar o passé composé), por vs para, falsos amigos ("constipado" = resfriado, "largo" = comprido)',
+    en: 'o som do "th" e o "h" aspirado, ordem das palavras, presente contínuo, "since/for", sujeito "it", falsos amigos ("actually" = na verdade, "library" = biblioteca, "sensible" = sensato)',
+    it: 'consoantes duplas, género diferente do francês, artigos (lo, gli), passato prossimo com essere/avere, preposições de lugar (a/in), falsos amigos ("burro" = manteiga)',
+    pt: 'vogais nasais e o som "ão" (diferentes das francesas), "r" inicial forte, ser vs estar, contrações (no, da), "você/tu", preposições, falsos amigos ("fechar" = fermer)'
+  },
+  it: {
+    es: 'ser vs estar, o verbo "gustar", o som da "j" e do "z" de Espanha, "hay" vs "está", "a" antes de pessoas, falsos amigos ("burro" = asno, "salir" = sair, "embarazada" = grávida)',
+    en: 'sujeito obrigatório, o som do "th" e das vogais, presente contínuo, sem artigo antes de possessivos ("my house", não "the my house"), falsos amigos ("eventually" = no fim, "library" = biblioteca)',
+    fr: 'vogais nasais e o "u", letras finais mudas, "ne … pas", passé composé com être/avoir, artigos partitivos, falsos amigos ("burro" ≠ beurre)',
+    pt: 'vogais nasais e o som "ão", vogais abertas e fechadas, "você/tu", contrações (no, na, do), pretérito perfeito simples (não decalcar o passato prossimo), falsos amigos ("esquisito" = strano, "salsa" = prezzemolo, "rato" = topo)'
   }
 };
 
@@ -542,6 +569,48 @@ const LESSONS_UI = {
     ['Pedir en una tienda o café', 'Pedir algo con educación y preguntar el precio.'],
     ['Días y horas', 'Decir el día de la semana y la hora.'],
     ['Rutina diaria', 'Contar lo que haces en un día normal.']
+  ],
+  en: [
+    ['Greetings and goodbyes', 'Say hello, good morning and see you later.'],
+    ['Saying your name', 'Introduce yourself and ask someone’s name.'],
+    ['Where I’m from and where I live', 'Say where you’re from and which city you live in.'],
+    ['How I feel', 'Ask and say how you feel.'],
+    ['Family', 'Talk about the people in your family.'],
+    ['Numbers 0 to 20', 'Count and understand numbers up to 20.'],
+    ['Age and phone number', 'Say your age and your phone number.'],
+    ['Likes and preferences', 'Say what you like and what you don’t.'],
+    ['Food and drink', 'Talk about everyday food and drink.'],
+    ['Ordering in a shop or café', 'Ask for something politely and ask the price.'],
+    ['Days and times', 'Say the day of the week and the time.'],
+    ['Daily routine', 'Describe what you do on a normal day.']
+  ],
+  fr: [
+    ['Saluer et dire au revoir', 'Dire bonjour, bonne journée et à plus tard.'],
+    ['Dire son prénom', 'Se présenter et demander le prénom de quelqu’un.'],
+    ['D’où je viens et où j’habite', 'Dire d’où tu viens et dans quelle ville tu habites.'],
+    ['Comment je vais', 'Demander et dire comment tu te sens.'],
+    ['La famille', 'Parler des personnes de ta famille.'],
+    ['Les nombres de 0 à 20', 'Compter et comprendre les nombres jusqu’à 20.'],
+    ['L’âge et le téléphone', 'Dire ton âge et ton numéro de téléphone.'],
+    ['Goûts et préférences', 'Dire ce que tu aimes et ce que tu n’aimes pas.'],
+    ['Manger et boire', 'Parler de la nourriture et des boissons du quotidien.'],
+    ['Commander dans un magasin ou un café', 'Demander poliment quelque chose et son prix.'],
+    ['Les jours et l’heure', 'Dire le jour de la semaine et l’heure.'],
+    ['La routine quotidienne', 'Raconter ce que tu fais dans une journée normale.']
+  ],
+  it: [
+    ['Salutare e congedarsi', 'Dire ciao, buongiorno e a dopo.'],
+    ['Dire il proprio nome', 'Presentarti e chiedere il nome di qualcuno.'],
+    ['Di dove sono e dove vivo', 'Dire di dove sei e in che città vivi.'],
+    ['Come sto', 'Chiedere e dire come ti senti.'],
+    ['La famiglia', 'Parlare delle persone della tua famiglia.'],
+    ['I numeri da 0 a 20', 'Contare e capire i numeri fino a 20.'],
+    ['Età e telefono', 'Dire la tua età e il tuo numero di telefono.'],
+    ['Gusti e preferenze', 'Dire cosa ti piace e cosa no.'],
+    ['Cibo e bevande', 'Parlare di cibo e bevande di tutti i giorni.'],
+    ['Ordinare in un negozio o al bar', 'Chiedere qualcosa con gentilezza e chiedere il prezzo.'],
+    ['Giorni e ore', 'Dire il giorno della settimana e che ore sono.'],
+    ['La routine quotidiana', 'Raccontare cosa fai in una giornata normale.']
   ]
 };
 const LESSON_CONTENT = [
@@ -558,7 +627,7 @@ const LESSON_CONTENT = [
   'dias da semana e horas ("que horas são?", "são três horas") e dizer quando faz algo',
   'rotina diária no presente (acordar, tomar o pequeno-almoço/café da manhã, trabalhar, dormir) com horas simples'
 ];
-function lessonUI(i) { return (LESSONS_UI[uiLang() === 'es' ? 'es' : 'pt'] || LESSONS_UI.pt)[i]; }
+function lessonUI(i) { const u = uiLang(); return (LESSONS_UI[u.startsWith('pt') ? 'pt' : u] || LESSONS_UI.pt)[i]; }
 const BETTER = {
   es: (a, b) => `Mejor di: ${b}. Y no: ${a}.`,
   en: (a, b) => `Better to say: ${b}. Not: ${a}.`,
@@ -746,6 +815,183 @@ const I18N = {
     test_confirm: '¿Actualizar tu nivel de {lang} en el perfil a "{level}"?', test_rec_lesson: '🌱 Lección {n}: {title}', test_rec_chat: '💬 Ir a Conversar',
     test_fail: 'No pude preparar la prueba. Inténtalo de nuevo.', test_eval_fail: 'No pude evaluar la prueba. Inténtalo de nuevo.',
     pf_tests_label: '📊 Última prueba de nivel:', pf_tests_none: 'Todavía no has hecho ninguna prueba.', card_test_last: 'Último resultado: {level}. Toca para repetirla.'
+  },
+  'en': {
+    setup_text: 'For the AI tutor to work, you need an Anthropic API key.<br>It is free to start and only you have access to it.',
+    key_ph: 'Paste your key here: sk-ant-...', enter_btn: 'Open the tutor →',
+    key_note_html: 'Get your free key at:<br><a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a><br><br>The key is stored only on your phone (localStorage).<br>Nobody else has access to it.',
+    key_invalid: 'The key must start with "sk-ant-". Please check it and try again.',
+    profile_title: 'Your profile', profile_text: 'The tutor uses this information to call you by your name and adapt the conversation to your level. It is stored only on this phone.',
+    native_q: 'My language (explanations, menus and translations):', name_q: 'What is your name?', name_ph: 'E.g.: Eliana',
+    city_q: 'Which city do you live in?', city_ph: 'E.g.: Huelva, Spain', level_q: 'Your level in each language:',
+    lvl_iniciante: 'beginner', 'lvl_básico': 'elementary', 'lvl_intermediário': 'intermediate', 'lvl_avançado': 'advanced',
+    speed_q: 'Tutor voice speed:', speed_lenta: 'Slow', speed_normal: 'Normal', speed_rapida: 'Fast',
+    accent_q: 'Spanish accent (voice and vocabulary):', accent_es: 'Spain', accent_latam: 'Latin America',
+    style_q: 'Tutor style:', style_friendly: 'Friendly', style_formal: 'Formal', style_fun: 'Fun',
+    save_btn: 'Save and start →', backup_label: 'Backup (profile, photo, notebook, streak, lessons and tests; without the API key):',
+    export_btn: '⬇️ Export my data', import_btn: '⬆️ Import my data', name_required: 'Please write your name.',
+    lang_es: 'Spanish', lang_en: 'English', lang_fr: 'French', lang_it: 'Italian', lang_pt: 'Portuguese (Brazil)',
+    nb_title: '📒 My notebook', tab_errors: 'My mistakes', tab_saved: 'Saved',
+    nb_empty_errors: 'No mistakes saved in this language yet.<br>Every 📝 correction from the tutor is added here automatically.',
+    nb_empty_saved: 'You have not saved any phrases in this language yet.<br>Tap ⭐ on a tutor message (or select part of it and tap ⭐).',
+    listen: 'Listen', delete: 'Delete', close: 'Close',
+    day_one: '1 day in a row practising', day_many: '{n} days in a row practising',
+    week: 'Mon,Tue,Wed,Thu,Fri,Sat,Sun', st_current: 'Current streak', st_best: 'Best streak', st_total: 'Total days',
+    today_done: 'Today is complete ✅', today_left: 'Today: {n}/{g} sentences to complete the day',
+    badge_done: 'Day complete! Streak: {n}', badge_left: 'Today: {n}/{g} sentences',
+    topic_free: '🗣️ Free talk', topic_market: '🛒 Supermarket', topic_doctor: '🏥 Doctor', topic_landlord: '🏠 Landlord', topic_bank: '🏦 Bank', topic_intro: '👤 Introductions',
+    speaking: '🔊 Tutor speaking...', st_starting: 'Starting...', st_ready_start: 'Ready! Tap the microphone to start.',
+    st_chrome: 'Use Chrome for speech recognition.', st_mic_blocked: 'Microphone blocked. Allow it in Chrome settings.',
+    st_listening: 'Listening… you can pause.', st_cancelled: 'Sentence cancelled. Tap 🎤 to speak again.',
+    st_sending: 'Sending...', st_nothing: 'I did not hear anything. Tap and speak again.', st_ready: 'Ready. Tap to speak.',
+    st_ready_reply: 'Ready. Tap to answer.', st_processing: 'Processing...', st_preparing: 'Getting the tutor ready...',
+    st_error: 'Error: ', no_connection: 'no connection',
+    mic_tap: 'Tap to speak', mic_listening: 'Listening… tap ⏹ when you finish', cancel_btn: '✕ Cancel this sentence',
+    hint_btn: '💡 What can I say?', sug_thinking: 'Thinking of suggestions…', sug_none: 'No suggestions. Try again.',
+    sug_note: 'Tap a suggestion to hear it, then speak with the 🎤.',
+    write_toggle: '⌨️ Prefer to type?', link_profile: '👤 Profile', link_notebook: '📒 Notebook', link_key: '🔑 Change key',
+    text_ph: 'Type here...', tip_label: '💡 Tip:', lbl_tutor: '🎓 Tutor', lbl_you: '🎤 You',
+    btn_listen_again: 'Listen again', btn_translate: 'Show translation', btn_save: 'Save to notebook', saved: '✅ Saved',
+    translating: 'Translating…', translate_fail: 'I could not translate. Tap 🌐 to try again.', why: 'Why?',
+    import_invalid: 'This file is not a tutor backup.',
+    import_confirm: 'Import the backup{when}?\n\nThis will REPLACE on this phone:\n• the profile{name}\n• the notebook ({items})\n• the streak ({days})\n• the lessons from scratch ({lessons})\n\nThe API key does not change.',
+    import_when: ' from {date}', item_one: '1 item', item_many: '{n} items', dayp_one: '1 day of practice', dayp_many: '{n} days of practice',
+    import_save_fail: 'I could not save the data: ', import_ok: 'Data imported ✅\nCheck the profile and tap "Save and start".',
+    read_fail: 'I could not read the file.',
+    zero_btn: '🌱 From scratch', zero_title: '🌱 From scratch · {lang}', zero_intro: 'Twelve short lessons to start speaking. Tap a lesson to begin.',
+    zero_next: 'Next', zero_done_tag: '✓ Done', lesson_banner: 'Lesson {n}/12', lesson_done: 'Lesson complete!',
+    next_lesson_btn: 'Next lesson →', all_done: 'You have completed all the lessons! 🎉', lessons_n: '{n} of 12 done',
+    home_hello: 'Hi, {name}!', home_sub: 'What shall we practise today?', card_continue: 'Continue lesson {n}',
+    card_chat_t: 'Talk', card_chat_d: 'Everyday topics and free conversation', card_test_t: 'Level test', card_test_d: 'Find out your level in the language',
+    back_home: '← Home',
+    tab_home: 'Home', tab_chat: 'Talk', tab_notebook: 'Notebook', tab_profile: 'Profile',
+    photo_gallery: '🖼️ Gallery', photo_camera: '📷 Camera', photo_remove: '✕ Remove photo', photo_fail: 'I could not open the photo.', photo_save_fail: 'I could not save the photo.',
+    hint_label: '💡 Hint', readnat_q: 'Read explanations aloud (as well as the phrases in the language)',
+    test_banner: '📊 Level test · question {n}/{total}', test_evaluating: '📊 Level test · evaluating…', test_done_banner: '📊 Level test complete',
+    test_skip_btn: '🤷 I don’t know', test_skip_said: 'I don’t know',
+    test_intro: 'I am going to ask you 8 short questions to find out your level. Answer as best you can: I will not correct you now. If you don’t know, tap "I don’t know".',
+    test_result_title: 'Your level: {level}', test_strong: '✅ Strengths', test_improve: '🎯 To improve', test_recommend: 'Recommendation:',
+    test_confirm: 'Update your {lang} level in the profile to "{level}"?', test_rec_lesson: '🌱 Lesson {n}: {title}', test_rec_chat: '💬 Go to Talk',
+    test_fail: 'I could not prepare the test. Please try again.', test_eval_fail: 'I could not evaluate the test. Please try again.',
+    pf_tests_label: '📊 Latest level test:', pf_tests_none: 'You have not taken any test yet.', card_test_last: 'Latest result: {level}. Tap to retake.'
+  },
+  'fr': {
+    setup_text: 'Pour que la tutrice IA fonctionne, tu as besoin d’une clé API d’Anthropic.<br>C’est gratuit pour commencer et toi seul·e y as accès.',
+    key_ph: 'Colle ta clé ici : sk-ant-...', enter_btn: 'Entrer →',
+    key_note_html: 'Obtiens ta clé gratuite sur :<br><a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a><br><br>La clé est enregistrée uniquement sur ton téléphone (localStorage).<br>Personne d’autre n’y a accès.',
+    key_invalid: 'La clé doit commencer par « sk-ant- ». Vérifie-la et réessaie.',
+    profile_title: 'Ton profil', profile_text: 'La tutrice utilise ces informations pour t’appeler par ton prénom et adapter la conversation à ton niveau. Elles sont enregistrées uniquement sur ce téléphone.',
+    native_q: 'Ma langue (explications, menus et traductions) :', name_q: 'Comment tu t’appelles ?', name_ph: 'Ex. : Eliana',
+    city_q: 'Dans quelle ville habites-tu ?', city_ph: 'Ex. : Huelva, Espagne', level_q: 'Ton niveau dans chaque langue :',
+    lvl_iniciante: 'débutant', 'lvl_básico': 'élémentaire', 'lvl_intermediário': 'intermédiaire', 'lvl_avançado': 'avancé',
+    speed_q: 'Vitesse de la voix de la tutrice :', speed_lenta: 'Lente', speed_normal: 'Normale', speed_rapida: 'Rapide',
+    accent_q: 'Accent de l’espagnol (voix et vocabulaire) :', accent_es: 'Espagne', accent_latam: 'Amérique latine',
+    style_q: 'Style de la tutrice :', style_friendly: 'Sympathique', style_formal: 'Formel', style_fun: 'Drôle',
+    save_btn: 'Enregistrer et commencer →', backup_label: 'Sauvegarde (profil, photo, carnet, série, leçons et tests ; sans la clé API) :',
+    export_btn: '⬇️ Exporter mes données', import_btn: '⬆️ Importer mes données', name_required: 'Écris ton prénom, s’il te plaît.',
+    lang_es: 'Espagnol', lang_en: 'Anglais', lang_fr: 'Français', lang_it: 'Italien', lang_pt: 'Portugais (Brésil)',
+    nb_title: '📒 Mon carnet', tab_errors: 'Mes erreurs', tab_saved: 'Enregistrées',
+    nb_empty_errors: 'Aucune erreur enregistrée dans cette langue pour l’instant.<br>Chaque correction 📝 de la tutrice arrive ici toute seule.',
+    nb_empty_saved: 'Tu n’as encore enregistré aucune phrase dans cette langue.<br>Touche ⭐ sur un message de la tutrice (ou sélectionne un passage et touche ⭐).',
+    listen: 'Écouter', delete: 'Supprimer', close: 'Fermer',
+    day_one: '1 jour d’affilée de pratique', day_many: '{n} jours d’affilée de pratique',
+    week: 'lun,mar,mer,jeu,ven,sam,dim', st_current: 'Série actuelle', st_best: 'Meilleure série', st_total: 'Total de jours',
+    today_done: 'Journée complète ✅', today_left: 'Aujourd’hui : {n}/{g} phrases pour compléter la journée',
+    badge_done: 'Journée complète ! Série : {n}', badge_left: 'Aujourd’hui : {n}/{g} phrases',
+    topic_free: '🗣️ Libre', topic_market: '🛒 Supermarché', topic_doctor: '🏥 Médecin', topic_landlord: '🏠 Propriétaire', topic_bank: '🏦 Banque', topic_intro: '👤 Présentation',
+    speaking: '🔊 La tutrice parle...', st_starting: 'Démarrage...', st_ready_start: 'Prête ! Touche le micro pour commencer.',
+    st_chrome: 'Utilise Chrome pour la reconnaissance vocale.', st_mic_blocked: 'Micro bloqué. Autorise-le dans les paramètres de Chrome.',
+    st_listening: 'Je t’écoute… tu peux faire des pauses.', st_cancelled: 'Phrase annulée. Touche le 🎤 pour parler à nouveau.',
+    st_sending: 'Envoi...', st_nothing: 'Je n’ai rien entendu. Touche et parle à nouveau.', st_ready: 'Prête. Touche pour parler.',
+    st_ready_reply: 'Prête. Touche pour répondre.', st_processing: 'Traitement...', st_preparing: 'Préparation de la tutrice...',
+    st_error: 'Erreur : ', no_connection: 'pas de connexion',
+    mic_tap: 'Touche pour parler', mic_listening: 'Je t’écoute… touche ⏹ quand tu as fini', cancel_btn: '✕ Annuler cette phrase',
+    hint_btn: '💡 Que dire ?', sug_thinking: 'Je cherche des suggestions…', sug_none: 'Aucune suggestion. Réessaie.',
+    sug_note: 'Touche une suggestion pour l’écouter, puis parle avec le 🎤.',
+    write_toggle: '⌨️ Tu préfères écrire ?', link_profile: '👤 Profil', link_notebook: '📒 Carnet', link_key: '🔑 Changer de clé',
+    text_ph: 'Écris ici...', tip_label: '💡 Astuce :', lbl_tutor: '🎓 Tutrice', lbl_you: '🎤 Toi',
+    btn_listen_again: 'Réécouter', btn_translate: 'Afficher la traduction', btn_save: 'Enregistrer dans le carnet', saved: '✅ Enregistré',
+    translating: 'Traduction…', translate_fail: 'Je n’ai pas pu traduire. Touche 🌐 pour réessayer.', why: 'Pourquoi ?',
+    import_invalid: 'Ce fichier n’est pas une sauvegarde de la tutrice.',
+    import_confirm: 'Importer la sauvegarde{when} ?\n\nCela va REMPLACER sur ce téléphone :\n• le profil{name}\n• le carnet ({items})\n• la série ({days})\n• les leçons à partir de zéro ({lessons})\n\nLa clé API ne change pas.',
+    import_when: ' du {date}', item_one: '1 élément', item_many: '{n} éléments', dayp_one: '1 jour de pratique', dayp_many: '{n} jours de pratique',
+    import_save_fail: 'Je n’ai pas pu enregistrer les données : ', import_ok: 'Données importées ✅\nVérifie le profil et touche « Enregistrer et commencer ».',
+    read_fail: 'Je n’ai pas pu lire le fichier.',
+    zero_btn: '🌱 À partir de zéro', zero_title: '🌱 À partir de zéro · {lang}', zero_intro: 'Douze leçons courtes pour commencer à parler. Touche une leçon pour commencer.',
+    zero_next: 'Suivante', zero_done_tag: '✓ Terminée', lesson_banner: 'Leçon {n}/12', lesson_done: 'Leçon terminée !',
+    next_lesson_btn: 'Leçon suivante →', all_done: 'Tu as terminé toutes les leçons ! 🎉', lessons_n: '{n} sur 12 terminées',
+    home_hello: 'Bonjour, {name} !', home_sub: 'Qu’est-ce qu’on pratique aujourd’hui ?', card_continue: 'Continuer la leçon {n}',
+    card_chat_t: 'Converser', card_chat_d: 'Thèmes du quotidien et conversation libre', card_test_t: 'Test de niveau', card_test_d: 'Découvre ton niveau dans la langue',
+    back_home: '← Accueil',
+    tab_home: 'Accueil', tab_chat: 'Converser', tab_notebook: 'Carnet', tab_profile: 'Profil',
+    photo_gallery: '🖼️ Galerie', photo_camera: '📷 Appareil photo', photo_remove: '✕ Retirer la photo', photo_fail: 'Je n’ai pas pu ouvrir la photo.', photo_save_fail: 'Je n’ai pas pu enregistrer la photo.',
+    hint_label: '💡 Indice', readnat_q: 'Lire les explications à voix haute (en plus des phrases dans la langue)',
+    test_banner: '📊 Test de niveau · question {n}/{total}', test_evaluating: '📊 Test de niveau · évaluation…', test_done_banner: '📊 Test de niveau terminé',
+    test_skip_btn: '🤷 Je ne sais pas', test_skip_said: 'Je ne sais pas',
+    test_intro: 'Je vais te poser 8 questions courtes pour découvrir ton niveau. Réponds comme tu peux : je ne vais pas te corriger maintenant. Si tu ne sais pas, touche « Je ne sais pas ».',
+    test_result_title: 'Ton niveau : {level}', test_strong: '✅ Points forts', test_improve: '🎯 À améliorer', test_recommend: 'Recommandation :',
+    test_confirm: 'Mettre à jour ton niveau en {lang} dans le profil : « {level} » ?', test_rec_lesson: '🌱 Leçon {n} : {title}', test_rec_chat: '💬 Aller à Converser',
+    test_fail: 'Je n’ai pas pu préparer le test. Réessaie.', test_eval_fail: 'Je n’ai pas pu évaluer le test. Réessaie.',
+    pf_tests_label: '📊 Dernier test de niveau :', pf_tests_none: 'Tu n’as encore fait aucun test.', card_test_last: 'Dernier résultat : {level}. Touche pour le refaire.'
+  },
+  'it': {
+    setup_text: 'Perché la tutor IA funzioni, ti serve una chiave API di Anthropic.<br>È gratuita per iniziare e solo tu ci hai accesso.',
+    key_ph: 'Incolla qui la tua chiave: sk-ant-...', enter_btn: 'Entra →',
+    key_note_html: 'Ottieni la tua chiave gratuita su:<br><a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a><br><br>La chiave è salvata solo sul tuo telefono (localStorage).<br>Nessun altro vi ha accesso.',
+    key_invalid: 'La chiave deve iniziare con "sk-ant-". Controllala e riprova.',
+    profile_title: 'Il tuo profilo', profile_text: 'La tutor usa questi dati per chiamarti per nome e adattare la conversazione al tuo livello. Sono salvati solo su questo telefono.',
+    native_q: 'La mia lingua (spiegazioni, menu e traduzioni):', name_q: 'Come ti chiami?', name_ph: 'Es.: Eliana',
+    city_q: 'In che città vivi?', city_ph: 'Es.: Huelva, Spagna', level_q: 'Il tuo livello in ogni lingua:',
+    lvl_iniciante: 'principiante', 'lvl_básico': 'elementare', 'lvl_intermediário': 'intermedio', 'lvl_avançado': 'avanzato',
+    speed_q: 'Velocità della voce della tutor:', speed_lenta: 'Lenta', speed_normal: 'Normale', speed_rapida: 'Veloce',
+    accent_q: 'Accento dello spagnolo (voce e vocabolario):', accent_es: 'Spagna', accent_latam: 'America Latina',
+    style_q: 'Stile della tutor:', style_friendly: 'Amichevole', style_formal: 'Formale', style_fun: 'Divertente',
+    save_btn: 'Salva e inizia →', backup_label: 'Backup (profilo, foto, quaderno, serie, lezioni e test; senza la chiave API):',
+    export_btn: '⬇️ Esporta i miei dati', import_btn: '⬆️ Importa i miei dati', name_required: 'Scrivi il tuo nome, per favore.',
+    lang_es: 'Spagnolo', lang_en: 'Inglese', lang_fr: 'Francese', lang_it: 'Italiano', lang_pt: 'Portoghese (Brasile)',
+    nb_title: '📒 Il mio quaderno', tab_errors: 'I miei errori', tab_saved: 'Salvate',
+    nb_empty_errors: 'Ancora nessun errore salvato in questa lingua.<br>Ogni correzione 📝 della tutor arriva qui da sola.',
+    nb_empty_saved: 'Non hai ancora salvato nessuna frase in questa lingua.<br>Tocca ⭐ su un messaggio della tutor (o seleziona una parte e tocca ⭐).',
+    listen: 'Ascolta', delete: 'Elimina', close: 'Chiudi',
+    day_one: '1 giorno di fila di pratica', day_many: '{n} giorni di fila di pratica',
+    week: 'lun,mar,mer,gio,ven,sab,dom', st_current: 'Serie attuale', st_best: 'Serie migliore', st_total: 'Giorni totali',
+    today_done: 'Giornata completata ✅', today_left: 'Oggi: {n}/{g} frasi per completare la giornata',
+    badge_done: 'Giornata completata! Serie: {n}', badge_left: 'Oggi: {n}/{g} frasi',
+    topic_free: '🗣️ Libera', topic_market: '🛒 Supermercato', topic_doctor: '🏥 Medico', topic_landlord: '🏠 Padrone di casa', topic_bank: '🏦 Banca', topic_intro: '👤 Presentazione',
+    speaking: '🔊 La tutor sta parlando...', st_starting: 'Avvio...', st_ready_start: 'Pronta! Tocca il microfono per iniziare.',
+    st_chrome: 'Usa Chrome per il riconoscimento vocale.', st_mic_blocked: 'Microfono bloccato. Consentilo nelle impostazioni di Chrome.',
+    st_listening: 'Ti ascolto… puoi fare delle pause.', st_cancelled: 'Frase annullata. Tocca il 🎤 per parlare di nuovo.',
+    st_sending: 'Invio...', st_nothing: 'Non ho sentito niente. Tocca e parla di nuovo.', st_ready: 'Pronta. Tocca per parlare.',
+    st_ready_reply: 'Pronta. Tocca per rispondere.', st_processing: 'Elaborazione...', st_preparing: 'Preparo la tutor...',
+    st_error: 'Errore: ', no_connection: 'nessuna connessione',
+    mic_tap: 'Tocca per parlare', mic_listening: 'Ti ascolto… tocca ⏹ quando hai finito', cancel_btn: '✕ Annulla questa frase',
+    hint_btn: '💡 Cosa dico?', sug_thinking: 'Cerco dei suggerimenti…', sug_none: 'Nessun suggerimento. Riprova.',
+    sug_note: 'Tocca un suggerimento per ascoltarlo, poi parla con il 🎤.',
+    write_toggle: '⌨️ Preferisci scrivere?', link_profile: '👤 Profilo', link_notebook: '📒 Quaderno', link_key: '🔑 Cambia chiave',
+    text_ph: 'Scrivi qui...', tip_label: '💡 Consiglio:', lbl_tutor: '🎓 Tutor', lbl_you: '🎤 Tu',
+    btn_listen_again: 'Riascolta', btn_translate: 'Mostra traduzione', btn_save: 'Salva nel quaderno', saved: '✅ Salvato',
+    translating: 'Traduzione…', translate_fail: 'Non sono riuscita a tradurre. Tocca 🌐 per riprovare.', why: 'Perché?',
+    import_invalid: 'Questo file non è un backup della tutor.',
+    import_confirm: 'Importare il backup{when}?\n\nQuesto SOSTITUIRÀ su questo telefono:\n• il profilo{name}\n• il quaderno ({items})\n• la serie ({days})\n• le lezioni da zero ({lessons})\n\nLa chiave API non cambia.',
+    import_when: ' del {date}', item_one: '1 elemento', item_many: '{n} elementi', dayp_one: '1 giorno di pratica', dayp_many: '{n} giorni di pratica',
+    import_save_fail: 'Non sono riuscita a salvare i dati: ', import_ok: 'Dati importati ✅\nControlla il profilo e tocca "Salva e inizia".',
+    read_fail: 'Non sono riuscita a leggere il file.',
+    zero_btn: '🌱 Da zero', zero_title: '🌱 Da zero · {lang}', zero_intro: 'Dodici lezioni brevi per iniziare a parlare. Tocca una lezione per cominciare.',
+    zero_next: 'Prossima', zero_done_tag: '✓ Completata', lesson_banner: 'Lezione {n}/12', lesson_done: 'Lezione completata!',
+    next_lesson_btn: 'Prossima lezione →', all_done: 'Hai completato tutte le lezioni! 🎉', lessons_n: '{n} su 12 completate',
+    home_hello: 'Ciao, {name}!', home_sub: 'Cosa pratichiamo oggi?', card_continue: 'Continua la lezione {n}',
+    card_chat_t: 'Conversare', card_chat_d: 'Temi di tutti i giorni e conversazione libera', card_test_t: 'Test di livello', card_test_d: 'Scopri il tuo livello nella lingua',
+    back_home: '← Home',
+    tab_home: 'Home', tab_chat: 'Conversare', tab_notebook: 'Quaderno', tab_profile: 'Profilo',
+    photo_gallery: '🖼️ Galleria', photo_camera: '📷 Fotocamera', photo_remove: '✕ Rimuovi foto', photo_fail: 'Non sono riuscita ad aprire la foto.', photo_save_fail: 'Non sono riuscita a salvare la foto.',
+    hint_label: '💡 Suggerimento', readnat_q: 'Leggere ad alta voce le spiegazioni (oltre alle frasi nella lingua)',
+    test_banner: '📊 Test di livello · domanda {n}/{total}', test_evaluating: '📊 Test di livello · valutazione…', test_done_banner: '📊 Test di livello completato',
+    test_skip_btn: '🤷 Non lo so', test_skip_said: 'Non lo so',
+    test_intro: 'Ti farò 8 domande brevi per scoprire il tuo livello. Rispondi come puoi: adesso non ti correggo. Se non lo sai, tocca "Non lo so".',
+    test_result_title: 'Il tuo livello: {level}', test_strong: '✅ Punti di forza', test_improve: '🎯 Da migliorare', test_recommend: 'Consiglio:',
+    test_confirm: 'Aggiornare il tuo livello di {lang} nel profilo a "{level}"?', test_rec_lesson: '🌱 Lezione {n}: {title}', test_rec_chat: '💬 Vai a Conversare',
+    test_fail: 'Non sono riuscita a preparare il test. Riprova.', test_eval_fail: 'Non sono riuscita a valutare il test. Riprova.',
+    pf_tests_label: '📊 Ultimo test di livello:', pf_tests_none: 'Non hai ancora fatto nessun test.', card_test_last: 'Ultimo risultato: {level}. Tocca per rifarlo.'
   }
 };
 
@@ -768,13 +1014,33 @@ const TIPS = {
     fr: 'En francés, muchas letras finales no se pronuncian: "petit" suena "petí".',
     it: 'En italiano, las consonantes dobles se pronuncian más largas: "pala" y "palla" no son iguales.',
     pt: 'En portugués, "ão" es un sonido nasal: "pão" suena como "pau" pero por la nariz. Y "yo" se dice "eu".'
+  },
+  'en': {
+    es: 'In Spanish, "ser" is for permanent traits and "estar" for temporary states: "soy alta", but "estoy cansada".',
+    fr: 'In French, many final letters are silent: "petit" sounds like "puh-tee".',
+    it: 'In Italian, double consonants are held longer: "pala" and "palla" sound different.',
+    pt: 'In Portuguese, "ão" is a nasal sound: let the air go through your nose, as in "pão".'
+  },
+  'fr': {
+    es: 'En espagnol, « ser » sert pour ce qui est permanent et « estar » pour les états passagers : « soy alta », mais « estoy cansada ».',
+    en: 'En anglais, le « th » (« the », « think ») n’existe pas en français : place la langue entre les dents.',
+    it: 'En italien, les consonnes doubles se prononcent plus longues : « pala » et « palla » ne sonnent pas pareil.',
+    pt: 'En portugais, « ão » est un son nasal, comme dans « pão » : laisse passer l’air par le nez.'
+  },
+  'it': {
+    es: 'In spagnolo, "ser" si usa per le caratteristiche permanenti e "estar" per gli stati temporanei: "soy alta", ma "estoy cansada".',
+    en: 'In inglese, il "th" ("the", "think") non esiste in italiano: metti la lingua tra i denti.',
+    fr: 'In francese, molte lettere finali non si pronunciano: "petit" si legge "petì".',
+    pt: 'In portoghese, "ão" è un suono nasale, come in "pão": fai passare l\'aria dal naso.'
   }
 };
 
 let uiOverride = null; // língua escolhida no perfil antes de guardar (pré-visualização)
 function detectNative() {
   const l = (navigator.language || 'pt-BR').toLowerCase();
-  return l.startsWith('es') ? 'es' : l === 'pt-pt' ? 'pt-PT' : 'pt-BR';
+  if (l === 'pt-pt') return 'pt-PT';
+  const base = l.split('-')[0];
+  return ['es', 'en', 'fr', 'it'].includes(base) ? base : 'pt-BR';
 }
 // Perfis antigos guardavam só "expl" (variante do português das explicações).
 function getNative(P) {
