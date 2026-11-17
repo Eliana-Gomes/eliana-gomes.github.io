@@ -991,6 +991,13 @@ function lessonItems(i) {
     return { t: lzVar(f[0], currentLang === 'pt' && ptIsPT()), g: lzVar(g, nat === 'pt-PT') };
   });
 }
+// Mini-conversa com roteiro fixo: por lição, 'fala da Lia>resposta modelo' (índices das frases da lição), 2 trocas.
+const LESSON_CHAT = ['1>1,3>3', '0>1,2>2', '0>1,2>3', '0>1,2>3', '0>1,1>2', '0>1,2>3', '0>1,2>3', '0>4,1>2', '0>2,1>3', '3>4,4>3', '0>1,2>3', '0>1,3>4'];
+const LESSON_CHAT_LANG = { es: { 0: '1>1,4>4' }, pt: { 0: '1>1,4>4' }, en: { 1: '0>1,3>3' } };
+function lessonChat(i) {
+  const s = (LESSON_CHAT_LANG[currentLang] || {})[i] || LESSON_CHAT[i] || '0>0,0>0';
+  return s.split(',').map(p => p.split('>').map(Number));
+}
 function lessonSteps(n) {
   const idx = [...Array(n).keys()];
   return idx.map(i => ({ k: 'teach', i }))
@@ -1067,7 +1074,7 @@ const I18N = {
     tab_home: 'Início', tab_chat: 'Conversar', tab_notebook: 'Caderno', tab_profile: 'Perfil',
     photo_gallery: '🖼️ Galeria', photo_camera: '📷 Câmera', photo_remove: '✕ Remover foto', photo_fail: 'Não consegui abrir a foto.', photo_save_fail: 'Não consegui salvar a foto.',
     empty_reply: 'A Lia não respondeu', ai_timeout: 'A Lia demorou demais a responder. Tente de novo.', busy_thinking: 'A Lia está pensando…', busy_speaking: 'Toque no avatar ou em 🔊 para interromper', unsaved_q: 'Salvar alterações?', unsaved_save: 'Salvar', unsaved_discard: 'Descartar', lang_changed: 'A sua língua mudou: as lições guardadas vão recomeçar.',
-    lz_intro: 'Lição {n}: {title}. Você vai aprender {k} frases, uma de cada vez.', lz_fill: '(com os seus dados)', lz_recall_intro: 'Agora vamos lembrar as frases.', lz_chat_intro: 'Agora uma pequena conversa com estas frases.', lz_recall_q: 'Como se diz "{txt}" em {lang}?', lz_end: 'Parabéns! Você terminou a lição. As frases que aprendeu:', lz_inprogress: 'A lição {n} está em andamento.', lz_continue: 'Continuar', lz_restart_full: 'Recomeçar do início', lz_restart_btn: '↺ Recomeçar', lz_restart_q: 'Recomeçar esta lição do início?', lz_restart: 'Recomeçar', lz_cancel: 'Cancelar', lz_tag_progress: 'Em andamento',
+    lz_intro: 'Lição {n}: {title}. Você vai aprender {k} frases, uma de cada vez.', lz_fill: '(com os seus dados)', lz_recall_intro: 'Agora vamos lembrar as frases.', lz_chat_intro: 'Agora uma pequena conversa com estas frases.', lz_answer_is: 'A resposta é: «{a}».', lz_possible: 'Uma resposta possível: «{a}».', lz_unclear: 'Não entendi bem. Vamos de novo.', lz_recall_q: 'Como se diz "{txt}" em {lang}?', lz_end: 'Parabéns! Você terminou a lição. As frases que aprendeu:', lz_inprogress: 'A lição {n} está em andamento.', lz_continue: 'Continuar', lz_restart_full: 'Recomeçar do início', lz_restart_btn: '↺ Recomeçar', lz_restart_q: 'Recomeçar esta lição do início?', lz_restart: 'Recomeçar', lz_cancel: 'Cancelar', lz_tag_progress: 'Em andamento',
     hint_label: '💡 Dica', readnat_q: 'Ler explicações em voz alta (além das frases no idioma)',
     test_banner: '📊 Teste de nível · pergunta {n}/{total}', test_evaluating: '📊 Teste de nível · avaliando…', test_done_banner: '📊 Teste de nível concluído',
     test_skip_btn: '🤷 Não sei', test_skip_said: 'Não sei',
@@ -1129,7 +1136,7 @@ const I18N = {
     tab_home: 'Início', tab_chat: 'Conversar', tab_notebook: 'Caderno', tab_profile: 'Perfil',
     photo_gallery: '🖼️ Galeria', photo_camera: '📷 Câmara', photo_remove: '✕ Remover foto', photo_fail: 'Não consegui abrir a foto.', photo_save_fail: 'Não consegui guardar a foto.',
     empty_reply: 'A Lia não respondeu', ai_timeout: 'A Lia demorou demasiado a responder. Tenta de novo.', busy_thinking: 'A Lia está a pensar…', busy_speaking: 'Toca no avatar ou em 🔊 para interromper', unsaved_q: 'Guardar as alterações?', unsaved_save: 'Guardar', unsaved_discard: 'Descartar', lang_changed: 'A tua língua mudou: as lições guardadas vão recomeçar.',
-    lz_intro: 'Lição {n}: {title}. Vais aprender {k} frases, uma de cada vez.', lz_fill: '(com os teus dados)', lz_recall_intro: 'Agora vamos lembrar as frases.', lz_chat_intro: 'Agora uma pequena conversa com estas frases.', lz_recall_q: 'Como se diz "{txt}" em {lang}?', lz_end: 'Parabéns! Terminaste a lição. As frases que aprendeste:', lz_inprogress: 'A lição {n} está em curso.', lz_continue: 'Continuar', lz_restart_full: 'Recomeçar do início', lz_restart_btn: '↺ Recomeçar', lz_restart_q: 'Recomeçar esta lição do início?', lz_restart: 'Recomeçar', lz_cancel: 'Cancelar', lz_tag_progress: 'Em curso',
+    lz_intro: 'Lição {n}: {title}. Vais aprender {k} frases, uma de cada vez.', lz_fill: '(com os teus dados)', lz_recall_intro: 'Agora vamos lembrar as frases.', lz_chat_intro: 'Agora uma pequena conversa com estas frases.', lz_answer_is: 'A resposta é: «{a}».', lz_possible: 'Uma resposta possível: «{a}».', lz_unclear: 'Não percebi bem. Vamos outra vez.', lz_recall_q: 'Como se diz "{txt}" em {lang}?', lz_end: 'Parabéns! Terminaste a lição. As frases que aprendeste:', lz_inprogress: 'A lição {n} está em curso.', lz_continue: 'Continuar', lz_restart_full: 'Recomeçar do início', lz_restart_btn: '↺ Recomeçar', lz_restart_q: 'Recomeçar esta lição do início?', lz_restart: 'Recomeçar', lz_cancel: 'Cancelar', lz_tag_progress: 'Em curso',
     hint_label: '💡 Dica', readnat_q: 'Ler explicações em voz alta (além das frases no idioma)',
     test_banner: '📊 Teste de nível · pergunta {n}/{total}', test_evaluating: '📊 Teste de nível · a avaliar…', test_done_banner: '📊 Teste de nível concluído',
     test_skip_btn: '🤷 Não sei', test_skip_said: 'Não sei',
@@ -1191,7 +1198,7 @@ const I18N = {
     tab_home: 'Inicio', tab_chat: 'Conversar', tab_notebook: 'Cuaderno', tab_profile: 'Perfil',
     photo_gallery: '🖼️ Galería', photo_camera: '📷 Cámara', photo_remove: '✕ Quitar foto', photo_fail: 'No pude abrir la foto.', photo_save_fail: 'No pude guardar la foto.',
     empty_reply: 'Lia no respondió', ai_timeout: 'Lia tardó demasiado en responder. Inténtalo de nuevo.', busy_thinking: 'Lia está pensando…', busy_speaking: 'Toca el avatar o 🔊 para interrumpir', unsaved_q: '¿Guardar los cambios?', unsaved_save: 'Guardar', unsaved_discard: 'Descartar', lang_changed: 'Tu idioma cambió: las lecciones guardadas volverán a empezar.',
-    lz_intro: 'Lección {n}: {title}. Vas a aprender {k} frases, una por una.', lz_fill: '(con tus datos)', lz_recall_intro: 'Ahora vamos a recordar las frases.', lz_chat_intro: 'Ahora, una pequeña conversación con estas frases.', lz_recall_q: '¿Cómo se dice "{txt}" en {lang}?', lz_end: '¡Felicidades! Terminaste la lección. Las frases que aprendiste:', lz_inprogress: 'La lección {n} está en curso.', lz_continue: 'Continuar', lz_restart_full: 'Empezar de nuevo', lz_restart_btn: '↺ Empezar de nuevo', lz_restart_q: '¿Empezar esta lección de nuevo?', lz_restart: 'Empezar de nuevo', lz_cancel: 'Cancelar', lz_tag_progress: 'En curso',
+    lz_intro: 'Lección {n}: {title}. Vas a aprender {k} frases, una por una.', lz_fill: '(con tus datos)', lz_recall_intro: 'Ahora vamos a recordar las frases.', lz_chat_intro: 'Ahora, una pequeña conversación con estas frases.', lz_answer_is: 'La respuesta es: «{a}».', lz_possible: 'Una respuesta posible: «{a}».', lz_unclear: 'No entendí bien. Otra vez.', lz_recall_q: '¿Cómo se dice "{txt}" en {lang}?', lz_end: '¡Felicidades! Terminaste la lección. Las frases que aprendiste:', lz_inprogress: 'La lección {n} está en curso.', lz_continue: 'Continuar', lz_restart_full: 'Empezar de nuevo', lz_restart_btn: '↺ Empezar de nuevo', lz_restart_q: '¿Empezar esta lección de nuevo?', lz_restart: 'Empezar de nuevo', lz_cancel: 'Cancelar', lz_tag_progress: 'En curso',
     hint_label: '💡 Pista', readnat_q: 'Leer las explicaciones en voz alta (además de las frases en el idioma)',
     test_banner: '📊 Prueba de nivel · pregunta {n}/{total}', test_evaluating: '📊 Prueba de nivel · evaluando…', test_done_banner: '📊 Prueba de nivel completada',
     test_skip_btn: '🤷 No sé', test_skip_said: 'No sé',
@@ -1253,7 +1260,7 @@ const I18N = {
     tab_home: 'Home', tab_chat: 'Talk', tab_notebook: 'Notebook', tab_profile: 'Profile',
     photo_gallery: '🖼️ Gallery', photo_camera: '📷 Camera', photo_remove: '✕ Remove photo', photo_fail: 'I could not open the photo.', photo_save_fail: 'I could not save the photo.',
     empty_reply: 'Lia did not answer', ai_timeout: 'Lia took too long to answer. Please try again.', busy_thinking: 'Lia is thinking…', busy_speaking: 'Tap the avatar or 🔊 to stop', unsaved_q: 'Save changes?', unsaved_save: 'Save', unsaved_discard: 'Discard', lang_changed: 'Your language changed: saved lessons will start again.',
-    lz_intro: 'Lesson {n}: {title}. You will learn {k} phrases, one at a time.', lz_fill: '(with your own details)', lz_recall_intro: 'Now let’s remember the phrases.', lz_chat_intro: 'Now a short conversation with these phrases.', lz_recall_q: 'How do you say "{txt}" in {lang}?', lz_end: 'Well done! You finished the lesson. The phrases you learned:', lz_inprogress: 'Lesson {n} is in progress.', lz_continue: 'Continue', lz_restart_full: 'Start again from the beginning', lz_restart_btn: '↺ Start again', lz_restart_q: 'Start this lesson again from the beginning?', lz_restart: 'Start again', lz_cancel: 'Cancel', lz_tag_progress: 'In progress',
+    lz_intro: 'Lesson {n}: {title}. You will learn {k} phrases, one at a time.', lz_fill: '(with your own details)', lz_recall_intro: 'Now let’s remember the phrases.', lz_chat_intro: 'Now a short conversation with these phrases.', lz_answer_is: 'The answer is: «{a}».', lz_possible: 'A possible answer: «{a}».', lz_unclear: 'I didn’t quite understand. Let’s try again.', lz_recall_q: 'How do you say "{txt}" in {lang}?', lz_end: 'Well done! You finished the lesson. The phrases you learned:', lz_inprogress: 'Lesson {n} is in progress.', lz_continue: 'Continue', lz_restart_full: 'Start again from the beginning', lz_restart_btn: '↺ Start again', lz_restart_q: 'Start this lesson again from the beginning?', lz_restart: 'Start again', lz_cancel: 'Cancel', lz_tag_progress: 'In progress',
     hint_label: '💡 Hint', readnat_q: 'Read explanations aloud (as well as the phrases in the language)',
     test_banner: '📊 Level test · question {n}/{total}', test_evaluating: '📊 Level test · evaluating…', test_done_banner: '📊 Level test complete',
     test_skip_btn: '🤷 I don’t know', test_skip_said: 'I don’t know',
@@ -1315,7 +1322,7 @@ const I18N = {
     tab_home: 'Accueil', tab_chat: 'Converser', tab_notebook: 'Carnet', tab_profile: 'Profil',
     photo_gallery: '🖼️ Galerie', photo_camera: '📷 Appareil photo', photo_remove: '✕ Retirer la photo', photo_fail: 'Je n’ai pas pu ouvrir la photo.', photo_save_fail: 'Je n’ai pas pu enregistrer la photo.',
     empty_reply: 'Lia n’a pas répondu', ai_timeout: 'Lia a mis trop de temps à répondre. Réessaie.', busy_thinking: 'Lia réfléchit…', busy_speaking: 'Touche l’avatar ou 🔊 pour l’interrompre', unsaved_q: 'Enregistrer les modifications ?', unsaved_save: 'Enregistrer', unsaved_discard: 'Ignorer', lang_changed: 'Ta langue a changé : les leçons enregistrées vont recommencer.',
-    lz_intro: 'Leçon {n} : {title}. Tu vas apprendre {k} phrases, une à la fois.', lz_fill: '(avec tes informations)', lz_recall_intro: 'Maintenant, on révise les phrases.', lz_chat_intro: 'Maintenant, une petite conversation avec ces phrases.', lz_recall_q: 'Comment dit-on « {txt} » en {lang} ?', lz_end: 'Bravo ! Tu as terminé la leçon. Les phrases que tu as apprises :', lz_inprogress: 'La leçon {n} est en cours.', lz_continue: 'Continuer', lz_restart_full: 'Recommencer depuis le début', lz_restart_btn: '↺ Recommencer', lz_restart_q: 'Recommencer cette leçon depuis le début ?', lz_restart: 'Recommencer', lz_cancel: 'Annuler', lz_tag_progress: 'En cours',
+    lz_intro: 'Leçon {n} : {title}. Tu vas apprendre {k} phrases, une à la fois.', lz_fill: '(avec tes informations)', lz_recall_intro: 'Maintenant, on révise les phrases.', lz_chat_intro: 'Maintenant, une petite conversation avec ces phrases.', lz_answer_is: 'La réponse est : «{a}».', lz_possible: 'Une réponse possible : «{a}».', lz_unclear: 'Je n’ai pas bien compris. On recommence.', lz_recall_q: 'Comment dit-on « {txt} » en {lang} ?', lz_end: 'Bravo ! Tu as terminé la leçon. Les phrases que tu as apprises :', lz_inprogress: 'La leçon {n} est en cours.', lz_continue: 'Continuer', lz_restart_full: 'Recommencer depuis le début', lz_restart_btn: '↺ Recommencer', lz_restart_q: 'Recommencer cette leçon depuis le début ?', lz_restart: 'Recommencer', lz_cancel: 'Annuler', lz_tag_progress: 'En cours',
     hint_label: '💡 Indice', readnat_q: 'Lire les explications à voix haute (en plus des phrases dans la langue)',
     test_banner: '📊 Test de niveau · question {n}/{total}', test_evaluating: '📊 Test de niveau · évaluation…', test_done_banner: '📊 Test de niveau terminé',
     test_skip_btn: '🤷 Je ne sais pas', test_skip_said: 'Je ne sais pas',
@@ -1377,7 +1384,7 @@ const I18N = {
     tab_home: 'Home', tab_chat: 'Conversare', tab_notebook: 'Quaderno', tab_profile: 'Profilo',
     photo_gallery: '🖼️ Galleria', photo_camera: '📷 Fotocamera', photo_remove: '✕ Rimuovi foto', photo_fail: 'Non sono riuscita ad aprire la foto.', photo_save_fail: 'Non sono riuscita a salvare la foto.',
     empty_reply: 'Lia non ha risposto', ai_timeout: 'Lia ci ha messo troppo a rispondere. Riprova.', busy_thinking: 'Lia sta pensando…', busy_speaking: 'Tocca l’avatar o 🔊 per interrompere', unsaved_q: 'Salvare le modifiche?', unsaved_save: 'Salva', unsaved_discard: 'Scarta', lang_changed: 'La tua lingua è cambiata: le lezioni salvate ricominceranno.',
-    lz_intro: 'Lezione {n}: {title}. Imparerai {k} frasi, una alla volta.', lz_fill: '(con i tuoi dati)', lz_recall_intro: 'Ora ripassiamo le frasi.', lz_chat_intro: 'Ora una piccola conversazione con queste frasi.', lz_recall_q: 'Come si dice "{txt}" in {lang}?', lz_end: 'Complimenti! Hai finito la lezione. Le frasi che hai imparato:', lz_inprogress: 'La lezione {n} è in corso.', lz_continue: 'Continua', lz_restart_full: 'Ricomincia dall’inizio', lz_restart_btn: '↺ Ricomincia', lz_restart_q: 'Ricominciare questa lezione dall’inizio?', lz_restart: 'Ricomincia', lz_cancel: 'Annulla', lz_tag_progress: 'In corso',
+    lz_intro: 'Lezione {n}: {title}. Imparerai {k} frasi, una alla volta.', lz_fill: '(con i tuoi dati)', lz_recall_intro: 'Ora ripassiamo le frasi.', lz_chat_intro: 'Ora una piccola conversazione con queste frasi.', lz_answer_is: 'La risposta è: «{a}».', lz_possible: 'Una risposta possibile: «{a}».', lz_unclear: 'Non ho capito bene. Riproviamo.', lz_recall_q: 'Come si dice "{txt}" in {lang}?', lz_end: 'Complimenti! Hai finito la lezione. Le frasi che hai imparato:', lz_inprogress: 'La lezione {n} è in corso.', lz_continue: 'Continua', lz_restart_full: 'Ricomincia dall’inizio', lz_restart_btn: '↺ Ricomincia', lz_restart_q: 'Ricominciare questa lezione dall’inizio?', lz_restart: 'Ricomincia', lz_cancel: 'Annulla', lz_tag_progress: 'In corso',
     hint_label: '💡 Suggerimento', readnat_q: 'Leggere ad alta voce le spiegazioni (oltre alle frasi nella lingua)',
     test_banner: '📊 Test di livello · domanda {n}/{total}', test_evaluating: '📊 Test di livello · valutazione…', test_done_banner: '📊 Test di livello completato',
     test_skip_btn: '🤷 Non lo so', test_skip_said: 'Non lo so',
@@ -2206,8 +2213,8 @@ async function greet() {
   }
 }
 
-// ── Passos da lição, feitos pelo app (frases fixas): a IA só avalia a resposta e conduz a mini-conversa ──
-// lessonState = { pos: passo atual em lessonSteps(), tries: tentativas falhadas neste passo }
+// ── Passos da lição, feitos pelo app (frases fixas). A IA só devolve um JSON com a avaliação. ──
+// lessonState = { pos: passo atual em lessonSteps(), tries: tentativas erradas neste passo }
 function lzNI() { return NATIVES[getNative(PROFILE)]; }
 function lzLangName() { return lzNI().group === 'en' ? langUI(currentLang) : langUI(currentLang).toLowerCase(); }
 // "Repita comigo" sempre na língua nativa (com "com os seus dados" quando a frase tem "…").
@@ -2217,20 +2224,35 @@ function lzRecallQ(it) {
   const m = it.g.match(/^(.*?)\s*\(([^)]*)\)\s*$/);
   return t('lz_recall_q', { txt: m ? m[1] : it.g, lang: lzLangName() }) + (m ? ' (' + m[2] + ')' : '');
 }
+function lzGloss(it) { return `[nat] (${it.g.replace(/\s*\(([^)]*)\)/g, ' — $1')})`; }
+// Mini-conversa: fala da Lia e resposta modelo (frases da lição) da troca n.
+function lzTurn(items, n) { const [a, b] = lessonChat(currentLesson)[n] || [0, 0]; return { lia: items[a] || items[0], ans: items[b] || items[0] }; }
+// Texto do pedido de um passo (o app escreve tudo): ENSINAR, LEMBRAR ou fala da Lia na mini-conversa.
 function lzStepText(step, items, prev) {
-  const it = items[step.i];
-  if (step.k === 'teach') return `[alvo] ${it.t}\n[nat] (${it.g.replace(/\s*\(([^)]*)\)/g, ' — $1')})\n[nat] ${lzRepeat(it)}.`;
-  return (prev && prev.k === 'teach' ? `[nat] ${t('lz_recall_intro')}\n` : '') + `[nat] ${lzRecallQ(it)}`;
+  if (step.k === 'teach') { const it = items[step.i]; return `[alvo] ${it.t}\n${lzGloss(it)}\n[nat] ${lzRepeat(it)}.`; }
+  if (step.k === 'recall') return (prev && prev.k === 'teach' ? `[nat] ${t('lz_recall_intro')}\n` : '') + `[nat] ${lzRecallQ(items[step.i])}`;
+  const tn = lzTurn(items, step.i);
+  return (prev && prev.k !== 'chat' ? `[nat] ${t('lz_chat_intro')}\n` : '') + `[alvo] ${tn.lia.t}\n${lzGloss(tn.lia)}`;
+}
+// O que a aluna deve dizer neste passo (depois de um erro, é sempre a frase a repetir).
+function lzExpected(step, items) { return step.k === 'chat' ? lzTurn(items, step.i).ans : items[step.i]; }
+// Pedido do passo outra vez (pergunta, resposta pouco clara, JSON inválido).
+function lzAgainText(step, items, tries) {
+  const ex = lzExpected(step, items);
+  if (tries || step.k === 'teach') return `[nat] ${lzRepeat(ex)}:\n[alvo] ${ex.t}`;
+  return lzStepText(step, items, null);
 }
 
-// Comentários sobre maiúsculas, acentos, pontuação ou apóstrofos (o reconhecimento de voz não os escreve): nunca aparecem.
+// Linhas de feedback da IA que nunca aparecem: maiúsculas, acentos, pontuação (o reconhecimento de voz não os escreve),
+// progresso, fases, fim da lição ou tentativas (só o app fala disso).
 const LZ_TYPO_TALK = /acento|accent|pontua|puntua|punctua|ponctua|punteggiat|mai[uú]scul|may[uú]scul|capital|majuscul|maiuscol|apostro|tilde|cedilh|cedill|c[ée]dille|ortograf|spelling|orthograph/i;
-// Linhas da IA sobre progresso, fases, fim da lição ou tentativas (texto já normalizado): só o app fala disso.
-const LZ_PROGRESS_TALK = /conclu|termin|complet|revis|review|finish|\bfini|finito|ripass|tentativa|tentativo|intento|attempt|tentative|todas as|todas las|toutes les|tutte le|\ball (the )?(\d|five|four|phrases)|\d+ (frases|phrases|frasi)|(licao|leccion|lecon|lezione|lesson) \d|proxima (fase|etapa)|next (step|phase)|proximo passo|vamos lembrar|vamos recordar|let s remember|on revise|ripassiamo|conversa|conversation|conversacion|conversazione|vamos conversar|vamos a hablar|let s talk|let s chat|on va parler|parliamo un po/;
+const LZ_PROGRESS_TALK = /conclu|acert|ultim|\blast\b|derni|\bboth\b|ambas|as duas|les deux|entrambe|tutte e due|termin|complet|revis|review|finish|\bfini|finito|ripass|tentativa|tentativo|intento|attempt|tentative|todas as|todas las|toutes les|tutte le|\ball (the )?(\d|five|four|phrases)|\d+ (frases|phrases|frasi)|(licao|leccion|lecon|lezione|lesson) \d|proxima (fase|etapa)|next (step|phase)|proximo passo|vamos lembrar|vamos recordar|let s remember|on revise|ripassiamo|conversa|conversation|conversacion|conversazione|vamos conversar|vamos a hablar|let s talk|let s chat|on va parler|parliamo un po/;
+// Notas em inglês (ex.: "Eliana repeated my own words…") para quem não é anglófono.
+const LZ_ENGLISH = /\b(the|you|your|is|are|was|answer|learner|repeated|instead|step|said|should|my|own|words|correct|wrong)\b/gi;
+function lzNorm(s) { return String(s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^\p{L}\p{N}]+/gu, ' ').trim(); }
 // A aluna fez uma pergunta ou pediu explicação (em qualquer língua), em vez de responder? (Não conta como tentativa.)
 function lzLooksQuestion(text, expected) {
-  const w = s => String(s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^\p{L}\p{N}]+/gu, ' ').trim().split(' ').filter(Boolean);
-  const tw = w(text), ew = w(expected);
+  const tw = lzNorm(text).split(' ').filter(Boolean), ew = lzNorm(expected).split(' ').filter(Boolean);
   if (!tw.length) return false;
   const m = tw.join(' ').match(/\b(o que|que significa|que quer dizer|que quiere decir|que es|que significa|what does|what is|whats|meaning|mean|c est quoi|ca veut dire|qu est ce que|cosa vuol dire|cosa significa|che cosa|cos e|significa|significado|por que|porque|why|pourquoi|perche|nao entendi|nao percebi|no entiendo|no entendi|dont understand|didnt understand|ne comprends|pas compris|non capisco|non ho capito|explica|explique|explain|spiega|como se diz|como se dice|how do you say|comment dit on|come si dice)\b/);
   // Inícios típicos de pergunta, mesmo com transcrição imperfeita ("qu’est-ce qui ne fait que très bien").
@@ -2238,6 +2260,21 @@ function lzLooksQuestion(text, expected) {
   // A pergunta não pode ser parte da própria frase da lição (ex.: « C’est quoi, ton numéro ? »).
   const notPhrase = x => !(' ' + ew.join(' ') + ' ').includes(' ' + x + ' ');
   return (!!m && notPhrase(m[1])) || (!!s && notPhrase(s[1]));
+}
+// Lê o JSON da IA: { result: correct | wrong | question | unclear, feedback }. Inválido → unclear.
+function lzParse(reply) {
+  try {
+    const j = JSON.parse(String(reply).match(/\{[\s\S]*\}/)[0]);
+    const r = String(j.result || '').toLowerCase().trim();
+    return { result: ['correct', 'wrong', 'question', 'unclear'].includes(r) ? r : 'unclear', feedback: String(j.feedback || '').replace(/\s+/g, ' ').trim() };
+  } catch (e) { return { result: 'unclear', feedback: '' }; }
+}
+// Feedback da IA: uma só linha, na língua nativa, sem comentários proibidos.
+function lzCleanFeedback(fb) {
+  let s = String(fb || '').split('\n')[0].replace(/\[(nat|alvo)\]\s*/gi, '').replace(/^[📝✅🗣️💡🎯\s]+/u, '').trim();
+  if (!s || LZ_TYPO_TALK.test(s) || LZ_PROGRESS_TALK.test(lzNorm(s))) return '';
+  if (lzNI().group !== 'en' && (s.match(LZ_ENGLISH) || []).length >= 2) return '';
+  return s.length > 220 ? s.slice(0, 217) + '…' : s;
 }
 
 // Abre a lição: o app mostra a meta e ensina a primeira frase (sem chamar a IA).
@@ -2250,82 +2287,47 @@ function greetLesson() {
   speak(text);
 }
 
-// Resposta da tutora no modo Do zero: avaliação (🎯 OK / DE NOVO / PERGUNTA), no máximo uma 📝;
-// depois o app acrescenta o pedido de repetição, o passo seguinte ou o fim da lição.
+// Resposta da IA no modo Do zero (só JSON). O app escreve tudo o que a aluna vê: confirmação, correção,
+// "Repita comigo", o passo seguinte, avisos de fase e o fim da lição.
 function processLessonReply(reply) {
   const items = lessonItems(currentLesson), steps = lessonSteps(items.length);
   if (!lessonState) lessonState = { pos: 0, tries: 0 };
-  const st = lessonState, step = steps[Math.min(st.pos, steps.length - 1)], it = step.k !== 'chat' ? items[step.i] : null;
-  const mark = (reply.match(/🎯\s*([A-ZÀ-Ú ]+)/u) || [])[1] || '';
-  const lines = reply.replace(/🎯[^\n]*/gu, '').split('\n').map(l => l.trimEnd()).filter(l => l.trim() !== '');
-  const starts = (l, s) => l.trim().startsWith(s);
-  const formKey = s => (s || '').replace(/^[📝\s]+/u, '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^\p{L}\p{N}]+/gu, ' ').trim();
-  const gramFix = lines.filter(l => starts(l, '📝') && l.includes('→')).filter(l => {
-    const [a, b] = l.split('·')[0].split('→'); return formKey(a) && formKey(b) && formKey(a) !== formKey(b);
-  }).slice(0, 1);
-  const NI = lzNI(), userText = (chatHistory.filter(m => m.role === 'user').pop() || {}).content || '';
-  const norm = s => String(s || '').replace(/\[(nat|alvo)\]\s*/gi, '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^\p{L}\p{N}]+/gu, ' ').trim();
-  const tryKey = norm(NI.exWrong.split(/[.!?]\s+/).pop()); // "tente de novo", "try again"…
-  const saysTryAgain = !!tryKey && lines.some(l => norm(l).includes(tryKey));
-  // Veredicto: PERGUNTA não conta como tentativa; OK só sem correção real; à 2.ª tentativa errada segue em frente.
-  let verdict = /PERGUNTA/i.test(mark) ? 'q' : /DE\s*NOVO/i.test(mark) ? 'again' : /OK/i.test(mark) ? 'ok' : (gramFix.length || saysTryAgain ? 'again' : 'ok');
-  if (verdict === 'ok' && st.tries < 1 && (gramFix.length || saysTryAgain)) verdict = 'again';
-  // Pergunta da aluna (mesmo mal transcrita): nunca é acerto nem tentativa, diga a IA o que disser.
-  if (verdict !== 'q' && it && lzLooksQuestion(userText, it.t)) verdict = 'q';
-  if (verdict === 'again' && st.tries >= 1) verdict = 'ok';
-  const realOk = verdict === 'ok' && !gramFix.length && !saysTryAgain && !/DE\s*NOVO/i.test(mark);
-  // Linhas da IA: nunca comentários sobre maiúsculas, acentos ou pontuação, nem sobre progresso, fim da lição ou
-  // tentativas (isso vem só do app); "C’est juste" só num acerto real; fora da mini-conversa, nada que o app já
-  // escreve (a frase, a tradução entre parênteses, "Repita comigo").
-  const nextIsChat = verdict === 'ok' && steps[st.pos + 1] && steps[st.pos + 1].k === 'chat';
-  const okKeys = [norm(tgt('correct')), norm(tgt('good'))];
-  let fl = lines.filter(l => !['📝', '✅', '🗣', '💡'].some(s => starts(l, s)) && !LZ_TYPO_TALK.test(l) && !LZ_PROGRESS_TALK.test(norm(l)) &&
-    (realOk || !okKeys.some(k => k && norm(l).includes(k))));
-  if (step.k !== 'chat' && !nextIsChat) {
-    const phraseKeys = items.map(x => norm(x.t)), repKey = norm(NI.repeatEx);
-    fl = fl.filter(l => { const k = norm(l); return k && !phraseKeys.includes(k) && !/^\(/.test(l.replace(VOICE_TAG, '').replace(/\[(nat|alvo)\]\s*/gi, '').trim()) && !k.includes(repKey); });
-    // Acerto: só a confirmação e, no máximo, uma dica de uso. Errado na última tentativa: só a linha com a forma certa.
-    if (verdict === 'ok') {
-      const alvo = fl.find(l => !/^\s*\[nat\]/i.test(l)), nat = fl.find(l => /^\s*\[nat\]/i.test(l));
-      fl = realOk ? [alvo || '[alvo] ' + tgt('correct'), nat].filter(Boolean) : [nat].filter(Boolean);
-    }
-  }
-  // Entrada na mini-conversa: o anúncio vem do app, antes da primeira fala da conversa (a última linha [alvo] da IA).
-  if (nextIsChat && step.k !== 'chat') {
-    let k = -1; fl.forEach((l, j) => { if (!/^\s*\[nat\]/i.test(l)) k = j; });
-    const onlyConfirm = k >= 0 && okKeys.some(x => x && norm(fl[k]).includes(x)); // a IA não deu a fala da conversa
-    fl.splice(k < 0 || onlyConfirm ? fl.length : k, 0, '[nat] ' + t('lz_chat_intro'));
-  }
-  const feedback = fl.join('\n').trim();
-  const extra = [];
-  let hint = '', finished = false;
-  if (verdict === 'again') {
-    st.tries++;
-    if (it) extra.push(`[nat] ${lzRepeat(it)}:`, `[alvo] ${it.t}`); // errou (ou não lembrou): ensina de novo
-  } else if (verdict === 'q') {
-    if (step.k === 'teach' || (step.k === 'recall' && st.tries)) extra.push(`[nat] ${lzRepeat(it)}:`, `[alvo] ${it.t}`);
-    else if (step.k === 'recall') { extra.push(`[nat] ${lzRecallQ(it)}`); hint = it.t; }
+  const st = lessonState, step = steps[Math.min(st.pos, steps.length - 1)], ex = lzExpected(step, items);
+  const userText = (chatHistory.filter(m => m.role === 'user').pop() || {}).content || '';
+  let { result, feedback } = lzParse(reply);
+  feedback = lzCleanFeedback(feedback);
+  // Pergunta da aluna (mesmo mal transcrita): nunca é acerto nem tentativa.
+  if (result !== 'question' && step.k !== 'chat' && lzLooksQuestion(userText, ex.t)) result = 'question';
+  const out = [];
+  let hint = '', finished = false, advance = false;
+  if (result === 'correct') {
+    out.push(`[alvo] ${tgt('correct')}`);
+    if (feedback) out.push(`[nat] ${feedback}`); // no máximo uma dica de uso
+    advance = true;
+  } else if (result === 'wrong') {
+    if (feedback) out.push(`[nat] ${feedback}`);
+    nbAdd({ type: 'erro', wrong: userText, right: ex.t, why: feedback });
+    out.push(`[nat] ${t(step.k === 'chat' ? 'lz_possible' : 'lz_answer_is', { a: ex.t })}`);
+    if (st.tries >= 1) advance = true; // 2.ª tentativa errada: segue em frente
+    else { st.tries++; out.push(`[nat] ${lzRepeat(ex)}:`, `[alvo] ${ex.t}`); }
   } else {
+    // question / unclear: explicação curta e o mesmo pedido outra vez (não conta como tentativa)
+    if (feedback) out.push(`[nat] ${feedback}`);
+    else if (result === 'unclear') out.push(`[nat] ${t('lz_unclear')}`);
+    out.push(lzAgainText(step, items, st.tries));
+    if (step.k === 'recall' && !st.tries) hint = ex.t;
+    if (step.k === 'chat' && !st.tries) hint = ex.t;
+  }
+  if (advance) {
     st.pos++; st.tries = 0;
     const nx = steps[st.pos];
-    if (!nx) { finished = true; extra.push(`[nat] ${t('lz_end')}`, `[alvo] ${items.map(x => x.t).join(' · ')}`); }
-    else if (nx.k !== 'chat') { extra.push(lzStepText(nx, items, step)); if (nx.k === 'recall') hint = items[nx.i].t; }
+    if (!nx) { finished = true; out.push(`[nat] ${t('lz_end')}`, `[alvo] ${items.map(x => x.t).join(' · ')}`); }
+    else { out.push(lzStepText(nx, items, step)); if (nx.k !== 'teach') hint = lzExpected(nx, items).t; }
   }
-  const main = [feedback, ...extra].filter(Boolean).join('\n');
-  chatHistory.push({ role: 'assistant', content: [feedback, ...gramFix, ...extra].filter(Boolean).join('\n') });
-  let html = '';
-  if (gramFix.length) {
-    const unq = s => (s || '').replace(/^[📝\s]+/u, '').replace(/["“”«»]/g, '').trim();
-    const p0 = gramFix[0].split('·'), [wa, wb] = p0[0].split('→').map(unq), why = p0.slice(1).join('·').trim();
-    highlightError(lastUserDiv, wa);
-    if (wa && wb) nbAdd({ type: 'erro', wrong: wa, right: wb, why });
-    html = `<div class="fix-list">${esc('📝 ' + wa + ' → ' + wb)}</div>` +
-      (why ? `<details class="fix-why"><summary>${esc(t('why'))}</summary>${esc(why)}</details>` : '');
-  }
-  // ⭐ guarda a frase da lição deste passo (ou a primeira frase no idioma estudado).
-  const nxIt = !finished && steps[st.pos] && steps[st.pos].k !== 'chat' ? items[steps[st.pos].i] : null;
-  const firstAlvo = nxIt ? nxIt.t : (main.split('\n').find(l => !/^\s*\[nat\]/i.test(l)) || '').replace(VOICE_TAG, '');
-  addMsg('tutor', main || stripTags(reply), html, true, main, firstAlvo, hint);
+  const main = out.join('\n');
+  chatHistory.push({ role: 'assistant', content: main });
+  const nowStep = !finished && steps[st.pos];
+  addMsg('tutor', main, '', false, main, nowStep ? lzExpected(nowStep, items).t : '', hint);
   if (finished && !lessonCompleted && currentLesson !== null) {
     const i = currentLesson;
     lessonCompleted = true;
@@ -2373,7 +2375,7 @@ async function processInput(text) {
     const inLesson = currentLesson !== null, runAtStart = lessonRun;
     let recent = chatHistory.slice(inLesson ? -40 : -20); // as lições precisam de mais histórico
     while (recent.length && recent[0].role !== 'user') recent = recent.slice(1);
-    const reply = await busyAI(recent.map(m => ({ role: m.role, content: m.content })), inLesson ? buildLessonSystem() : buildSystem());
+    const reply = await busyAI(inLesson ? [{ role: 'user', content: `${PROFILE.name}'s message: "${text}"` }] : recent.map(m => ({ role: m.role, content: m.content })), inLesson ? buildLessonSystem() : buildSystem());
     removeLoading();
     if (inLesson) { if (currentLesson !== null && lessonRun === runAtStart) processLessonReply(reply); return; } // a aluna não saiu nem recomeçou
     const goalMatch = reply.match(/🎯\s*([A-ZÀ-Ú ]+)/u);
@@ -2558,51 +2560,31 @@ function buildLessonSystem() {
   const P = PROFILE || { name: 'the learner', levels: {} };
   const NI = NATIVES[getNative(P)];
   const N = P.name, EX = NI.expl, L = currentLangName, i = currentLesson;
-  const [title] = lessonUI(i);
   const items = lessonItems(i), steps = lessonSteps(items.length);
   const st = lessonState || { pos: 0, tries: 0 };
-  const step = steps[Math.min(st.pos, steps.length - 1)], next = steps[st.pos + 1];
-  const it = step.k !== 'chat' ? items[step.i] : null;
+  const step = steps[Math.min(st.pos, steps.length - 1)], ex = lzExpected(step, items);
   const list = items.map((x, k) => (k + 1) + '. «' + x.t + '» = ' + x.g).join('\n');
-  // Nas lições iniciais, sempre "tu" com a aluna (o estilo formal do perfil não se aplica aqui).
-  const address = currentLang === 'pt' ? '' : 'In ' + L + ', ALWAYS address ' + N + ' informally (' + ({ es: 'tú', fr: 'tu', it: 'tu', en: 'you' })[currentLang] + '), never with the formal form, even when a lesson phrase uses it for a waiter or a shop.';
-  const now = step.k === 'teach'
-    ? 'TEACH phrase ' + (step.i + 1) + ': the app showed «' + it.t + '» with its translation and asked ' + N + ' to repeat it. Expected answer: «' + it.t + '».'
-    : step.k === 'recall'
-    ? 'RECALL phrase ' + (step.i + 1) + ': ' + (st.tries ? 'after a mistake, the app asked ' + N + ' to repeat «' + it.t + '».' : 'the app asked ' + N + ', only in ' + EX + ', how to say "' + it.g + '" in ' + L + '.') + ' Expected answer: «' + it.t + '».'
-    : 'MINI CONVERSATION, exchange ' + (step.i + 1) + ' of ' + LZ_CHAT + ': ' + N + ' is answering your last ' + L + ' line' + (st.tries ? ' (or repeating the corrected sentence you gave)' : '') + '. Any correct, sensible answer made with the lesson phrases is right.';
-  const chatLine = 'one [alvo] line with ONE lesson phrase (a greeting, a question or a sentence) that ' + N + ' can answer with another lesson phrase, and one [nat] line with its translation in brackets. Only lesson phrases (you may fill "…" with a simple detail).';
-  const after = !next ? 'If 🎯 OK: write nothing more; the app closes the lesson.'
-    : next.k !== 'chat' ? 'If 🎯 OK: write nothing more; the app shows the next step itself.'
-    : step.k !== 'chat' ? 'If 🎯 OK (also after the last attempt): then start the MINI CONVERSATION (the app announces it; do not announce it yourself): ' + chatLine
-    : 'If 🎯 OK: continue the mini conversation with ' + chatLine + ' Use a phrase not used yet in the mini conversation.';
+  const first = s => String(s).split(/\.\s/)[0].replace(/[.!]+$/, '');
+  let task;
+  if (st.tries) task = `After a mistake, ${N} was asked to repeat «${ex.t}». Judge if ${N} said it.`;
+  else if (step.k === 'teach') task = `${N} was asked to repeat the new phrase «${ex.t}». Judge if ${N} said it.`;
+  else if (step.k === 'recall') task = `${N} was asked, in ${EX}, how to say "${ex.g}" in ${L}. Expected answer: «${ex.t}». A different but correct and natural ${L} way to say the same thing in that situation is also correct (e.g. in French «Bonjour» is correct to greet someone in the afternoon).`;
+  else { const tn = lzTurn(items, step.i); task = `Short conversation: Lia said «${tn.lia.t}» (${tn.lia.g}). ${N} must reply with a fitting lesson phrase (e.g. «${tn.ans.t}»). Any fitting, correct reply made with the lesson phrases is correct.`; }
   const lastUser = (chatHistory.filter(m => m.role === 'user').pop() || {}).content || '';
-  const looksQ = !!it && lzLooksQuestion(lastUser, it.t);
-  const wrong = step.k === 'chat'
-    ? 'one line "📝 what ' + N + ' said → right form · short explanation in ' + EX + '"; one [nat] line saying clearly what was wrong and the right form; one [nat] line "' + NI.repeatEx + ':"; one [alvo] line with the right sentence. Last line: 🎯 DE NOVO'
-    : 'one line "📝 what ' + N + ' said → right form · short explanation in ' + EX + '"; then ONE [nat] line saying clearly what was missing or wrong and the right form (e.g. [nat] ' + NI.exWrong + '). Do NOT write the phrase on its own line, its translation or a repetition request: the app adds them. Last line: 🎯 DE NOVO';
-  return langRule(NI) + `
-You are Lia, a patient ${L} teacher for ${N}, ${NI.speaker}, an absolute beginner. Warm, encouraging tone. ${address} ${accentRule(P)}
-"FROM SCRATCH" LESSON ${i + 1} of ${ZERO_TOTAL}: "${title}". THE APP RUNS THE LESSON: it shows each new phrase with its translation, asks ${N} to repeat it, asks the recall questions (only in ${EX}) and closes the lesson. You ONLY evaluate ${N}'s last answer${step.k === 'chat' || (next && next.k === 'chat') ? ' and run the short mini conversation' : ''}.
-LESSON PHRASES (the ONLY ${L} allowed in this lesson; never teach, ask for or use any other ${L} phrase or word):
+  const looksQ = step.k !== 'chat' && lzLooksQuestion(lastUser, ex.t);
+  return `You evaluate ONE answer of ${N}, ${NI.speaker}, an absolute beginner in a ${L} lesson. You do NOT talk to ${N}: the app writes everything ${N} sees. ${accentRule(P)}
+LESSON PHRASES:
 ${list}
-("…" = ${N} completes it with their own information: accept any sensible completion. "A / B" = both forms are right, e.g. masculine / feminine.)
-VOICES: every line starts with [nat] (${EX}, written only) or [alvo] (${L}, read aloud). Never mix the two languages on one line.
-NATIVE LANGUAGE: in [nat] lines, ${NI.variant}.
-CURRENT STEP — ${now}${looksQ ? `
-ATTENTION: ${N}'s last message looks like a QUESTION or a request for explanation (maybe badly transcribed by the microphone, e.g. "qu'est-ce qui ne fait que très bien" = "what does 'très bien' mean?"). Answer it briefly in ${EX} and use 🎯 PERGUNTA, never "${tgt('correct')}".` : ''}
-(Internal, never tell ${N}: attempt ${Math.min(st.tries + 1, 2)} of 2.)
-HOW TO ANSWER (very short):
-- RIGHT: exactly one [alvo] line "${step.k === 'chat' ? tgt('good') : tgt('correct')}". At most ONE short [nat] line with a really useful usage tip (when or with whom to use it), or nothing. A different but correct and natural ${L} way to say the same thing in that situation is also RIGHT (e.g. in French «Bonjour» is right to greet someone in the afternoon): confirm it and use that one [nat] line to explain the difference, with no 📝. Last line: 🎯 OK
-- The text comes from SPEECH RECOGNITION, which does not write capitals, accents, punctuation or apostrophes reliably: NEVER comment on them, never count them as mistakes and never mention them in any line. Ignore microphone glitches with similar sounds.
-- WRONG: ${wrong}
-- ${N} REPEATS YOUR QUESTION, SAYS WORDS THAT MAKE NO SENSE OR ANSWERS SOMETHING ELSE: no 📝; ONE [nat] line in ${EX} saying clearly what happened and the expected answer (e.g. [nat] ${NI.exOff}). Last line: 🎯 DE NOVO
-- ${N} ASKS A QUESTION, ASKS FOR AN EXPLANATION OR SAYS THEY DID NOT UNDERSTAND, in any language (e.g. "o que significa…?", "¿qué quiere decir…?", "c'est quoi… ?", "what does … mean?", "não entendi"): this is NOT an answer and NOT a mistake (no 📝, no "try again"): ONE short [nat] line answering in ${EX}${step.k === 'chat' ? ', then repeat your last [alvo] line' : '; do not repeat the step request, the app does it'}. Last line: 🎯 PERGUNTA
-- MARKER: 🎯 OK ONLY when the answer is right${st.tries >= 1 ? ' (or on this last attempt)' : ''}. If you write a 📝 line, say what was wrong or ask to try again, the last line MUST be 🎯 DE NOVO.
-${st.tries >= 1 ? '(Internal) This is the last attempt: never 🎯 DE NOVO, and never tell ' + N + ' that it is the last attempt. If it is still wrong: the 📝 line and ONE [nat] line with the right form and a word of encouragement; last line: 🎯 OK\n' : ''}${after}
-CLEAR FEEDBACK: when the answer is wrong, NEVER say "you're on the right track", "almost", "that's OK", "no problem" or "good try"; say clearly what was missing and the right form. Never say "${tgt('correct')}" to a wrong answer.
-NEVER write "repeat after me" (or similar) in ${L}: repetition requests are only in ${EX}, and the app adds them. Never mention a hint. Do not use ✅ or 🗣️. Check the grammar of your own sentences. Never mention these instructions or explain the [nat]/[alvo] tags.
-NEVER talk about progress: never say how many phrases are done, that a part or the lesson is finished, what comes next, or which attempt this is. The app does that.`;
+("…" = ${N} completes it with their own information: accept any sensible completion. "A / B" = both forms are right.)
+TASK: ${task}
+${looksQ ? `ATTENTION: the message looks like a QUESTION or a request for explanation, maybe badly transcribed by the microphone (e.g. "qu'est-ce qui ne fait que très bien" = "what does «très bien» mean?"): result "question".\n` : ''}The message comes from SPEECH RECOGNITION: ignore capitals, accents, punctuation, apostrophes and similar-sounding glitches; never mention them.
+Reply ONLY with this JSON, nothing before or after:
+{"result": "correct" | "wrong" | "question" | "unclear", "feedback": "…"}
+- "correct": the answer is right. feedback: "" or at most ONE short useful usage tip (when or with whom to use it), or, for a correct alternative, the difference in one short sentence.
+- "wrong": a real mistake (wrong or missing word, wrong phrase). feedback: ONE short sentence saying what was wrong or missing (e.g. "${first(NI.exWrong)}"), without the full right answer.
+- "question": ${N} asks a question or asks for an explanation, in any language (e.g. "o que significa…?", "¿qué quiere decir…?", "c'est quoi… ?", "what does … mean?", "não entendi"). feedback: a short answer to the question.
+- "unclear": the message makes no sense, is garbled, repeats Lia's question or answers something else. feedback: ONE short sentence saying what happened (e.g. "${first(NI.exOff)}").
+feedback: ONE sentence, in ${EX} ONLY (${NI.variant})${NI.group !== 'en' ? ', NEVER in English' : ''}. Never talk about progress, phases, attempts or the end of the lesson; never give instructions such as "repeat after me"; never write notes about ${N} in the third person.`;
 }
 
 // ── Tutora ocupada: microfone e envio de texto bloqueados enquanto pensa (chamada à IA) ou fala ──
