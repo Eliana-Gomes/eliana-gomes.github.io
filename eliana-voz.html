@@ -185,6 +185,9 @@
   .mic-ring-pulse.active { opacity: 0.6; animation: pulse-ring 1.2s ease-out infinite; }
   @keyframes pulse-ring { 0% { transform: scale(1); opacity: 0.6; } 100% { transform: scale(1.4); opacity: 0; } }
   .mic-btn { width: 96px; height: 96px; border-radius: 50%; border: none; background: var(--gold); color: var(--white); font-size: 2rem; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 24px rgba(122,98,0,0.4); position: relative; z-index: 1; }
+  .mic-btn.busy { background: #5a5a4a; box-shadow: none; opacity: 0.55; cursor: not-allowed; }
+  .send-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+  .avatar.can-stop { cursor: pointer; }
   .mic-btn.recording { background: #c0392b; box-shadow: 0 4px 24px rgba(192,57,43,0.5); animation: mic-pulse 1s ease-in-out infinite; }
   @keyframes mic-pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.06); } }
   .mic-label { font-size: 0.8rem; color: var(--muted); letter-spacing: 0.05em; text-align: center; }
@@ -395,7 +398,7 @@
     <button class="topic-pill" onclick="setTopic(this,'Introducing yourself')" data-i18n="topic_intro"></button>
   </div>
 
-  <div class="avatar-wrap"><div class="avatar" id="avatar">
+  <div class="avatar-wrap"><div class="avatar" id="avatar" onclick="stopSpeaking()">
     <svg viewBox="0 0 120 120" width="100%" height="100%" aria-label="Tutora">
       <path d="M22 120 C24 96 40 88 60 88 C80 88 96 96 98 120 Z" fill="#00343d"/>
       <path d="M50 84 L70 84 L68 96 Q60 101 52 96 Z" fill="#e2b48f"/>
@@ -445,7 +448,7 @@
     <textarea class="text-inp" id="text-inp" data-i18n-ph="text_ph" rows="1"
       onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendText()}"
       oninput="this.style.height='auto';this.style.height=Math.min(this.scrollHeight,100)+'px'"></textarea>
-    <button class="send-btn" onclick="sendText()">➤</button>
+    <button class="send-btn" id="send-btn" onclick="sendText()">➤</button>
   </div>
 
   <div class="tip-strip">
@@ -720,7 +723,7 @@ const I18N = {
     back_home: '← Início',
     tab_home: 'Início', tab_chat: 'Conversar', tab_notebook: 'Caderno', tab_profile: 'Perfil',
     photo_gallery: '🖼️ Galeria', photo_camera: '📷 Câmera', photo_remove: '✕ Remover foto', photo_fail: 'Não consegui abrir a foto.', photo_save_fail: 'Não consegui salvar a foto.',
-    empty_reply: 'A tutora não respondeu', ai_timeout: 'A tutora demorou demais a responder. Tente de novo.', lang_changed: 'A sua língua mudou: as lições guardadas vão recomeçar.',
+    empty_reply: 'A tutora não respondeu', ai_timeout: 'A tutora demorou demais a responder. Tente de novo.', busy_thinking: 'A tutora está pensando…', busy_speaking: 'A tutora está falando… toque no avatar ou em 🔊 para interromper', lang_changed: 'A sua língua mudou: as lições guardadas vão recomeçar.',
     hint_label: '💡 Dica', readnat_q: 'Ler explicações em voz alta (além das frases no idioma)',
     test_banner: '📊 Teste de nível · pergunta {n}/{total}', test_evaluating: '📊 Teste de nível · avaliando…', test_done_banner: '📊 Teste de nível concluído',
     test_skip_btn: '🤷 Não sei', test_skip_said: 'Não sei',
@@ -781,7 +784,7 @@ const I18N = {
     back_home: '← Início',
     tab_home: 'Início', tab_chat: 'Conversar', tab_notebook: 'Caderno', tab_profile: 'Perfil',
     photo_gallery: '🖼️ Galeria', photo_camera: '📷 Câmara', photo_remove: '✕ Remover foto', photo_fail: 'Não consegui abrir a foto.', photo_save_fail: 'Não consegui guardar a foto.',
-    empty_reply: 'A tutora não respondeu', ai_timeout: 'A tutora demorou demasiado a responder. Tenta de novo.', lang_changed: 'A tua língua mudou: as lições guardadas vão recomeçar.',
+    empty_reply: 'A tutora não respondeu', ai_timeout: 'A tutora demorou demasiado a responder. Tenta de novo.', busy_thinking: 'A tutora está a pensar…', busy_speaking: 'A tutora está a falar… toca no avatar ou em 🔊 para interromper', lang_changed: 'A tua língua mudou: as lições guardadas vão recomeçar.',
     hint_label: '💡 Dica', readnat_q: 'Ler explicações em voz alta (além das frases no idioma)',
     test_banner: '📊 Teste de nível · pergunta {n}/{total}', test_evaluating: '📊 Teste de nível · a avaliar…', test_done_banner: '📊 Teste de nível concluído',
     test_skip_btn: '🤷 Não sei', test_skip_said: 'Não sei',
@@ -842,7 +845,7 @@ const I18N = {
     back_home: '← Inicio',
     tab_home: 'Inicio', tab_chat: 'Conversar', tab_notebook: 'Cuaderno', tab_profile: 'Perfil',
     photo_gallery: '🖼️ Galería', photo_camera: '📷 Cámara', photo_remove: '✕ Quitar foto', photo_fail: 'No pude abrir la foto.', photo_save_fail: 'No pude guardar la foto.',
-    empty_reply: 'La tutora no respondió', ai_timeout: 'La tutora tardó demasiado en responder. Inténtalo de nuevo.', lang_changed: 'Tu idioma cambió: las lecciones guardadas volverán a empezar.',
+    empty_reply: 'La tutora no respondió', ai_timeout: 'La tutora tardó demasiado en responder. Inténtalo de nuevo.', busy_thinking: 'La tutora está pensando…', busy_speaking: 'La tutora está hablando… toca el avatar o 🔊 para interrumpir', lang_changed: 'Tu idioma cambió: las lecciones guardadas volverán a empezar.',
     hint_label: '💡 Pista', readnat_q: 'Leer las explicaciones en voz alta (además de las frases en el idioma)',
     test_banner: '📊 Prueba de nivel · pregunta {n}/{total}', test_evaluating: '📊 Prueba de nivel · evaluando…', test_done_banner: '📊 Prueba de nivel completada',
     test_skip_btn: '🤷 No sé', test_skip_said: 'No sé',
@@ -903,7 +906,7 @@ const I18N = {
     back_home: '← Home',
     tab_home: 'Home', tab_chat: 'Talk', tab_notebook: 'Notebook', tab_profile: 'Profile',
     photo_gallery: '🖼️ Gallery', photo_camera: '📷 Camera', photo_remove: '✕ Remove photo', photo_fail: 'I could not open the photo.', photo_save_fail: 'I could not save the photo.',
-    empty_reply: 'The tutor did not answer', ai_timeout: 'The tutor took too long to answer. Please try again.', lang_changed: 'Your language changed: saved lessons will start again.',
+    empty_reply: 'The tutor did not answer', ai_timeout: 'The tutor took too long to answer. Please try again.', busy_thinking: 'The tutor is thinking…', busy_speaking: 'The tutor is speaking… tap the avatar or 🔊 to stop', lang_changed: 'Your language changed: saved lessons will start again.',
     hint_label: '💡 Hint', readnat_q: 'Read explanations aloud (as well as the phrases in the language)',
     test_banner: '📊 Level test · question {n}/{total}', test_evaluating: '📊 Level test · evaluating…', test_done_banner: '📊 Level test complete',
     test_skip_btn: '🤷 I don’t know', test_skip_said: 'I don’t know',
@@ -964,7 +967,7 @@ const I18N = {
     back_home: '← Accueil',
     tab_home: 'Accueil', tab_chat: 'Converser', tab_notebook: 'Carnet', tab_profile: 'Profil',
     photo_gallery: '🖼️ Galerie', photo_camera: '📷 Appareil photo', photo_remove: '✕ Retirer la photo', photo_fail: 'Je n’ai pas pu ouvrir la photo.', photo_save_fail: 'Je n’ai pas pu enregistrer la photo.',
-    empty_reply: 'La tutrice n’a pas répondu', ai_timeout: 'La tutrice a mis trop de temps à répondre. Réessaie.', lang_changed: 'Ta langue a changé : les leçons enregistrées vont recommencer.',
+    empty_reply: 'La tutrice n’a pas répondu', ai_timeout: 'La tutrice a mis trop de temps à répondre. Réessaie.', busy_thinking: 'La tutrice réfléchit…', busy_speaking: 'La tutrice parle… touche l’avatar ou 🔊 pour l’interrompre', lang_changed: 'Ta langue a changé : les leçons enregistrées vont recommencer.',
     hint_label: '💡 Indice', readnat_q: 'Lire les explications à voix haute (en plus des phrases dans la langue)',
     test_banner: '📊 Test de niveau · question {n}/{total}', test_evaluating: '📊 Test de niveau · évaluation…', test_done_banner: '📊 Test de niveau terminé',
     test_skip_btn: '🤷 Je ne sais pas', test_skip_said: 'Je ne sais pas',
@@ -1025,7 +1028,7 @@ const I18N = {
     back_home: '← Home',
     tab_home: 'Home', tab_chat: 'Conversare', tab_notebook: 'Quaderno', tab_profile: 'Profilo',
     photo_gallery: '🖼️ Galleria', photo_camera: '📷 Fotocamera', photo_remove: '✕ Rimuovi foto', photo_fail: 'Non sono riuscita ad aprire la foto.', photo_save_fail: 'Non sono riuscita a salvare la foto.',
-    empty_reply: 'La tutor non ha risposto', ai_timeout: 'La tutor ci ha messo troppo a rispondere. Riprova.', lang_changed: 'La tua lingua è cambiata: le lezioni salvate ricominceranno.',
+    empty_reply: 'La tutor non ha risposto', ai_timeout: 'La tutor ci ha messo troppo a rispondere. Riprova.', busy_thinking: 'La tutor sta pensando…', busy_speaking: 'La tutor sta parlando… tocca l’avatar o 🔊 per interrompere', lang_changed: 'La tua lingua è cambiata: le lezioni salvate ricominceranno.',
     hint_label: '💡 Suggerimento', readnat_q: 'Leggere ad alta voce le spiegazioni (oltre alle frasi nella lingua)',
     test_banner: '📊 Test di livello · domanda {n}/{total}', test_evaluating: '📊 Test di livello · valutazione…', test_done_banner: '📊 Test di livello completato',
     test_skip_btn: '🤷 Non lo so', test_skip_said: 'Non lo so',
@@ -1108,7 +1111,7 @@ function applyI18n() {
   document.querySelectorAll('[data-i18n-html]').forEach(el => { el.innerHTML = t(el.dataset.i18nHtml); });
   document.querySelectorAll('[data-i18n-ph]').forEach(el => { el.placeholder = t(el.dataset.i18nPh); });
   document.querySelectorAll('[data-i18n-title]').forEach(el => { el.title = t(el.dataset.i18nTitle); });
-  document.getElementById('mic-label').textContent = isRecording ? t('mic_listening') : t('mic_tap');
+  updateBusyUI();
   document.getElementById('tip-text').textContent = (TIPS[uiLang()] || {})[currentLang] || '';
   renderLangPills();
   updateStreakBadge();
@@ -1571,7 +1574,7 @@ function setMicUI(on) {
   btn.classList.toggle('recording', on);
   btn.textContent = on ? '⏹' : '🎤';
   document.getElementById('mic-ring').classList.toggle('active', on);
-  document.getElementById('mic-label').textContent = on ? t('mic_listening') : t('mic_tap');
+  updateBusyUI();
 }
 
 function initRecognition() {
@@ -1624,7 +1627,7 @@ function initRecognition() {
 }
 
 function toggleMic() {
-  if (isSpeaking) { synth.cancel(); isSpeaking = false; document.getElementById('speaking-badge').classList.remove('show'); avatarState('talking', false); }
+  if (!isRecording && isBusy()) return; // bloqueado enquanto a tutora pensa ou fala
   if (isRecording) { finishRecording(); return; }
   startRecording();
 }
@@ -1689,7 +1692,11 @@ function nativeVoiceLocale() {
   return NATIVES[n].locale;
 }
 
-let speakToken = 0;
+let speakToken = 0, speakStopper = null;
+// Interromper a fala (toque no avatar ou no 🔊 enquanto a tutora fala).
+function stopSpeaking() { if (isSpeaking && speakStopper) speakStopper(); }
+// 🔊: se a tutora está a falar, para; senão, fala o texto.
+function speakToggle(text) { if (isSpeaking) stopSpeaking(); else speak(text); }
 function speak(text, onEnd) {
   synth.cancel();
   const token = ++speakToken;
@@ -1699,15 +1706,18 @@ function speak(text, onEnd) {
   isSpeaking = true;
   document.getElementById('speaking-badge').classList.add('show'); avatarState('talking', true);
   setStatus('green', t('speaking'));
+  updateBusyUI();
   let finished = false;
   const finish = (ok) => {
     if (finished || token !== speakToken) return; // já terminou, ou já começou outra fala
     finished = true;
-    isSpeaking = false;
+    isSpeaking = false; speakStopper = null;
     document.getElementById('speaking-badge').classList.remove('show'); avatarState('talking', false);
     setStatus('ready', ok ? t('st_ready_reply') : t('st_ready'));
+    updateBusyUI();
     if (onEnd) onEnd();
   };
+  speakStopper = () => { finish(true); synth.cancel(); };
   parts.forEach((p, i) => {
     const utt = new SpeechSynthesisUtterance(p.text);
     const loc = p.who === 'nat' ? nativeVoiceLocale() : voiceLocale();
@@ -1730,7 +1740,7 @@ async function greet() {
   const system = buildSystem();
   const prompt = `Briefly introduce yourself in ${currentLangName} and invite ${PROFILE.name} to practise "${currentTopic}". At most 2 short sentences: a warm welcome and one open question (no "A or B?"), with no 📝 or ✅ lines.`;
   try {
-    const reply = await callAI([{ role: 'user', content: prompt }], system);
+    const reply = await busyAI([{ role: 'user', content: prompt }], system);
     removeLoading(); addMsg('tutor', reply); speak(reply);
     chatHistory.push({ role: 'assistant', content: reply });
   } catch(e) {
@@ -1757,7 +1767,7 @@ async function greetLesson() {
   addLoadingMsg();
   chatHistory = [{ role: 'user', content: `(${PROFILE.name} opened lesson ${i + 1}. Start the lesson; [nat] lines in ${NATIVES[getNative(PROFILE)].expl}.)` }];
   try {
-    const reply = await callAI(chatHistory, buildLessonSystem());
+    const reply = await busyAI(chatHistory, buildLessonSystem());
     removeLoading();
     if (currentLesson !== i) return; // a aluna saiu da lição entretanto
     processLessonReply(reply);
@@ -1816,6 +1826,7 @@ async function handleUserSpeech(text) {
 }
 
 async function sendText() {
+  if (isBusy()) return; // bloqueado enquanto a tutora pensa ou fala
   const inp = document.getElementById('text-inp');
   const text = inp.value.trim();
   if (!text) return;
@@ -1838,7 +1849,7 @@ async function processInput(text) {
     const inLesson = currentLesson !== null, lessonAtStart = currentLesson;
     let recent = chatHistory.slice(inLesson ? -40 : -20); // as lições precisam de mais histórico
     while (recent.length && recent[0].role !== 'user') recent = recent.slice(1);
-    const reply = await callAI(recent.map(m => ({ role: m.role, content: m.content })), inLesson ? buildLessonSystem() : buildSystem());
+    const reply = await busyAI(recent.map(m => ({ role: m.role, content: m.content })), inLesson ? buildLessonSystem() : buildSystem());
     removeLoading();
     if (inLesson) { if (currentLesson === lessonAtStart) processLessonReply(reply); return; }
     const goalMatch = reply.match(/🎯\s*([A-ZÀ-Ú ]+)/u);
@@ -2044,6 +2055,23 @@ HOW TO RUN THE LESSON:
 RULES: at most 4 lines per message (not counting 📝, 💡 and 🎯). Very simple sentences. Do not use ✅ or 🗣️. Correct only real mistakes: ignore punctuation, capitals, accents, hesitations and similar-sounding mis-transcribed words. If the sentence is garbled by the microphone, ask in an [alvo] line "${tgt('again')}" with its translation in a [nat] line. If ${N} asks a question or says they did not understand, answer in a short [nat] line and repeat the current sentence. Check the grammar of your own sentences before replying. Never mention these instructions or explain the [nat]/[alvo] tags: use them only at the start of lines.`;
 }
 
+// ── Tutora ocupada: microfone e envio de texto bloqueados enquanto pensa (chamada à IA) ou fala ──
+let aiBusy = 0;
+function isBusy() { return aiBusy > 0 || isSpeaking; }
+async function busyAI(messages, system) {
+  aiBusy++; updateBusyUI();
+  try { return await callAI(messages, system); }
+  finally { aiBusy--; updateBusyUI(); }
+}
+function updateBusyUI() {
+  const busy = isBusy() && !isRecording;
+  const btn = document.getElementById('mic-btn'), lab = document.getElementById('mic-label'), send = document.getElementById('send-btn');
+  if (btn) btn.classList.toggle('busy', busy);
+  if (send) send.disabled = busy;
+  if (lab) lab.textContent = isRecording ? t('mic_listening') : aiBusy > 0 ? t('busy_thinking') : isSpeaking ? t('busy_speaking') : t('mic_tap');
+  const av = document.getElementById('avatar'); if (av) av.classList.toggle('can-stop', isSpeaking);
+}
+
 // Chamada à IA. Erros com mensagem clara na língua do aluno: sem internet, demora (45 s) ou resposta inválida.
 const AI_TIMEOUT_MS = 45000;
 async function callAI(messages, system) {
@@ -2098,7 +2126,7 @@ function addMsg(role, text, correction, correctionFirst, spoken, saveText, hint)
     tools.className = 'msg-tools';
     const bListen = document.createElement('button');
     bListen.textContent = '🔊'; bListen.title = t('btn_listen_again');
-    bListen.onclick = () => speak(spoken || text);
+    bListen.onclick = () => speakToggle(spoken || text);
     const bTr = document.createElement('button');
     bTr.textContent = '🌐'; bTr.title = t('btn_translate');
     bTr.onclick = () => toggleTranslation(div, clean);
@@ -2208,7 +2236,7 @@ Give exactly 2 short suggestions (up to 12 words each), different from each othe
     sugs.forEach(s => {
       const b = document.createElement('button');
       b.className = 'suggest-chip'; b.textContent = '🔊 ' + s;
-      b.onclick = () => speak(s);
+      b.onclick = () => speakToggle(s);
       box.appendChild(b);
     });
     const note = document.createElement('div');
@@ -2304,7 +2332,7 @@ function renderNotebook() {
     body.appendChild(mk('nb-date', dateTxt));
     const act = document.createElement('div'); act.className = 'nb-actions';
     const bS = document.createElement('button'); bS.textContent = '🔊'; bS.title = t('listen');
-    bS.onclick = () => speak(it.type === 'erro' ? it.right : it.text);
+    bS.onclick = () => speakToggle(it.type === 'erro' ? it.right : it.text);
     const bD = document.createElement('button'); bD.textContent = '🗑️'; bD.title = t('delete');
     bD.onclick = () => nbDelete(it.id);
     act.append(bS, bD);
@@ -2435,7 +2463,7 @@ Write ${TEST_TOTAL} short questions (at most 15 words each) in ${currentLangName
 1. greeting and asking their name; 2. everyday present (where they are from, where they live); 3. everyday present (routine); 4. past (what they did yesterday); 5. past (last weekend); 6. future plans; 7. opinion and why, on an everyday topic; 8. hypothesis ("what would you do if…").
 No translations and no numbering inside the sentences. Reply ONLY with JSON: {"perguntas": ["…", "…"]}`;
   try {
-    const out = await callAI([{ role: 'user', content: 'Create the test questions.' }], system);
+    const out = await busyAI([{ role: 'user', content: 'Create the test questions.' }], system);
     removeLoading();
     if (currentTest !== test) return; // a aluna saiu do teste entretanto
     const j = parseJsonReply(out);
@@ -2486,7 +2514,7 @@ Levels: "iniciante" (does not answer or only isolated words), "básico" (simple 
 Reply ONLY with JSON: {"nivel": "iniciante|básico|intermediário|avançado", "explicacao": "one short sentence in ${EX}", "fortes": ["…", "…"], "melhorar": ["…", "…"]}. The texts go in ${EX} (${NI.variant}), at most 12 words each; "fortes" and "melhorar" have exactly 2 items. Keep the JSON keys and the level values exactly as shown.`;
   const qa = test.q.map((q, i) => `${i + 1}. ${q}\nAnswer: ${test.a[i] || '(no answer)'}`).join('\n\n');
   try {
-    const out = await callAI([{ role: 'user', content: qa }], system);
+    const out = await busyAI([{ role: 'user', content: qa }], system);
     removeLoading();
     if (currentTest !== test) return;
     const j = parseJsonReply(out) || {};

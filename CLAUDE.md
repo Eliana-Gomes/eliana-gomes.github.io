@@ -12,6 +12,7 @@ App de conversação para praticar idiomas (espanhol, inglês, francês, italian
 - A chave API e o perfil (língua nativa, nome, cidade, nível por idioma, velocidade da voz, sotaque do espanhol, estilo da tutora) ficam no `localStorage` de cada telemóvel.
 - **Foto do perfil** (`localStorage` `tutora_foto`, data URL JPEG): no Perfil, "Galeria" (`<input accept="image/*">`) ou "Câmara" (`capture="user"`), reduzida num canvas para caber em 256×256; botão para remover. Aparece no Perfil, no Início e no lugar do 🎤 ao lado das falas da aluna. O botão "🔑 Mudar chave" fica no fim do Perfil.
 - Voz: reconhecimento do Chrome (Web Speech API, modo contínuo, envio só ao tocar ⏹, botão "Cancelar esta frase") e leitura pela síntese de voz do aparelho (prefere vozes "Natural"/"Google").
+- **Tutora ocupada**: enquanto a tutora pensa (chamadas `busyAI`: conversa, lições, saudação e teste de nível) ou fala, o microfone e o envio de texto ficam bloqueados (`isBusy`, `updateBusyUI`), com o botão do microfone esbatido e o aviso "A tutora está pensando…" / "…falando… toque no avatar ou em 🔊 para interromper". Tocar no avatar ou num 🔊 durante a fala interrompe-a (`stopSpeaking`, `speakToggle`). "O que dizer?" e a tradução 🌐 não bloqueiam.
 - Avatar SVG animado, fixo no topo da conversa: pisca, mexe a boca ao falar, brilha em verde ao ouvir (uma cópia parada aparece no Início).
 
 ## Telas e navegação
