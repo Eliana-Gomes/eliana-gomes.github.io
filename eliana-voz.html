@@ -298,6 +298,13 @@
     <option value="Espanha" data-i18n="accent_es"></option>
     <option value="América Latina" data-i18n="accent_latam"></option>
   </select>
+  <div id="pf-ptvar-wrap" style="display:contents">
+    <div class="prof-label" data-i18n="ptvar_q"></div>
+    <select class="api-select" id="pf-ptvar">
+      <option value="Brasil" data-i18n="ptvar_br"></option>
+      <option value="Portugal" data-i18n="ptvar_pt"></option>
+    </select>
+  </div>
   <div class="prof-label" data-i18n="style_q"></div>
   <select class="api-select" id="pf-style">
     <option value="amigável" data-i18n="style_friendly"></option>
@@ -470,8 +477,17 @@ const LANGS = [
   { code: 'en', locale: 'en-GB', flag: '🇬🇧', name: 'Inglês' },
   { code: 'fr', locale: 'fr-FR', flag: '🇫🇷', name: 'Francês' },
   { code: 'it', locale: 'it-IT', flag: '🇮🇹', name: 'Italiano' },
-  { code: 'pt', locale: 'pt-BR', flag: '🇧🇷', name: 'Português do Brasil' }
+  { code: 'pt', locale: 'pt-BR', flag: '🇧🇷', name: 'Português do Brasil' } // variante (pt-BR/pt-PT) conforme o perfil: ver langFlag/applyLangVars
 ];
+// Português de Portugal como idioma de estudo (perfil: ptVariant = 'Portugal').
+function ptIsPT() { return !!(PROFILE && PROFILE.ptVariant === 'Portugal'); }
+function langFlag(code) { return code === 'pt' ? (ptIsPT() ? '🇵🇹' : '🇧🇷') : (LANGS.find(l => l.code === code) || {}).flag || ''; }
+// Define nome (para as instruções) e locale (voz e microfone) do idioma atual, incluindo a variante do português.
+function applyLangVars() {
+  const l = LANGS.find(x => x.code === currentLang) || LANGS[0];
+  currentLangName = l.code === 'pt' ? (ptIsPT() ? 'Português de Portugal' : 'Português do Brasil') : l.name;
+  currentLocale = l.code === 'pt' ? (ptIsPT() ? 'pt-PT' : 'pt-BR') : l.locale;
+}
 const DEFAULT_LEVELS = { es: 'intermediário', en: 'básico', fr: 'iniciante', it: 'iniciante', pt: 'iniciante' };
 const LEVELS = ['iniciante', 'básico', 'intermediário', 'avançado'];
 
@@ -635,7 +651,12 @@ const BETTER = {
   it: (a, b) => `Meglio dire: ${b}. Non: ${a}.`,
   pt: (a, b) => `Melhor dizer: ${b}. E não: ${a}.`
 };
-function tgt(key) { return TARGET_TXT[key][currentLang] || TARGET_TXT[key].es; }
+// Textos da tutora em português de Portugal (quando se estuda essa variante).
+const TARGET_TXT_PTPT = { ask: 'Repete comigo 🔁', rep: 'Repete:', canSay: 'Podes dizer:', sayFull: 'Diz antes assim:', again: 'Podes dizer outra vez?', great: 'És espetacular!', sayEx: 'Quero comprar uma t-shirt.', good: 'Muito bem!', howSay: 'Como se diz…?' };
+function tgt(key) {
+  if (currentLang === 'pt' && ptIsPT() && TARGET_TXT_PTPT[key]) return TARGET_TXT_PTPT[key];
+  return TARGET_TXT[key][currentLang] || TARGET_TXT[key].es;
+}
 
 // ── DICIONÁRIO DA INTERFACE (pt-BR, pt-PT, es) ──
 const I18N = {
@@ -650,10 +671,11 @@ const I18N = {
     lvl_iniciante: 'iniciante', 'lvl_básico': 'básico', 'lvl_intermediário': 'intermediário', 'lvl_avançado': 'avançado',
     speed_q: 'Velocidade da voz da tutora:', speed_lenta: 'Lenta', speed_normal: 'Normal', speed_rapida: 'Rápida',
     accent_q: 'Sotaque do espanhol (voz e vocabulário):', accent_es: 'Espanha', accent_latam: 'América Latina',
+    ptvar_q: 'Variante do português (voz, vocabulário e correções):', ptvar_br: 'Brasil', ptvar_pt: 'Portugal',
     style_q: 'Estilo da tutora:', style_friendly: 'Amigável', style_formal: 'Formal', style_fun: 'Divertida',
     save_btn: 'Salvar e começar →', backup_label: 'Backup (perfil, foto, caderno, racha, lições e testes; sem a chave API):',
     export_btn: '⬇️ Exportar meus dados', import_btn: '⬆️ Importar meus dados', name_required: 'Escreva seu nome, por favor.',
-    lang_es: 'Espanhol', lang_en: 'Inglês', lang_fr: 'Francês', lang_it: 'Italiano', lang_pt: 'Português (Brasil)',
+    lang_es: 'Espanhol', lang_en: 'Inglês', lang_fr: 'Francês', lang_it: 'Italiano', lang_pt: 'Português',
     nb_title: '📒 Meu caderno', tab_errors: 'Meus erros', tab_saved: 'Salvas',
     nb_empty_errors: 'Ainda não há erros salvos neste idioma.<br>Cada correção 📝 da tutora entra aqui sozinha.',
     nb_empty_saved: 'Você ainda não salvou nenhuma frase neste idioma.<br>Toque em ⭐ numa mensagem da tutora (ou selecione um trecho e toque em ⭐).',
@@ -709,10 +731,11 @@ const I18N = {
     lvl_iniciante: 'iniciante', 'lvl_básico': 'básico', 'lvl_intermediário': 'intermédio', 'lvl_avançado': 'avançado',
     speed_q: 'Velocidade da voz da tutora:', speed_lenta: 'Lenta', speed_normal: 'Normal', speed_rapida: 'Rápida',
     accent_q: 'Sotaque do espanhol (voz e vocabulário):', accent_es: 'Espanha', accent_latam: 'América Latina',
+    ptvar_q: 'Variante do português (voz, vocabulário e correções):', ptvar_br: 'Brasil', ptvar_pt: 'Portugal',
     style_q: 'Estilo da tutora:', style_friendly: 'Amigável', style_formal: 'Formal', style_fun: 'Divertida',
     save_btn: 'Guardar e começar →', backup_label: 'Cópia de segurança (perfil, foto, caderno, racha, lições e testes; sem a chave API):',
     export_btn: '⬇️ Exportar os meus dados', import_btn: '⬆️ Importar os meus dados', name_required: 'Escreve o teu nome, por favor.',
-    lang_es: 'Espanhol', lang_en: 'Inglês', lang_fr: 'Francês', lang_it: 'Italiano', lang_pt: 'Português (Brasil)',
+    lang_es: 'Espanhol', lang_en: 'Inglês', lang_fr: 'Francês', lang_it: 'Italiano', lang_pt: 'Português',
     nb_title: '📒 O meu caderno', tab_errors: 'Os meus erros', tab_saved: 'Guardadas',
     nb_empty_errors: 'Ainda não há erros guardados neste idioma.<br>Cada correção 📝 da tutora entra aqui sozinha.',
     nb_empty_saved: 'Ainda não guardaste nenhuma frase neste idioma.<br>Toca em ⭐ numa mensagem da tutora (ou seleciona um trecho e toca em ⭐).',
@@ -768,10 +791,11 @@ const I18N = {
     lvl_iniciante: 'principiante', 'lvl_básico': 'básico', 'lvl_intermediário': 'intermedio', 'lvl_avançado': 'avanzado',
     speed_q: 'Velocidad de la voz de la tutora:', speed_lenta: 'Lenta', speed_normal: 'Normal', speed_rapida: 'Rápida',
     accent_q: 'Acento del español (voz y vocabulario):', accent_es: 'España', accent_latam: 'América Latina',
+    ptvar_q: 'Variante del portugués (voz, vocabulario y correcciones):', ptvar_br: 'Brasil', ptvar_pt: 'Portugal',
     style_q: 'Estilo de la tutora:', style_friendly: 'Amable', style_formal: 'Formal', style_fun: 'Divertida',
     save_btn: 'Guardar y empezar →', backup_label: 'Copia de seguridad (perfil, foto, cuaderno, racha, lecciones y pruebas; sin la clave API):',
     export_btn: '⬇️ Exportar mis datos', import_btn: '⬆️ Importar mis datos', name_required: 'Escribe tu nombre, por favor.',
-    lang_es: 'Español', lang_en: 'Inglés', lang_fr: 'Francés', lang_it: 'Italiano', lang_pt: 'Portugués (Brasil)',
+    lang_es: 'Español', lang_en: 'Inglés', lang_fr: 'Francés', lang_it: 'Italiano', lang_pt: 'Portugués',
     nb_title: '📒 Mi cuaderno', tab_errors: 'Mis errores', tab_saved: 'Guardadas',
     nb_empty_errors: 'Todavía no hay errores guardados en este idioma.<br>Cada corrección 📝 de la tutora entra aquí sola.',
     nb_empty_saved: 'Todavía no has guardado ninguna frase en este idioma.<br>Toca ⭐ en un mensaje de la tutora (o selecciona un fragmento y toca ⭐).',
@@ -827,10 +851,11 @@ const I18N = {
     lvl_iniciante: 'beginner', 'lvl_básico': 'elementary', 'lvl_intermediário': 'intermediate', 'lvl_avançado': 'advanced',
     speed_q: 'Tutor voice speed:', speed_lenta: 'Slow', speed_normal: 'Normal', speed_rapida: 'Fast',
     accent_q: 'Spanish accent (voice and vocabulary):', accent_es: 'Spain', accent_latam: 'Latin America',
+    ptvar_q: 'Portuguese variant (voice, vocabulary and corrections):', ptvar_br: 'Brazil', ptvar_pt: 'Portugal',
     style_q: 'Tutor style:', style_friendly: 'Friendly', style_formal: 'Formal', style_fun: 'Fun',
     save_btn: 'Save and start →', backup_label: 'Backup (profile, photo, notebook, streak, lessons and tests; without the API key):',
     export_btn: '⬇️ Export my data', import_btn: '⬆️ Import my data', name_required: 'Please write your name.',
-    lang_es: 'Spanish', lang_en: 'English', lang_fr: 'French', lang_it: 'Italian', lang_pt: 'Portuguese (Brazil)',
+    lang_es: 'Spanish', lang_en: 'English', lang_fr: 'French', lang_it: 'Italian', lang_pt: 'Portuguese',
     nb_title: '📒 My notebook', tab_errors: 'My mistakes', tab_saved: 'Saved',
     nb_empty_errors: 'No mistakes saved in this language yet.<br>Every 📝 correction from the tutor is added here automatically.',
     nb_empty_saved: 'You have not saved any phrases in this language yet.<br>Tap ⭐ on a tutor message (or select part of it and tap ⭐).',
@@ -886,10 +911,11 @@ const I18N = {
     lvl_iniciante: 'débutant', 'lvl_básico': 'élémentaire', 'lvl_intermediário': 'intermédiaire', 'lvl_avançado': 'avancé',
     speed_q: 'Vitesse de la voix de la tutrice :', speed_lenta: 'Lente', speed_normal: 'Normale', speed_rapida: 'Rapide',
     accent_q: 'Accent de l’espagnol (voix et vocabulaire) :', accent_es: 'Espagne', accent_latam: 'Amérique latine',
+    ptvar_q: 'Variante du portugais (voix, vocabulaire et corrections) :', ptvar_br: 'Brésil', ptvar_pt: 'Portugal',
     style_q: 'Style de la tutrice :', style_friendly: 'Sympathique', style_formal: 'Formel', style_fun: 'Drôle',
     save_btn: 'Enregistrer et commencer →', backup_label: 'Sauvegarde (profil, photo, carnet, série, leçons et tests ; sans la clé API) :',
     export_btn: '⬇️ Exporter mes données', import_btn: '⬆️ Importer mes données', name_required: 'Écris ton prénom, s’il te plaît.',
-    lang_es: 'Espagnol', lang_en: 'Anglais', lang_fr: 'Français', lang_it: 'Italien', lang_pt: 'Portugais (Brésil)',
+    lang_es: 'Espagnol', lang_en: 'Anglais', lang_fr: 'Français', lang_it: 'Italien', lang_pt: 'Portugais',
     nb_title: '📒 Mon carnet', tab_errors: 'Mes erreurs', tab_saved: 'Enregistrées',
     nb_empty_errors: 'Aucune erreur enregistrée dans cette langue pour l’instant.<br>Chaque correction 📝 de la tutrice arrive ici toute seule.',
     nb_empty_saved: 'Tu n’as encore enregistré aucune phrase dans cette langue.<br>Touche ⭐ sur un message de la tutrice (ou sélectionne un passage et touche ⭐).',
@@ -945,10 +971,11 @@ const I18N = {
     lvl_iniciante: 'principiante', 'lvl_básico': 'elementare', 'lvl_intermediário': 'intermedio', 'lvl_avançado': 'avanzato',
     speed_q: 'Velocità della voce della tutor:', speed_lenta: 'Lenta', speed_normal: 'Normale', speed_rapida: 'Veloce',
     accent_q: 'Accento dello spagnolo (voce e vocabolario):', accent_es: 'Spagna', accent_latam: 'America Latina',
+    ptvar_q: 'Variante del portoghese (voce, vocabolario e correzioni):', ptvar_br: 'Brasile', ptvar_pt: 'Portogallo',
     style_q: 'Stile della tutor:', style_friendly: 'Amichevole', style_formal: 'Formale', style_fun: 'Divertente',
     save_btn: 'Salva e inizia →', backup_label: 'Backup (profilo, foto, quaderno, serie, lezioni e test; senza la chiave API):',
     export_btn: '⬇️ Esporta i miei dati', import_btn: '⬆️ Importa i miei dati', name_required: 'Scrivi il tuo nome, per favore.',
-    lang_es: 'Spagnolo', lang_en: 'Inglese', lang_fr: 'Francese', lang_it: 'Italiano', lang_pt: 'Portoghese (Brasile)',
+    lang_es: 'Spagnolo', lang_en: 'Inglese', lang_fr: 'Francese', lang_it: 'Italiano', lang_pt: 'Portoghese',
     nb_title: '📒 Il mio quaderno', tab_errors: 'I miei errori', tab_saved: 'Salvate',
     nb_empty_errors: 'Ancora nessun errore salvato in questa lingua.<br>Ogni correzione 📝 della tutor arriva qui da sola.',
     nb_empty_saved: 'Non hai ancora salvato nessuna frase in questa lingua.<br>Tocca ⭐ su un messaggio della tutor (o seleziona una parte e tocca ⭐).',
@@ -1083,7 +1110,7 @@ function renderLangPills() {
     visibleLangs().forEach(l => {
       const b = document.createElement('button');
       b.className = 'lang-pill' + (l.code === currentLang ? ' active' : '');
-      b.textContent = l.flag + ' ' + langUI(l.code);
+      b.textContent = langFlag(l.code) + ' ' + langUI(l.code);
       b.onclick = () => setLang(l.code);
       row.appendChild(b);
     });
@@ -1092,9 +1119,10 @@ function renderLangPills() {
 
 // Se o idioma atual for igual à língua nativa (escondido), passa para o primeiro visível.
 function ensureVisibleLang() {
+  applyLangVars();
   if (visibleLangs().some(l => l.code === currentLang)) return;
   const l = visibleLangs()[0];
-  currentLang = l.code; currentLangName = l.name; currentLocale = l.locale;
+  currentLang = l.code; applyLangVars();
 }
 
 // ── PROFILE ──
@@ -1107,10 +1135,12 @@ function renderLevelGrid(levels) {
   const cur = {};
   LANGS.forEach(l => { const s = document.getElementById('pf-lv-' + l.code); if (s) cur[l.code] = s.value; });
   grid.innerHTML = '';
+  // "Variante do português" só aparece quando o português está disponível para aprender.
+  document.getElementById('pf-ptvar-wrap').style.display = visibleLangs().some(l => l.code === 'pt') ? 'contents' : 'none';
   visibleLangs().forEach(l => {
     const lab = document.createElement('label');
     lab.className = 'prof-label'; lab.style.margin = '0';
-    lab.append(l.flag + ' ' + langUI(l.code));
+    lab.append(langFlag(l.code) + ' ' + langUI(l.code));
     const sel = document.createElement('select');
     sel.className = 'api-select'; sel.id = 'pf-lv-' + l.code;
     LEVELS.forEach(v => { const o = document.createElement('option'); o.value = v; o.textContent = t('lvl_' + v); sel.appendChild(o); });
@@ -1131,6 +1161,7 @@ function fillProfileForm() {
   document.getElementById('pf-city').value = p.city || '';
   document.getElementById('pf-speed').value = p.speed || 'normal';
   document.getElementById('pf-accent').value = p.accent || 'Espanha';
+  document.getElementById('pf-ptvar').value = p.ptVariant || 'Brasil';
   document.getElementById('pf-style').value = p.style || 'amigável';
   document.getElementById('pf-readnat').checked = !!p.readNative;
   applyI18n();
@@ -1149,6 +1180,7 @@ function saveProfile() {
     native: document.getElementById('pf-native').value, levels,
     speed: document.getElementById('pf-speed').value,
     accent: document.getElementById('pf-accent').value,
+    ptVariant: document.getElementById('pf-ptvar').value,
     style: document.getElementById('pf-style').value,
     readNative: document.getElementById('pf-readnat').checked
   };
@@ -1321,7 +1353,7 @@ const RATES = { lenta: 0.75, normal: 0.95, 'rápida': 1.15 };
 function setLang(code) {
   const l = LANGS.find(x => x.code === code);
   if (!l) return;
-  currentLang = l.code; currentLangName = l.name; currentLocale = l.locale;
+  currentLang = l.code; applyLangVars();
   renderLangPills();
   document.getElementById('tip-text').textContent = (TIPS[uiLang()] || {})[code] || '';
   chatHistory = []; repeatTarget = ''; repeatTries = 0; clearTranscript(); stopRecording(); synth.cancel();
@@ -1682,7 +1714,7 @@ async function greet() {
       en: `Hello ${PROFILE.name}! I'm your tutor. Speak whenever you're ready and we'll practise together!`,
       fr: `Bonjour ${PROFILE.name} ! Je suis ta tutrice. Parle quand tu veux et on pratique ensemble !`,
       it: `Ciao ${PROFILE.name}! Sono la tua tutor. Parla quando vuoi e pratichiamo insieme!`,
-      pt: `Olá, ${PROFILE.name}! Sou sua tutora. Fale quando quiser e vamos praticar juntos!`
+      pt: ptIsPT() ? `Olá, ${PROFILE.name}! Sou a tua tutora. Fala quando quiseres e vamos praticar juntos!` : `Olá, ${PROFILE.name}! Sou sua tutora. Fale quando quiser e vamos praticar juntos!`
     };
     const fallback = fallbacks[currentLang] || fallbacks.es;
     addMsg('tutor', fallback); speak(fallback);
@@ -1882,7 +1914,13 @@ function repeatPhrase(ok, right) {
 
 // Variante do idioma estudado: espanhol conforme o perfil; português sempre do Brasil.
 function accentRule(P) {
-  if (currentLang === 'pt') return 'Usa português do Brasil (você, ônibus, celular, trem). Não corrijas formas corretas do português de Portugal.';
+  if (currentLang === 'pt') {
+    // Forma correta da outra variante: não é erro, só se comenta a diferença.
+    const diff = ex => `Uma forma correta da outra variante NÃO é erro: não a corrijas nem uses 📝; comenta só a diferença numa linha curta (na conversa, uma linha 🗣️, ex.: 🗣️ ${ex} · as duas formas estão certas; nas lições, uma linha [nat]).`;
+    return ptIsPT()
+      ? 'Usa e ensina português de Portugal: trata por "tu" com a conjugação de 2.ª pessoa ("tu fazes", "queres"), "estou a fazer" (não "estou fazendo"), pronomes depois do verbo ("diz-me", "chamo-me"), vocabulário de Portugal (autocarro, comboio, pequeno-almoço, telemóvel, casa de banho). ' + diff('"ônibus" → em Portugal diz-se "autocarro"')
+      : 'Usa e ensina português do Brasil: "você", "estou fazendo", pronomes antes do verbo ("me diga", "eu me chamo"), vocabulário do Brasil (ônibus, trem, café da manhã, celular, banheiro). ' + diff('"autocarro" → no Brasil diz-se "ônibus"');
+  }
   if (currentLang !== 'es') return '';
   return P && P.accent === 'América Latina'
     ? 'Usa espanhol da América Latina (ustedes, computadora, carro, celular). Não corrijas formas corretas do espanhol de Espanha.'
@@ -2391,7 +2429,7 @@ async function finishTest() {
   setStatus('gold', t('st_processing'));
   addLoadingMsg();
   const P = PROFILE, NI = NATIVES[getNative(P)], EX = NI.expl, lang = currentLang;
-  const system = `És examinadora de ${currentLangName}. Avalia o nível oral de ${P.name} (${NI.speaker}) pelas respostas a um teste de ${TEST_TOTAL} perguntas de dificuldade crescente. As respostas vêm de reconhecimento de voz: ignora pontuação, maiúsculas, acentos e falhas do microfone. "(não sei)" = não respondeu.
+  const system = `És examinadora de ${currentLangName}. Avalia o nível oral de ${P.name} (${NI.speaker}) pelas respostas a um teste de ${TEST_TOTAL} perguntas de dificuldade crescente. As respostas vêm de reconhecimento de voz: ignora pontuação, maiúsculas, acentos e falhas do microfone. "(não sei)" = não respondeu. ${accentRule(P)}
 Níveis: "iniciante" (não responde ou só palavras soltas), "básico" (frases simples no presente), "intermediário" (usa passado e futuro com alguns erros, explica opiniões), "avançado" (usa hipóteses e estruturas complexas, com poucos erros).
 Responde SÓ com JSON: {"nivel": "iniciante|básico|intermediário|avançado", "explicacao": "uma frase curta em ${EX}", "fortes": ["…", "…"], "melhorar": ["…", "…"]}. Os textos vão em ${EX} (${NI.variant}), com no máximo 12 palavras cada; "fortes" e "melhorar" têm exatamente 2 itens.`;
   const qa = test.q.map((q, i) => `${i + 1}. ${q}\nResposta: ${test.a[i] || '(não sei)'}`).join('\n\n');
@@ -2464,7 +2502,7 @@ function renderTestsSummary() {
     const r = all[l.code];
     let d = '';
     try { d = new Date(r.date).toLocaleDateString(nativeInfo().date); } catch(e) {}
-    return `<div>${l.flag} ${esc(langUI(l.code))}: <span class="lvl">${esc(t('lvl_' + normLevel(r.level)))}</span> <span class="when">· ${esc(d)}</span></div>`;
+    return `<div>${langFlag(l.code)} ${esc(langUI(l.code))}: <span class="lvl">${esc(t('lvl_' + normLevel(r.level)))}</span> <span class="when">· ${esc(d)}</span></div>`;
   }).join('');
 }
 
