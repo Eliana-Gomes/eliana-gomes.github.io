@@ -1023,6 +1023,14 @@ const LESSON_SCENES = [
    ['E à noite, a que horas você vai dormir?~E à noite, a que horas vais dormir? | ¿Y por la noche, a qué hora te acuestas? | And at night, what time do you go to bed? | Et le soir, tu te couches à quelle heure ? | E la sera, a che ora vai a letto?', '4']]
 ];
 // Troca n da lição i: fala da Lia e resposta modelo (frases da lição), com a tradução na língua nativa.
+// Notas de uso fixas por idioma e lição (só onde as dicas costumam variar: cumprimentos). A IA baseia as dicas nelas.
+const LZ_USAGE = {
+  en: { 0: 'Hello: neutral, any time; "Hi!" is more informal. Good morning: until about noon. Good afternoon: from noon until about 6 p.m. Good evening: after about 6 p.m., when arriving (not when leaving). Good night: only when leaving or going to bed. Goodbye: a bit formal; among friends people usually say "Bye!". See you later: informal, when you will see the person again.' },
+  es: { 0: '¡Hola!: neutral, any time. ¡Buenos días!: until lunch (about 12–2 p.m.). ¡Buenas tardes!: from lunch until it gets dark (about 8 p.m.). ¡Buenas noches!: after dark, both when arriving and when leaving. ¡Hasta luego!: very common goodbye, even if you will not see the person soon; "¡Adiós!" is more final.' },
+  fr: { 0: 'Bonjour: during the day, also in the afternoon (until about 6 p.m.); the polite default with strangers and in shops. Bonsoir: from about 6 p.m., when arriving or greeting. Salut: informal, with friends, for hello and for bye. Au revoir: neutral/polite goodbye. À bientôt: when you expect to see the person soon. "Bonne nuit" is only when going to bed.' },
+  it: { 0: 'Ciao: informal, with friends and family, for hello and for bye. Buongiorno: in the morning and early afternoon; polite. Buonasera: from mid-afternoon (about 4–5 p.m.); polite, when arriving or leaving. Arrivederci: polite goodbye ("ArrivederLa" is very formal). A presto: when you expect to see the person soon. "Buonanotte" is only when going to bed.' },
+  pt: { 0: 'Oi!: informal (Brazil); in Portugal "Olá!" is the usual greeting. Bom dia!: until noon. Boa tarde!: from noon until it gets dark (about 6–7 p.m.). Boa noite!: after dark, both when arriving and when leaving. Até logo!: common goodbye; "Tchau!" (Brazil) is informal; "Adeus!" (Portugal) is common, in Brazil it sounds final.' }
+};
 function lessonScene(i, n, items) {
   const sc = (LESSON_SCENES[i] || [])[n];
   if (!sc || !items.length) return { lia: items[0], ans: items[0] };
@@ -2309,7 +2317,7 @@ function lzParse(reply) {
 function lzCleanFeedback(fb) {
   let s = String(fb || '').split('\n')[0].replace(/\[(nat|alvo)\]\s*/gi, '').replace(/^[📝✅🗣️💡🎯\s]+/u, '').trim();
   if (!s || LZ_TYPO_TALK.test(s) || LZ_PROGRESS_TALK.test(lzNorm(s))) return '';
-  if (lzNI().group !== 'en' && (s.match(LZ_ENGLISH) || []).length >= 2) return '';
+  if (lzNI().group !== 'en' && (s.replace(/«[^»]*»|"[^"]*"|“[^”]*”/g, ' ').match(LZ_ENGLISH) || []).length >= 2) return '';
   return s.length > 220 ? s.slice(0, 217) + '…' : s;
 }
 
@@ -2640,21 +2648,23 @@ function buildLessonSystem() {
   else if (step.k === 'teach') task = `${N} was asked to repeat the new phrase «${ex.t}». Judge if ${N} said it.`;
   else if (step.k === 'recall') task = `${N} was asked, in ${EX}, how to say "${ex.g}" in ${L}. Expected answer: «${ex.t}». A different but correct and natural ${L} way to say the same thing in that situation is also correct (e.g. in French «Bonjour» is correct to greet someone in the afternoon).`;
   else { const tn = lzTurn(items, step.i); task = `Short real-life scene: Lia said «${tn.lia.t}» (= ${tn.lia.g}). Lia may use simple words outside the list, but ${N} must reply with the lesson phrase(s) that fit (model answer: «${tn.ans.t}»). Any fitting, correct reply made with the lesson phrases is correct, also only part of the model answer if it fits the scene.`; }
+  const usage = (LZ_USAGE[currentLang] || {})[i];
   const lastUser = (chatHistory.filter(m => m.role === 'user').pop() || {}).content || '';
   const looksQ = step.k !== 'chat' && lzLooksQuestion(lastUser, ex.t);
   return `You evaluate ONE answer of ${N}, ${NI.speaker}, an absolute beginner in a ${L} lesson. You do NOT talk to ${N}: the app writes everything ${N} sees. ${accentRule(P)}
 LESSON PHRASES:
 ${list}
 ("…" = ${N} completes it with their own information: accept any sensible completion. "A / B" = both forms are right.)
-TASK: ${task}
+${usage ? `USAGE NOTES (the facts for every tip; never contradict them): ${usage}
+` : ''}TASK: ${task}
 ${looksQ ? `ATTENTION: the message looks like a QUESTION or a request for explanation, maybe badly transcribed by the microphone (e.g. "qu'est-ce qui ne fait que très bien" = "what does «très bien» mean?"): result "question".\n` : ''}The message comes from SPEECH RECOGNITION: ignore capitals, accents, punctuation, apostrophes and similar-sounding glitches; never mention them.
 Reply ONLY with this JSON, nothing before or after:
 {"result": "correct" | "wrong" | "question" | "unclear", "feedback": "…"}
-- "correct": the answer is right. feedback: "" or at most ONE short useful usage tip (when or with whom to use it), or, for a correct alternative, the difference in one short sentence.
+- "correct": the answer is right. feedback: "" or at most ONE short useful usage tip ABOUT THE ${L.toUpperCase()} PHRASE, quoted in ${L} between «» (when or with whom to use it), NEVER about its translation (wrong: "Use «tchau» para se despedir de amigos"; right: "«Goodbye!» é um pouco formal; entre amigos se diz mais «Bye!»"); or, for a correct alternative, the difference in one short sentence. Tips must be true and consistent with the usage notes and with the other lesson phrases (e.g. «Good afternoon» from noon until about 6 p.m.).
 - "wrong": a real mistake (wrong or missing word, wrong phrase). feedback: ONE short sentence saying what was wrong or missing (e.g. "${first(NI.exWrong)}"), without the full right answer.
 - "question": ${N} asks a question or asks for an explanation, in any language (e.g. "o que significa…?", "¿qué quiere decir…?", "c'est quoi… ?", "what does … mean?", "não entendi"). feedback: a short answer to the question.
 - "unclear": the message makes no sense, is garbled, repeats Lia's question or answers something else. feedback: ONE short sentence saying what happened (e.g. "${first(NI.exOff)}").
-feedback: ONE sentence, in ${EX} ONLY (${NI.variant})${NI.group !== 'en' ? ', NEVER in English' : ''}. Never talk about progress, phases, attempts or the end of the lesson; never give instructions such as "repeat after me"; never write notes about ${N} in the third person.`;
+feedback: ONE sentence, in ${EX} ONLY (${NI.variant})${NI.group !== 'en' ? ', NEVER in English' : ''}; only the quoted ${L} phrases are in ${L}. Never talk about progress, phases, attempts or the end of the lesson; never give instructions such as "repeat after me"; never write notes about ${N} in the third person.`;
 }
 
 // ── Tutora ocupada: microfone e envio de texto bloqueados enquanto pensa (chamada à IA) ou fala ──
