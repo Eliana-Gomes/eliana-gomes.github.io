@@ -351,11 +351,12 @@
   .who-screen { position: fixed; inset: 0; z-index: 1500; background: var(--night); color: #F4F0EA; overflow-y: auto; display: flex; justify-content: center; padding: 24px 16px 40px; }
   .who-wrap { width: 100%; max-width: 420px; display: flex; flex-direction: column; align-items: center; gap: 14px; position: relative; }
   .who-wrap h2 { font-family: 'Cormorant Garamond', serif; font-size: 1.9rem; font-weight: 600; color: var(--gold-glow); text-align: center; }
-  .who-close { position: absolute; top: 0; right: 0; background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.2); color: #F4F0EA; }
+  .who-top { width: 100%; display: flex; justify-content: flex-end; }
+  .who-close { width: 44px; height: 44px; border-radius: 50%; border: 1.5px solid var(--gold-glow); background: rgba(219,168,76,0.15); color: var(--gold-glow); font-size: 1.15rem; font-weight: 600; line-height: 1; cursor: pointer; flex-shrink: 0; }
   .who-grid { width: 100%; display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; margin-top: 4px; }
   .who-item { background: rgba(255,255,255,0.05); border: 1px solid rgba(219,168,76,0.3); border-radius: 18px; padding: 16px 8px 12px; display: flex; flex-direction: column; align-items: center; gap: 8px; color: #F4F0EA; font-family: 'Inter', sans-serif; font-size: 0.95rem; font-weight: 600; cursor: pointer; overflow-wrap: anywhere; }
   .who-item.active { border-color: var(--gold-glow); box-shadow: 0 0 0 1px var(--gold-glow) inset; }
-  .who-item .photo-circle { width: 84px; height: 84px; font-size: 2.4rem; }
+  .who-item .photo-circle { width: 84px; height: 84px; font-size: 2.4rem; background: rgba(255,255,255,0.08); }
   .who-item.add .photo-circle { border-style: dashed; color: var(--gold-glow); font-size: 2.2rem; }
   .home-photo { cursor: pointer; }
   .setup-screen .api-input { background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.2); color: #F4F0EA; }
@@ -386,7 +387,7 @@
 <!-- QUEM VAI ESTUDAR? (vários perfis no mesmo aparelho) -->
 <div class="who-screen" id="who-screen" style="display:none" role="dialog" aria-modal="true">
   <div class="who-wrap">
-    <button class="nb-close who-close" id="who-close" onclick="hideChooser()" data-i18n-title="close">✕</button>
+    <div class="who-top" id="who-top"><button class="who-close" id="who-close" onclick="closeChooser()" data-i18n-title="close" aria-label="✕">✕</button></div>
     <div class="setup-logo"><picture><source srcset="parlia-logo.webp" type="image/webp"><img class="logo-img" src="parlia-logo.png" width="800" height="300" alt="Parlia · by Luz em Movimento"></picture></div>
     <h2 data-i18n="who_title"></h2>
     <div class="who-grid" id="who-grid"></div>
@@ -2235,9 +2236,17 @@ function showChooser(atStart) {
   const add = document.createElement('button'); add.className = 'who-item add';
   add.innerHTML = '<div class="photo-circle">+</div>'; const al = document.createElement('div'); al.textContent = t('add_person').replace(/^[+] */, ''); add.appendChild(al);
   add.onclick = addProfile; grid.appendChild(add);
-  document.getElementById('who-close').style.display = atStart ? 'none' : '';
+  document.getElementById('who-top').style.display = atStart ? 'none' : 'flex';
   applyI18n();
+  const wasOpen = whoOpen();
   document.getElementById('who-screen').style.display = 'flex';
+  if (!atStart && !wasOpen && !(history.state && history.state.who)) { try { history.pushState(Object.assign({}, history.state || { view: currentView }, { who: true }), ''); } catch(e) {} }
+}
+function whoOpen() { return document.getElementById('who-screen').style.display !== 'none'; }
+// ✕ e "voltar": fecham a tela e voltam à tela anterior, com o mesmo perfil.
+function closeChooser() {
+  if (history.state && history.state.who) { history.back(); return; } // o popstate fecha a tela
+  hideChooser();
 }
 function hideChooser() { document.getElementById('who-screen').style.display = 'none'; }
 function switchTo(id) {
@@ -2248,8 +2257,7 @@ function switchTo(id) {
 function chooseProfile(id) {
   if (id !== ACTIVE_ID) { switchTo(id); return; }
   try { sessionStorage.setItem(CHOSEN_KEY, id); } catch(e) {}
-  hideChooser();
-  if (!appStarted) startApp();
+  if (!appStarted) { hideChooser(); startApp(); } else closeChooser();
 }
 // "+ Adicionar pessoa": perfil novo e vazio (o app abre o formulário do primeiro perfil).
 function addProfile() {
@@ -2381,6 +2389,7 @@ function goHome() {
 window.addEventListener('popstate', (e) => {
   backPending = false;
   if (zeroPopSkip) { zeroPopSkip = false; return; } // entrada da lista retirada ao escolher uma lição
+  if (whoOpen() && appStarted) { hideChooser(); return; } // "Quem vai estudar?" aberta por "Trocar de pessoa": fecha e fica
   if (!PROFILE) return; // ainda no primeiro perfil
   document.getElementById('choice-modal').classList.remove('show');
   // Voltar com a lista de lições aberta: fecha só a lista e fica na conversa.
