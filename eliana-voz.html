@@ -72,6 +72,9 @@
   .fix-list { margin-top: 4px; color: var(--fix-text); }
   .fix-why { margin-top: 6px; color: var(--fix-text); }
   .fix-more { margin-top: 4px; font-size: 0.8rem; color: var(--fix-text); }
+  .fix-short { margin-top: 2px; color: var(--fix-text); }
+  .nb-more { margin-top: 2px; font-size: 0.78rem; color: var(--text-2); }
+  .nb-more summary { cursor: pointer; color: var(--accent); text-decoration: underline; list-style: none; }
   .fix-why summary { cursor: pointer; color: var(--fix-text); font-weight: 600; text-decoration: underline; list-style: none; }
   .msg-tools { display: flex; gap: 6px; margin-top: 5px; }
   .msg-tools button { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; color: var(--text-2); font-size: 0.75rem; padding: 3px 9px; cursor: pointer; font-family: 'Inter', sans-serif; }
@@ -586,27 +589,27 @@ const LEVELS = ['iniciante', 'básico', 'intermediário', 'avançado'];
 // exemplos na própria língua nativa; hide: idioma escondido da lista.
 const NATIVES = {
   'pt-BR': { ui: 'pt-BR', expl: 'Brazilian Portuguese', speaker: 'a native speaker of Brazilian Portuguese', short: 'Portuguese', locale: 'pt-BR', hide: 'pt', group: 'pt', date: 'pt-BR',
-             exFix: 'o verbo é "desarrollar"; no passado fica "desarrollé"', exPron: 'entendi "tía" → acho que você quis dizer "día" · treine o som do D, mais suave', exTr: '(Olá, bom dia)',
+             exFix: 'o verbo é "desarrollar"; no passado fica "desarrollé"', exPron: 'entendi "tía" → acho que você quis dizer "día" · treine o som do D, mais suave', exTr: '(Olá, bom dia)', exShort: '«Buonasera»: a partir das 16h, para chegar e sair.', exLong: 'em espanhol, "desenvolver" é "desarrollar"; no pretérito, a 1.ª pessoa termina em "-é"',
              exOff: 'Você repetiu a pergunta. A resposta é só: «…». Tente de novo.', exWrong: 'Faltou o "s" no final. O certo é: «…». Tente de novo.',
              repeatEx: 'Repita comigo', variant: 'write in Brazilian Portuguese, addressing the learner as "você" (e.g. "Repita comigo", "Ouça", "Diga"; celular, ônibus)' },
   'pt-PT': { ui: 'pt-PT', expl: 'European Portuguese (Portugal)', speaker: 'a native speaker of European Portuguese', short: 'Portuguese', locale: 'pt-PT', hide: 'pt', group: 'pt', date: 'pt-PT',
-             exFix: 'o verbo é "desarrollar"; no passado fica "desarrollé"', exPron: 'entendi "tía" → acho que querias dizer "día" · treina o som do D, mais suave', exTr: '(Olá, bom dia)',
+             exFix: 'o verbo é "desarrollar"; no passado fica "desarrollé"', exPron: 'entendi "tía" → acho que querias dizer "día" · treina o som do D, mais suave', exTr: '(Olá, bom dia)', exShort: '«Buonasera»: a partir das 16h, para chegar e sair.', exLong: 'em espanhol, "desenvolver" é "desarrollar"; no pretérito, a 1.ª pessoa termina em "-é"',
              exOff: 'Repetiste a pergunta. A resposta é só: «…». Tenta de novo.', exWrong: 'Faltou o "s" no fim. O certo é: «…». Tenta de novo.',
              repeatEx: 'Repete comigo', variant: 'write in European Portuguese, addressing the learner as "tu" (e.g. "Repete comigo", "Ouve", "Diz"; telemóvel, autocarro)' },
   'es':    { ui: 'es', expl: 'Spanish', speaker: 'a native Spanish speaker', short: 'Spanish', locale: 'es-ES', hide: 'es', group: 'es', date: 'es-ES',
-             exFix: 'el verbo es "desarrollar"; en pasado es "desarrollé"', exPron: 'entendí "tía" → creo que querías decir "día" · practica la D, más suave', exTr: '(Hola, buenos días)',
+             exFix: 'el verbo es "desarrollar"; en pasado es "desarrollé"', exPron: 'entendí "tía" → creo que querías decir "día" · practica la D, más suave', exTr: '(Hola, buenos días)', exShort: '«Buonasera»: desde las 16 h, al llegar y al irse.', exLong: '"desenfoví" no existe; el pasado de "desarrollar" en primera persona es "desarrollé"',
              exOff: 'Repetiste la pregunta. La respuesta es solo: «…». Inténtalo de nuevo.', exWrong: 'Te faltó la "s" final. Lo correcto es: «…». Inténtalo de nuevo.',
              repeatEx: 'Repite conmigo', variant: 'write in Spanish, addressing the learner as "tú" (e.g. "Repite conmigo", "Escucha", "Di")' },
   'en':    { ui: 'en', expl: 'English', speaker: 'a native English speaker', short: 'English', locale: 'en-GB', hide: 'en', group: 'en', date: 'en-GB',
-             exFix: 'the verb is "desarrollar"; in the past it is "desarrollé"', exPron: 'I heard "tía" → I think you meant "día" · practise a softer D', exTr: '(Hello, good morning)',
+             exFix: 'the verb is "desarrollar"; in the past it is "desarrollé"', exPron: 'I heard "tía" → I think you meant "día" · practise a softer D', exTr: '(Hello, good morning)', exShort: '«Buonasera»: from 4 p.m., when arriving and leaving.', exLong: '"desenfoví" does not exist; the first-person past of "desarrollar" is "desarrollé"',
              exOff: 'You repeated the question. The answer is just: «…». Try again.', exWrong: 'The final "s" is missing. The right form is: «…». Try again.',
              repeatEx: 'Repeat after me', variant: 'write in simple English, addressing the learner as "you" (e.g. "Repeat after me", "Listen", "Say")' },
   'fr':    { ui: 'fr', expl: 'French', speaker: 'a native French speaker', short: 'French', locale: 'fr-FR', hide: 'fr', group: 'fr', date: 'fr-FR',
-             exFix: 'le verbe est « desarrollar » ; au passé, c’est « desarrollé »', exPron: 'j’ai entendu « tía » → tu voulais dire « día » · travaille un D plus doux', exTr: '(Bonjour, bonne journée)',
+             exFix: 'le verbe est « desarrollar » ; au passé, c’est « desarrollé »', exPron: 'j’ai entendu « tía » → tu voulais dire « día » · travaille un D plus doux', exTr: '(Bonjour, bonne journée)', exShort: '« Buonasera » : dès 16 h, en arrivant et en partant.', exLong: '« desenfoví » n’existe pas ; le passé de « desarrollar » à la 1re personne est « desarrollé »',
              exOff: 'Tu as répété la question. La réponse est simplement : «…». Réessaie.', exWrong: 'Il manque le « s » final. La bonne forme est : «…». Réessaie.',
              repeatEx: 'Répète avec moi', variant: 'write in French, addressing the learner as "tu" (e.g. "Répète avec moi", "Écoute", "Dis")' },
   'it':    { ui: 'it', expl: 'Italian', speaker: 'a native Italian speaker', short: 'Italian', locale: 'it-IT', hide: 'it', group: 'it', date: 'it-IT',
-             exFix: 'il verbo è "desarrollar"; al passato è "desarrollé"', exPron: 'ho sentito "tía" → credo volessi dire "día" · allena una D più morbida', exTr: '(Ciao, buongiorno)',
+             exFix: 'il verbo è "desarrollar"; al passato è "desarrollé"', exPron: 'ho sentito "tía" → credo volessi dire "día" · allena una D più morbida', exTr: '(Ciao, buongiorno)', exShort: '«Good evening»: dopo le 18, quando arrivi.', exLong: '"desenfoví" non esiste; il passato di "desarrollar" alla prima persona è "desarrollé"',
              exOff: 'Hai ripetuto la domanda. La risposta è solo: «…». Riprova.', exWrong: 'Manca la "s" finale. La forma giusta è: «…». Riprova.',
              repeatEx: 'Ripeti con me', variant: 'write in Italian, addressing the learner as "tu" (e.g. "Ripeti con me", "Ascolta", "Di\'")' }
 };
@@ -2402,9 +2405,11 @@ function lzParse(reply) {
     return { result: ['correct', 'wrong', 'question', 'unclear'].includes(r) ? r : 'unclear', feedback: String(j.feedback || '').replace(/\s+/g, ' ').trim() };
   } catch (e) { return { result: 'unclear', feedback: '' }; }
 }
+// Só a primeira frase (as explicações são de uma frase; "!" ou "?" dentro de «…» não contam).
+function firstSentence(s) { return String(s || '').split(/(?<=[.!?])\s+(?=[A-ZÀ-ÖØ-Ý«"“¿¡])/)[0].trim(); }
 // Feedback da IA: uma só linha, na língua nativa, sem comentários proibidos.
 function lzCleanFeedback(fb) {
-  let s = String(fb || '').split('\n')[0].replace(/\[(nat|alvo)\]\s*/gi, '').replace(/^[📝✅🗣️💡🎯\s]+/u, '').trim();
+  let s = firstSentence(String(fb || '').split('\n')[0].replace(/\[(nat|alvo)\]\s*/gi, '').replace(/^[📝✅🗣️💡🎯\s]+/u, '').trim());
   if (!s || LZ_TYPO_TALK.test(s) || LZ_PROGRESS_TALK.test(lzNorm(s))) return '';
   if (lzNI().group !== 'en' && (s.replace(/«[^»]*»|"[^"]*"|“[^”]*”/g, ' ').match(LZ_ENGLISH) || []).length >= 2) return '';
   return s.length > 220 ? s.slice(0, 217) + '…' : s;
@@ -2567,14 +2572,15 @@ async function processInput(text) {
         const p0 = gramFix[0].split('·'), [wa, wb] = p0[0].split('→').map(t => unq(t || ''));
         highlightError(lastUserDiv, wa);
         // Guarda a correção no caderno (📒 Meus erros).
-        if (wa && wb) nbAdd({ type: 'erro', wrong: wa, right: wb, why: p0.slice(1).join('·').trim() });
+        if (wa && wb) nbAdd({ type: 'erro', wrong: wa, right: wb, why: firstSentence((p0[1] || '').trim()), more: p0.slice(2).join('·').trim() });
         extraFix.forEach(l => {
           const p = l.replace(/^[➕\s]+/u, '').split('·'), [xa, xb] = p[0].split('→').map(t => unq(t || ''));
-          if (xa && xb) nbAdd({ type: 'erro', wrong: xa, right: xb, why: p.slice(1).join('·').trim() });
+          if (xa && xb) nbAdd({ type: 'erro', wrong: xa, right: xb, why: firstSentence((p[1] || '').trim()), more: p.slice(2).join('·').trim() });
         });
       }
-      const short = fixLines.map(l => esc(l.split('·')[0].trim())).join('<br>');
-      const why = fixLines.map(l => { const p = l.split('·'); return p[1] ? esc(p[0].replace(/^[📝🗣️\s]+/u,'').trim() + ': ' + p.slice(1).join('·').trim()) : ''; }).filter(Boolean).join('<br>');
+      // Linha da correção e, logo abaixo, a explicação curta (uma frase); a explicação longa fica em "Por quê?".
+      const short = fixLines.map(l => { const p = l.split('·'); return esc(p[0].trim()) + (p[1] && p[1].trim() ? `<div class="fix-short">${esc(firstSentence(p[1].trim()))}</div>` : ''); }).join('');
+      const why = fixLines.map(l => esc(l.split('·').slice(2).join('·').trim())).filter(Boolean).join('<br>');
       const html = (fixed ? `<div class="fix-main">✅ ${esc(fixed)}</div>` : '') +
         `<div class="fix-list">${short}</div>` +
         (why ? `<details class="fix-why"><summary>${esc(t('why'))}</summary>${why}</details>` : '') +
@@ -2695,7 +2701,7 @@ IF ${N} CORRECTS A PIECE OF INFORMATION (e.g. "no, es XXL", "no, quise decir el 
 WHOLE SENTENCE IN THE NATIVE LANGUAGE: if ${N} says a whole sentence in ${NI.short}, that is NOT a mistake: do not use 📝 or ✅. Reply only with one line starting with 💬 that says that sentence in ${L}, simple and at ${N}'s level. E.g.: 💬 ${tgt('sayEx')}
 WHAT TO CORRECT: only FORM — grammar, conjugation, agreement, pronouns, prepositions, false friends, words in ${NI.short}, words that do not exist in ${L} or a ${L} word with a different meaning from the one ${N} wants. NEVER change the meaning of what ${N} said and never add information.
 EVERY MESSAGE WITH A REAL MISTAKE GETS A 📝 LINE. Check every message word by word, also long ones. If there are several mistakes, choose the most important for the 📝 line, in this order of priority: 1) false friends, 2) words in ${NI.short} or that do not exist in ${L}, 3) conjugation and agreement, 4) pronouns (missing object or reflexive pronoun), 5) prepositions. Silently rephrasing the sentence correctly in your reply or in the ✅ line WITHOUT a 📝 line is NOT a correction and is forbidden: if your ✅ sentence differs from what ${N} said, there MUST be a 📝 line.
-EXTRA MISTAKES: if the same message has more real mistakes, add up to 2 more lines starting with ➕, in the same format as 📝 (➕ wrong part → right part · short explanation in ${EX}). They are not shown in the conversation: they are only saved in ${N}'s notebook to review later.
+EXTRA MISTAKES: if the same message has more real mistakes, add up to 2 more lines starting with ➕, in the same format as 📝 (➕ wrong part → right part · one sentence of at most 12 words in ${EX} · optional longer explanation). They are not shown in the conversation: they are only saved in ${N}'s notebook to review later.
 ACCURACY: explanations of vocabulary, meaning and culture must be TRUE. Never invent a meaning or claim that a word is used in some country when you are not sure (e.g. "mole" is NOT a word for "blando" in any Spanish-speaking country). If you are not sure, say so honestly in one short line in ${EX} instead of inventing.
 CONJUGATION AND IMPERATIVE: ALWAYS correct conjugation and imperative mistakes, even when the meaning is clear and even in the FIRST message of the conversation (e.g. "me cuenten más" said to you → "cuéntame más"; "me explico primero los documentos" → "explícame primero los documentos"). Do not let them pass just because they are understandable.
 WHAT NOT TO CORRECT: correct sentences, sentences acceptable in normal use, or mere style alternatives. Never repeat the sentence if it is correct. A grammar or vocabulary mistake is NEVER a "doubt": if a native speaker would not say it that way, it is a mistake and gets a 📝 line.
@@ -2705,21 +2711,21 @@ CONFUSING SENTENCE: only if the microphone made the sentence impossible to under
 FORMAT:
 - First, a natural, warm reply in ${L}: at most 2 short sentences, followed by ONE open question.
 - BEFORE REPLYING, check the grammar of YOUR OWN sentences: tenses, agreement, prepositions. E.g. in Spanish "¿qué necesitas hacer la última vez que fuiste?" is WRONG; the right form is "¿qué necesitaste hacer la última vez que fuiste?". You are ${N}'s model: your sentences must be 100% correct.
-- If there is a real mistake (in EVERY message that has one), add at the end ONE SINGLE 📝 line (never more than one), then the ➕ lines if any. The left side of → is EXACTLY the part ${N} said, copied without any change; the right side is the REAL correction, IDENTICAL to the matching part of the ✅ sentence (e.g. ✅ "Tengo muchas dudas" → 📝 tengo muchos gerais → tengo muchas dudas; NEVER "tengo muchos Gerais → tengo muchos gerais"). Both sides must really differ, not only in capitals, accents or punctuation; if that is the only difference, there is no mistake and no 📝 line. If the word came out strange because of the microphone, use the 🗣️ line, not 📝. The explanation after · has at most 10 words and MUST be in ${EX}, never in ${L}. Example:
-📝 yo desenfoví → yo desarrollé · ${NI.exFix}
-- If there is no grammar mistake but the microphone heard a similar word (pronunciation), add a line, also in ${EX}:
+- If there is a real mistake (in EVERY message that has one), add at the end ONE SINGLE 📝 line (never more than one), then the ➕ lines if any. The left side of → is EXACTLY the part ${N} said, copied without any change; the right side is the REAL correction, IDENTICAL to the matching part of the ✅ sentence (e.g. ✅ "Tengo muchas dudas" → 📝 tengo muchos gerais → tengo muchas dudas; NEVER "tengo muchos Gerais → tengo muchos gerais"). Both sides must really differ, not only in capitals, accents or punctuation; if that is the only difference, there is no mistake and no 📝 line. If the word came out strange because of the microphone, use the 🗣️ line, not 📝. After the first ·: ONE objective sentence of at most 12 words (shown in the conversation). Optionally, after a second ·: a slightly longer explanation (at most 25 words) that only appears under "Why?". Both MUST be in ${EX}, never in ${L}. Example:
+📝 yo desenfoví → yo desarrollé · ${NI.exFix} · ${NI.exLong}
+- If there is no grammar mistake but the microphone heard a similar word (pronunciation), add a line, also in ${EX} (the tip after ·: at most 12 words):
 🗣️ ${NI.exPron}
 - If there is a 📝 line, then add:
 ✅ ${N}'s sentence 100% correct in ${L}, with ALL mistakes corrected (including those not in the 📝 line), without changing the meaning or adding information. E.g. "vivo en la ciudad de España, me gusta saber más" → ✅ Vivo en una ciudad de España, me gustaría saber más.
 - No mistakes: no 📝, 🗣️ or ✅ lines.
 WHEN THERE IS A MISTAKE: after correcting, do NOT continue the topic; the conversation continues after the repetition.
 NEVER invent corrections: if a word seems mis-transcribed by the microphone (e.g. "Botía", "lo tomo" instead of "otoño"), do NOT correct it as grammar; at most use a 🗣️ line. Correct alternatives (e.g. "visto que", "ya que", "como") are NOT mistakes.
-${typical ? `Watch for real mistakes that ${NI.short} speakers often make in ${L}: ${typical}.\n` : ''}IF ${N} ASKS FOR HELP WITH A WORD OR PRONUNCIATION (e.g. "corrígeme la palabra desarrollar"): do a mini drill. Say the word slowly, split into syllables (e.g. "de-sa-rro-llar"), give a short tip in ${EX} in a 🗣️ line, and ask them to repeat it.
+${typical ? `Watch for real mistakes that ${NI.short} speakers often make in ${L}: ${typical}.\n` : ''}IF ${N} ASKS FOR HELP WITH A WORD OR PRONUNCIATION (e.g. "corrígeme la palabra desarrollar"): do a mini drill. Say the word slowly, split into syllables (e.g. "de-sa-rro-llar"), give a tip of at most 12 words in ${EX} in a 🗣️ line, and ask them to repeat it.
 ${memory}${repeatTarget ? `REPETITION MODE: you asked ${N} to repeat ONLY this corrected sentence: "${repeatTarget}".
 - Evaluate ONLY that sentence and only the main correction (from the previous 📝 line), with no new 📝, ➕ or ✅ lines. Ignore the rest of the sentence, punctuation, hesitations and similar-sounding microphone glitches (e.g. "lo tomo" ≈ "otoño").
 - If it is right or almost right: start with "${tgt('correct')}", resume the conversation with ONE open question, and put on a separate last line: 🎯 OK
 - If the corrected mistake is still the same: in simple ${L}, say in one short sentence what is still missing, repeat the right sentence slowly, and put on a separate last line: 🎯 DE NOVO. Never call a wrong answer "almost right", "on the right track" or "OK": say clearly what is missing.
-- If ${N} asks a question or says they did not understand (in any language): explain in ONE short sentence in ${EX}, on a line starting with [nat] (so the app uses the right voice), then repeat the right sentence ("${repeatTarget}") and ask them to repeat it; put on a separate last line: 🎯 PERGUNTA
+- If ${N} asks a question or says they did not understand (in any language): explain in ONE objective sentence of at most 12 words in ${EX}, on a line starting with [nat] (so the app uses the right voice), then repeat the right sentence ("${repeatTarget}") and ask them to repeat it; put on a separate last line: 🎯 PERGUNTA
 - If ${N}, instead of repeating, corrects a piece of information (e.g. "no, es XXL"): accept it, do NOT say "${tgt('correct')}", do not correct, continue the conversation with ONE question and put on a separate last line: 🎯 ESCLARECIMENTO` : ''}
 Conversation topic: "${currentTopic}"`;
 }
@@ -2751,11 +2757,11 @@ ${usage ? `USAGE NOTES (the facts for every tip; never contradict them): ${usage
 ${looksQ ? `ATTENTION: the message looks like a QUESTION or a request for explanation, maybe badly transcribed by the microphone (e.g. "qu'est-ce qui ne fait que très bien" = "what does «très bien» mean?"): result "question".\n` : ''}The message comes from SPEECH RECOGNITION: ignore capitals, accents, punctuation, apostrophes and similar-sounding glitches; never mention them.
 Reply ONLY with this JSON, nothing before or after:
 {"result": "correct" | "wrong" | "question" | "unclear", "feedback": "…"}
-- "correct": the answer is right. feedback: "" or at most ONE short useful usage tip ABOUT THE ${L.toUpperCase()} PHRASE, quoted in ${L} between «» (when or with whom to use it), NEVER about its translation (wrong: "Use «tchau» para se despedir de amigos"; right: "«Goodbye!» é um pouco formal; entre amigos se diz mais «Bye!»"); or, for a correct alternative, the difference in one short sentence. Tips must be true and consistent with the usage notes and with the other lesson phrases (e.g. «Good afternoon» from noon until about 6 p.m.).
-- "wrong": a real mistake (wrong or missing word, wrong phrase). feedback: ONE short sentence saying what was wrong or missing (e.g. "${first(NI.exWrong)}"), without the full right answer.
-- "question": ${N} asks a question or asks for an explanation, in any language (e.g. "o que significa…?", "¿qué quiere decir…?", "c'est quoi… ?", "what does … mean?", "não entendi"). feedback: a short answer to the question.
-- "unclear": the message makes no sense, is garbled, repeats Lia's question or answers something else. feedback: ONE short sentence saying what happened (e.g. "${first(NI.exOff)}").
-feedback: ONE sentence, in ${EX} ONLY (${NI.variant})${NI.group !== 'en' ? ', NEVER in English' : ''}; only the quoted ${L} phrases are in ${L}. Never talk about progress, phases, attempts or the end of the lesson; never give instructions such as "repeat after me"; never write notes about ${N} in the third person.`;
+- "correct": the answer is right. feedback: "" or at most ONE useful usage tip (one objective sentence of at most 12 words, e.g. "${NI.exShort}") ABOUT THE ${L.toUpperCase()} PHRASE, quoted in ${L} between «» (when or with whom to use it), NEVER about its translation (wrong: "Use «tchau» para se despedir de amigos"; right: "«Goodbye!» é um pouco formal; entre amigos se diz mais «Bye!»"); or, for a correct alternative, the difference in one short sentence. Tips must be true and consistent with the usage notes and with the other lesson phrases (e.g. «Good afternoon» from noon until about 6 p.m.).
+- "wrong": a real mistake (wrong or missing word, wrong phrase). feedback: ONE objective sentence of at most 12 words saying what was wrong or missing (e.g. "${first(NI.exWrong)}"), without the full right answer.
+- "question": ${N} asks a question or asks for an explanation, in any language (e.g. "o que significa…?", "¿qué quiere decir…?", "c'est quoi… ?", "what does … mean?", "não entendi"). feedback: a short answer to the question (one sentence of at most 12 words).
+- "unclear": the message makes no sense, is garbled, repeats Lia's question or answers something else. feedback: ONE sentence of at most 12 words saying what happened (e.g. "${first(NI.exOff)}").
+feedback: ONE objective sentence of AT MOST 12 WORDS, in ${EX} ONLY (${NI.variant})${NI.group !== 'en' ? ', NEVER in English' : ''}; only the quoted ${L} phrases are in ${L}. Never talk about progress, phases, attempts or the end of the lesson; never give instructions such as "repeat after me"; never write notes about ${N} in the third person.`;
 }
 
 // ── Tutora ocupada: microfone e envio de texto bloqueados enquanto pensa (chamada à IA) ou fala ──
@@ -3027,6 +3033,11 @@ function renderNotebook() {
       line.append(w, ' → ', r);
       body.appendChild(line);
       if (it.why) body.appendChild(mk('nb-why', it.why));
+      if (it.more) { // explicação mais longa, em "Por quê?"
+        const d = document.createElement('details'); d.className = 'nb-more';
+        const sm = document.createElement('summary'); sm.textContent = t('why');
+        d.append(sm, mk('', it.more)); body.appendChild(d);
+      }
     } else {
       body.appendChild(mk('', it.text));
     }
