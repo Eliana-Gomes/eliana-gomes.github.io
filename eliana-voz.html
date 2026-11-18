@@ -345,6 +345,16 @@
   .setup-screen p { font-size: 0.83rem; color: #C9C2B6; text-align: center; line-height: 1.7; }
   .setup-screen a { color: var(--gold-glow); }
   .setup-logo { width: min(100%, 340px); }
+  .who-screen { position: fixed; inset: 0; z-index: 1500; background: var(--night); color: #F4F0EA; overflow-y: auto; display: flex; justify-content: center; padding: 24px 16px 40px; }
+  .who-wrap { width: 100%; max-width: 420px; display: flex; flex-direction: column; align-items: center; gap: 14px; position: relative; }
+  .who-wrap h2 { font-family: 'Cormorant Garamond', serif; font-size: 1.9rem; font-weight: 600; color: var(--gold-glow); text-align: center; }
+  .who-close { position: absolute; top: 0; right: 0; background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.2); color: #F4F0EA; }
+  .who-grid { width: 100%; display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; margin-top: 4px; }
+  .who-item { background: rgba(255,255,255,0.05); border: 1px solid rgba(219,168,76,0.3); border-radius: 18px; padding: 16px 8px 12px; display: flex; flex-direction: column; align-items: center; gap: 8px; color: #F4F0EA; font-family: 'Inter', sans-serif; font-size: 0.95rem; font-weight: 600; cursor: pointer; overflow-wrap: anywhere; }
+  .who-item.active { border-color: var(--gold-glow); box-shadow: 0 0 0 1px var(--gold-glow) inset; }
+  .who-item .photo-circle { width: 84px; height: 84px; font-size: 2.4rem; }
+  .who-item.add .photo-circle { border-style: dashed; color: var(--gold-glow); font-size: 2.2rem; }
+  .home-photo { cursor: pointer; }
   .setup-screen .api-input { background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.2); color: #F4F0EA; }
   .setup-screen .api-note { color: #A9B4B2; }
   .api-input { width: 100%; background: var(--input-bg); border: 1px solid var(--line); border-radius: 12px; padding: 14px; font-size: 0.85rem; color: var(--text); font-family: 'Inter', sans-serif; outline: none; }
@@ -369,6 +379,16 @@
   <p class="api-note" data-i18n-html="key_note_html"></p>
 </div>
 
+
+<!-- QUEM VAI ESTUDAR? (vários perfis no mesmo aparelho) -->
+<div class="who-screen" id="who-screen" style="display:none" role="dialog" aria-modal="true">
+  <div class="who-wrap">
+    <button class="nb-close who-close" id="who-close" onclick="hideChooser()" data-i18n-title="close">✕</button>
+    <div class="setup-logo"><picture><source srcset="parlia-logo.webp" type="image/webp"><img class="logo-img" src="parlia-logo.png" width="800" height="300" alt="Parlia · by Luz em Movimento"></picture></div>
+    <h2 data-i18n="who_title"></h2>
+    <div class="who-grid" id="who-grid"></div>
+  </div>
+</div>
 
 <!-- 👤 PERFIL (vista) -->
 <section class="view prof-view" id="view-profile">
@@ -445,6 +465,8 @@
     <button class="backup-btn" onclick="document.getElementById('import-file').click()" data-i18n="import_btn"></button>
   </div>
   <input type="file" id="import-file" accept=".json,application/json" style="display:none" onchange="importData(this)" />
+  <button class="backup-btn" onclick="showChooser()" data-i18n="switch_person"></button>
+  <button class="backup-btn key-btn" onclick="deleteProfile()" data-i18n="delete_profile"></button>
   <button class="backup-btn key-btn" onclick="clearKey()" data-i18n="link_key"></button>
 </section>
 
@@ -485,7 +507,7 @@
 <section class="view home-view" id="view-home">
   <div class="home-logo"><picture><source srcset="parlia-logo.webp" type="image/webp"><img class="logo-img" src="parlia-logo.png" width="800" height="300" alt="Parlia · by Luz em Movimento"></picture></div>
   <div class="home-top">
-    <div class="photo-circle home-photo" id="home-photo"></div>
+    <div class="photo-circle home-photo" id="home-photo" onclick="showChooser()" role="button" tabindex="0" data-i18n-title="switch_person"></div>
     <div class="home-hello">
       <h2 id="home-hello"></h2>
     </div>
@@ -624,6 +646,37 @@
 </nav>
 
 <script>
+
+// ── VÁRIOS PERFIS NO MESMO APARELHO ("Quem vai estudar?") ──
+// Cada pessoa tem os seus dados com o identificador no nome da chave ('tutora_caderno@p2'…). O primeiro perfil (p1)
+// usa as chaves antigas, sem identificador: assim os dados que já existiam ficam nele, sem copiar nada.
+// Partilhado por todos: a chave da IA ('eliana_api_key'). Lista dos perfis: 'tutora_perfis'; pessoa ativa: 'tutora_perfil_ativo'.
+const PROFILE_KEYS = ['tutora_profile', 'tutora_foto', 'tutora_caderno', 'tutora_racha', 'tutora_zero', 'tutora_licao', 'tutora_teste', 'tutora_idioma', 'tutora_assuntos', 'tutora_guiada', 'tutora_caderno_ordem'];
+const PROFILES_KEY = 'tutora_perfis', ACTIVE_KEY = 'tutora_perfil_ativo', CHOSEN_KEY = 'parlia_escolhido';
+function profilesLoad() {
+  try { const r = JSON.parse(localStorage.getItem(PROFILES_KEY) || 'null'); if (r && Array.isArray(r.list) && r.list.length) return { list: r.list.filter(p => p && p.id), next: Number(r.next) || r.list.length + 1 }; } catch(e) {}
+  return { list: [{ id: 'p1' }], next: 2 };
+}
+function profilesStore(r) { try { localStorage.setItem(PROFILES_KEY, JSON.stringify(r)); } catch(e) {} }
+function readActive() {
+  const r = profilesLoad();
+  let a = null; try { a = localStorage.getItem(ACTIVE_KEY); } catch(e) {}
+  return r.list.some(p => p.id === a) ? a : r.list[0].id;
+}
+let ACTIVE_ID = readActive();
+function pkey(k, id) { id = id || ACTIVE_ID; return PROFILE_KEYS.includes(k) && id !== 'p1' ? k + '@' + id : k; }
+const store = {
+  getItem: k => localStorage.getItem(pkey(k)),
+  setItem: (k, v) => localStorage.setItem(pkey(k), v),
+  removeItem: k => localStorage.removeItem(pkey(k))
+};
+// Nome e foto de um perfil (para a tela "Quem vai estudar?").
+function profileCard(id) {
+  let p = null, foto = '';
+  try { p = JSON.parse(localStorage.getItem(pkey('tutora_profile', id)) || 'null'); } catch(e) {}
+  try { foto = localStorage.getItem(pkey('tutora_foto', id)) || ''; } catch(e) {}
+  return { id, name: (p && p.name) || '', foto };
+}
 // Abertura: some ao fim de cerca de 1 s (com um esbatimento curto).
 (function () {
   const s = document.getElementById('splash');
@@ -1544,7 +1597,7 @@ const I18N = {
     import_when: ' de {date}', item_one: '1 item', item_many: '{n} itens', dayp_one: '1 dia com prática', dayp_many: '{n} dias com prática',
     import_save_fail: 'Não consegui salvar os dados: ', import_ok: 'Dados importados ✅\nConfira o perfil e toque em "Salvar e começar".',
     read_fail: 'Não consegui ler o arquivo.',
-    zero_btn: '📚 Lições', track1_title: '🌱 Do zero', lz_review_btn: 'Rever lição', lz_done_choose: 'A lição terminou. Escolha uma opção:', lz_chat_echo: 'Boa! Aqui bastava responder: «{a}».', guided_btn: '🌳 Conversa guiada', card_guided_t: 'Conversa guiada', card_guided_d: 'Frases curtas, com tradução e ideias de resposta', rec_tag: '⭐ Recomendado', guided_banner: 'Frases curtas, com tradução. Toque numa sugestão para ouvir.', lz_new_phrase: 'Frase nova {n}/{k}', dunno_btn: '🤷 Não sei', dunno_intro: 'Sem problema! Você pode responder assim:', card_start: 'Começar lição {n}', zero_title: '📚 Lições · {lang}', pp_title: '🌿 Primeiros passos', pp_intro: 'Doze lições para montar as suas próprias frases (nível A1+).', pp_locked: 'Fica disponível depois da lição 12 do Do zero, ou com nível básico ou acima no Perfil.', lz2_intro: 'Primeiros passos, lição {n}: {title}. Hoje você vai aprender a montar frases com esta estrutura:', lz_create_intro: 'Agora é a sua vez: crie frases suas com a estrutura.', lz_create_again: 'Agora tente de novo, com uma frase sua.', zero_intro: 'Doze lições curtas para começar a falar. Toque numa lição para começar.',
+    zero_btn: '📚 Lições', track1_title: '🌱 Do zero', lz_review_btn: 'Rever lição', lz_done_choose: 'A lição terminou. Escolha uma opção:', lz_chat_echo: 'Boa! Aqui bastava responder: «{a}».', guided_btn: '🌳 Conversa guiada', card_guided_t: 'Conversa guiada', card_guided_d: 'Frases curtas, com tradução e ideias de resposta', rec_tag: '⭐ Recomendado', guided_banner: 'Frases curtas, com tradução. Toque numa sugestão para ouvir.', lz_new_phrase: 'Frase nova {n}/{k}', dunno_btn: '🤷 Não sei', dunno_intro: 'Sem problema! Você pode responder assim:', card_start: 'Começar lição {n}', who_title: 'Quem vai estudar?', add_person: '+ Adicionar pessoa', switch_person: '🔄 Trocar de pessoa', delete_profile: '🗑️ Apagar este perfil', delete_q1: 'Apagar o perfil de {name}?', delete_sub1: 'Todos os dados desta pessoa (caderno, lições, racha, testes) serão apagados deste celular. A chave da IA continua.', delete_q2: 'Tem certeza? Não dá para desfazer.', delete_yes: 'Apagar', new_person: 'Nova pessoa', zero_title: '📚 Lições · {lang}', pp_title: '🌿 Primeiros passos', pp_intro: 'Doze lições para montar as suas próprias frases (nível A1+).', pp_locked: 'Fica disponível depois da lição 12 do Do zero, ou com nível básico ou acima no Perfil.', lz2_intro: 'Primeiros passos, lição {n}: {title}. Hoje você vai aprender a montar frases com esta estrutura:', lz_create_intro: 'Agora é a sua vez: crie frases suas com a estrutura.', lz_create_again: 'Agora tente de novo, com uma frase sua.', zero_intro: 'Doze lições curtas para começar a falar. Toque numa lição para começar.',
     zero_next: 'Próxima', zero_done_tag: '✓ Concluída', lesson_banner: 'Lição {n}/12', lesson_done: 'Lição concluída!',
     next_lesson_btn: 'Próxima lição →', all_done: 'Você concluiu todas as lições! 🎉', lessons_n: '{n} de 12 concluídas',
     home_hello: 'Olá, {name}!', home_sub: 'O que vamos praticar hoje?', card_continue: 'Continuar lição {n}',
@@ -1606,7 +1659,7 @@ const I18N = {
     import_when: ' de {date}', item_one: '1 item', item_many: '{n} itens', dayp_one: '1 dia com prática', dayp_many: '{n} dias com prática',
     import_save_fail: 'Não consegui guardar os dados: ', import_ok: 'Dados importados ✅\nConfere o perfil e toca em "Guardar e começar".',
     read_fail: 'Não consegui ler o ficheiro.',
-    zero_btn: '📚 Lições', track1_title: '🌱 Do zero', lz_review_btn: 'Rever lição', lz_done_choose: 'A lição terminou. Escolhe uma opção:', lz_chat_echo: 'Boa! Aqui bastava responder: «{a}».', guided_btn: '🌳 Conversa guiada', card_guided_t: 'Conversa guiada', card_guided_d: 'Frases curtas, com tradução e ideias de resposta', rec_tag: '⭐ Recomendado', guided_banner: 'Frases curtas, com tradução. Toca numa sugestão para ouvir.', lz_new_phrase: 'Frase nova {n}/{k}', dunno_btn: '🤷 Não sei', dunno_intro: 'Não faz mal! Podes responder assim:', card_start: 'Começar lição {n}', zero_title: '📚 Lições · {lang}', pp_title: '🌿 Primeiros passos', pp_intro: 'Doze lições para construíres as tuas próprias frases (nível A1+).', pp_locked: 'Fica disponível depois da lição 12 do Do zero, ou com nível básico ou superior no Perfil.', lz2_intro: 'Primeiros passos, lição {n}: {title}. Hoje vais aprender a construir frases com esta estrutura:', lz_create_intro: 'Agora é a tua vez: cria frases tuas com a estrutura.', lz_create_again: 'Agora tenta outra vez, com uma frase tua.', zero_intro: 'Doze lições curtas para começar a falar. Toca numa lição para começar.',
+    zero_btn: '📚 Lições', track1_title: '🌱 Do zero', lz_review_btn: 'Rever lição', lz_done_choose: 'A lição terminou. Escolhe uma opção:', lz_chat_echo: 'Boa! Aqui bastava responder: «{a}».', guided_btn: '🌳 Conversa guiada', card_guided_t: 'Conversa guiada', card_guided_d: 'Frases curtas, com tradução e ideias de resposta', rec_tag: '⭐ Recomendado', guided_banner: 'Frases curtas, com tradução. Toca numa sugestão para ouvir.', lz_new_phrase: 'Frase nova {n}/{k}', dunno_btn: '🤷 Não sei', dunno_intro: 'Não faz mal! Podes responder assim:', card_start: 'Começar lição {n}', who_title: 'Quem vai estudar?', add_person: '+ Adicionar pessoa', switch_person: '🔄 Trocar de pessoa', delete_profile: '🗑️ Apagar este perfil', delete_q1: 'Apagar o perfil de {name}?', delete_sub1: 'Todos os dados desta pessoa (caderno, lições, racha, testes) serão apagados deste telemóvel. A chave da IA mantém-se.', delete_q2: 'Tens a certeza? Não é possível desfazer.', delete_yes: 'Apagar', new_person: 'Nova pessoa', zero_title: '📚 Lições · {lang}', pp_title: '🌿 Primeiros passos', pp_intro: 'Doze lições para construíres as tuas próprias frases (nível A1+).', pp_locked: 'Fica disponível depois da lição 12 do Do zero, ou com nível básico ou superior no Perfil.', lz2_intro: 'Primeiros passos, lição {n}: {title}. Hoje vais aprender a construir frases com esta estrutura:', lz_create_intro: 'Agora é a tua vez: cria frases tuas com a estrutura.', lz_create_again: 'Agora tenta outra vez, com uma frase tua.', zero_intro: 'Doze lições curtas para começar a falar. Toca numa lição para começar.',
     zero_next: 'Próxima', zero_done_tag: '✓ Concluída', lesson_banner: 'Lição {n}/12', lesson_done: 'Lição concluída!',
     next_lesson_btn: 'Próxima lição →', all_done: 'Concluíste todas as lições! 🎉', lessons_n: '{n} de 12 concluídas',
     home_hello: 'Olá, {name}!', home_sub: 'O que vamos praticar hoje?', card_continue: 'Continuar lição {n}',
@@ -1668,7 +1721,7 @@ const I18N = {
     import_when: ' del {date}', item_one: '1 elemento', item_many: '{n} elementos', dayp_one: '1 día con práctica', dayp_many: '{n} días con práctica',
     import_save_fail: 'No pude guardar los datos: ', import_ok: 'Datos importados ✅\nRevisa el perfil y toca "Guardar y empezar".',
     read_fail: 'No pude leer el archivo.',
-    zero_btn: '📚 Lecciones', track1_title: '🌱 Desde cero', lz_review_btn: 'Repasar la lección', lz_done_choose: 'La lección ha terminado. Elige una opción:', lz_chat_echo: '¡Bien! Aquí bastaba con responder: «{a}».', guided_btn: '🌳 Conversación guiada', card_guided_t: 'Conversación guiada', card_guided_d: 'Frases cortas, con traducción e ideas de respuesta', rec_tag: '⭐ Recomendado', guided_banner: 'Frases cortas, con traducción. Toca una sugerencia para oírla.', lz_new_phrase: 'Frase nueva {n}/{k}', dunno_btn: '🤷 No sé', dunno_intro: '¡No pasa nada! Puedes responder así:', card_start: 'Empezar la lección {n}', zero_title: '📚 Lecciones · {lang}', pp_title: '🌿 Primeros pasos', pp_intro: 'Doce lecciones para formar tus propias frases (nivel A1+).', pp_locked: 'Disponible después de la lección 12 de Desde cero, o con nivel básico o superior en el Perfil.', lz2_intro: 'Primeros pasos, lección {n}: {title}. Hoy vas a aprender a formar frases con esta estructura:', lz_create_intro: 'Ahora te toca a ti: crea tus propias frases con la estructura.', lz_create_again: 'Ahora inténtalo otra vez, con una frase tuya.', zero_intro: 'Doce lecciones cortas para empezar a hablar. Toca una lección para empezar.',
+    zero_btn: '📚 Lecciones', track1_title: '🌱 Desde cero', lz_review_btn: 'Repasar la lección', lz_done_choose: 'La lección ha terminado. Elige una opción:', lz_chat_echo: '¡Bien! Aquí bastaba con responder: «{a}».', guided_btn: '🌳 Conversación guiada', card_guided_t: 'Conversación guiada', card_guided_d: 'Frases cortas, con traducción e ideas de respuesta', rec_tag: '⭐ Recomendado', guided_banner: 'Frases cortas, con traducción. Toca una sugerencia para oírla.', lz_new_phrase: 'Frase nueva {n}/{k}', dunno_btn: '🤷 No sé', dunno_intro: '¡No pasa nada! Puedes responder así:', card_start: 'Empezar la lección {n}', who_title: '¿Quién va a estudiar?', add_person: '+ Añadir persona', switch_person: '🔄 Cambiar de persona', delete_profile: '🗑️ Borrar este perfil', delete_q1: '¿Borrar el perfil de {name}?', delete_sub1: 'Todos los datos de esta persona (cuaderno, lecciones, racha, pruebas) se borrarán de este móvil. La clave de la IA se mantiene.', delete_q2: '¿Lo confirmas? No se puede deshacer.', delete_yes: 'Borrar', new_person: 'Nueva persona', zero_title: '📚 Lecciones · {lang}', pp_title: '🌿 Primeros pasos', pp_intro: 'Doce lecciones para formar tus propias frases (nivel A1+).', pp_locked: 'Disponible después de la lección 12 de Desde cero, o con nivel básico o superior en el Perfil.', lz2_intro: 'Primeros pasos, lección {n}: {title}. Hoy vas a aprender a formar frases con esta estructura:', lz_create_intro: 'Ahora te toca a ti: crea tus propias frases con la estructura.', lz_create_again: 'Ahora inténtalo otra vez, con una frase tuya.', zero_intro: 'Doce lecciones cortas para empezar a hablar. Toca una lección para empezar.',
     zero_next: 'Siguiente', zero_done_tag: '✓ Completada', lesson_banner: 'Lección {n}/12', lesson_done: '¡Lección completada!',
     next_lesson_btn: 'Siguiente lección →', all_done: '¡Completaste todas las lecciones! 🎉', lessons_n: '{n} de 12 completadas',
     home_hello: '¡Hola, {name}!', home_sub: '¿Qué practicamos hoy?', card_continue: 'Continuar lección {n}',
@@ -1730,7 +1783,7 @@ const I18N = {
     import_when: ' from {date}', item_one: '1 item', item_many: '{n} items', dayp_one: '1 day of practice', dayp_many: '{n} days of practice',
     import_save_fail: 'I could not save the data: ', import_ok: 'Data imported ✅\nCheck the profile and tap "Save and start".',
     read_fail: 'I could not read the file.',
-    zero_btn: '📚 Lessons', track1_title: '🌱 From scratch', lz_review_btn: 'Review lesson', lz_done_choose: 'The lesson is over. Choose an option:', lz_chat_echo: 'Good! Here you just needed to answer: «{a}».', guided_btn: '🌳 Guided conversation', card_guided_t: 'Guided conversation', card_guided_d: 'Short sentences, with translations and answer ideas', rec_tag: '⭐ Recommended', guided_banner: 'Short sentences with translations. Tap a suggestion to hear it.', lz_new_phrase: 'New phrase {n}/{k}', dunno_btn: '🤷 I don’t know', dunno_intro: 'No problem! You can answer like this:', card_start: 'Start lesson {n}', zero_title: '📚 Lessons · {lang}', pp_title: '🌿 First steps', pp_intro: 'Twelve lessons to build your own sentences (level A1+).', pp_locked: 'Available after lesson 12 of From scratch, or with level basic or higher in your Profile.', lz2_intro: 'First steps, lesson {n}: {title}. Today you’ll learn to build sentences with this structure:', lz_create_intro: 'Now it’s your turn: make your own sentences with the structure.', lz_create_again: 'Now try again with a sentence of your own.', zero_intro: 'Twelve short lessons to start speaking. Tap a lesson to begin.',
+    zero_btn: '📚 Lessons', track1_title: '🌱 From scratch', lz_review_btn: 'Review lesson', lz_done_choose: 'The lesson is over. Choose an option:', lz_chat_echo: 'Good! Here you just needed to answer: «{a}».', guided_btn: '🌳 Guided conversation', card_guided_t: 'Guided conversation', card_guided_d: 'Short sentences, with translations and answer ideas', rec_tag: '⭐ Recommended', guided_banner: 'Short sentences with translations. Tap a suggestion to hear it.', lz_new_phrase: 'New phrase {n}/{k}', dunno_btn: '🤷 I don’t know', dunno_intro: 'No problem! You can answer like this:', card_start: 'Start lesson {n}', who_title: 'Who’s studying?', add_person: '+ Add person', switch_person: '🔄 Switch person', delete_profile: '🗑️ Delete this profile', delete_q1: 'Delete {name}’s profile?', delete_sub1: 'All of this person’s data (notebook, lessons, streak, tests) will be deleted from this phone. The AI key stays.', delete_q2: 'Are you sure? This cannot be undone.', delete_yes: 'Delete', new_person: 'New person', zero_title: '📚 Lessons · {lang}', pp_title: '🌿 First steps', pp_intro: 'Twelve lessons to build your own sentences (level A1+).', pp_locked: 'Available after lesson 12 of From scratch, or with level basic or higher in your Profile.', lz2_intro: 'First steps, lesson {n}: {title}. Today you’ll learn to build sentences with this structure:', lz_create_intro: 'Now it’s your turn: make your own sentences with the structure.', lz_create_again: 'Now try again with a sentence of your own.', zero_intro: 'Twelve short lessons to start speaking. Tap a lesson to begin.',
     zero_next: 'Next', zero_done_tag: '✓ Done', lesson_banner: 'Lesson {n}/12', lesson_done: 'Lesson complete!',
     next_lesson_btn: 'Next lesson →', all_done: 'You have completed all the lessons! 🎉', lessons_n: '{n} of 12 done',
     home_hello: 'Hi, {name}!', home_sub: 'What shall we practise today?', card_continue: 'Continue lesson {n}',
@@ -1792,7 +1845,7 @@ const I18N = {
     import_when: ' du {date}', item_one: '1 élément', item_many: '{n} éléments', dayp_one: '1 jour de pratique', dayp_many: '{n} jours de pratique',
     import_save_fail: 'Je n’ai pas pu enregistrer les données : ', import_ok: 'Données importées ✅\nVérifie le profil et touche « Enregistrer et commencer ».',
     read_fail: 'Je n’ai pas pu lire le fichier.',
-    zero_btn: '📚 Leçons', track1_title: '🌱 À partir de zéro', lz_review_btn: 'Revoir la leçon', lz_done_choose: 'La leçon est terminée. Choisis une option :', lz_chat_echo: 'Bien ! Ici, il suffisait de répondre : «{a}».', guided_btn: '🌳 Conversation guidée', card_guided_t: 'Conversation guidée', card_guided_d: 'Phrases courtes, avec traduction et idées de réponse', rec_tag: '⭐ Recommandé', guided_banner: 'Phrases courtes, avec traduction. Touche une suggestion pour l’écouter.', lz_new_phrase: 'Nouvelle phrase {n}/{k}', dunno_btn: '🤷 Je ne sais pas', dunno_intro: 'Pas de souci ! Tu peux répondre comme ça :', card_start: 'Commencer la leçon {n}', zero_title: '📚 Leçons · {lang}', pp_title: '🌿 Premiers pas', pp_intro: 'Douze leçons pour construire tes propres phrases (niveau A1+).', pp_locked: 'Disponible après la leçon 12 de À partir de zéro, ou avec un niveau supérieur à débutant dans le Profil.', lz2_intro: 'Premiers pas, leçon {n} : {title}. Aujourd’hui, tu vas apprendre à construire des phrases avec cette structure :', lz_create_intro: 'À toi maintenant : invente tes propres phrases avec la structure.', lz_create_again: 'Maintenant, réessaie avec une phrase à toi.', zero_intro: 'Douze leçons courtes pour commencer à parler. Touche une leçon pour commencer.',
+    zero_btn: '📚 Leçons', track1_title: '🌱 À partir de zéro', lz_review_btn: 'Revoir la leçon', lz_done_choose: 'La leçon est terminée. Choisis une option :', lz_chat_echo: 'Bien ! Ici, il suffisait de répondre : «{a}».', guided_btn: '🌳 Conversation guidée', card_guided_t: 'Conversation guidée', card_guided_d: 'Phrases courtes, avec traduction et idées de réponse', rec_tag: '⭐ Recommandé', guided_banner: 'Phrases courtes, avec traduction. Touche une suggestion pour l’écouter.', lz_new_phrase: 'Nouvelle phrase {n}/{k}', dunno_btn: '🤷 Je ne sais pas', dunno_intro: 'Pas de souci ! Tu peux répondre comme ça :', card_start: 'Commencer la leçon {n}', who_title: 'Qui va étudier ?', add_person: '+ Ajouter une personne', switch_person: '🔄 Changer de personne', delete_profile: '🗑️ Supprimer ce profil', delete_q1: 'Supprimer le profil de {name} ?', delete_sub1: 'Toutes les données de cette personne (carnet, leçons, série, tests) seront supprimées de ce téléphone. La clé de l’IA reste.', delete_q2: 'Tu confirmes ? C’est irréversible.', delete_yes: 'Supprimer', new_person: 'Nouvelle personne', zero_title: '📚 Leçons · {lang}', pp_title: '🌿 Premiers pas', pp_intro: 'Douze leçons pour construire tes propres phrases (niveau A1+).', pp_locked: 'Disponible après la leçon 12 de À partir de zéro, ou avec un niveau supérieur à débutant dans le Profil.', lz2_intro: 'Premiers pas, leçon {n} : {title}. Aujourd’hui, tu vas apprendre à construire des phrases avec cette structure :', lz_create_intro: 'À toi maintenant : invente tes propres phrases avec la structure.', lz_create_again: 'Maintenant, réessaie avec une phrase à toi.', zero_intro: 'Douze leçons courtes pour commencer à parler. Touche une leçon pour commencer.',
     zero_next: 'Suivante', zero_done_tag: '✓ Terminée', lesson_banner: 'Leçon {n}/12', lesson_done: 'Leçon terminée !',
     next_lesson_btn: 'Leçon suivante →', all_done: 'Tu as terminé toutes les leçons ! 🎉', lessons_n: '{n} sur 12 terminées',
     home_hello: 'Bonjour, {name} !', home_sub: 'Qu’est-ce qu’on pratique aujourd’hui ?', card_continue: 'Continuer la leçon {n}',
@@ -1854,7 +1907,7 @@ const I18N = {
     import_when: ' del {date}', item_one: '1 elemento', item_many: '{n} elementi', dayp_one: '1 giorno di pratica', dayp_many: '{n} giorni di pratica',
     import_save_fail: 'Non sono riuscita a salvare i dati: ', import_ok: 'Dati importati ✅\nControlla il profilo e tocca "Salva e inizia".',
     read_fail: 'Non sono riuscita a leggere il file.',
-    zero_btn: '📚 Lezioni', track1_title: '🌱 Da zero', lz_review_btn: 'Ripassa la lezione', lz_done_choose: 'La lezione è finita. Scegli un’opzione:', lz_chat_echo: 'Bene! Qui bastava rispondere: «{a}».', guided_btn: '🌳 Conversazione guidata', card_guided_t: 'Conversazione guidata', card_guided_d: 'Frasi brevi, con traduzione e idee di risposta', rec_tag: '⭐ Consigliato', guided_banner: 'Frasi brevi, con traduzione. Tocca un suggerimento per ascoltarlo.', lz_new_phrase: 'Nuova frase {n}/{k}', dunno_btn: '🤷 Non lo so', dunno_intro: 'Nessun problema! Puoi rispondere così:', card_start: 'Inizia la lezione {n}', zero_title: '📚 Lezioni · {lang}', pp_title: '🌿 Primi passi', pp_intro: 'Dodici lezioni per costruire frasi tue (livello A1+).', pp_locked: 'Disponibile dopo la lezione 12 di Da zero, o con livello base o superiore nel Profilo.', lz2_intro: 'Primi passi, lezione {n}: {title}. Oggi impari a costruire frasi con questa struttura:', lz_create_intro: 'Ora tocca a te: crea frasi tue con la struttura.', lz_create_again: 'Ora riprova con una frase tua.', zero_intro: 'Dodici lezioni brevi per iniziare a parlare. Tocca una lezione per cominciare.',
+    zero_btn: '📚 Lezioni', track1_title: '🌱 Da zero', lz_review_btn: 'Ripassa la lezione', lz_done_choose: 'La lezione è finita. Scegli un’opzione:', lz_chat_echo: 'Bene! Qui bastava rispondere: «{a}».', guided_btn: '🌳 Conversazione guidata', card_guided_t: 'Conversazione guidata', card_guided_d: 'Frasi brevi, con traduzione e idee di risposta', rec_tag: '⭐ Consigliato', guided_banner: 'Frasi brevi, con traduzione. Tocca un suggerimento per ascoltarlo.', lz_new_phrase: 'Nuova frase {n}/{k}', dunno_btn: '🤷 Non lo so', dunno_intro: 'Nessun problema! Puoi rispondere così:', card_start: 'Inizia la lezione {n}', who_title: 'Chi studia?', add_person: '+ Aggiungi persona', switch_person: '🔄 Cambia persona', delete_profile: '🗑️ Elimina questo profilo', delete_q1: 'Eliminare il profilo di {name}?', delete_sub1: 'Tutti i dati di questa persona (quaderno, lezioni, serie, test) saranno eliminati da questo telefono. La chiave dell’IA resta.', delete_q2: 'Confermi? Non si può annullare.', delete_yes: 'Elimina', new_person: 'Nuova persona', zero_title: '📚 Lezioni · {lang}', pp_title: '🌿 Primi passi', pp_intro: 'Dodici lezioni per costruire frasi tue (livello A1+).', pp_locked: 'Disponibile dopo la lezione 12 di Da zero, o con livello base o superiore nel Profilo.', lz2_intro: 'Primi passi, lezione {n}: {title}. Oggi impari a costruire frasi con questa struttura:', lz_create_intro: 'Ora tocca a te: crea frasi tue con la struttura.', lz_create_again: 'Ora riprova con una frase tua.', zero_intro: 'Dodici lezioni brevi per iniziare a parlare. Tocca una lezione per cominciare.',
     zero_next: 'Prossima', zero_done_tag: '✓ Completata', lesson_banner: 'Lezione {n}/12', lesson_done: 'Lezione completata!',
     next_lesson_btn: 'Prossima lezione →', all_done: 'Hai completato tutte le lezioni! 🎉', lessons_n: '{n} su 12 completate',
     home_hello: 'Ciao, {name}!', home_sub: 'Cosa pratichiamo oggi?', card_continue: 'Continua la lezione {n}',
@@ -2032,7 +2085,7 @@ function renderInterests(sel) {
 // localStorage 'tutora_assuntos' = { chave do interesse: data em que foi o assunto principal pela última vez }.
 const FOCUS_KEY = 'tutora_assuntos', FOCUS_EVERY = 10; // muda de assunto a cada 10 falas na mesma conversa
 let chatFocus = null, focusTurns = 0;
-function focusLoad() { try { const o = JSON.parse(localStorage.getItem(FOCUS_KEY) || '{}'); return o && typeof o === 'object' ? o : {}; } catch(e) { return {}; } }
+function focusLoad() { try { const o = JSON.parse(store.getItem(FOCUS_KEY) || '{}'); return o && typeof o === 'object' ? o : {}; } catch(e) { return {}; } }
 // Escolhe o assunto principal: o interesse usado há mais tempo (ou nunca usado), com sorteio nos empates,
 // e nunca o mesmo que acabou de ser usado. Assim a Lia passa por todos ao longo dos dias.
 function pickFocus() {
@@ -2045,12 +2098,12 @@ function pickFocus() {
   pool.sort((a, b) => String(used[a] || '').localeCompare(String(used[b] || '')) || rnd.get(a) - rnd.get(b));
   chatFocus = pool[0];
   used[chatFocus] = new Date().toISOString();
-  try { localStorage.setItem(FOCUS_KEY, JSON.stringify(used)); } catch(e) {}
+  try { store.setItem(FOCUS_KEY, JSON.stringify(used)); } catch(e) {}
   return chatFocus;
 }
 function checkedInterests() { return [...document.querySelectorAll('#pf-interests input:checked')].map(i => i.value); }
 function loadProfile() {
-  try { return JSON.parse(localStorage.getItem('tutora_profile') || 'null'); } catch(e) { return null; }
+  try { return JSON.parse(store.getItem('tutora_profile') || 'null'); } catch(e) { return null; }
 }
 function renderLevelGrid(levels) {
   const grid = document.getElementById('pf-levels');
@@ -2141,8 +2194,8 @@ function saveProfile() {
   };
   uiOverride = null;
   const langChanged = old && (getNative(old) !== PROFILE.native || (old.ptVariant || 'Brasil') !== PROFILE.ptVariant);
-  if (langChanged) { try { localStorage.removeItem(LESSON_KEY); } catch(e) {} }
-  try { localStorage.setItem('tutora_profile', JSON.stringify(PROFILE)); } catch(e) {}
+  if (langChanged) { try { store.removeItem(LESSON_KEY); } catch(e) {} }
+  try { store.setItem('tutora_profile', JSON.stringify(PROFILE)); } catch(e) {}
   chatHistory = []; repeatTarget = ""; repeatTries = 0; clearTranscript();
   profileBaseline = null;
   init();
@@ -2150,11 +2203,72 @@ function saveProfile() {
   if (langChanged) showToast(t('lang_changed'));
   return true;
 }
+let appStarted = false;
 function startApp() {
+  appStarted = true;
   PROFILE = loadProfile();
   if (!PROFILE) { fillProfileForm(); showView('profile'); return; } // primeira vez: perfil sem barra de navegação
   init();
   goHome();
+}
+
+// ── QUEM VAI ESTUDAR? ──
+// Ao abrir o app com mais de um perfil, pergunta quem vai estudar (uma vez por sessão do navegador). Escolher
+// outra pessoa grava-a como ativa e recarrega o app (estado limpo, com os dados dessa pessoa).
+function chosenThisSession() { try { return sessionStorage.getItem(CHOSEN_KEY) === ACTIVE_ID; } catch(e) { return false; } }
+function needChooser() { return profilesLoad().list.length > 1 && !chosenThisSession(); }
+function showChooser(atStart) {
+  const r = profilesLoad(), grid = document.getElementById('who-grid');
+  grid.innerHTML = '';
+  r.list.forEach(p => {
+    const c = profileCard(p.id);
+    const b = document.createElement('button'); b.className = 'who-item' + (p.id === ACTIVE_ID ? ' active' : '');
+    const ph = document.createElement('div'); ph.className = 'photo-circle';
+    if (c.foto) { const img = document.createElement('img'); img.src = c.foto; img.alt = ''; ph.appendChild(img); } else ph.textContent = '👤';
+    const nm = document.createElement('div'); nm.textContent = c.name || t('new_person');
+    b.append(ph, nm); b.onclick = () => chooseProfile(p.id);
+    grid.appendChild(b);
+  });
+  const add = document.createElement('button'); add.className = 'who-item add';
+  add.innerHTML = '<div class="photo-circle">+</div>'; const al = document.createElement('div'); al.textContent = t('add_person').replace(/^[+] */, ''); add.appendChild(al);
+  add.onclick = addProfile; grid.appendChild(add);
+  document.getElementById('who-close').style.display = atStart ? 'none' : '';
+  applyI18n();
+  document.getElementById('who-screen').style.display = 'flex';
+}
+function hideChooser() { document.getElementById('who-screen').style.display = 'none'; }
+function switchTo(id) {
+  try { localStorage.setItem(ACTIVE_KEY, id); sessionStorage.setItem(CHOSEN_KEY, id); } catch(e) {}
+  location.reload();
+}
+// A mesma pessoa: só fecha a tela (ou abre o app, se ainda não tinha começado); outra pessoa: troca.
+function chooseProfile(id) {
+  if (id !== ACTIVE_ID) { switchTo(id); return; }
+  try { sessionStorage.setItem(CHOSEN_KEY, id); } catch(e) {}
+  hideChooser();
+  if (!appStarted) startApp();
+}
+// "+ Adicionar pessoa": perfil novo e vazio (o app abre o formulário do primeiro perfil).
+function addProfile() {
+  const r = profilesLoad();
+  const id = 'p' + r.next; r.next++; r.list.push({ id });
+  profilesStore(r);
+  switchTo(id);
+}
+// "Apagar este perfil": confirmação dupla; apaga só os dados desta pessoa.
+function deleteProfile() {
+  const name = (PROFILE && PROFILE.name) || t('new_person');
+  askChoice(t('delete_q1', { name }), t('delete_sub1'), t('delete_yes'), () => {
+    askChoice(t('delete_q2'), name, t('delete_yes'), () => {
+      PROFILE_KEYS.forEach(k => { try { localStorage.removeItem(pkey(k)); } catch(e) {} });
+      const r = profilesLoad();
+      r.list = r.list.filter(p => p.id !== ACTIVE_ID);
+      if (!r.list.length) { r.list.push({ id: 'p' + r.next }); r.next++; }
+      profilesStore(r);
+      try { localStorage.setItem(ACTIVE_KEY, r.list[0].id); sessionStorage.removeItem(CHOSEN_KEY); } catch(e) {}
+      location.reload();
+    }, t('lz_cancel'), null);
+  }, t('lz_cancel'), null);
 }
 
 // ── API KEY ──
@@ -2164,21 +2278,21 @@ function saveKey() {
     alert(t('key_invalid'));
     return;
   }
-  try { localStorage.setItem('eliana_api_key', k); } catch(e) {}
+  try { store.setItem('eliana_api_key', k); } catch(e) {}
   API_KEY = k;
   document.getElementById('setup-screen').style.display = 'none';
-  startApp();
+  if (needChooser()) showChooser(true); else startApp();
 }
 
 function clearKey() {
-  try { localStorage.removeItem('eliana_api_key'); } catch(e) {}
+  try { store.removeItem('eliana_api_key'); } catch(e) {}
   API_KEY = '';
   document.getElementById('api-key-input').value = '';
   document.getElementById('setup-screen').style.display = 'flex';
 }
 
 function loadKey() {
-  try { return localStorage.getItem('eliana_api_key') || ''; } catch(e) { return ''; }
+  try { return store.getItem('eliana_api_key') || ''; } catch(e) { return ''; }
 }
 
 // ── INIT ──
@@ -2188,14 +2302,15 @@ window.addEventListener('load', () => {
   document.getElementById('home-avatar').innerHTML = document.getElementById('avatar').innerHTML;
   PROFILE = loadProfile();
   // Idioma escolhido da última vez (se ainda estiver visível para a língua nativa).
-  try { const sl = localStorage.getItem('tutora_idioma'); if (LANGS.some(l => l.code === sl)) currentLang = sl; } catch(e) {}
+  try { const sl = store.getItem('tutora_idioma'); if (LANGS.some(l => l.code === sl)) currentLang = sl; } catch(e) {}
   ensureVisibleLang();
   applyI18n();
   setStatus('ready', t('st_starting'));
   API_KEY = loadKey();
+  profilesStore(profilesLoad()); try { localStorage.setItem(ACTIVE_KEY, ACTIVE_ID); } catch(e) {}
   if (API_KEY) {
     document.getElementById('setup-screen').style.display = 'none';
-    startApp();
+    if (needChooser()) showChooser(true); else startApp();
   }
   loadVoices();
   synth.onvoiceschanged = loadVoices;
@@ -2351,7 +2466,7 @@ function setLang(code) {
   const l = LANGS.find(x => x.code === code);
   if (!l) return;
   currentLang = l.code; applyLangVars();
-  try { localStorage.setItem('tutora_idioma', l.code); } catch(e) {}
+  try { store.setItem('tutora_idioma', l.code); } catch(e) {}
   renderLangPills();
   document.getElementById('tip-text').textContent = (TIPS[uiLang()] || {})[code] || '';
   chatHistory = []; repeatTarget = ''; repeatTries = 0; clearTranscript(); stopRecording(); synth.cancel();
@@ -2376,10 +2491,10 @@ function setTopic(el, topic) {
 // ── 🌳 CONVERSA GUIADA: ponte entre as lições e a conversa livre (iniciante e básico) ──
 // Mesmos temas e interesses da conversa livre; a Lia fala frases curtas (máx. 8 palavras) com tradução por baixo,
 // mais devagar, sugere sempre 2 respostas (linhas 💭) e passa aos poucos de perguntas fechadas para abertas.
-let guidedMode = (() => { try { return localStorage.getItem('tutora_guiada') === '1'; } catch(e) { return false; } })();
+let guidedMode = (() => { try { return store.getItem('tutora_guiada') === '1'; } catch(e) { return false; } })();
 function setGuided(on) {
   guidedMode = !!on;
-  try { localStorage.setItem('tutora_guiada', guidedMode ? '1' : '0'); } catch(e) {}
+  try { store.setItem('tutora_guiada', guidedMode ? '1' : '0'); } catch(e) {}
 }
 // Recomeça a conversa no tema atual (para entrar ou sair do modo guiado).
 function restartConversation() {
@@ -2468,9 +2583,9 @@ async function dontKnow() {
 const ZERO_KEY = 'tutora_zero', ZERO_TOTAL = 12;
 let currentLesson = null, lessonCompleted = false, topicElBeforeLesson = null, lessonState = null, lessonRun = 0;
 function zeroLoad() {
-  try { const z = JSON.parse(localStorage.getItem(ZERO_KEY) || '{}'); return z && typeof z === 'object' ? z : {}; } catch(e) { return {}; }
+  try { const z = JSON.parse(store.getItem(ZERO_KEY) || '{}'); return z && typeof z === 'object' ? z : {}; } catch(e) { return {}; }
 }
-function zeroStore(z) { try { localStorage.setItem(ZERO_KEY, JSON.stringify(z)); } catch(e) {} }
+function zeroStore(z) { try { store.setItem(ZERO_KEY, JSON.stringify(z)); } catch(e) {} }
 function zeroLang() {
   const e = zeroLoad()[currentLang];
   const cur = e && Number.isInteger(e.current) && e.current >= 0 && e.current < LESSON_COUNT ? e.current : null;
@@ -2581,17 +2696,17 @@ function maybeAutoZero() {
 // localStorage 'tutora_licao' = { idioma: { lesson, history: chatHistory, log: [mensagens mostradas] } }
 const LESSON_KEY = 'tutora_licao';
 let lessonLog = [], restoringLesson = false;
-function lessonSessions() { try { const s = JSON.parse(localStorage.getItem(LESSON_KEY) || '{}'); return s && typeof s === 'object' ? s : {}; } catch(e) { return {}; } }
+function lessonSessions() { try { const s = JSON.parse(store.getItem(LESSON_KEY) || '{}'); return s && typeof s === 'object' ? s : {}; } catch(e) { return {}; } }
 function saveLessonSession() {
   if (currentLesson === null || restoringLesson || lessonCompleted) return;
   const all = lessonSessions();
   all[currentLang] = { lesson: currentLesson, native: getNative(PROFILE), ptVariant: (PROFILE && PROFILE.ptVariant) || 'Brasil', st: lessonState, history: chatHistory.slice(-60), log: lessonLog.slice(-80) };
-  try { localStorage.setItem(LESSON_KEY, JSON.stringify(all)); } catch(e) {}
+  try { store.setItem(LESSON_KEY, JSON.stringify(all)); } catch(e) {}
 }
 function clearLessonSession() {
   const all = lessonSessions();
   delete all[currentLang];
-  try { localStorage.setItem(LESSON_KEY, JSON.stringify(all)); } catch(e) {}
+  try { store.setItem(LESSON_KEY, JSON.stringify(all)); } catch(e) {}
 }
 
 // Abre a lição i. Se houver conversa guardada dessa lição (e resume não for false), retoma-a; senão começa do início.
@@ -3652,7 +3767,7 @@ let nbCurrentTab = 'erro';
 
 function nbLoad() {
   let nb;
-  try { nb = JSON.parse(localStorage.getItem(NB_KEY) || '{}'); } catch(e) { nb = {}; }
+  try { nb = JSON.parse(store.getItem(NB_KEY) || '{}'); } catch(e) { nb = {}; }
   if (!nb || typeof nb !== 'object') return {};
   // Junta os erros repetidos já guardados (cadernos antigos ou importados).
   let changed = false;
@@ -3679,7 +3794,7 @@ function nbMerge(list) {
   }
   return out;
 }
-function nbStore(nb) { try { localStorage.setItem(NB_KEY, JSON.stringify(nb)); } catch(e) {} }
+function nbStore(nb) { try { store.setItem(NB_KEY, JSON.stringify(nb)); } catch(e) {} }
 function nbList() { const l = nbLoad()[currentLang]; return Array.isArray(l) ? l : []; }
 
 function nbAdd(item) {
@@ -3727,8 +3842,8 @@ function topErrors(n) {
 
 function nbTab(tab) { nbCurrentTab = tab; renderNotebook(); }
 // Ordem da aba "Meus erros": 'recent' (mais recentes) ou 'count' (mais repetidos). Fica guardada neste aparelho.
-let nbSort = (() => { try { return localStorage.getItem('tutora_caderno_ordem') === 'count' ? 'count' : 'recent'; } catch(e) { return 'recent'; } })();
-function nbSetSort(s) { nbSort = s; try { localStorage.setItem('tutora_caderno_ordem', s); } catch(e) {} renderNotebook(); }
+let nbSort = (() => { try { return store.getItem('tutora_caderno_ordem') === 'count' ? 'count' : 'recent'; } catch(e) { return 'recent'; } })();
+function nbSetSort(s) { nbSort = s; try { store.setItem('tutora_caderno_ordem', s); } catch(e) {} renderNotebook(); }
 
 function renderNotebook() {
   const all = nbList();
@@ -3792,9 +3907,9 @@ const STREAK_KEY = 'tutora_racha', STREAK_GOAL = 5;
 function dayKey(d) { d = d || new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); }
 function addDays(d, n) { const x = new Date(d); x.setDate(x.getDate() + n); return x; }
 function streakLoad() {
-  try { const s = JSON.parse(localStorage.getItem(STREAK_KEY) || 'null'); return s && s.days && typeof s.days === 'object' ? s : { days: {} }; } catch(e) { return { days: {} }; }
+  try { const s = JSON.parse(store.getItem(STREAK_KEY) || 'null'); return s && s.days && typeof s.days === 'object' ? s : { days: {} }; } catch(e) { return { days: {} }; }
 }
-function streakStore(s) { try { localStorage.setItem(STREAK_KEY, JSON.stringify(s)); } catch(e) {} }
+function streakStore(s) { try { store.setItem(STREAK_KEY, JSON.stringify(s)); } catch(e) {} }
 
 function streakStats() {
   const s = streakLoad(), today = new Date(), tk = dayKey(today);
@@ -3867,8 +3982,8 @@ function renderStreakStats() {
 // Último resultado por idioma no localStorage 'tutora_teste' = { idioma: { date, level, explanation, strengths, improve } }.
 const TEST_KEY = 'tutora_teste', TEST_TOTAL = 8;
 let currentTest = null; // { q: [perguntas], a: [respostas], idx, finished }
-function testLoad() { try { const s = JSON.parse(localStorage.getItem(TEST_KEY) || '{}'); return s && typeof s === 'object' ? s : {}; } catch(e) { return {}; } }
-function testStore(s) { try { localStorage.setItem(TEST_KEY, JSON.stringify(s)); } catch(e) {} }
+function testLoad() { try { const s = JSON.parse(store.getItem(TEST_KEY) || '{}'); return s && typeof s === 'object' ? s : {}; } catch(e) { return {}; } }
+function testStore(s) { try { store.setItem(TEST_KEY, JSON.stringify(s)); } catch(e) {} }
 // Lê o primeiro objeto JSON de uma resposta da IA (ignora texto à volta).
 function parseJsonReply(text) {
   const a = text.indexOf('{'), b = text.lastIndexOf('}');
@@ -4006,7 +4121,7 @@ function showTestResult(r) {
     setTimeout(() => {
       if (confirm(t('test_confirm', { lang: langUI(currentLang), level: t('lvl_' + r.level) }))) {
         PROFILE.levels = Object.assign({}, DEFAULT_LEVELS, PROFILE.levels || {}, { [currentLang]: r.level });
-        try { localStorage.setItem('tutora_profile', JSON.stringify(PROFILE)); } catch(e) {}
+        try { store.setItem('tutora_profile', JSON.stringify(PROFILE)); } catch(e) {}
       }
     }, 600);
   }
@@ -4033,7 +4148,7 @@ function renderTestsSummary() {
 // ── 📷 FOTO DO PERFIL ──
 // localStorage 'tutora_foto' = data URL JPEG, reduzida para caber em 256×256.
 const PHOTO_KEY = 'tutora_foto', PHOTO_MAX = 256;
-function loadPhoto() { try { return localStorage.getItem(PHOTO_KEY) || ''; } catch(e) { return ''; } }
+function loadPhoto() { try { return store.getItem(PHOTO_KEY) || ''; } catch(e) { return ''; } }
 function handlePhoto(input) {
   const file = input.files && input.files[0];
   input.value = '';
@@ -4047,7 +4162,7 @@ function handlePhoto(input) {
     c.width = w; c.height = h;
     c.getContext('2d').drawImage(img, 0, 0, w, h);
     URL.revokeObjectURL(url);
-    try { localStorage.setItem(PHOTO_KEY, c.toDataURL('image/jpeg', 0.85)); }
+    try { store.setItem(PHOTO_KEY, c.toDataURL('image/jpeg', 0.85)); }
     catch(e) { alert(t('photo_save_fail')); return; }
     renderPhotos();
   };
@@ -4055,7 +4170,7 @@ function handlePhoto(input) {
   img.src = url;
 }
 function removePhoto() {
-  try { localStorage.removeItem(PHOTO_KEY); } catch(e) {}
+  try { store.removeItem(PHOTO_KEY); } catch(e) {}
   renderPhotos();
 }
 // Mostra a foto (ou 👤) no perfil, no Início e nas falas já escritas.
@@ -4082,7 +4197,8 @@ function exportData() {
   const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
-  a.href = url; a.download = `parlia-dados-${dayKey()}.json`;
+  const who = String((PROFILE && PROFILE.name) || '').normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^A-Za-z0-9]+/g, '-').replace(/^-|-$/g, '').toLowerCase();
+  a.href = url; a.download = `parlia-dados-${who ? who + '-' : ''}${dayKey()}.json`;
   document.body.appendChild(a); a.click(); a.remove();
   setTimeout(() => URL.revokeObjectURL(url), 2000);
 }
@@ -4123,10 +4239,10 @@ function importData(input) {
     }));
     if (!ok) return;
     try {
-      if (data.profile && data.profile.name) localStorage.setItem('tutora_profile', JSON.stringify(data.profile));
-      localStorage.setItem(NB_KEY, JSON.stringify(caderno));
-      localStorage.setItem(STREAK_KEY, JSON.stringify(racha));
-      if (hasZero) localStorage.setItem(ZERO_KEY, JSON.stringify(zero));
+      if (data.profile && data.profile.name) store.setItem('tutora_profile', JSON.stringify(data.profile));
+      store.setItem(NB_KEY, JSON.stringify(caderno));
+      store.setItem(STREAK_KEY, JSON.stringify(racha));
+      if (hasZero) store.setItem(ZERO_KEY, JSON.stringify(zero));
       // Teste de nível: só substitui se a cópia o trouxer.
       if (data.teste && typeof data.teste === 'object') {
         const tst = {};
@@ -4135,10 +4251,10 @@ function importData(input) {
           const strs = v => (Array.isArray(v) ? v : []).filter(s => typeof s === 'string').slice(0, 2);
           if (lv) tst[lang] = { date: String(r.date || ''), level: lv, explanation: String(r.explanation || ''), strengths: strs(r.strengths), improve: strs(r.improve) };
         });
-        localStorage.setItem(TEST_KEY, JSON.stringify(tst));
+        store.setItem(TEST_KEY, JSON.stringify(tst));
       }
       // Foto: só substitui se a cópia trouxer uma imagem válida.
-      if (typeof data.foto === 'string' && /^data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+/=]+$/.test(data.foto)) localStorage.setItem(PHOTO_KEY, data.foto);
+      if (typeof data.foto === 'string' && /^data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+/=]+$/.test(data.foto)) store.setItem(PHOTO_KEY, data.foto);
     } catch(e) { alert(t('import_save_fail') + (e && e.message ? e.message : e)); return; }
     PROFILE = loadProfile() || PROFILE;
     // Recomeça a conversa com os dados importados (outra língua, outros níveis…).
