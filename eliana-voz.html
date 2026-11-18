@@ -216,6 +216,8 @@
   .lb-progress { clear: both; height: 6px; border-radius: 3px; background: rgba(255,255,255,0.12); margin-top: 8px; overflow: hidden; }
   .lb-progress span { display: block; height: 100%; border-radius: 3px; background: linear-gradient(90deg, var(--gold-deep), var(--gold-glow)); transition: width .4s; }
   .ln-nat { color: var(--text-2); font-style: italic; }
+  .lz-emoji { display: block; font-size: 3rem; line-height: 1.15; margin: 2px 0 4px; }
+  .lz-emoji + br { display: none; }
   .zero-dots { display: flex; gap: 5px; justify-content: center; margin-top: 12px; flex-wrap: wrap; }
   .zero-dot { width: 12px; height: 12px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.3); }
   .zero-dot.done { background: var(--gold); border-color: var(--gold); }
@@ -1091,6 +1093,17 @@ const LESSON_PHRASES = {
      'Eu vou dormir às onze.~Vou dormir às onze. | Me voy a dormir a las once. | I go to bed at eleven. | Je vais me coucher à onze heures. | Vado a dormire alle undici.']
   ]
 };
+// Ilustração de cada frase das lições (um emoji por frase, na mesma ordem de LESSON_PHRASES). O mesmo sentido tem sempre
+// o mesmo emoji em todos os idiomas (ex.: até logo ⏳, bom dia 🌅, boa noite 🌙, tchau 👋, um café ☕, estou com fome 🍽️); como a ordem das
+// frases muda de idioma para idioma (ex.: lição 1), cada idioma tem a sua lista.
+const LESSON_EMOJI = {
+  fr: ["🌅 🌙 🙋 👋 ⏳","❓ 🏷️ 🤝 👉 🧑","🌍 🧳 🏘️ 🏠 🏙️","💬 😊 👉 😐 😴","👨‍👩‍👧 👩 👨 👫 👶","🖐️ 🔟 🔢 🧮","🎂 🎈 📱 ☎️","☕ 🍵 🍫 🎵 🙌","🍽️ 🥤 🥖 💧 🍎","☕ 💶 🧾 🙏 🌞","📅 🗓️ ⌚ 🕒 🎉","⏰ 🥐 💼 🍝 🛏️"],
+  es: ["🙋 🌅 ☀️ 🌙 ⏳","❓ 🏷️ 🤝 👉 🧑","🌍 🧳 🏘️ 🏠 🏙️","💬 😊 👉 😐 😴","👨‍👩‍👧 👩 👨 👫 👶","🖐️ 🔟 🔢 🧮","🎂 🎈 📱 ☎️","☕ 🍵 🍫 🎵 🙌","🍽️ 🥤 🥖 💧 🍎","☕ 💶 🧾 🙏 🌞","📅 🗓️ ⌚ 🕒 🎉","⏰ 🥐 💼 🍝 🛏️"],
+  en: ["🙋 🌅 ☀️ 👋 ⏳","❓ 🏷️ 🧑 🤝 👉","🌍 🧳 🏘️ 🏠 🏙️","💬 😊 👉 😐 😴","👨‍👩‍👧 👩 👨 👫 👶","🖐️ 🔟 🔢 🧮","🎂 🎈 📱 ☎️","☕ 🍵 🍫 🎵 🙌","🍽️ 🥤 🥖 💧 🍎","☕ 💶 🧾 🙏 🌞","📅 🗓️ ⌚ 🕒 🎉","⏰ 🥐 💼 🍝 🛏️"],
+  it: ["🙋 🌅 🌙 👋 ⏳","❓ 🏷️ 🤝 👉 🧑","🌍 🧳 🏘️ 🏠 🏙️","💬 😊 👉 😐 😴","👨‍👩‍👧 👩 👨 👫 👶","🖐️ 🔟 🔢 🧮","🎂 🎈 📱 ☎️","☕ 🍵 🍫 🎵 🙌","🍽️ 🥤 🥖 💧 🍎","☕ 💶 🧾 🙏 🌞","📅 🗓️ ⌚ 🕒 🎉","⏰ 🥐 💼 🍝 🛏️"],
+  pt: ["🙋 🌅 ☀️ 🌙 ⏳","❓ 🏷️ 🤝 👉 🏷️","🌍 🧳 🏘️ 🏠 🏙️","💬 😊 👉 😐 😴","👨‍👩‍👧 👩 👨 👫 👶","🖐️ 🔟 🔢 🧮","🎂 🎈 📱 ☎️","☕ 🍵 🍫 🎵 🙌","🍽️ 🥤 🥖 💧 🍎","☕ 💶 🧾 🙏 🌞","📅 🗓️ ⌚ 🕒 🎉","⏰ 🥐 💼 🍝 🛏️"]
+};
+function lessonEmoji(i, k) { return (String(((LESSON_EMOJI[currentLang] || [])[i]) || '').split(' ')[k]) || ''; }
 // Partes da lição: ENSINAR cada frase, LEMBRAR cada uma (noutra ordem) e uma mini-conversa de LZ_CHAT trocas.
 const LZ_ORDER = ['pt', 'es', 'en', 'fr', 'it'], LZ_CHAT = 2;
 function lzVar(s, second) { const p = String(s || '').split('~'); return (second && p[1] !== undefined ? p[1] : p[0]).trim(); }
@@ -1103,7 +1116,7 @@ function lessonItems(i) {
     const f = r.split('|').map(s => s.trim());
     const g = f.length === 2 ? f[1] : (f[1 + others.indexOf(grp)] || f[1]);
     return { t: lzVar(f[0], currentLang === 'pt' && ptIsPT()), g: lzVar(g, nat === 'pt-PT') };
-  });
+  }).map((x, k) => Object.assign(x, { e: lessonEmoji(i, k) }));
 }
 // Mini-conversa: pequenas cenas reais, 2 trocas por lição. Cada troca = [fala da Lia, resposta esperada].
 // A fala da Lia vem nas 5 línguas (pt | es | en | fr | it, Brasil~Portugal): a Lia diz a do idioma estudado e
@@ -2329,17 +2342,20 @@ function stopRecording() {
 // ── SPEECH SYNTHESIS ──
 // Marcas de voz no início das linhas: [nat] = língua nativa do aluno, [alvo] = idioma estudado (linha sem marca = idioma estudado).
 const VOICE_TAG = /^\s*\[(nat|alvo)\]\s*/i;
-function stripTags(text) { return String(text || '').split('\n').map(l => l.replace(VOICE_TAG, '')).join('\n').replace(/\[(nat|alvo)\]\s*/gi, ''); }
+function stripTags(text) { return String(text || '').split('\n').filter(l => !IMG_TAG.test(l)).map(l => l.replace(VOICE_TAG, '')).join('\n').replace(/\[(nat|alvo)\]\s*/gi, ''); }
+// Linha [img] = ilustração (emoji grande) das lições: só se mostra.
+const IMG_TAG = /^\s*\[img\]\s*/i;
 // Só as linhas [alvo] são lidas em voz alta; as [nat] só se o perfil tiver "Ler explicações em voz alta".
 // As traduções entre parênteses ficam sempre só escritas.
 function voiceParts(text) {
   const parts = [];
   const readNat = !!(PROFILE && PROFILE.readNative);
   String(text || '').split('\n').forEach(line => {
+    if (IMG_TAG.test(line)) return; // ilustração: não se lê
     const m = line.match(VOICE_TAG);
     const who = m ? m[1].toLowerCase() : 'alvo';
     if (who === 'nat' && !readNat) return;
-    const s = line.replace(VOICE_TAG, '').replace(/\[(nat|alvo)\]\s*/gi, '').replace(/[📝✅❌🎤🔊💡👤🛒🏥🏠🏦🎓🗣️🎯🔁💬🌐🌱]/gu, '').replace(/\*\*/g, '')
+    const s = line.replace(VOICE_TAG, '').replace(/\[(nat|alvo)\]\s*/gi, '').replace(/[📝✅❌🎤🔊💡👤🛒🏥🏠🏦🎓🗣️🎯🔁💬🌐🌱]/gu, '').replace(/[\p{Extended_Pictographic}\u200D\uFE0F\u20E3]/gu, '').replace(/\*\*/g, '')
       .replace(/\([^)]*\)/g, ' ').replace(/\s+/g, ' ').trim();
     if (!s) return;
     const last = parts[parts.length - 1];
@@ -2445,8 +2461,8 @@ function lzGloss(it) { return `[nat] (${it.g.replace(/\s*\(([^)]*)\)/g, ' — $1
 function lzTurn(items, n) { return lessonScene(currentLesson, n, items); }
 // Texto do pedido de um passo (o app escreve tudo): ENSINAR, LEMBRAR ou fala da Lia na mini-conversa.
 function lzStepText(step, items, prev) {
-  if (step.k === 'teach') { const it = items[step.i]; return `[alvo] ${it.t}\n${lzGloss(it)}\n[nat] ${lzRepeat(it)}.`; }
-  if (step.k === 'recall') return (prev && prev.k === 'teach' ? `[nat] ${t('lz_recall_intro')}\n` : '') + `[nat] ${lzRecallQ(items[step.i])}`;
+  if (step.k === 'teach') { const it = items[step.i]; return (it.e ? `[img] ${it.e}\n` : '') + `[alvo] ${it.t}\n${lzGloss(it)}\n[nat] ${lzRepeat(it)}.`; }
+  if (step.k === 'recall') return (prev && prev.k === 'teach' ? `[nat] ${t('lz_recall_intro')}\n` : '') + `[nat] ${items[step.i].e ? items[step.i].e + ' ' : ''}${lzRecallQ(items[step.i])}`;
   const tn = lzTurn(items, step.i);
   return (prev && prev.k !== 'chat' ? `[nat] ${t('lz_chat_intro')}\n` : '') + `[alvo] ${tn.lia.t}\n${lzGloss(tn.lia)}`;
 }
@@ -2993,6 +3009,7 @@ function addMsg(role, text, correction, correctionFirst, spoken, saveText, hint)
 // Balão da tutora: linhas [nat] em itálico (língua nativa), linhas [alvo] normais; as marcas não aparecem.
 function renderTagged(text) {
   return String(text || '').split('\n').map(line => {
+    if (IMG_TAG.test(line)) return `<span class="lz-emoji" aria-hidden="true">${esc(line.replace(IMG_TAG, ''))}</span>`;
     const m = line.match(VOICE_TAG);
     const s = line.replace(VOICE_TAG, '').replace(/\[(nat|alvo)\]\s*/gi, '');
     return m && m[1].toLowerCase() === 'nat' ? `<span class="ln-nat">${esc(s)}</span>` : esc(s);
