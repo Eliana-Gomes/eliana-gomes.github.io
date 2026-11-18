@@ -992,12 +992,47 @@ function lessonItems(i) {
     return { t: lzVar(f[0], currentLang === 'pt' && ptIsPT()), g: lzVar(g, nat === 'pt-PT') };
   });
 }
-// Mini-conversa com roteiro fixo: por lição, 'fala da Lia>resposta modelo' (índices das frases da lição), 2 trocas.
-const LESSON_CHAT = ['1>1,3>3', '0>1,2>2', '0>1,2>3', '0>1,2>3', '0>1,1>2', '0>1,2>3', '0>1,2>3', '0>4,1>2', '0>2,1>3', '3>4,4>3', '0>1,2>3', '0>1,3>4'];
-const LESSON_CHAT_LANG = { es: { 0: '1>1,4>4' }, pt: { 0: '1>1,4>4' }, en: { 1: '0>1,3>3' } };
-function lessonChat(i) {
-  const s = (LESSON_CHAT_LANG[currentLang] || {})[i] || LESSON_CHAT[i] || '0>0,0>0';
-  return s.split(',').map(p => p.split('>').map(Number));
+// Mini-conversa: pequenas cenas reais, 2 trocas por lição. Cada troca = [fala da Lia, resposta esperada].
+// A fala da Lia vem nas 5 línguas (pt | es | en | fr | it, Brasil~Portugal): a Lia diz a do idioma estudado e
+// a tradução é a da língua nativa; pode usar palavras simples fora da lista. A resposta esperada vem SEMPRE das
+// frases da lição: índices em LESSON_PHRASES ('3+4' = frases 3 e 4 juntas), iguais em todos os idiomas ou por idioma.
+const LESSON_SCENES = [
+  [['Bom dia! Pode entrar!~Bom dia! Podes entrar! | ¡Buenos días! ¡Pasa, pasa! | Good morning! Come in! | Bonjour ! Entre ! | Buongiorno! Entra pure!', { fr: '0', es: '1', en: '1', it: '1', pt: '1' }],
+   ['Bom, eu tenho que ir. Até logo!~Bem, tenho de ir. Até logo! | Bueno, me tengo que ir. ¡Hasta luego! | Well, I have to go. See you later! | Bon, je dois partir. À plus tard ! | Bene, devo andare. A dopo!', { fr: '3+4', es: '4', en: '3+4', it: '3+4', pt: '4' }]],
+  [['Oi! Eu sou a Lia. Como você se chama?~Olá! Eu sou a Lia. Como te chamas? | ¡Hola! Soy Lia. ¿Cómo te llamas? | Hi! I’m Lia. What’s your name? | Salut ! Moi, c’est Lia. Comment tu t’appelles ? | Ciao! Io sono Lia. Come ti chiami?', '1'],
+   ['E este é o meu amigo Paulo. | Y este es mi amigo Pablo. | And this is my friend Paul. | Et voici mon ami Paul. | E questo è il mio amico Paolo.', { fr: '2', es: '2', en: '3', it: '2', pt: '2' }]],
+  [['Eu sou de Lisboa. E você, de onde é?~Eu sou de Lisboa. E tu, de onde és? | Yo soy de Lisboa. ¿Y tú, de dónde eres? | I’m from Lisbon. And you, where are you from? | Moi, je viens de Lisbonne. Et toi, tu viens d’où ? | Io sono di Lisbona. E tu, di dove sei?', '1'],
+   ['Que legal! E onde você mora agora?~Que giro! E onde moras agora? | ¡Qué bien! ¿Y dónde vives ahora? | How nice! And where do you live now? | Super ! Et tu habites où, maintenant ? | Che bello! E adesso dove abiti?', '3']],
+  [['Oi! Tudo bem?~Olá! Como estás? | ¡Hola! ¿Cómo estás? | Hi! How are you? | Salut ! Ça va ? | Ciao! Come stai?', '1+2'],
+   ['Nossa, já é meia-noite! E você, como está?~Ena, já é meia-noite! E tu, como estás? | ¡Uf, ya es medianoche! ¿Y tú, cómo estás? | Wow, it’s already midnight! How are you feeling? | Oh là là, il est déjà minuit ! Et toi, ça va ? | Mamma mia, è già mezzanotte! E tu, come stai?', '4']],
+  [['Olha, esta é a minha família! E a sua?~Olha, esta é a minha família! E a tua? | ¡Mira, esta es mi familia! ¿Y la tuya? | Look, this is my family! And yours? | Voici ma famille ! Et toi ? | Guarda, questa è la mia famiglia! E la tua?', '0'],
+   ['Você tem irmãos?~Tens irmãos? | ¿Tienes hermanos? | Do you have any brothers or sisters? | Tu as des frères ? | Hai fratelli?', '3']],
+  [['Vamos contar! Zero, um, dois, três, quatro, cinco… e depois? | ¡Vamos a contar! Cero, uno, dos, tres, cuatro, cinco… ¿y después? | Let’s count! Zero, one, two, three, four, five… and then? | On compte ! Zéro, un, deux, trois, quatre, cinq… et après ? | Contiamo! Zero, uno, due, tre, quattro, cinque… e poi?', '1'],
+   ['Muito bem! E agora, de dezesseis a vinte?~Muito bem! E agora, de dezasseis a vinte? | ¡Muy bien! ¿Y ahora, del dieciséis al veinte? | Very good! And now from sixteen to twenty? | Très bien ! Et maintenant, de seize à vingt ? | Molto bene! E adesso, da sedici a venti?', '3']],
+  [['Eu tenho trinta anos. E você, quantos anos tem?~Tenho trinta anos. E tu, quantos anos tens? | Yo tengo treinta años. ¿Y tú, cuántos años tienes? | I’m thirty. And you, how old are you? | Moi, j’ai trente ans. Et toi, tu as quel âge ? | Io ho trent’anni. E tu, quanti anni hai?', '1'],
+   ['Eu te ligo amanhã. Qual é o seu número?~Ligo-te amanhã. Qual é o teu número? | Te llamo mañana. ¿Cuál es tu número? | I’ll call you tomorrow. What’s your number? | Je t’appelle demain. C’est quoi, ton numéro ? | Ti chiamo domani. Qual è il tuo numero?', '3']],
+  [['Você quer um chá?~Queres um chá? | ¿Quieres un té? | Would you like some tea? | Tu veux un thé ? | Vuoi un tè?', '1'],
+   ['Tudo bem! Eu adoro café!~Está bem! Eu adoro café! | ¡Bueno! ¡A mí me encanta el café! | OK! I love coffee! | D’accord ! Moi, j’adore le café ! | Va bene! A me piace tanto il caffè!', '4+0']],
+  [['Hoje está muito calor! | ¡Hoy hace mucho calor! | It’s very hot today! | Il fait très chaud aujourd’hui ! | Oggi fa molto caldo!', '1'],
+   ['Eu como pão de manhã. E você?~De manhã, como pão. E tu? | Yo por la mañana como pan. ¿Y tú? | I eat bread in the morning. What about you? | Moi, le matin, je mange du pain. Et toi ? | Io la mattina mangio il pane. E tu?', '4']],
+  [['Bom dia! O que vai ser? | ¡Buenos días! ¿Qué desea? | Hello! What would you like? | Bonjour ! Vous désirez ? | Buongiorno! Cosa desidera?', '0'],
+   ['Aqui está! São dois euros.~Aqui tem! São dois euros. | ¡Aquí tiene! Son dos euros. | Here you are! That’s two euros. | Voilà ! C’est deux euros. | Ecco a Lei! Sono due euro.', '3+4']],
+  [['Desculpe, que dia é hoje?~Desculpa, que dia é hoje? | Perdona, ¿qué día es hoy? | Sorry, what day is it today? | Pardon, on est quel jour aujourd’hui ? | Scusa, che giorno è oggi?', '1'],
+   ['Obrigada! E que horas são? | ¡Gracias! ¿Y qué hora es? | Thanks! And what time is it? | Merci ! Et quelle heure est-il ? | Grazie! E che ore sono?', '3']],
+  [['Eu acordo às seis. E você?~Eu acordo às seis. E tu? | Yo me levanto a las seis. ¿Y tú? | I get up at six. What about you? | Moi, je me lève à six heures. Et toi ? | Io mi alzo alle sei. E tu?', '0'],
+   ['E à noite, a que horas você vai dormir?~E à noite, a que horas vais dormir? | ¿Y por la noche, a qué hora te acuestas? | And at night, what time do you go to bed? | Et le soir, tu te couches à quelle heure ? | E la sera, a che ora vai a letto?', '4']]
+];
+// Troca n da lição i: fala da Lia e resposta modelo (frases da lição), com a tradução na língua nativa.
+function lessonScene(i, n, items) {
+  const sc = (LESSON_SCENES[i] || [])[n];
+  if (!sc || !items.length) return { lia: items[0], ans: items[0] };
+  const f = sc[0].split('|').map(s => s.trim());
+  const nat = getNative(PROFILE), grp = NATIVES[nat].group;
+  const lia = { t: lzVar(f[LZ_ORDER.indexOf(currentLang)], currentLang === 'pt' && ptIsPT()), g: lzVar(f[LZ_ORDER.indexOf(grp)], nat === 'pt-PT') };
+  const spec = typeof sc[1] === 'object' ? sc[1][currentLang] : sc[1];
+  const idx = String(spec || '0').split('+').map(Number).filter(k => items[k]);
+  const pick = idx.length ? idx.map(k => items[k]) : [items[0]];
+  return { lia, ans: { t: pick.map(x => x.t).join(' '), g: pick.map(x => x.g).join(' ') } };
 }
 function lessonSteps(n) {
   const idx = [...Array(n).keys()];
@@ -2226,8 +2261,8 @@ function lzRecallQ(it) {
   return t('lz_recall_q', { txt: m ? m[1] : it.g, lang: lzLangName() }) + (m ? ' (' + m[2] + ')' : '');
 }
 function lzGloss(it) { return `[nat] (${it.g.replace(/\s*\(([^)]*)\)/g, ' — $1')})`; }
-// Mini-conversa: fala da Lia e resposta modelo (frases da lição) da troca n.
-function lzTurn(items, n) { const [a, b] = lessonChat(currentLesson)[n] || [0, 0]; return { lia: items[a] || items[0], ans: items[b] || items[0] }; }
+// Mini-conversa: fala da Lia e resposta modelo (frases da lição) da troca n (cena de LESSON_SCENES).
+function lzTurn(items, n) { return lessonScene(currentLesson, n, items); }
 // Texto do pedido de um passo (o app escreve tudo): ENSINAR, LEMBRAR ou fala da Lia na mini-conversa.
 function lzStepText(step, items, prev) {
   if (step.k === 'teach') { const it = items[step.i]; return `[alvo] ${it.t}\n${lzGloss(it)}\n[nat] ${lzRepeat(it)}.`; }
@@ -2604,7 +2639,7 @@ function buildLessonSystem() {
   if (st.tries) task = `After a mistake, ${N} was asked to repeat «${ex.t}». Judge if ${N} said it.`;
   else if (step.k === 'teach') task = `${N} was asked to repeat the new phrase «${ex.t}». Judge if ${N} said it.`;
   else if (step.k === 'recall') task = `${N} was asked, in ${EX}, how to say "${ex.g}" in ${L}. Expected answer: «${ex.t}». A different but correct and natural ${L} way to say the same thing in that situation is also correct (e.g. in French «Bonjour» is correct to greet someone in the afternoon).`;
-  else { const tn = lzTurn(items, step.i); task = `Short conversation: Lia said «${tn.lia.t}» (${tn.lia.g}). ${N} must reply with a fitting lesson phrase (e.g. «${tn.ans.t}»). Any fitting, correct reply made with the lesson phrases is correct.`; }
+  else { const tn = lzTurn(items, step.i); task = `Short real-life scene: Lia said «${tn.lia.t}» (= ${tn.lia.g}). Lia may use simple words outside the list, but ${N} must reply with the lesson phrase(s) that fit (model answer: «${tn.ans.t}»). Any fitting, correct reply made with the lesson phrases is correct, also only part of the model answer if it fits the scene.`; }
   const lastUser = (chatHistory.filter(m => m.role === 'user').pop() || {}).content || '';
   const looksQ = step.k !== 'chat' && lzLooksQuestion(lastUser, ex.t);
   return `You evaluate ONE answer of ${N}, ${NI.speaker}, an absolute beginner in a ${L} lesson. You do NOT talk to ${N}: the app writes everything ${N} sees. ${accentRule(P)}
