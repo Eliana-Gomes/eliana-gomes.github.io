@@ -153,6 +153,7 @@ App de conversação para praticar idiomas (espanhol, inglês, francês, italian
 ## Fluxo de trabalho
 - Depois de cada mudança: testar a sintaxe do JavaScript, fazer commit com mensagem clara em português e push para `main`.
 - O GitHub Pages leva alguns minutos para publicar; para testar no telemóvel usar `?v=N` no fim do endereço.
+- **Versão do app**: no fim da tela Perfil aparece "Parlia vN · data" (`APP_VERSION` e `APP_DATE` no início do script, `renderVersion`). O hook `.git/hooks/pre-commit` (só neste computador; não vai para o GitHub) soma 1 à versão e põe a data de hoje sempre que um commit inclui o `eliana-voz.html`, e volta a adicionar o arquivo ao commit. Para testar no telemóvel, usar o mesmo número: `?v=N`. Commits feitos noutro sítio (ex.: pelo site do GitHub) não mudam o número.
 
 ## Futuro (ainda não fazer)
 Versão produto para clientes: servidor próprio com a chave da API, login, assinatura, limite de uso por pessoa e política de privacidade (RGPD).

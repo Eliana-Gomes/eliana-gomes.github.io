@@ -365,6 +365,8 @@
   .api-input:focus { border-color: var(--fill); }
   .api-btn { width: 100%; padding: 14px; background: var(--fill); color: var(--on-fill); border: none; border-radius: 12px; font-size: 0.9rem; font-weight: 600; cursor: pointer; font-family: 'Inter', sans-serif; }
   .api-select { width: 100%; background: var(--input-bg); border: 1px solid var(--line); border-radius: 12px; padding: 12px; font-size: 0.85rem; color: var(--text); font-family: 'Inter', sans-serif; outline: none; }
+  #view-profile > .backup-btn { width: 100%; flex: none; }
+  .app-version { width: 100%; text-align: center; font-size: 0.7rem; color: var(--muted); letter-spacing: 0.03em; margin-top: -6px; }
   .prof-grid { width: 100%; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
   .prof-label { width: 100%; font-size: 0.78rem; font-weight: 500; color: var(--text-2); margin-bottom: -12px; }
   .api-note { font-size: 0.72rem; color: var(--muted); text-align: center; line-height: 1.6; }
@@ -472,6 +474,7 @@
   <button class="backup-btn" onclick="showChooser()" data-i18n="switch_person"></button>
   <button class="backup-btn key-btn" onclick="deleteProfile()" data-i18n="delete_profile"></button>
   <button class="backup-btn key-btn" onclick="clearKey()" data-i18n="link_key"></button>
+  <div class="app-version" id="app-version"></div>
 </section>
 
 <!-- 📒 MEU CADERNO (vista) -->
@@ -687,6 +690,8 @@ function profileCard(id) {
   if (!s) return;
   setTimeout(() => { s.classList.add('hide'); setTimeout(() => s.remove(), 400); }, 1000);
 })();
+// Versão do app (fim da tela Perfil). Atualizada sozinha a cada commit que mexe neste arquivo (hook .git/hooks/pre-commit).
+const APP_VERSION = 52, APP_DATE = '2026-11-18';
 let currentLang = 'es', currentLangName = 'Spanish', currentLocale = 'es-ES';
 let currentTopic = 'Free conversation';
 let chatHistory = [], recognition = null, isRecording = false, isSpeaking = false;
@@ -2106,6 +2111,13 @@ function pickFocus() {
   return chatFocus;
 }
 function checkedInterests() { return [...document.querySelectorAll('#pf-interests input:checked')].map(i => i.value); }
+// "Parlia v52 · 18/11/2026" no fim do Perfil (data no formato da língua nativa).
+function renderVersion() {
+  const el = document.getElementById('app-version'); if (!el) return;
+  let d = APP_DATE;
+  try { const [y, m, dd] = APP_DATE.split('-').map(Number); d = new Date(y, m - 1, dd).toLocaleDateString(nativeInfo().date, { day: '2-digit', month: '2-digit', year: 'numeric' }); } catch(e) {}
+  el.textContent = `Parlia v${APP_VERSION} · ${d}`;
+}
 function loadProfile() {
   try { return JSON.parse(store.getItem('tutora_profile') || 'null'); } catch(e) { return null; }
 }
@@ -2153,6 +2165,7 @@ function fillProfileForm() {
   renderTestsSummary();
   renderPhotos();
   profileBaseline = profileSnapshot(); // para detetar alterações não salvas
+  renderVersion();
 }
 // ── Alterações não salvas no Perfil ──
 let profileBaseline = null;
