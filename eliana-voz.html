@@ -351,6 +351,13 @@
   .who-screen { position: fixed; inset: 0; z-index: 1500; background: var(--night); color: #F4F0EA; overflow-y: auto; display: flex; justify-content: center; padding: 24px 16px 40px; }
   .who-wrap { width: 100%; max-width: 420px; display: flex; flex-direction: column; align-items: center; gap: 14px; position: relative; }
   .who-wrap h2 { font-family: 'Cormorant Garamond', serif; font-size: 1.9rem; font-weight: 600; color: var(--gold-glow); text-align: center; }
+  .diag-screen { position: fixed; inset: 0; z-index: 1700; background: var(--night); color: #F4F0EA; display: flex; justify-content: center; padding: 16px 12px; }
+  .diag-wrap { width: 100%; max-width: 640px; display: flex; flex-direction: column; gap: 10px; min-height: 0; }
+  .diag-head { display: flex; align-items: center; justify-content: space-between; }
+  .diag-head h2 { font-family: 'Cormorant Garamond', serif; font-size: 1.6rem; color: var(--gold-glow); }
+  .diag-btns { display: flex; flex-wrap: wrap; gap: 8px; }
+  .diag-btns .cel-btn { flex: 1 1 auto; padding: 8px 10px; }
+  .diag-text { flex: 1; min-height: 0; overflow: auto; margin: 0; padding: 10px; border-radius: 10px; background: rgba(255,255,255,0.05); border: 1px solid rgba(219,168,76,0.3); font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 0.68rem; line-height: 1.45; white-space: pre-wrap; word-break: break-word; color: #F4F0EA; }
   .who-top { width: 100%; display: flex; justify-content: flex-end; }
   .who-close { width: 44px; height: 44px; border-radius: 50%; border: 1.5px solid var(--gold-glow); background: rgba(219,168,76,0.15); color: var(--gold-glow); font-size: 1.15rem; font-weight: 600; line-height: 1; cursor: pointer; flex-shrink: 0; }
   .who-grid { width: 100%; display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; margin-top: 4px; }
@@ -393,6 +400,20 @@
     <div class="setup-logo"><picture><source srcset="parlia-logo.webp" type="image/webp"><img class="logo-img" src="parlia-logo.png" width="800" height="300" alt="Parlia · by Luz em Movimento"></picture></div>
     <h2 data-i18n="who_title"></h2>
     <div class="who-grid" id="who-grid"></div>
+  </div>
+</div>
+
+<!-- DIAGNÓSTICO (escondido: 5 toques na versão, no fim do Perfil) -->
+<div class="diag-screen" id="diag-screen" style="display:none" role="dialog" aria-modal="true">
+  <div class="diag-wrap">
+    <div class="diag-head"><h2>Diagnóstico</h2><button class="who-close" onclick="closeDiag()" aria-label="✕">✕</button></div>
+    <div class="diag-btns">
+      <button class="cel-btn primary" onclick="copyDiag()">Copiar registro</button>
+      <button class="cel-btn" onclick="testDiagVoice()">Testar voz</button>
+      <button class="cel-btn" onclick="renderDiag()">Atualizar</button>
+      <button class="cel-btn" onclick="clearDiag()">Limpar</button>
+    </div>
+    <pre class="diag-text" id="diag-text"></pre>
   </div>
 </div>
 
@@ -474,7 +495,7 @@
   <button class="backup-btn" onclick="showChooser()" data-i18n="switch_person"></button>
   <button class="backup-btn key-btn" onclick="deleteProfile()" data-i18n="delete_profile"></button>
   <button class="backup-btn key-btn" onclick="clearKey()" data-i18n="link_key"></button>
-  <div class="app-version" id="app-version"></div>
+  <div class="app-version" id="app-version" onclick="versionTap()"></div>
 </section>
 
 <!-- 📒 MEU CADERNO (vista) -->
@@ -691,7 +712,7 @@ function profileCard(id) {
   setTimeout(() => { s.classList.add('hide'); setTimeout(() => s.remove(), 400); }, 1000);
 })();
 // Versão do app (fim da tela Perfil). Atualizada sozinha a cada commit que mexe neste arquivo (hook .git/hooks/pre-commit).
-const APP_VERSION = 53, APP_DATE = '2026-11-18';
+const APP_VERSION = 54, APP_DATE = '2026-11-18';
 let currentLang = 'es', currentLangName = 'Spanish', currentLocale = 'es-ES';
 let currentTopic = 'Free conversation';
 let chatHistory = [], recognition = null, isRecording = false, isSpeaking = false;
@@ -2369,7 +2390,7 @@ function showView(v) {
   if (prev === 'profile' && v !== 'profile' && uiOverride) { uiOverride = null; applyI18n(); }
   if (prev === 'profile' && v !== 'profile' && PROFILE) applyDisplay(PROFILE); // sai sem salvar: volta ao que está guardado
   window.scrollTo(0, 0);
-  if (v !== 'chat' && prev === 'chat') { stopRecording(); synth.cancel(); }
+  if (v !== 'chat' && prev === 'chat') { stopRecording(); ttsCancel(); }
   if (v === 'home') renderHome();
   if (v === 'notebook') renderNotebook();
   if (v === 'profile' && PROFILE) fillProfileForm();
@@ -2495,10 +2516,10 @@ function localVoice(locale) {
 }
 function slowPlan(locale) {
   const best = getBestVoice(locale);
-  if (best && best.localService === true) return { voice: best, rate: 0.6, chunks: false };
+  if (best && best.localService === true) return { voice: best, rate: 0.6, chunks: true, path: 'mesma voz 0,6 + pedaços' };
   const lv = localVoice(locale);
-  if (lv) return { voice: lv, rate: 0.7, chunks: false };
-  return { voice: best || null, rate: 0.7, chunks: true };
+  if (lv) return { voice: lv, rate: 0.7, chunks: true, path: 'voz local 0,7 + pedaços' };
+  return { voice: best || null, rate: 0.7, chunks: true, path: 'pedaços (voz natural 0,7)' };
 }
 // Pedaços curtos: 1 palavra (frases até 4 palavras) ou 2 palavras.
 function slowChunks(text) {
@@ -2516,7 +2537,7 @@ function setLang(code) {
   try { store.setItem('tutora_idioma', l.code); } catch(e) {}
   renderLangPills();
   document.getElementById('tip-text').textContent = (TIPS[uiLang()] || {})[code] || '';
-  chatHistory = []; repeatTarget = ''; repeatTries = 0; clearTranscript(); stopRecording(); synth.cancel();
+  chatHistory = []; repeatTarget = ''; repeatTries = 0; clearTranscript(); stopRecording(); ttsCancel();
   exitLesson();
   exitTest();
   initRecognition();
@@ -2531,7 +2552,7 @@ function setTopic(el, topic) {
   document.querySelectorAll('.topic-pill').forEach(b => b.classList.remove('active'));
   el.classList.add('active');
   updateGuidedUI();
-  chatHistory = []; repeatTarget = ""; repeatTries = 0; clearTranscript(); synth.cancel();
+  chatHistory = []; repeatTarget = ""; repeatTries = 0; clearTranscript(); ttsCancel();
   setTimeout(() => greet(), 200);
 }
 
@@ -2547,7 +2568,7 @@ function setGuided(on) {
 function restartConversation() {
   exitTest(); exitLesson();
   updateGuidedUI();
-  chatHistory = []; repeatTarget = ''; repeatTries = 0; clearTranscript(); synth.cancel();
+  chatHistory = []; repeatTarget = ''; repeatTries = 0; clearTranscript(); ttsCancel();
   if (currentView === 'chat') setTimeout(() => greet(), 200);
 }
 function toggleGuided() { setGuided(!guidedMode); restartConversation(); }
@@ -2648,7 +2669,7 @@ function ppUnlocked() {
 }
 
 function openZero() {
-  stopRecording(); synth.cancel();
+  stopRecording(); ttsCancel();
   const e = zeroLang();
   if (!e.seen) { e.seen = true; zeroSave(e); }
   renderZero();
@@ -2765,7 +2786,7 @@ function startLesson(i, resume) {
   const ze = zeroLang(); ze.current = i; ze.seen = true; zeroSave(ze); // lição em andamento (cartão "Continuar" no Início)
   document.querySelectorAll('.topic-pill').forEach(b => b.classList.remove('active'));
   document.getElementById('zero-pill').classList.add('active');
-  chatHistory = []; repeatTarget = ''; repeatTries = 0; clearTranscript(); stopRecording(); synth.cancel();
+  chatHistory = []; repeatTarget = ''; repeatTries = 0; clearTranscript(); stopRecording(); ttsCancel();
   lessonLog = [];
   updateLessonBanner();
   const sess = lessonSessions()[currentLang];
@@ -2908,7 +2929,7 @@ function initRecognition() {
   recognition.continuous = true;
   recognition.interimResults = true;
 
-  recognition.onstart = () => { sessionParts = []; interimText = ''; };
+  recognition.onstart = () => { sessionParts = []; interimText = ''; dlog(0, 'microfone: onstart'); };
 
   recognition.onresult = (e) => {
     interimText = '';
@@ -2921,6 +2942,7 @@ function initRecognition() {
   };
 
   recognition.onerror = (e) => {
+    dlog(0, 'microfone: onerror ' + (e && e.error));
     if (e.error === 'not-allowed' || e.error === 'service-not-allowed') {
       wantRecording = false; sendOnEnd = false; setMicUI(false);
       setStatus('error', t('st_mic_blocked'));
@@ -2928,11 +2950,13 @@ function initRecognition() {
   };
 
   recognition.onend = () => {
+    lastRecogEnd = Date.now(); dlog(0, 'microfone: onend');
     const st = sessionText();
     if (st) finalText = [finalText, st].filter(Boolean).join(' ');
     else if (interimText) finalText = [finalText, interimText].filter(Boolean).join(' ');
     sessionParts = []; interimText = '';
     if (wantRecording) {
+      dlog(0, 'microfone: start() (reinício)');
       try { recognition.start(); } catch(e) { setTimeout(() => { try { recognition.start(); } catch(_) {} }, 250); }
       return;
     }
@@ -2961,12 +2985,14 @@ function startRecording() {
   wantRecording = true; sendOnEnd = false; isRecording = true;
   setMicUI(true);
   setStatus('green', t('st_listening'));
+  dlog(0, 'microfone: start()');
   try { recognition.start(); } catch(e) { initRecognition(); setTimeout(() => { try { recognition.start(); } catch(_) {} }, 250); }
 }
 
 function cancelRecording() {
   wantRecording = false; sendOnEnd = false; isRecording = false;
   finalText = ''; sessionParts = []; interimText = '';
+  dlog(0, 'microfone: abort() (cancelar)');
   try { if (recognition) recognition.abort(); } catch(e) {}
   setMicUI(false);
   setStatus('ready', t('st_cancelled'));
@@ -2975,6 +3001,7 @@ function cancelRecording() {
 function finishRecording() {
   wantRecording = false; sendOnEnd = true;
   setStatus('gold', t('st_sending'));
+  dlog(0, 'microfone: stop()');
   try { recognition.stop(); } catch(e) { recognition.onend && recognition.onend(); }
 }
 
@@ -2984,6 +3011,72 @@ function stopRecording() {
   setMicUI(false);
   if (!isSpeaking) setStatus('ready', t('st_ready'));
   try { if (recognition) recognition.abort(); } catch(e) {}
+}
+
+// ── DIAGNÓSTICO (escondido: 5 toques em "Parlia vN" no fim do Perfil) ──
+// Registo das últimas 30 falas (texto, voz, rate, onstart/onend/onerror/cancelado) e do microfone (start/stop/onend),
+// com a hora em ms. Fica também na sessão do navegador (sobrevive a recarregar a página).
+let diagLog = [], diagUtt = 0, lastSlowPlan = null, lastRecogEnd = 0;
+try { const s = JSON.parse(sessionStorage.getItem('parlia_diag') || '[]'); if (Array.isArray(s)) { diagLog = s; diagUtt = s.reduce((m, x) => Math.max(m, x.id || 0), 0); } } catch(e) {}
+function dlog(id, ev) {
+  diagLog.push({ ms: Date.now(), id: id || 0, ev: String(ev) });
+  const ids = [...new Set(diagLog.filter(x => x.id).map(x => x.id))];
+  if (ids.length > 30) { const keep = new Set(ids.slice(-30)); diagLog = diagLog.filter(x => !x.id || keep.has(x.id)); }
+  if (diagLog.length > 300) diagLog = diagLog.slice(-300);
+  try { sessionStorage.setItem('parlia_diag', JSON.stringify(diagLog)); } catch(e) {}
+  if (diagOpen()) renderDiag();
+}
+// cancel() da voz, com registo de quem o chamou.
+function ttsCancel(where) {
+  if (!where) { try { const l = (new Error().stack || '').split('\n')[2] || ''; where = (l.match(/at (?:Object\.)?([\w$.]+)/) || [])[1] || '?'; } catch(e) { where = '?'; } }
+  dlog(0, 'cancel() — ' + where);
+  synth.cancel();
+}
+function diagOpen() { const d = document.getElementById('diag-screen'); return !!d && d.style.display !== 'none'; }
+function diagTime(ms) { const d = new Date(ms); return d.toTimeString().slice(0, 8) + '.' + String(d.getMilliseconds()).padStart(3, '0'); }
+function diagText() {
+  const loc = voiceLocale(), base = loc.split('-')[0].toLowerCase();
+  const vs = voices.filter(v => (v.lang || '').replace('_', '-').toLowerCase().startsWith(base));
+  const best = getBestVoice(loc), sp = slowPlan(loc);
+  const vn = v => v ? `${v.name} (${v.lang}, localService=${v.localService})` : '(nenhuma: voz padrão do aparelho)';
+  const lines = [
+    `Parlia v${APP_VERSION} · ${navigator.userAgent}`,
+    `Idioma estudado: ${currentLang} · locale da voz: ${loc} · vozes no aparelho: ${voices.length}`,
+    '', `VOZES DO IDIOMA (${vs.length}):`,
+    ...vs.map(v => `- ${v.name} | lang=${v.lang} | localService=${v.localService} | default=${v.default}`),
+    '', `1.ª leitura: ${vn(best)}`,
+    `2.ª leitura (lenta): ${vn(sp.voice)} · rate ${sp.rate} · caminho: ${sp.path}`,
+    `Última leitura lenta usada: ${lastSlowPlan ? lastSlowPlan.path + ' · ' + lastSlowPlan.voice + ' · rate ' + lastSlowPlan.rate : '(ainda nenhuma)'}`,
+    `speechSynthesis agora: speaking=${!!synth.speaking} pending=${!!synth.pending} paused=${!!synth.paused}`,
+    '', 'REGISTO (hora · nº da fala · evento):',
+    ...diagLog.map(x => `${diagTime(x.ms)} ${x.id ? '#' + x.id : '  '} ${x.ev}`)
+  ];
+  return lines.join('\n');
+}
+function renderDiag() { const p = document.getElementById('diag-text'); if (p) p.textContent = diagText(); }
+function openDiag() { loadVoices(); renderDiag(); document.getElementById('diag-screen').style.display = 'flex'; }
+function closeDiag() { document.getElementById('diag-screen').style.display = 'none'; }
+function copyDiag() {
+  const txt = diagText();
+  const done = () => showToast('✓ Registro copiado');
+  try { navigator.clipboard.writeText(txt).then(done, () => fallbackCopy(txt, done)); } catch(e) { fallbackCopy(txt, done); }
+}
+function fallbackCopy(txt, done) {
+  const ta = document.createElement('textarea'); ta.value = txt; document.body.appendChild(ta); ta.select();
+  try { document.execCommand('copy'); done(); } catch(e) {} ta.remove();
+}
+function clearDiag() { diagLog = []; try { sessionStorage.removeItem('parlia_diag'); } catch(e) {} renderDiag(); }
+// Teste rápido: uma frase normal e depois a leitura lenta, como ao ENSINAR.
+function testDiagVoice() {
+  const s = { fr: 'Je m’appelle Lia.', es: 'Me llamo Lia.', en: 'My name is Lia.', it: 'Mi chiamo Lia.', pt: 'Eu me chamo Lia.' }[currentLang] || 'Lia';
+  speak(`[alvo] ${s}\n[pausa]\n[devagar] ${s}\n[voz] ${repShort()}`);
+}
+// 5 toques seguidos na versão abrem o painel.
+let diagTaps = 0, diagLastTap = 0;
+function versionTap() {
+  const now = Date.now();
+  diagTaps = now - diagLastTap < 1500 ? diagTaps + 1 : 1; diagLastTap = now;
+  if (diagTaps >= 5) { diagTaps = 0; openDiag(); }
 }
 
 // ── SPEECH SYNTHESIS ──
@@ -3061,13 +3154,17 @@ const SPEECH_CHARS_PER_SEC = 13, SPEECH_GRACE_MS = 3000;
 function stopSpeaking() { if (isSpeaking && speakStopper) speakStopper(); }
 // 🔊: se a tutora está a falar, para; senão, fala o texto.
 function speakToggle(text) { if (isSpeaking) stopSpeaking(); else speak(text); }
+// Depois de o microfone fechar, o Android pode engolir a fala que começa logo a seguir: espera até 1 s.
+const RECOG_RELEASE_MS = 1000;
+let speakRefs = []; // referências às falas em curso (o Chrome pode perder os eventos se forem recolhidas da memória)
 function speak(text, onEnd) {
-  synth.cancel();
+  ttsCancel('speak');
   const token = ++speakToken;
   let parts = voiceParts(text);
   if (typeof SpeechSynthesisUtterance === 'undefined' || !parts.length) { if (onEnd) onEnd(); return; }
   // Leitura lenta: voz local ou pedaços curtos com pausas (ver slowPlan).
   const sp = parts.some(p => p.slow) ? slowPlan(voiceLocale()) : null;
+  if (sp) lastSlowPlan = { path: sp.path, voice: sp.voice ? sp.voice.name : '(padrão)', rate: sp.rate };
   if (sp && sp.chunks) parts = parts.flatMap(p => p.slow ? slowChunks(p.text).flatMap((c, k) => (k ? [{ who: 'pause', ms: 300 }] : []).concat([{ who: 'alvo', text: c, slow: true, solo: true }])) : [p]);
   const base = RATES[PROFILE && PROFILE.speed] || 0.95;
   isSpeaking = true;
@@ -3077,14 +3174,15 @@ function speak(text, onEnd) {
   let finished = false;
   const finish = (ok) => {
     if (finished || token !== speakToken) return; // já terminou, ou já começou outra fala
-    finished = true;
+    finished = true; speakRefs = [];
+    dlog(0, 'fim da fala (' + (ok ? 'ok' : 'erro') + ')');
     isSpeaking = false; speakStopper = null;
     avatarState('talking', false);
     setStatus('ready', lzYourTurnStatus() || (ok ? t('st_ready_reply') : t('st_ready')));
     updateBusyUI();
     if (onEnd) onEnd();
   };
-  speakStopper = () => { finish(true); synth.cancel(); };
+  speakStopper = () => { dlog(0, 'fala interrompida pela aluna'); finish(true); ttsCancel('interromper'); };
   let estMs = 0;
   const rateOf = p => p.slow ? Math.max(0.5, base * 0.6) : p.who === 'alvo' && (currentLesson !== null || guidedMode) ? Math.max(0.55, base * 0.8) : base;
   parts.forEach(p => { estMs += p.who === 'pause' ? p.ms : p.text.length / (SPEECH_CHARS_PER_SEC * rateOf(p)) * 1000; });
@@ -3100,14 +3198,23 @@ function speak(text, onEnd) {
     utt.rate = p.slow && sp ? sp.rate : rateOf(p); // nas lições e na Conversa guiada, o idioma estudado é lido mais devagar
     const voice = p.slow && sp && sp.voice ? sp.voice : getBestVoice(loc);
     if (voice) utt.voice = voice;
-    utt.onend = () => say(i + 1);
-    utt.onerror = () => finish(false);
+    const id = ++diagUtt;
+    dlog(id, `fala «${p.text}» · voz ${voice ? voice.name : '(padrão)'} · ${loc} · rate ${Math.round(utt.rate * 100) / 100}${p.slow ? ' · lenta' : ''}`);
+    utt.onstart = () => dlog(id, 'onstart');
+    utt.onend = () => { dlog(id, 'onend'); say(i + 1); };
+    // Um erro numa parte não cala o resto: regista e passa à parte seguinte.
+    utt.onerror = (e) => { dlog(id, 'onerror: ' + (e && e.error || '?')); if (token === speakToken && !finished) say(i + 1); };
+    speakRefs.push(utt);
+    if (synth.paused) { try { synth.resume(); } catch(e) {} }
     synth.speak(utt);
   };
-  setTimeout(() => say(0), 120); // depois de cancel(), o Chrome do Android pode perder a 1.ª frase se falar logo
+  // Depois de cancel() (e de o microfone fechar), o Chrome do Android pode perder a 1.ª frase se falar logo.
+  const delay = Math.max(120, RECOG_RELEASE_MS - (Date.now() - lastRecogEnd));
+  dlog(0, `speak(): ${parts.filter(p => p.who !== 'pause').length} partes · começa daqui a ${delay} ms`);
+  setTimeout(() => say(0), delay);
   // Segurança: alguns aparelhos não avisam o fim da fala. Depois do tempo estimado + 3 s, sai do estado "falando"
   // (sem cortar o som, para não interromper uma voz que seja só mais lenta do que o previsto).
-  setTimeout(() => { if (!finished && token === speakToken) finish(true); }, estMs + SPEECH_GRACE_MS);
+  setTimeout(() => { if (!finished && token === speakToken) { dlog(0, 'fim por segurança (sem onend)'); finish(true); } }, delay + estMs + SPEECH_GRACE_MS);
 }
 
 // ── AI ──
@@ -4131,7 +4238,7 @@ async function startTest() {
   exitLesson();
   if (currentTest === null) topicElBeforeLesson = document.querySelector('.topic-pill.active:not(#zero-pill)');
   document.querySelectorAll('.topic-pill').forEach(b => b.classList.remove('active'));
-  chatHistory = []; repeatTarget = ''; repeatTries = 0; clearTranscript(); stopRecording(); synth.cancel();
+  chatHistory = []; repeatTarget = ''; repeatTries = 0; clearTranscript(); stopRecording(); ttsCancel();
   currentTest = { q: [], a: [], idx: 0, finished: false };
   const test = currentTest;
   setTestUI(true);
@@ -4178,7 +4285,7 @@ function handleTestAnswer(text) {
 }
 function skipTestQuestion() {
   if (!currentTest || currentTest.finished || !currentTest.q.length) return;
-  synth.cancel();
+  ttsCancel();
   addMsg('user', '🤷 ' + t('test_skip_said'));
   handleTestAnswer('(no answer)');
 }
