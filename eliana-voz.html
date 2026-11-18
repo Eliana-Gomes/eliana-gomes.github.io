@@ -2448,12 +2448,44 @@ function lzParse(reply) {
     return { result: ['correct', 'wrong', 'question', 'unclear'].includes(r) ? r : 'unclear', feedback: String(j.feedback || '').replace(/\s+/g, ' ').trim() };
   } catch (e) { return { result: 'unclear', feedback: '' }; }
 }
+// Em que língua está uma explicação? Conta palavras típicas de cada língua (as frases citadas entre «», "" ou “” não
+// contam, porque são do idioma estudado). Devolve o grupo (pt, es, en, fr, it) e a pontuação de cada um.
+const LANG_WORDS = {
+  pt: 'não é são você uma um com do da dos das em ao às também isso isto essa esse palavra faltou falta certo correto aqui pelo pela ou mas fica depois sem quer dizer diz os o nas nos no na muito ela ele eu usa usa-se quando está estão vai tem têm usar som até umas uns dia meio amigos lugar pronome significa sobre outra outro mesmo assim já só ainda forma tempo passado pessoa terminação acento troca trocar errado',
+  es: 'es son el la los las del al una con más también eso esto palabra correcto aquí pero lo muy hay y sin quiere decir dice en se usa cuando está están va tiene usar sonido hasta unos día amigos lugar pronombre significa sobre otra otro mismo así ya solo todavía forma tiempo pasado persona desde irse llegar falta',
+  en: 'is are the an with for more also this that word here but not and of to it you your use say means verb correct missing when should must be about places place pronoun from arriving leaving evening friends instead needs there only same other form tense past person ending',
+  fr: 'est sont le la les des du une un avec pour plus aussi ce cette mot ici mais ne pas et qui que on dit très sans au aux il elle c l d qu quand verbe faut pronom manque veut dire dès en arrivant partant lieu doit être pluriel entre amis autre même aussi forme temps passé personne',
+  it: 'è sono il lo la gli della dello delle nel nella una un con per più anche questo questa parola qui ma non che di si dice molto senza quando verbo serve va al plurale pronome manca vuol dire riguardo luogo dopo arrivi amici altra altro stesso così già solo ancora forma tempo passato persona'
+};
+// Terminações típicas (contam como uma palavra da língua).
+const LANG_ENDINGS = { pt: /(ção|ções|ões|ão|lh|nh)/, es: /(ción|ciones|ll|ñ)/, en: /(ing|th|ght|ould)$/, fr: /(eau|eux|oir|ais|ait)$/, it: /(zione|zioni|cch|gli|zz)/ };
+const LANG_SETS = Object.fromEntries(Object.entries(LANG_WORDS).map(([k, v]) => [k, new Set(v.split(' '))]));
+function guessLang(s) {
+  const txt = String(s || '').replace(/«[^»]*»|"[^"]*"|“[^”]*”/g, ' ').toLowerCase();
+  const words = txt.split(/[^\p{L}-]+/u).filter(Boolean);
+  const sc = { pt: 0, es: 0, en: 0, fr: 0, it: 0 };
+  for (const w of words) for (const g in LANG_SETS) { if (LANG_SETS[g].has(w)) sc[g]++; else if (w.length > 3 && LANG_ENDINGS[g].test(w)) sc[g] += 0.5; }
+  if (/[ãõ]/.test(txt)) sc.pt += 2;
+  if (/[ñ¿¡]/.test(txt)) sc.es += 2;
+  if (/\b[ldcjnmsq]['’]/.test(txt)) sc.fr += 1;
+  const best = Object.keys(sc).sort((a, b) => sc[b] - sc[a])[0];
+  return { best, sc };
+}
+// A explicação está na língua nativa do perfil? Só se recusa quando é claramente de outra língua
+// (2 ou mais palavras típicas dessa língua e bem menos da língua nativa); na dúvida, fica.
+function inNativeLang(s) {
+  if (!s) return true;
+  const nat = NATIVES[getNative(PROFILE)].group, { best, sc } = guessLang(s);
+  return best === nat || sc[best] < 2 || sc[nat] >= sc[best] - 1;
+}
+function nativeOnly(s) { return inNativeLang(s) ? s : ''; }
 // Só a primeira frase (as explicações são de uma frase; "!" ou "?" dentro de «…» não contam).
 function firstSentence(s) { return String(s || '').split(/(?<=[.!?])\s+(?=[A-ZÀ-ÖØ-Ý«"“¿¡])/)[0].trim(); }
 // Feedback da IA: uma só linha, na língua nativa, sem comentários proibidos.
 function lzCleanFeedback(fb) {
   let s = firstSentence(String(fb || '').split('\n')[0].replace(/\[(nat|alvo)\]\s*/gi, '').replace(/^[📝✅🗣️💡🎯\s]+/u, '').trim());
   if (!s || LZ_TYPO_TALK.test(s) || LZ_PROGRESS_TALK.test(lzNorm(s))) return '';
+  if (!inNativeLang(s)) return '';
   if (lzNI().group !== 'en' && (s.replace(/«[^»]*»|"[^"]*"|“[^”]*”/g, ' ').match(LZ_ENGLISH) || []).length >= 2) return '';
   return s.length > 220 ? s.slice(0, 217) + '…' : s;
 }
@@ -2622,8 +2654,8 @@ async function processInput(text) {
         });
       }
       // Linha da correção e, logo abaixo, a explicação curta (uma frase); a explicação longa fica em "Por quê?".
-      const short = fixLines.map(l => { const p = l.split('·'); return esc(p[0].trim()) + (p[1] && p[1].trim() ? `<div class="fix-short">${esc(firstSentence(p[1].trim()))}</div>` : ''); }).join('');
-      const why = fixLines.map(l => esc(l.split('·').slice(2).join('·').trim())).filter(Boolean).join('<br>');
+      const short = fixLines.map(l => { const p = l.split('·'); const sh = nativeOnly(firstSentence((p[1] || '').trim())); return esc(p[0].trim()) + (sh ? `<div class="fix-short">${esc(sh)}</div>` : ''); }).join('');
+      const why = fixLines.map(l => esc(nativeOnly(l.split('·').slice(2).join('·').trim()))).filter(Boolean).join('<br>');
       const html = (fixed ? `<div class="fix-main">✅ ${esc(fixed)}</div>` : '') +
         `<div class="fix-list">${short}</div>` +
         (why ? `<details class="fix-why"><summary>${esc(t('why'))}</summary>${why}</details>` : '') +
@@ -3044,6 +3076,7 @@ function nbStore(nb) { try { localStorage.setItem(NB_KEY, JSON.stringify(nb)); }
 function nbList() { const l = nbLoad()[currentLang]; return Array.isArray(l) ? l : []; }
 
 function nbAdd(item) {
+  if (item.type === 'erro') item = Object.assign({}, item, { why: nativeOnly(item.why || ''), more: nativeOnly(item.more || '') });
   const nb = nbLoad();
   const list = Array.isArray(nb[currentLang]) ? nb[currentLang] : [];
   // Erro que já está no caderno: não cria cartão novo; sobe para o topo, com a data de hoje e mais uma vez no contador.
