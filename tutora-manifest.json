@@ -5,8 +5,8 @@
   "start_url": "/eliana-voz.html",
   "scope": "/",
   "display": "standalone",
-  "background_color": "#f4f0ea",
-  "theme_color": "#00343d",
+  "background_color": "#0B2A30",
+  "theme_color": "#0B2A30",
   "icons": [
     {
       "src": "/tutora-icon-192.png",
