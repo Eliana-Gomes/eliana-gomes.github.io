@@ -156,6 +156,8 @@
   .home-card .ctxt { flex: 1; min-width: 0; }
   .home-card .ct { display: block; font-size: 1rem; font-weight: 600; }
   .home-card.primary .ct { color: var(--gold-glow); }
+  .home-card.recommended { border-color: var(--gold-glow); box-shadow: 0 0 0 1px var(--gold-glow) inset; }
+  .rec-tag { display: inline-block; margin-left: 6px; padding: 1px 8px; border-radius: 10px; background: var(--gold); color: var(--night); font-size: 0.7rem; font-weight: 700; vertical-align: 2px; }
   .home-card .cd { display: block; font-size: 0.8rem; color: var(--muted); margin-top: 2px; }
 
   /* 👤 PERFIL E FOTO */
@@ -494,7 +496,10 @@
   <button class="home-card primary" id="card-continue" onclick="continueLesson()">
     <span class="ico">🌱</span><span class="ctxt"><span class="ct" id="card-continue-t"></span><span class="cd" id="card-continue-d"></span></span>
   </button>
-  <button class="home-card" onclick="navTo('chat')">
+  <button class="home-card" id="card-guided" onclick="startGuided()">
+    <span class="ico">🌳</span><span class="ctxt"><span class="ct" data-i18n="card_guided_t"></span><span class="cd" data-i18n="card_guided_d"></span></span>
+  </button>
+  <button class="home-card" id="card-chat" onclick="startFree()">
     <span class="ico">💬</span><span class="ctxt"><span class="ct" data-i18n="card_chat_t"></span><span class="cd" data-i18n="card_chat_d"></span></span>
   </button>
   <button class="home-card" onclick="startTest()">
@@ -533,6 +538,7 @@
   <div class="lang-row"></div>
   <div class="topic-row" id="topic-row">
     <button class="topic-pill" id="zero-pill" onclick="openZero()" data-i18n="zero_btn"></button>
+    <button class="topic-pill" id="guided-pill" onclick="toggleGuided()" data-i18n="guided_btn"></button>
     <button class="topic-pill active" onclick="setTopic(this,'Free conversation')" data-i18n="topic_free"></button>
     <button class="topic-pill" onclick="setTopic(this,'At the supermarket')" data-i18n="topic_market"></button>
     <button class="topic-pill" onclick="setTopic(this,'At the doctor or pharmacy')" data-i18n="topic_doctor"></button>
@@ -1511,7 +1517,7 @@ const I18N = {
     import_when: ' de {date}', item_one: '1 item', item_many: '{n} itens', dayp_one: '1 dia com prática', dayp_many: '{n} dias com prática',
     import_save_fail: 'Não consegui salvar os dados: ', import_ok: 'Dados importados ✅\nConfira o perfil e toque em "Salvar e começar".',
     read_fail: 'Não consegui ler o arquivo.',
-    zero_btn: '📚 Lições', track1_title: '🌱 Do zero', lz_review_btn: 'Rever lição', lz_done_choose: 'A lição terminou. Escolha uma opção:', lz_chat_echo: 'Boa! Aqui bastava responder: «{a}».', zero_title: '📚 Lições · {lang}', pp_title: '🌿 Primeiros passos', pp_intro: 'Doze lições para montar as suas próprias frases (nível A1+).', pp_locked: 'Fica disponível depois da lição 12 do Do zero, ou com nível básico ou acima no Perfil.', lz2_intro: 'Primeiros passos, lição {n}: {title}. Hoje você vai aprender a montar frases com esta estrutura:', lz_create_intro: 'Agora é a sua vez: crie frases suas com a estrutura.', lz_create_again: 'Agora tente de novo, com uma frase sua.', zero_intro: 'Doze lições curtas para começar a falar. Toque numa lição para começar.',
+    zero_btn: '📚 Lições', track1_title: '🌱 Do zero', lz_review_btn: 'Rever lição', lz_done_choose: 'A lição terminou. Escolha uma opção:', lz_chat_echo: 'Boa! Aqui bastava responder: «{a}».', guided_btn: '🌳 Conversa guiada', card_guided_t: 'Conversa guiada', card_guided_d: 'Frases curtas, com tradução e ideias de resposta', rec_tag: '⭐ Recomendado', guided_banner: 'Frases curtas, com tradução. Toque numa sugestão para ouvir.', zero_title: '📚 Lições · {lang}', pp_title: '🌿 Primeiros passos', pp_intro: 'Doze lições para montar as suas próprias frases (nível A1+).', pp_locked: 'Fica disponível depois da lição 12 do Do zero, ou com nível básico ou acima no Perfil.', lz2_intro: 'Primeiros passos, lição {n}: {title}. Hoje você vai aprender a montar frases com esta estrutura:', lz_create_intro: 'Agora é a sua vez: crie frases suas com a estrutura.', lz_create_again: 'Agora tente de novo, com uma frase sua.', zero_intro: 'Doze lições curtas para começar a falar. Toque numa lição para começar.',
     zero_next: 'Próxima', zero_done_tag: '✓ Concluída', lesson_banner: 'Lição {n}/12', lesson_done: 'Lição concluída!',
     next_lesson_btn: 'Próxima lição →', all_done: 'Você concluiu todas as lições! 🎉', lessons_n: '{n} de 12 concluídas',
     home_hello: 'Olá, {name}!', home_sub: 'O que vamos praticar hoje?', card_continue: 'Continuar lição {n}',
@@ -1573,7 +1579,7 @@ const I18N = {
     import_when: ' de {date}', item_one: '1 item', item_many: '{n} itens', dayp_one: '1 dia com prática', dayp_many: '{n} dias com prática',
     import_save_fail: 'Não consegui guardar os dados: ', import_ok: 'Dados importados ✅\nConfere o perfil e toca em "Guardar e começar".',
     read_fail: 'Não consegui ler o ficheiro.',
-    zero_btn: '📚 Lições', track1_title: '🌱 Do zero', lz_review_btn: 'Rever lição', lz_done_choose: 'A lição terminou. Escolhe uma opção:', lz_chat_echo: 'Boa! Aqui bastava responder: «{a}».', zero_title: '📚 Lições · {lang}', pp_title: '🌿 Primeiros passos', pp_intro: 'Doze lições para construíres as tuas próprias frases (nível A1+).', pp_locked: 'Fica disponível depois da lição 12 do Do zero, ou com nível básico ou superior no Perfil.', lz2_intro: 'Primeiros passos, lição {n}: {title}. Hoje vais aprender a construir frases com esta estrutura:', lz_create_intro: 'Agora é a tua vez: cria frases tuas com a estrutura.', lz_create_again: 'Agora tenta outra vez, com uma frase tua.', zero_intro: 'Doze lições curtas para começar a falar. Toca numa lição para começar.',
+    zero_btn: '📚 Lições', track1_title: '🌱 Do zero', lz_review_btn: 'Rever lição', lz_done_choose: 'A lição terminou. Escolhe uma opção:', lz_chat_echo: 'Boa! Aqui bastava responder: «{a}».', guided_btn: '🌳 Conversa guiada', card_guided_t: 'Conversa guiada', card_guided_d: 'Frases curtas, com tradução e ideias de resposta', rec_tag: '⭐ Recomendado', guided_banner: 'Frases curtas, com tradução. Toca numa sugestão para ouvir.', zero_title: '📚 Lições · {lang}', pp_title: '🌿 Primeiros passos', pp_intro: 'Doze lições para construíres as tuas próprias frases (nível A1+).', pp_locked: 'Fica disponível depois da lição 12 do Do zero, ou com nível básico ou superior no Perfil.', lz2_intro: 'Primeiros passos, lição {n}: {title}. Hoje vais aprender a construir frases com esta estrutura:', lz_create_intro: 'Agora é a tua vez: cria frases tuas com a estrutura.', lz_create_again: 'Agora tenta outra vez, com uma frase tua.', zero_intro: 'Doze lições curtas para começar a falar. Toca numa lição para começar.',
     zero_next: 'Próxima', zero_done_tag: '✓ Concluída', lesson_banner: 'Lição {n}/12', lesson_done: 'Lição concluída!',
     next_lesson_btn: 'Próxima lição →', all_done: 'Concluíste todas as lições! 🎉', lessons_n: '{n} de 12 concluídas',
     home_hello: 'Olá, {name}!', home_sub: 'O que vamos praticar hoje?', card_continue: 'Continuar lição {n}',
@@ -1635,7 +1641,7 @@ const I18N = {
     import_when: ' del {date}', item_one: '1 elemento', item_many: '{n} elementos', dayp_one: '1 día con práctica', dayp_many: '{n} días con práctica',
     import_save_fail: 'No pude guardar los datos: ', import_ok: 'Datos importados ✅\nRevisa el perfil y toca "Guardar y empezar".',
     read_fail: 'No pude leer el archivo.',
-    zero_btn: '📚 Lecciones', track1_title: '🌱 Desde cero', lz_review_btn: 'Repasar la lección', lz_done_choose: 'La lección ha terminado. Elige una opción:', lz_chat_echo: '¡Bien! Aquí bastaba con responder: «{a}».', zero_title: '📚 Lecciones · {lang}', pp_title: '🌿 Primeros pasos', pp_intro: 'Doce lecciones para formar tus propias frases (nivel A1+).', pp_locked: 'Disponible después de la lección 12 de Desde cero, o con nivel básico o superior en el Perfil.', lz2_intro: 'Primeros pasos, lección {n}: {title}. Hoy vas a aprender a formar frases con esta estructura:', lz_create_intro: 'Ahora te toca a ti: crea tus propias frases con la estructura.', lz_create_again: 'Ahora inténtalo otra vez, con una frase tuya.', zero_intro: 'Doce lecciones cortas para empezar a hablar. Toca una lección para empezar.',
+    zero_btn: '📚 Lecciones', track1_title: '🌱 Desde cero', lz_review_btn: 'Repasar la lección', lz_done_choose: 'La lección ha terminado. Elige una opción:', lz_chat_echo: '¡Bien! Aquí bastaba con responder: «{a}».', guided_btn: '🌳 Conversación guiada', card_guided_t: 'Conversación guiada', card_guided_d: 'Frases cortas, con traducción e ideas de respuesta', rec_tag: '⭐ Recomendado', guided_banner: 'Frases cortas, con traducción. Toca una sugerencia para oírla.', zero_title: '📚 Lecciones · {lang}', pp_title: '🌿 Primeros pasos', pp_intro: 'Doce lecciones para formar tus propias frases (nivel A1+).', pp_locked: 'Disponible después de la lección 12 de Desde cero, o con nivel básico o superior en el Perfil.', lz2_intro: 'Primeros pasos, lección {n}: {title}. Hoy vas a aprender a formar frases con esta estructura:', lz_create_intro: 'Ahora te toca a ti: crea tus propias frases con la estructura.', lz_create_again: 'Ahora inténtalo otra vez, con una frase tuya.', zero_intro: 'Doce lecciones cortas para empezar a hablar. Toca una lección para empezar.',
     zero_next: 'Siguiente', zero_done_tag: '✓ Completada', lesson_banner: 'Lección {n}/12', lesson_done: '¡Lección completada!',
     next_lesson_btn: 'Siguiente lección →', all_done: '¡Completaste todas las lecciones! 🎉', lessons_n: '{n} de 12 completadas',
     home_hello: '¡Hola, {name}!', home_sub: '¿Qué practicamos hoy?', card_continue: 'Continuar lección {n}',
@@ -1697,7 +1703,7 @@ const I18N = {
     import_when: ' from {date}', item_one: '1 item', item_many: '{n} items', dayp_one: '1 day of practice', dayp_many: '{n} days of practice',
     import_save_fail: 'I could not save the data: ', import_ok: 'Data imported ✅\nCheck the profile and tap "Save and start".',
     read_fail: 'I could not read the file.',
-    zero_btn: '📚 Lessons', track1_title: '🌱 From scratch', lz_review_btn: 'Review lesson', lz_done_choose: 'The lesson is over. Choose an option:', lz_chat_echo: 'Good! Here you just needed to answer: «{a}».', zero_title: '📚 Lessons · {lang}', pp_title: '🌿 First steps', pp_intro: 'Twelve lessons to build your own sentences (level A1+).', pp_locked: 'Available after lesson 12 of From scratch, or with level basic or higher in your Profile.', lz2_intro: 'First steps, lesson {n}: {title}. Today you’ll learn to build sentences with this structure:', lz_create_intro: 'Now it’s your turn: make your own sentences with the structure.', lz_create_again: 'Now try again with a sentence of your own.', zero_intro: 'Twelve short lessons to start speaking. Tap a lesson to begin.',
+    zero_btn: '📚 Lessons', track1_title: '🌱 From scratch', lz_review_btn: 'Review lesson', lz_done_choose: 'The lesson is over. Choose an option:', lz_chat_echo: 'Good! Here you just needed to answer: «{a}».', guided_btn: '🌳 Guided conversation', card_guided_t: 'Guided conversation', card_guided_d: 'Short sentences, with translations and answer ideas', rec_tag: '⭐ Recommended', guided_banner: 'Short sentences with translations. Tap a suggestion to hear it.', zero_title: '📚 Lessons · {lang}', pp_title: '🌿 First steps', pp_intro: 'Twelve lessons to build your own sentences (level A1+).', pp_locked: 'Available after lesson 12 of From scratch, or with level basic or higher in your Profile.', lz2_intro: 'First steps, lesson {n}: {title}. Today you’ll learn to build sentences with this structure:', lz_create_intro: 'Now it’s your turn: make your own sentences with the structure.', lz_create_again: 'Now try again with a sentence of your own.', zero_intro: 'Twelve short lessons to start speaking. Tap a lesson to begin.',
     zero_next: 'Next', zero_done_tag: '✓ Done', lesson_banner: 'Lesson {n}/12', lesson_done: 'Lesson complete!',
     next_lesson_btn: 'Next lesson →', all_done: 'You have completed all the lessons! 🎉', lessons_n: '{n} of 12 done',
     home_hello: 'Hi, {name}!', home_sub: 'What shall we practise today?', card_continue: 'Continue lesson {n}',
@@ -1759,7 +1765,7 @@ const I18N = {
     import_when: ' du {date}', item_one: '1 élément', item_many: '{n} éléments', dayp_one: '1 jour de pratique', dayp_many: '{n} jours de pratique',
     import_save_fail: 'Je n’ai pas pu enregistrer les données : ', import_ok: 'Données importées ✅\nVérifie le profil et touche « Enregistrer et commencer ».',
     read_fail: 'Je n’ai pas pu lire le fichier.',
-    zero_btn: '📚 Leçons', track1_title: '🌱 À partir de zéro', lz_review_btn: 'Revoir la leçon', lz_done_choose: 'La leçon est terminée. Choisis une option :', lz_chat_echo: 'Bien ! Ici, il suffisait de répondre : «{a}».', zero_title: '📚 Leçons · {lang}', pp_title: '🌿 Premiers pas', pp_intro: 'Douze leçons pour construire tes propres phrases (niveau A1+).', pp_locked: 'Disponible après la leçon 12 de À partir de zéro, ou avec un niveau supérieur à débutant dans le Profil.', lz2_intro: 'Premiers pas, leçon {n} : {title}. Aujourd’hui, tu vas apprendre à construire des phrases avec cette structure :', lz_create_intro: 'À toi maintenant : invente tes propres phrases avec la structure.', lz_create_again: 'Maintenant, réessaie avec une phrase à toi.', zero_intro: 'Douze leçons courtes pour commencer à parler. Touche une leçon pour commencer.',
+    zero_btn: '📚 Leçons', track1_title: '🌱 À partir de zéro', lz_review_btn: 'Revoir la leçon', lz_done_choose: 'La leçon est terminée. Choisis une option :', lz_chat_echo: 'Bien ! Ici, il suffisait de répondre : «{a}».', guided_btn: '🌳 Conversation guidée', card_guided_t: 'Conversation guidée', card_guided_d: 'Phrases courtes, avec traduction et idées de réponse', rec_tag: '⭐ Recommandé', guided_banner: 'Phrases courtes, avec traduction. Touche une suggestion pour l’écouter.', zero_title: '📚 Leçons · {lang}', pp_title: '🌿 Premiers pas', pp_intro: 'Douze leçons pour construire tes propres phrases (niveau A1+).', pp_locked: 'Disponible après la leçon 12 de À partir de zéro, ou avec un niveau supérieur à débutant dans le Profil.', lz2_intro: 'Premiers pas, leçon {n} : {title}. Aujourd’hui, tu vas apprendre à construire des phrases avec cette structure :', lz_create_intro: 'À toi maintenant : invente tes propres phrases avec la structure.', lz_create_again: 'Maintenant, réessaie avec une phrase à toi.', zero_intro: 'Douze leçons courtes pour commencer à parler. Touche une leçon pour commencer.',
     zero_next: 'Suivante', zero_done_tag: '✓ Terminée', lesson_banner: 'Leçon {n}/12', lesson_done: 'Leçon terminée !',
     next_lesson_btn: 'Leçon suivante →', all_done: 'Tu as terminé toutes les leçons ! 🎉', lessons_n: '{n} sur 12 terminées',
     home_hello: 'Bonjour, {name} !', home_sub: 'Qu’est-ce qu’on pratique aujourd’hui ?', card_continue: 'Continuer la leçon {n}',
@@ -1821,7 +1827,7 @@ const I18N = {
     import_when: ' del {date}', item_one: '1 elemento', item_many: '{n} elementi', dayp_one: '1 giorno di pratica', dayp_many: '{n} giorni di pratica',
     import_save_fail: 'Non sono riuscita a salvare i dati: ', import_ok: 'Dati importati ✅\nControlla il profilo e tocca "Salva e inizia".',
     read_fail: 'Non sono riuscita a leggere il file.',
-    zero_btn: '📚 Lezioni', track1_title: '🌱 Da zero', lz_review_btn: 'Ripassa la lezione', lz_done_choose: 'La lezione è finita. Scegli un’opzione:', lz_chat_echo: 'Bene! Qui bastava rispondere: «{a}».', zero_title: '📚 Lezioni · {lang}', pp_title: '🌿 Primi passi', pp_intro: 'Dodici lezioni per costruire frasi tue (livello A1+).', pp_locked: 'Disponibile dopo la lezione 12 di Da zero, o con livello base o superiore nel Profilo.', lz2_intro: 'Primi passi, lezione {n}: {title}. Oggi impari a costruire frasi con questa struttura:', lz_create_intro: 'Ora tocca a te: crea frasi tue con la struttura.', lz_create_again: 'Ora riprova con una frase tua.', zero_intro: 'Dodici lezioni brevi per iniziare a parlare. Tocca una lezione per cominciare.',
+    zero_btn: '📚 Lezioni', track1_title: '🌱 Da zero', lz_review_btn: 'Ripassa la lezione', lz_done_choose: 'La lezione è finita. Scegli un’opzione:', lz_chat_echo: 'Bene! Qui bastava rispondere: «{a}».', guided_btn: '🌳 Conversazione guidata', card_guided_t: 'Conversazione guidata', card_guided_d: 'Frasi brevi, con traduzione e idee di risposta', rec_tag: '⭐ Consigliato', guided_banner: 'Frasi brevi, con traduzione. Tocca un suggerimento per ascoltarlo.', zero_title: '📚 Lezioni · {lang}', pp_title: '🌿 Primi passi', pp_intro: 'Dodici lezioni per costruire frasi tue (livello A1+).', pp_locked: 'Disponibile dopo la lezione 12 di Da zero, o con livello base o superiore nel Profilo.', lz2_intro: 'Primi passi, lezione {n}: {title}. Oggi impari a costruire frasi con questa struttura:', lz_create_intro: 'Ora tocca a te: crea frasi tue con la struttura.', lz_create_again: 'Ora riprova con una frase tua.', zero_intro: 'Dodici lezioni brevi per iniziare a parlare. Tocca una lezione per cominciare.',
     zero_next: 'Prossima', zero_done_tag: '✓ Completata', lesson_banner: 'Lezione {n}/12', lesson_done: 'Lezione completata!',
     next_lesson_btn: 'Prossima lezione →', all_done: 'Hai completato tutte le lezioni! 🎉', lessons_n: '{n} su 12 completate',
     home_hello: 'Ciao, {name}!', home_sub: 'Cosa pratichiamo oggi?', card_continue: 'Continua la lezione {n}',
@@ -2249,11 +2255,21 @@ window.addEventListener('popstate', (e) => {
 // Ao entrar em "Conversar" sem conversa: abre a trilha (iniciante, 1.ª vez) ou a tutora cumprimenta.
 function ensureChatStarted() {
   if (!PROFILE || currentTest || document.getElementById('transcript').children.length) return;
-  if (!maybeAutoZero()) greet();
+  if (guidedMode || !maybeAutoZero()) greet();
 }
 
 function renderHome() {
   if (!PROFILE) return;
+  {
+    const lvl = (PROFILE.levels || {})[currentLang] || DEFAULT_LEVELS[currentLang];
+    const recId = ['iniciante', 'básico'].includes(lvl) ? 'card-guided' : 'card-chat';
+    ['card-guided', 'card-chat'].forEach(id => {
+      const c = document.getElementById(id), ct = c.querySelector('.ct');
+      c.classList.toggle('recommended', id === recId);
+      ct.querySelectorAll('.rec-tag').forEach(x => x.remove());
+      if (id === recId) { const s = document.createElement('span'); s.className = 'rec-tag'; s.textContent = t('rec_tag'); ct.appendChild(s); }
+    });
+  }
   document.getElementById('home-hello').textContent = t('home_hello', { name: PROFILE.name });
   const e = zeroLang(), card = document.getElementById('card-continue');
   const cur = Number.isInteger(e.current) && !e.done.includes(e.current) ? e.current : null;
@@ -2319,8 +2335,62 @@ function setTopic(el, topic) {
   currentLesson = null; updateLessonBanner();
   document.querySelectorAll('.topic-pill').forEach(b => b.classList.remove('active'));
   el.classList.add('active');
+  updateGuidedUI();
   chatHistory = []; repeatTarget = ""; repeatTries = 0; clearTranscript(); synth.cancel();
   setTimeout(() => greet(), 200);
+}
+
+// ── 🌳 CONVERSA GUIADA: ponte entre as lições e a conversa livre (iniciante e básico) ──
+// Mesmos temas e interesses da conversa livre; a Lia fala frases curtas (máx. 8 palavras) com tradução por baixo,
+// mais devagar, sugere sempre 2 respostas (linhas 💭) e passa aos poucos de perguntas fechadas para abertas.
+let guidedMode = (() => { try { return localStorage.getItem('tutora_guiada') === '1'; } catch(e) { return false; } })();
+function setGuided(on) {
+  guidedMode = !!on;
+  try { localStorage.setItem('tutora_guiada', guidedMode ? '1' : '0'); } catch(e) {}
+}
+// Recomeça a conversa no tema atual (para entrar ou sair do modo guiado).
+function restartConversation() {
+  exitTest(); exitLesson();
+  updateGuidedUI();
+  chatHistory = []; repeatTarget = ''; repeatTries = 0; clearTranscript(); synth.cancel();
+  if (currentView === 'chat') setTimeout(() => greet(), 200);
+}
+function toggleGuided() { setGuided(!guidedMode); restartConversation(); }
+// Cartões do Início: entram no modo escolhido (e recomeçam a conversa se o modo mudou).
+function startGuided() { const ch = !guidedMode || currentLesson !== null || currentTest; setGuided(true); if (ch) restartConversation(); navTo('chat'); }
+function startFree() { const ch = guidedMode || currentLesson !== null || currentTest; setGuided(false); if (ch) restartConversation(); navTo('chat'); }
+function updateGuidedUI() {
+  const p = document.getElementById('guided-pill');
+  if (p) p.classList.toggle('active', guidedMode && currentLesson === null && !currentTest);
+  updateLessonBanner();
+}
+// Frases das lições já concluídas neste idioma (vocabulário preferido da Conversa guiada).
+function learnedPhrases(max) {
+  const out = [];
+  zeroLang().done.slice().sort((a, b) => a - b).forEach(i => lessonItems(i).forEach(x => { if (!x.t.includes('…')) out.push(x.t); }));
+  return out.slice(0, max || 60);
+}
+// Separa as sugestões (linhas 💭) do resto da resposta da Lia.
+function guidedSplit(text) {
+  const lines = String(text || '').split('\n');
+  const sugg = lines.filter(l => /^\s*💭/u.test(l)).map(l => l.replace(/^\s*💭\s*/u, '').replace(/^["“«]+|["”»]+$/g, '').trim()).filter(Boolean).slice(0, 2);
+  return { main: lines.filter(l => !/^\s*💭/u.test(l)).join('\n').trim(), sugg };
+}
+// Mostra sugestões de resposta na caixa do "O que dizer?" (tocar = ouvir).
+function showSuggestions(sugs) {
+  const box = document.getElementById('suggest-box');
+  box.innerHTML = '';
+  if (!sugs || !sugs.length) { box.classList.remove('show'); return; }
+  sugs.forEach(s => {
+    const b = document.createElement('button');
+    b.className = 'suggest-chip'; b.textContent = '🔊 ' + s;
+    b.onclick = () => speakToggle(s);
+    box.appendChild(b);
+  });
+  const note = document.createElement('div');
+  note.className = 'suggest-note'; note.textContent = t('sug_note');
+  box.appendChild(note);
+  box.classList.add('show');
 }
 
 // ── 🌱 DO ZERO ──
@@ -2493,7 +2563,7 @@ function exitLesson() {
   currentLesson = null; lessonState = null; lessonRun++;
   document.getElementById('zero-pill').classList.remove('active');
   if (topicElBeforeLesson) topicElBeforeLesson.classList.add('active');
-  updateLessonBanner();
+  updateGuidedUI();
 }
 function lzProgressBar(r) {
   const pc = Math.round(Math.max(0, Math.min(1, r || 0)) * 100);
@@ -2510,6 +2580,7 @@ function updateLessonBanner() {
     el.classList.add('show');
     return;
   }
+  if (currentLesson === null && guidedMode) { el.innerHTML = `<b>${esc(t('guided_btn'))}</b><br><span class="goal">${esc(t('guided_banner'))}</span>`; el.classList.add('show'); return; }
   if (currentLesson === null) { el.classList.remove('show'); el.innerHTML = ''; return; }
   const [title, goal] = lessonUI(currentLesson);
   el.innerHTML = `<button class="lb-restart" onclick="restartLesson()">${esc(t('lz_restart_btn'))}</button>` +
@@ -2749,7 +2820,7 @@ function speak(text, onEnd) {
     const loc = p.who === 'nat' ? nativeVoiceLocale() : voiceLocale();
     utt.lang = loc; utt.pitch = 1.0;
     // No modo Do zero, o idioma estudado é lido mais devagar.
-    utt.rate = p.who === 'alvo' && currentLesson !== null ? Math.max(0.55, base * 0.8) : base;
+    utt.rate = p.who === 'alvo' && (currentLesson !== null || guidedMode) ? Math.max(0.55, base * 0.8) : base;
     estMs += p.text.length / (SPEECH_CHARS_PER_SEC * utt.rate) * 1000;
     const voice = getBestVoice(loc);
     if (voice) utt.voice = voice;
@@ -2772,8 +2843,10 @@ async function greet() {
   const prompt = `Briefly introduce yourself as Lia, in ${currentLangName}, and invite ${PROFILE.name} to practise "${currentTopic}". At most 2 short sentences: a warm welcome and one open question (no "A or B?"), with no 📝 or ✅ lines.`;
   try {
     const reply = await busyAI([{ role: 'user', content: prompt }], system);
-    removeLoading(); addMsg('tutor', reply); speak(reply);
-    chatHistory.push({ role: 'assistant', content: reply });
+    const g = guidedMode ? guidedSplit(reply) : { main: reply, sugg: [] };
+    removeLoading(); addMsg('tutor', g.main); speak(g.main);
+    chatHistory.push({ role: 'assistant', content: g.main });
+    if (guidedMode) showSuggestions(g.sugg);
   } catch(e) {
     removeLoading();
     const fallbacks = {
@@ -3042,7 +3115,8 @@ async function processInput(text) {
     }
     extraFix = extraFix.slice(0, 2);
     const fixLines = gramFix.length ? gramFix : lines.filter(l => starts(l, '🗣')).slice(0, 1);
-    let main = lines.filter(l => !['📝', '🗣', '✅', '🔁', '💬', '➕'].some(s => starts(l, s))).join('\n').trim();
+    const guidedSugg = guidedMode ? guidedSplit(lines.join('\n')).sugg : [];
+    let main = lines.filter(l => !['📝', '🗣', '✅', '🔁', '💬', '➕', '💭'].some(s => starts(l, s))).join('\n').trim();
     const unq = t => t.replace(/^[📝✅🔁💬🗣️\s]+/u, '').replace(/["“”«»]/g, '').trim();
     const ask = tgt('ask'), rep = tgt('rep');
     // Frase inteira na língua nativa: não é erro; mostra como dizer no idioma e pede para repetir.
@@ -3095,6 +3169,7 @@ async function processInput(text) {
     } else {
       addMsg('tutor', main || reply);
       speak(main || reply);
+      if (guidedMode && !repeatTarget) showSuggestions(guidedSugg);
     }
   } catch(e) {
     removeLoading();
@@ -3236,7 +3311,22 @@ ${interests}${memory}${repeatTarget ? `REPETITION MODE: you asked ${N} to repeat
 - If the corrected mistake is still the same: in simple ${L}, say in one short sentence what is still missing, repeat the right sentence slowly, and put on a separate last line: 🎯 DE NOVO. Never call a wrong answer "almost right", "on the right track" or "OK": say clearly what is missing.
 - If ${N} asks a question or says they did not understand (in any language): explain in ONE objective sentence of at most 12 words in ${EX}, on a line starting with [nat] (so the app uses the right voice), then repeat the right sentence ("${repeatTarget}") and ask them to repeat it; put on a separate last line: 🎯 PERGUNTA
 - If ${N}, instead of repeating, corrects a piece of information (e.g. "no, es XXL"): accept it, do NOT say "${tgt('correct')}", do not correct, continue the conversation with ONE question and put on a separate last line: 🎯 ESCLARECIMENTO` : ''}
-Conversation topic: "${currentTopic}"`;
+${guidedMode ? guidedRules(P, NI, N, EX, L) : ''}Conversation topic: "${currentTopic}"`;
+}
+// Regras da Conversa guiada (substituem as regras de tamanho e de perguntas acima).
+function guidedRules(P, NI, N, EX, L) {
+  const turn = chatHistory.filter(m => m.role === 'user').length + 1;
+  const learned = learnedPhrases(60);
+  const qs = turn <= 3 ? 'Ask a CLOSED question: yes/no or a simple choice ("A or B?").'
+    : turn <= 7 ? 'Alternate closed questions (yes/no, A or B) and very simple open questions (what, where, when).'
+    : 'Ask simple open questions (what, where, why, how) that need a short sentence.';
+  return `GUIDED CONVERSATION: ${N} is a beginner. These rules OVERRIDE the length and question rules above:
+- Your reply: at most 2 very short, simple sentences in ${L}, each with AT MOST 8 words, in the present tense when possible.
+- After EACH of your sentences in ${L}, add a line "[nat] (translation in ${EX})".
+- Questions (this is ${N}'s message number ${turn}): ${qs}
+${learned.length ? `- Prefer the words and structures ${N} already learned in the lessons: ${learned.join(' · ')}\n` : ''}- At the very end, add exactly 2 lines starting with "💭 ", each a short possible answer for ${N} to your question, in ${L} (at most 8 words, simple, different from each other), with no translation.
+- Corrections: as usual, only the most important mistake (one 📝 line and the ✅ line); the app asks ${N} to repeat it.
+`;
 }
 
 // Instruções da IA no modo 🌱 Do zero (lição currentLesson).
