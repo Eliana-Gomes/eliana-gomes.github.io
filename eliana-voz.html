@@ -691,7 +691,7 @@ function profileCard(id) {
   setTimeout(() => { s.classList.add('hide'); setTimeout(() => s.remove(), 400); }, 1000);
 })();
 // Versão do app (fim da tela Perfil). Atualizada sozinha a cada commit que mexe neste arquivo (hook .git/hooks/pre-commit).
-const APP_VERSION = 52, APP_DATE = '2026-11-18';
+const APP_VERSION = 53, APP_DATE = '2026-11-18';
 let currentLang = 'es', currentLangName = 'Spanish', currentLocale = 'es-ES';
 let currentTopic = 'Free conversation';
 let chatHistory = [], recognition = null, isRecording = false, isSpeaking = false;
@@ -882,7 +882,7 @@ const LESSON_PHRASES = {
      'À bientôt ! | até logo~até breve | hasta pronto | see you soon | a presto'],
     ['Comment tu t’appelles ? | Como você se chama?~Como te chamas? | ¿Cómo te llamas? | What’s your name? | Come ti chiami?',
      'Je m’appelle … | Eu me chamo …~Chamo-me … | Me llamo … | My name is … | Mi chiamo …',
-     'Enchanté ! / Enchantée ! | Muito prazer! | ¡Encantado! / ¡Encantada! | Nice to meet you! | Piacere!',
+     'Enchanté ! /= Enchantée ! | Muito prazer! | ¡Encantado! / ¡Encantada! | Nice to meet you! | Piacere!',
      'Et toi ? | E você?~E tu? | ¿Y tú? | And you? | E tu?',
      'Moi, c’est … | Eu sou … (informal) | Yo soy … (informal) | I’m … (informal) | Io sono … (informale)'],
     ['Tu viens d’où ? | De onde você é?~De onde és? | ¿De dónde eres? | Where are you from? | Di dove sei?',
@@ -894,7 +894,7 @@ const LESSON_PHRASES = {
      'Ça va bien, merci. | Tudo bem, obrigado/a.~Estou bem, obrigado/a. | Bien, gracias. | I’m fine, thanks. | Sto bene, grazie.',
      'Et toi ? | E você?~E tu? | ¿Y tú? | And you? | E tu?',
      'Comme ci, comme ça. | Mais ou menos. | Más o menos. | So-so. | Così così.',
-     'Je suis fatigué. / Je suis fatiguée. | Estou cansado. / Estou cansada. | Estoy cansado. / Estoy cansada. | I’m tired. | Sono stanco. / Sono stanca.'],
+     'Je suis fatigué. /= Je suis fatiguée. | Estou cansado. / Estou cansada. | Estoy cansado. / Estoy cansada. | I’m tired. | Sono stanco. / Sono stanca.'],
     ['Voici ma famille. | Esta é a minha família. | Esta es mi familia. | This is my family. | Questa è la mia famiglia.',
      'C’est ma mère. | É a minha mãe. | Es mi madre. | She’s my mother. | È mia madre.',
      'C’est mon père. | É o meu pai. | Es mi padre. | He’s my father. | È mio padre.',
@@ -1292,7 +1292,7 @@ const PP_LESSONS = [
          pt: 'Brazil: "Estou com dor de…", "Faz dois dias"; Portugal: "Dói-me…" or "Tenho dores de…", "Há dois dias".' } },
   { // 7) O que eu fiz ontem
     s: 'Ontem eu + [fui / comi / trabalhei]…~Ontem + [fui / comi / trabalhei]… | Ayer + [fui / comí / trabajé]… | Yesterday I + [went / ate / worked]… | Hier, + [j’ai mangé / j’ai travaillé / je suis allé(e)]… | Ieri + [ho mangiato / ho lavorato / sono andato/a]…',
-    p: ['🛒 | Ontem eu fui ao supermercado.~Ontem fui ao supermercado. | Ayer fui al supermercado. | Yesterday I went to the supermarket. | Hier, je suis allé au supermarché. / Hier, je suis allée au supermarché. | Ieri sono andato al supermercato. / Ieri sono andata al supermercato.',
+    p: ['🛒 | Ontem eu fui ao supermercado.~Ontem fui ao supermercado. | Ayer fui al supermercado. | Yesterday I went to the supermarket. | Hier, je suis allé au supermarché. /= Hier, je suis allée au supermarché. | Ieri sono andato al supermercato. / Ieri sono andata al supermercato.',
         '🍕 | Eu comi pizza com amigos.~Comi pizza com amigos. | Comí pizza con amigos. | I ate pizza with friends. | J’ai mangé une pizza avec des amis. | Ho mangiato una pizza con gli amici.',
         '💼 | Eu trabalhei até tarde.~Trabalhei até tarde. | Trabajé hasta tarde. | I worked late. | J’ai travaillé tard. | Ho lavorato fino a tardi.',
         '📺 | À noite, eu vi um filme.~À noite, vi um filme. | Por la noche vi una película. | In the evening, I watched a film. | Le soir, j’ai regardé un film. | La sera ho visto un film.',
@@ -1347,7 +1347,7 @@ const PP_LESSONS = [
   { // 10) Meu trabalho e minha rotina
     s: 'Eu trabalho + [em um escritório / em casa / em um hospital]~Trabalho + [num escritório / a partir de casa / num hospital] | Trabajo + [en una oficina / desde casa / en un hospital] | I work + [in an office / from home / in a hospital] | Je travaille + [dans un bureau / à la maison / dans un hôpital] | Lavoro + [in ufficio / da casa / in ospedale]',
     p: ['💻 | Eu trabalho em casa.~Trabalho a partir de casa. | Trabajo desde casa. | I work from home. | Je travaille à la maison. | Lavoro da casa.',
-        '🧑‍🏫 | Eu sou professora. / Eu sou professor.~Sou professora. / Sou professor. | Soy profesora. / Soy profesor. | I’m a teacher. | Je suis professeure. / Je suis professeur. | Faccio l’insegnante.',
+        '🧑‍🏫 | Eu sou professor. / Eu sou professora.~Sou professor. / Sou professora. | Soy profesor. / Soy profesora. | I’m a teacher. | Je suis professeur. /= Je suis professeure. | Faccio l’insegnante.',
         '🕘 | Eu começo às nove.~Começo às nove. | Empiezo a las nueve. | I start at nine. | Je commence à neuf heures. | Comincio alle nove.',
         '🍱 | Eu almoço com os meus colegas.~Almoço com os meus colegas. | Como con mis compañeros.~Almuerzo con mis compañeros. | I have lunch with my colleagues. | Je déjeune avec mes collègues. | Pranzo con i miei colleghi.',
         '😌 | Eu gosto do meu trabalho.~Gosto do meu trabalho. | Me gusta mi trabajo. | I like my job. | J’aime mon travail. | Mi piace il mio lavoro.'],
@@ -1421,7 +1421,7 @@ function ppCols(row) {
   const f = String(row || '').split('|').map(s => s.trim());
   const nat = getNative(PROFILE), grp = NATIVES[nat].group, latam = !!(PROFILE && PROFILE.accent === 'América Latina');
   const pick = (code, ptSecond) => lzVar(f[LZ_ORDER.indexOf(code)] || '', code === 'pt' ? ptSecond : code === 'es' ? latam : false);
-  return { t: pick(currentLang, ptIsPT()), g: pick(grp, nat === 'pt-PT') };
+  return { t: pick(currentLang, ptIsPT()), g: lzPlain(pick(grp, nat === 'pt-PT')) };
 }
 function ppItems(i) {
   const L = ppLesson(i); if (!L) return [];
@@ -1481,7 +1481,7 @@ function lessonItems(i) {
   return rows.map(r => {
     const f = r.split('|').map(s => s.trim());
     const g = f.length === 2 ? f[1] : (f[1 + others.indexOf(grp)] || f[1]);
-    return { t: lzVar(f[0], currentLang === 'pt' && ptIsPT()), g: lzVar(g, nat === 'pt-PT') };
+    return { t: lzVar(f[0], currentLang === 'pt' && ptIsPT()), g: lzPlain(lzVar(g, nat === 'pt-PT')) };
   }).map((x, k) => withQuestionUse(Object.assign(x, { e: lessonEmoji(i, k) })));
 }
 // Mini-conversa: pequenas cenas reais, 2 trocas por lição. Cada troca = [fala da Lia, resposta esperada].
@@ -1606,7 +1606,7 @@ const I18N = {
     import_when: ' de {date}', item_one: '1 item', item_many: '{n} itens', dayp_one: '1 dia com prática', dayp_many: '{n} dias com prática',
     import_save_fail: 'Não consegui salvar os dados: ', import_ok: 'Dados importados ✅\nConfira o perfil e toque em "Salvar e começar".',
     read_fail: 'Não consegui ler o arquivo.',
-    zero_btn: '📚 Lições', track1_title: '🌱 Do zero', lz_review_btn: 'Rever lição', lz_done_choose: 'A lição terminou. Escolha uma opção:', lz_chat_echo: 'Boa! Aqui bastava responder: «{a}».', guided_btn: '🌳 Conversa guiada', card_guided_t: 'Conversa guiada', card_guided_d: 'Frases curtas, com tradução e ideias de resposta', rec_tag: '⭐ Recomendado', guided_banner: 'Frases curtas, com tradução. Toque numa sugestão para ouvir.', lz_new_phrase: 'Frase nova {n}/{k}', dunno_btn: '🤷 Não sei', dunno_intro: 'Sem problema! Você pode responder assim:', card_start: 'Começar lição {n}', who_title: 'Quem vai estudar?', add_person: '+ Adicionar pessoa', switch_person: '🔄 Trocar de pessoa', delete_profile: '🗑️ Apagar este perfil', delete_q1: 'Apagar o perfil de {name}?', delete_sub1: 'Todos os dados desta pessoa (caderno, lições, racha, testes) serão apagados deste celular. A chave da IA continua.', delete_q2: 'Tem certeza? Não dá para desfazer.', delete_yes: 'Apagar', new_person: 'Nova pessoa', lz_just_repeat: 'Aqui era só repetir:', zero_title: '📚 Lições · {lang}', pp_title: '🌿 Primeiros passos', pp_intro: 'Doze lições para montar as suas próprias frases (nível A1+).', pp_locked: 'Fica disponível depois da lição 12 do Do zero, ou com nível básico ou acima no Perfil.', lz2_intro: 'Primeiros passos, lição {n}: {title}. Hoje você vai aprender a montar frases com esta estrutura:', lz_create_intro: 'Agora é a sua vez: crie frases suas com a estrutura.', lz_create_again: 'Agora tente de novo, com uma frase sua.', zero_intro: 'Doze lições curtas para começar a falar. Toque numa lição para começar.',
+    zero_btn: '📚 Lições', track1_title: '🌱 Do zero', lz_review_btn: 'Rever lição', lz_done_choose: 'A lição terminou. Escolha uma opção:', lz_chat_echo: 'Boa! Aqui bastava responder: «{a}».', guided_btn: '🌳 Conversa guiada', card_guided_t: 'Conversa guiada', card_guided_d: 'Frases curtas, com tradução e ideias de resposta', rec_tag: '⭐ Recomendado', guided_banner: 'Frases curtas, com tradução. Toque numa sugestão para ouvir.', lz_new_phrase: 'Frase nova {n}/{k}', dunno_btn: '🤷 Não sei', dunno_intro: 'Sem problema! Você pode responder assim:', card_start: 'Começar lição {n}', who_title: 'Quem vai estudar?', add_person: '+ Adicionar pessoa', switch_person: '🔄 Trocar de pessoa', delete_profile: '🗑️ Apagar este perfil', delete_q1: 'Apagar o perfil de {name}?', delete_sub1: 'Todos os dados desta pessoa (caderno, lições, racha, testes) serão apagados deste celular. A chave da IA continua.', delete_q2: 'Tem certeza? Não dá para desfazer.', delete_yes: 'Apagar', new_person: 'Nova pessoa', lz_just_repeat: 'Aqui era só repetir:', var_m: 'homem', var_f: 'mulher', var_same: 'mesma pronúncia', lz_your_turn: '👉 Sua vez: responda em {lang}', zero_title: '📚 Lições · {lang}', pp_title: '🌿 Primeiros passos', pp_intro: 'Doze lições para montar as suas próprias frases (nível A1+).', pp_locked: 'Fica disponível depois da lição 12 do Do zero, ou com nível básico ou acima no Perfil.', lz2_intro: 'Primeiros passos, lição {n}: {title}. Hoje você vai aprender a montar frases com esta estrutura:', lz_create_intro: 'Agora é a sua vez: crie frases suas com a estrutura.', lz_create_again: 'Agora tente de novo, com uma frase sua.', zero_intro: 'Doze lições curtas para começar a falar. Toque numa lição para começar.',
     zero_next: 'Próxima', zero_done_tag: '✓ Concluída', lesson_banner: 'Lição {n}/12', lesson_done: 'Lição concluída!',
     next_lesson_btn: 'Próxima lição →', all_done: 'Você concluiu todas as lições! 🎉', lessons_n: '{n} de 12 concluídas',
     home_hello: 'Olá, {name}!', home_sub: 'O que vamos praticar hoje?', card_continue: 'Continuar lição {n}',
@@ -1668,7 +1668,7 @@ const I18N = {
     import_when: ' de {date}', item_one: '1 item', item_many: '{n} itens', dayp_one: '1 dia com prática', dayp_many: '{n} dias com prática',
     import_save_fail: 'Não consegui guardar os dados: ', import_ok: 'Dados importados ✅\nConfere o perfil e toca em "Guardar e começar".',
     read_fail: 'Não consegui ler o ficheiro.',
-    zero_btn: '📚 Lições', track1_title: '🌱 Do zero', lz_review_btn: 'Rever lição', lz_done_choose: 'A lição terminou. Escolhe uma opção:', lz_chat_echo: 'Boa! Aqui bastava responder: «{a}».', guided_btn: '🌳 Conversa guiada', card_guided_t: 'Conversa guiada', card_guided_d: 'Frases curtas, com tradução e ideias de resposta', rec_tag: '⭐ Recomendado', guided_banner: 'Frases curtas, com tradução. Toca numa sugestão para ouvir.', lz_new_phrase: 'Frase nova {n}/{k}', dunno_btn: '🤷 Não sei', dunno_intro: 'Não faz mal! Podes responder assim:', card_start: 'Começar lição {n}', who_title: 'Quem vai estudar?', add_person: '+ Adicionar pessoa', switch_person: '🔄 Trocar de pessoa', delete_profile: '🗑️ Apagar este perfil', delete_q1: 'Apagar o perfil de {name}?', delete_sub1: 'Todos os dados desta pessoa (caderno, lições, racha, testes) serão apagados deste telemóvel. A chave da IA mantém-se.', delete_q2: 'Tens a certeza? Não é possível desfazer.', delete_yes: 'Apagar', new_person: 'Nova pessoa', lz_just_repeat: 'Aqui era só repetir:', zero_title: '📚 Lições · {lang}', pp_title: '🌿 Primeiros passos', pp_intro: 'Doze lições para construíres as tuas próprias frases (nível A1+).', pp_locked: 'Fica disponível depois da lição 12 do Do zero, ou com nível básico ou superior no Perfil.', lz2_intro: 'Primeiros passos, lição {n}: {title}. Hoje vais aprender a construir frases com esta estrutura:', lz_create_intro: 'Agora é a tua vez: cria frases tuas com a estrutura.', lz_create_again: 'Agora tenta outra vez, com uma frase tua.', zero_intro: 'Doze lições curtas para começar a falar. Toca numa lição para começar.',
+    zero_btn: '📚 Lições', track1_title: '🌱 Do zero', lz_review_btn: 'Rever lição', lz_done_choose: 'A lição terminou. Escolhe uma opção:', lz_chat_echo: 'Boa! Aqui bastava responder: «{a}».', guided_btn: '🌳 Conversa guiada', card_guided_t: 'Conversa guiada', card_guided_d: 'Frases curtas, com tradução e ideias de resposta', rec_tag: '⭐ Recomendado', guided_banner: 'Frases curtas, com tradução. Toca numa sugestão para ouvir.', lz_new_phrase: 'Frase nova {n}/{k}', dunno_btn: '🤷 Não sei', dunno_intro: 'Não faz mal! Podes responder assim:', card_start: 'Começar lição {n}', who_title: 'Quem vai estudar?', add_person: '+ Adicionar pessoa', switch_person: '🔄 Trocar de pessoa', delete_profile: '🗑️ Apagar este perfil', delete_q1: 'Apagar o perfil de {name}?', delete_sub1: 'Todos os dados desta pessoa (caderno, lições, racha, testes) serão apagados deste telemóvel. A chave da IA mantém-se.', delete_q2: 'Tens a certeza? Não é possível desfazer.', delete_yes: 'Apagar', new_person: 'Nova pessoa', lz_just_repeat: 'Aqui era só repetir:', var_m: 'homem', var_f: 'mulher', var_same: 'mesma pronúncia', lz_your_turn: '👉 É a tua vez: responde em {lang}', zero_title: '📚 Lições · {lang}', pp_title: '🌿 Primeiros passos', pp_intro: 'Doze lições para construíres as tuas próprias frases (nível A1+).', pp_locked: 'Fica disponível depois da lição 12 do Do zero, ou com nível básico ou superior no Perfil.', lz2_intro: 'Primeiros passos, lição {n}: {title}. Hoje vais aprender a construir frases com esta estrutura:', lz_create_intro: 'Agora é a tua vez: cria frases tuas com a estrutura.', lz_create_again: 'Agora tenta outra vez, com uma frase tua.', zero_intro: 'Doze lições curtas para começar a falar. Toca numa lição para começar.',
     zero_next: 'Próxima', zero_done_tag: '✓ Concluída', lesson_banner: 'Lição {n}/12', lesson_done: 'Lição concluída!',
     next_lesson_btn: 'Próxima lição →', all_done: 'Concluíste todas as lições! 🎉', lessons_n: '{n} de 12 concluídas',
     home_hello: 'Olá, {name}!', home_sub: 'O que vamos praticar hoje?', card_continue: 'Continuar lição {n}',
@@ -1730,7 +1730,7 @@ const I18N = {
     import_when: ' del {date}', item_one: '1 elemento', item_many: '{n} elementos', dayp_one: '1 día con práctica', dayp_many: '{n} días con práctica',
     import_save_fail: 'No pude guardar los datos: ', import_ok: 'Datos importados ✅\nRevisa el perfil y toca "Guardar y empezar".',
     read_fail: 'No pude leer el archivo.',
-    zero_btn: '📚 Lecciones', track1_title: '🌱 Desde cero', lz_review_btn: 'Repasar la lección', lz_done_choose: 'La lección ha terminado. Elige una opción:', lz_chat_echo: '¡Bien! Aquí bastaba con responder: «{a}».', guided_btn: '🌳 Conversación guiada', card_guided_t: 'Conversación guiada', card_guided_d: 'Frases cortas, con traducción e ideas de respuesta', rec_tag: '⭐ Recomendado', guided_banner: 'Frases cortas, con traducción. Toca una sugerencia para oírla.', lz_new_phrase: 'Frase nueva {n}/{k}', dunno_btn: '🤷 No sé', dunno_intro: '¡No pasa nada! Puedes responder así:', card_start: 'Empezar la lección {n}', who_title: '¿Quién va a estudiar?', add_person: '+ Añadir persona', switch_person: '🔄 Cambiar de persona', delete_profile: '🗑️ Borrar este perfil', delete_q1: '¿Borrar el perfil de {name}?', delete_sub1: 'Todos los datos de esta persona (cuaderno, lecciones, racha, pruebas) se borrarán de este móvil. La clave de la IA se mantiene.', delete_q2: '¿Lo confirmas? No se puede deshacer.', delete_yes: 'Borrar', new_person: 'Nueva persona', lz_just_repeat: 'Aquí solo había que repetir:', zero_title: '📚 Lecciones · {lang}', pp_title: '🌿 Primeros pasos', pp_intro: 'Doce lecciones para formar tus propias frases (nivel A1+).', pp_locked: 'Disponible después de la lección 12 de Desde cero, o con nivel básico o superior en el Perfil.', lz2_intro: 'Primeros pasos, lección {n}: {title}. Hoy vas a aprender a formar frases con esta estructura:', lz_create_intro: 'Ahora te toca a ti: crea tus propias frases con la estructura.', lz_create_again: 'Ahora inténtalo otra vez, con una frase tuya.', zero_intro: 'Doce lecciones cortas para empezar a hablar. Toca una lección para empezar.',
+    zero_btn: '📚 Lecciones', track1_title: '🌱 Desde cero', lz_review_btn: 'Repasar la lección', lz_done_choose: 'La lección ha terminado. Elige una opción:', lz_chat_echo: '¡Bien! Aquí bastaba con responder: «{a}».', guided_btn: '🌳 Conversación guiada', card_guided_t: 'Conversación guiada', card_guided_d: 'Frases cortas, con traducción e ideas de respuesta', rec_tag: '⭐ Recomendado', guided_banner: 'Frases cortas, con traducción. Toca una sugerencia para oírla.', lz_new_phrase: 'Frase nueva {n}/{k}', dunno_btn: '🤷 No sé', dunno_intro: '¡No pasa nada! Puedes responder así:', card_start: 'Empezar la lección {n}', who_title: '¿Quién va a estudiar?', add_person: '+ Añadir persona', switch_person: '🔄 Cambiar de persona', delete_profile: '🗑️ Borrar este perfil', delete_q1: '¿Borrar el perfil de {name}?', delete_sub1: 'Todos los datos de esta persona (cuaderno, lecciones, racha, pruebas) se borrarán de este móvil. La clave de la IA se mantiene.', delete_q2: '¿Lo confirmas? No se puede deshacer.', delete_yes: 'Borrar', new_person: 'Nueva persona', lz_just_repeat: 'Aquí solo había que repetir:', var_m: 'hombre', var_f: 'mujer', var_same: 'misma pronunciación', lz_your_turn: '👉 Te toca: responde en {lang}', zero_title: '📚 Lecciones · {lang}', pp_title: '🌿 Primeros pasos', pp_intro: 'Doce lecciones para formar tus propias frases (nivel A1+).', pp_locked: 'Disponible después de la lección 12 de Desde cero, o con nivel básico o superior en el Perfil.', lz2_intro: 'Primeros pasos, lección {n}: {title}. Hoy vas a aprender a formar frases con esta estructura:', lz_create_intro: 'Ahora te toca a ti: crea tus propias frases con la estructura.', lz_create_again: 'Ahora inténtalo otra vez, con una frase tuya.', zero_intro: 'Doce lecciones cortas para empezar a hablar. Toca una lección para empezar.',
     zero_next: 'Siguiente', zero_done_tag: '✓ Completada', lesson_banner: 'Lección {n}/12', lesson_done: '¡Lección completada!',
     next_lesson_btn: 'Siguiente lección →', all_done: '¡Completaste todas las lecciones! 🎉', lessons_n: '{n} de 12 completadas',
     home_hello: '¡Hola, {name}!', home_sub: '¿Qué practicamos hoy?', card_continue: 'Continuar lección {n}',
@@ -1792,7 +1792,7 @@ const I18N = {
     import_when: ' from {date}', item_one: '1 item', item_many: '{n} items', dayp_one: '1 day of practice', dayp_many: '{n} days of practice',
     import_save_fail: 'I could not save the data: ', import_ok: 'Data imported ✅\nCheck the profile and tap "Save and start".',
     read_fail: 'I could not read the file.',
-    zero_btn: '📚 Lessons', track1_title: '🌱 From scratch', lz_review_btn: 'Review lesson', lz_done_choose: 'The lesson is over. Choose an option:', lz_chat_echo: 'Good! Here you just needed to answer: «{a}».', guided_btn: '🌳 Guided conversation', card_guided_t: 'Guided conversation', card_guided_d: 'Short sentences, with translations and answer ideas', rec_tag: '⭐ Recommended', guided_banner: 'Short sentences with translations. Tap a suggestion to hear it.', lz_new_phrase: 'New phrase {n}/{k}', dunno_btn: '🤷 I don’t know', dunno_intro: 'No problem! You can answer like this:', card_start: 'Start lesson {n}', who_title: 'Who’s studying?', add_person: '+ Add person', switch_person: '🔄 Switch person', delete_profile: '🗑️ Delete this profile', delete_q1: 'Delete {name}’s profile?', delete_sub1: 'All of this person’s data (notebook, lessons, streak, tests) will be deleted from this phone. The AI key stays.', delete_q2: 'Are you sure? This cannot be undone.', delete_yes: 'Delete', new_person: 'New person', lz_just_repeat: 'Here you just needed to repeat:', zero_title: '📚 Lessons · {lang}', pp_title: '🌿 First steps', pp_intro: 'Twelve lessons to build your own sentences (level A1+).', pp_locked: 'Available after lesson 12 of From scratch, or with level basic or higher in your Profile.', lz2_intro: 'First steps, lesson {n}: {title}. Today you’ll learn to build sentences with this structure:', lz_create_intro: 'Now it’s your turn: make your own sentences with the structure.', lz_create_again: 'Now try again with a sentence of your own.', zero_intro: 'Twelve short lessons to start speaking. Tap a lesson to begin.',
+    zero_btn: '📚 Lessons', track1_title: '🌱 From scratch', lz_review_btn: 'Review lesson', lz_done_choose: 'The lesson is over. Choose an option:', lz_chat_echo: 'Good! Here you just needed to answer: «{a}».', guided_btn: '🌳 Guided conversation', card_guided_t: 'Guided conversation', card_guided_d: 'Short sentences, with translations and answer ideas', rec_tag: '⭐ Recommended', guided_banner: 'Short sentences with translations. Tap a suggestion to hear it.', lz_new_phrase: 'New phrase {n}/{k}', dunno_btn: '🤷 I don’t know', dunno_intro: 'No problem! You can answer like this:', card_start: 'Start lesson {n}', who_title: 'Who’s studying?', add_person: '+ Add person', switch_person: '🔄 Switch person', delete_profile: '🗑️ Delete this profile', delete_q1: 'Delete {name}’s profile?', delete_sub1: 'All of this person’s data (notebook, lessons, streak, tests) will be deleted from this phone. The AI key stays.', delete_q2: 'Are you sure? This cannot be undone.', delete_yes: 'Delete', new_person: 'New person', lz_just_repeat: 'Here you just needed to repeat:', var_m: 'man', var_f: 'woman', var_same: 'same pronunciation', lz_your_turn: '👉 Your turn: answer in {lang}', zero_title: '📚 Lessons · {lang}', pp_title: '🌿 First steps', pp_intro: 'Twelve lessons to build your own sentences (level A1+).', pp_locked: 'Available after lesson 12 of From scratch, or with level basic or higher in your Profile.', lz2_intro: 'First steps, lesson {n}: {title}. Today you’ll learn to build sentences with this structure:', lz_create_intro: 'Now it’s your turn: make your own sentences with the structure.', lz_create_again: 'Now try again with a sentence of your own.', zero_intro: 'Twelve short lessons to start speaking. Tap a lesson to begin.',
     zero_next: 'Next', zero_done_tag: '✓ Done', lesson_banner: 'Lesson {n}/12', lesson_done: 'Lesson complete!',
     next_lesson_btn: 'Next lesson →', all_done: 'You have completed all the lessons! 🎉', lessons_n: '{n} of 12 done',
     home_hello: 'Hi, {name}!', home_sub: 'What shall we practise today?', card_continue: 'Continue lesson {n}',
@@ -1854,7 +1854,7 @@ const I18N = {
     import_when: ' du {date}', item_one: '1 élément', item_many: '{n} éléments', dayp_one: '1 jour de pratique', dayp_many: '{n} jours de pratique',
     import_save_fail: 'Je n’ai pas pu enregistrer les données : ', import_ok: 'Données importées ✅\nVérifie le profil et touche « Enregistrer et commencer ».',
     read_fail: 'Je n’ai pas pu lire le fichier.',
-    zero_btn: '📚 Leçons', track1_title: '🌱 À partir de zéro', lz_review_btn: 'Revoir la leçon', lz_done_choose: 'La leçon est terminée. Choisis une option :', lz_chat_echo: 'Bien ! Ici, il suffisait de répondre : «{a}».', guided_btn: '🌳 Conversation guidée', card_guided_t: 'Conversation guidée', card_guided_d: 'Phrases courtes, avec traduction et idées de réponse', rec_tag: '⭐ Recommandé', guided_banner: 'Phrases courtes, avec traduction. Touche une suggestion pour l’écouter.', lz_new_phrase: 'Nouvelle phrase {n}/{k}', dunno_btn: '🤷 Je ne sais pas', dunno_intro: 'Pas de souci ! Tu peux répondre comme ça :', card_start: 'Commencer la leçon {n}', who_title: 'Qui va étudier ?', add_person: '+ Ajouter une personne', switch_person: '🔄 Changer de personne', delete_profile: '🗑️ Supprimer ce profil', delete_q1: 'Supprimer le profil de {name} ?', delete_sub1: 'Toutes les données de cette personne (carnet, leçons, série, tests) seront supprimées de ce téléphone. La clé de l’IA reste.', delete_q2: 'Tu confirmes ? C’est irréversible.', delete_yes: 'Supprimer', new_person: 'Nouvelle personne', lz_just_repeat: 'Ici, il suffisait de répéter :', zero_title: '📚 Leçons · {lang}', pp_title: '🌿 Premiers pas', pp_intro: 'Douze leçons pour construire tes propres phrases (niveau A1+).', pp_locked: 'Disponible après la leçon 12 de À partir de zéro, ou avec un niveau supérieur à débutant dans le Profil.', lz2_intro: 'Premiers pas, leçon {n} : {title}. Aujourd’hui, tu vas apprendre à construire des phrases avec cette structure :', lz_create_intro: 'À toi maintenant : invente tes propres phrases avec la structure.', lz_create_again: 'Maintenant, réessaie avec une phrase à toi.', zero_intro: 'Douze leçons courtes pour commencer à parler. Touche une leçon pour commencer.',
+    zero_btn: '📚 Leçons', track1_title: '🌱 À partir de zéro', lz_review_btn: 'Revoir la leçon', lz_done_choose: 'La leçon est terminée. Choisis une option :', lz_chat_echo: 'Bien ! Ici, il suffisait de répondre : «{a}».', guided_btn: '🌳 Conversation guidée', card_guided_t: 'Conversation guidée', card_guided_d: 'Phrases courtes, avec traduction et idées de réponse', rec_tag: '⭐ Recommandé', guided_banner: 'Phrases courtes, avec traduction. Touche une suggestion pour l’écouter.', lz_new_phrase: 'Nouvelle phrase {n}/{k}', dunno_btn: '🤷 Je ne sais pas', dunno_intro: 'Pas de souci ! Tu peux répondre comme ça :', card_start: 'Commencer la leçon {n}', who_title: 'Qui va étudier ?', add_person: '+ Ajouter une personne', switch_person: '🔄 Changer de personne', delete_profile: '🗑️ Supprimer ce profil', delete_q1: 'Supprimer le profil de {name} ?', delete_sub1: 'Toutes les données de cette personne (carnet, leçons, série, tests) seront supprimées de ce téléphone. La clé de l’IA reste.', delete_q2: 'Tu confirmes ? C’est irréversible.', delete_yes: 'Supprimer', new_person: 'Nouvelle personne', lz_just_repeat: 'Ici, il suffisait de répéter :', var_m: 'homme', var_f: 'femme', var_same: 'même prononciation', lz_your_turn: '👉 À toi : réponds en {lang}', zero_title: '📚 Leçons · {lang}', pp_title: '🌿 Premiers pas', pp_intro: 'Douze leçons pour construire tes propres phrases (niveau A1+).', pp_locked: 'Disponible après la leçon 12 de À partir de zéro, ou avec un niveau supérieur à débutant dans le Profil.', lz2_intro: 'Premiers pas, leçon {n} : {title}. Aujourd’hui, tu vas apprendre à construire des phrases avec cette structure :', lz_create_intro: 'À toi maintenant : invente tes propres phrases avec la structure.', lz_create_again: 'Maintenant, réessaie avec une phrase à toi.', zero_intro: 'Douze leçons courtes pour commencer à parler. Touche une leçon pour commencer.',
     zero_next: 'Suivante', zero_done_tag: '✓ Terminée', lesson_banner: 'Leçon {n}/12', lesson_done: 'Leçon terminée !',
     next_lesson_btn: 'Leçon suivante →', all_done: 'Tu as terminé toutes les leçons ! 🎉', lessons_n: '{n} sur 12 terminées',
     home_hello: 'Bonjour, {name} !', home_sub: 'Qu’est-ce qu’on pratique aujourd’hui ?', card_continue: 'Continuer la leçon {n}',
@@ -1916,7 +1916,7 @@ const I18N = {
     import_when: ' del {date}', item_one: '1 elemento', item_many: '{n} elementi', dayp_one: '1 giorno di pratica', dayp_many: '{n} giorni di pratica',
     import_save_fail: 'Non sono riuscita a salvare i dati: ', import_ok: 'Dati importati ✅\nControlla il profilo e tocca "Salva e inizia".',
     read_fail: 'Non sono riuscita a leggere il file.',
-    zero_btn: '📚 Lezioni', track1_title: '🌱 Da zero', lz_review_btn: 'Ripassa la lezione', lz_done_choose: 'La lezione è finita. Scegli un’opzione:', lz_chat_echo: 'Bene! Qui bastava rispondere: «{a}».', guided_btn: '🌳 Conversazione guidata', card_guided_t: 'Conversazione guidata', card_guided_d: 'Frasi brevi, con traduzione e idee di risposta', rec_tag: '⭐ Consigliato', guided_banner: 'Frasi brevi, con traduzione. Tocca un suggerimento per ascoltarlo.', lz_new_phrase: 'Nuova frase {n}/{k}', dunno_btn: '🤷 Non lo so', dunno_intro: 'Nessun problema! Puoi rispondere così:', card_start: 'Inizia la lezione {n}', who_title: 'Chi studia?', add_person: '+ Aggiungi persona', switch_person: '🔄 Cambia persona', delete_profile: '🗑️ Elimina questo profilo', delete_q1: 'Eliminare il profilo di {name}?', delete_sub1: 'Tutti i dati di questa persona (quaderno, lezioni, serie, test) saranno eliminati da questo telefono. La chiave dell’IA resta.', delete_q2: 'Confermi? Non si può annullare.', delete_yes: 'Elimina', new_person: 'Nuova persona', lz_just_repeat: 'Qui bastava ripetere:', zero_title: '📚 Lezioni · {lang}', pp_title: '🌿 Primi passi', pp_intro: 'Dodici lezioni per costruire frasi tue (livello A1+).', pp_locked: 'Disponibile dopo la lezione 12 di Da zero, o con livello base o superiore nel Profilo.', lz2_intro: 'Primi passi, lezione {n}: {title}. Oggi impari a costruire frasi con questa struttura:', lz_create_intro: 'Ora tocca a te: crea frasi tue con la struttura.', lz_create_again: 'Ora riprova con una frase tua.', zero_intro: 'Dodici lezioni brevi per iniziare a parlare. Tocca una lezione per cominciare.',
+    zero_btn: '📚 Lezioni', track1_title: '🌱 Da zero', lz_review_btn: 'Ripassa la lezione', lz_done_choose: 'La lezione è finita. Scegli un’opzione:', lz_chat_echo: 'Bene! Qui bastava rispondere: «{a}».', guided_btn: '🌳 Conversazione guidata', card_guided_t: 'Conversazione guidata', card_guided_d: 'Frasi brevi, con traduzione e idee di risposta', rec_tag: '⭐ Consigliato', guided_banner: 'Frasi brevi, con traduzione. Tocca un suggerimento per ascoltarlo.', lz_new_phrase: 'Nuova frase {n}/{k}', dunno_btn: '🤷 Non lo so', dunno_intro: 'Nessun problema! Puoi rispondere così:', card_start: 'Inizia la lezione {n}', who_title: 'Chi studia?', add_person: '+ Aggiungi persona', switch_person: '🔄 Cambia persona', delete_profile: '🗑️ Elimina questo profilo', delete_q1: 'Eliminare il profilo di {name}?', delete_sub1: 'Tutti i dati di questa persona (quaderno, lezioni, serie, test) saranno eliminati da questo telefono. La chiave dell’IA resta.', delete_q2: 'Confermi? Non si può annullare.', delete_yes: 'Elimina', new_person: 'Nuova persona', lz_just_repeat: 'Qui bastava ripetere:', var_m: 'uomo', var_f: 'donna', var_same: 'stessa pronuncia', lz_your_turn: '👉 Tocca a te: rispondi in {lang}', zero_title: '📚 Lezioni · {lang}', pp_title: '🌿 Primi passi', pp_intro: 'Dodici lezioni per costruire frasi tue (livello A1+).', pp_locked: 'Disponibile dopo la lezione 12 di Da zero, o con livello base o superiore nel Profilo.', lz2_intro: 'Primi passi, lezione {n}: {title}. Oggi impari a costruire frasi con questa struttura:', lz_create_intro: 'Ora tocca a te: crea frasi tue con la struttura.', lz_create_again: 'Ora riprova con una frase tua.', zero_intro: 'Dodici lezioni brevi per iniziare a parlare. Tocca una lezione per cominciare.',
     zero_next: 'Prossima', zero_done_tag: '✓ Completata', lesson_banner: 'Lezione {n}/12', lesson_done: 'Lezione completata!',
     next_lesson_btn: 'Prossima lezione →', all_done: 'Hai completato tutte le lezioni! 🎉', lessons_n: '{n} su 12 completate',
     home_hello: 'Ciao, {name}!', home_sub: 'Cosa pratichiamo oggi?', card_continue: 'Continua la lezione {n}',
@@ -2485,6 +2485,28 @@ function getBestVoice(locale) {
 }
 
 const RATES = { lenta: 0.75, normal: 0.95, 'rápida': 1.15 };
+// Leitura lenta: as vozes de rede (localService = false, ex.: as vozes "Google" do Chrome no Android) podem ignorar o rate.
+// 1) Se a voz natural já é local, basta baixar o rate. 2) Senão, usa uma voz LOCAL do mesmo idioma com rate 0.7.
+// 3) Se não houver voz local, diz a frase em pedaços curtos, com pausas de 300 ms (funciona mesmo que o rate seja ignorado).
+function localVoice(locale) {
+  const base = locale.split('-')[0].toLowerCase(), norm = l => (l || '').replace('_', '-').toLowerCase();
+  const loc = voices.filter(v => v.localService === true && norm(v.lang).startsWith(base));
+  return loc.find(v => norm(v.lang) === locale.toLowerCase()) || loc[0] || null;
+}
+function slowPlan(locale) {
+  const best = getBestVoice(locale);
+  if (best && best.localService === true) return { voice: best, rate: 0.6, chunks: false };
+  const lv = localVoice(locale);
+  if (lv) return { voice: lv, rate: 0.7, chunks: false };
+  return { voice: best || null, rate: 0.7, chunks: true };
+}
+// Pedaços curtos: 1 palavra (frases até 4 palavras) ou 2 palavras.
+function slowChunks(text) {
+  const w = String(text || '').split(/\s+/).filter(x => /[\p{L}\p{N}]/u.test(x));
+  const n = w.length <= 4 ? 1 : 2, out = [];
+  for (let i = 0; i < w.length; i += n) out.push(w.slice(i, i + n).join(' '));
+  return out.length ? out : [String(text || '')];
+}
 
 // ── LANGUAGE & TOPIC ──
 function setLang(code) {
@@ -2762,7 +2784,7 @@ function startLesson(i, resume) {
       if (m.role === 'user') { lastUserDiv = div; if (m.hl) highlightError(div, m.hl); }
     });
     restoringLesson = false;
-    setStatus('ready', t('st_ready_reply'));
+    setStatus('ready', lzYourTurnStatus() || t('st_ready_reply'));
     return;
   }
   clearLessonSession();
@@ -2967,15 +2989,42 @@ function stopRecording() {
 // ── SPEECH SYNTHESIS ──
 // Marcas de voz no início das linhas: [nat] = língua nativa do aluno, [alvo] = idioma estudado (linha sem marca = idioma estudado).
 const VOICE_TAG = /^\s*\[(nat|alvo)\]\s*/i;
-function stripTags(text) { return String(text || '').split('\n').filter(l => !IMG_TAG.test(l) && !LBL_TAG.test(l) && !voiceOnly(l)).map(l => l.replace(VOICE_TAG, '').replace(EST_TAG, '')).join('\n').replace(/\[(nat|alvo)\]\s*/gi, ''); }
+function stripTags(text) { return String(text || '').split('\n').filter(l => !IMG_TAG.test(l) && !LBL_TAG.test(l) && !voiceOnly(l)).map(l => l.replace(VOICE_TAG, '').replace(EST_TAG, '').replace(VER_TAG, '')).join('\n').replace(/\[(nat|alvo)\]\s*/gi, ''); }
 // Linha [img] = ilustração (emoji grande) das lições: só se mostra.
 const IMG_TAG = /^\s*\[img\]\s*/i;
 // Linha [est] = estrutura da lição dos Primeiros passos (caixa): só se mostra.
 const EST_TAG = /^\s*\[est\]\s*/i;
 // Linha [lbl] = rótulo (ex.: "Frase nova 3/5"): só se mostra.
 const LBL_TAG = /^\s*\[lbl\]\s*/i;
+const VER_TAG = /^\s*\[ver\]\s*/i;
 const PAUSE_TAG = /^\s*\[pausa\]\s*$/i, SLOW_TAG = /^\s*\[devagar\]\s*/i, VOZ_TAG = /^\s*\[voz\]\s*/i;
 function voiceOnly(line) { return PAUSE_TAG.test(line) || SLOW_TAG.test(line) || VOZ_TAG.test(line); }
+// Variantes de uma frase ("A / B" ou "A /= B" = forma de homem / forma de mulher; "/=" = mesma pronúncia).
+function lzForms(s) {
+  s = String(s || ''); const same = s.includes(' /= ');
+  const p = s.split(same ? ' /= ' : ' / ').map(x => x.trim());
+  return p.length === 2 ? { a: p[0], b: p[1], same } : null;
+}
+// Para mostrar: "Enchanté ! (homem) · Enchantée ! (mulher) — mesma pronúncia".
+function lzShow(s) { const v = lzForms(s); return v ? `${v.a} (${t('var_m')}) · ${v.b} (${t('var_f')})` + (v.same ? ` — ${t('var_same')}` : '') : String(s || ''); }
+// Forma simples "A / B" (listas, instruções da IA, traduções).
+function lzPlain(s) { return String(s || '').split(' /= ').join(' / '); }
+// Linhas de uma frase no idioma estudado: mostrada com as variantes; dita uma vez se a pronúncia é igual,
+// as duas com uma pausa se muda. slow = só a leitura lenta.
+function lzAlvo(s, slow) {
+  const v = lzForms(s);
+  if (!v) return (slow ? '[devagar] ' : '[alvo] ') + s;
+  const tag = slow ? '[devagar]' : '[voz]';
+  return (slow ? '' : `[ver] ${lzShow(s)}\n`) + (v.same ? `${tag} ${v.a}` : `${tag} ${v.a}\n[pausa]\n${tag} ${v.b}`);
+}
+// Deixa curta falada nas perguntas de LEMBRAR e CRIAR.
+function yourTurnCue() { return { fr: 'À toi !', es: '¡Te toca!', en: 'Your turn!', it: 'Tocca a te!', pt: ptIsPT() ? 'É a tua vez!' : 'Sua vez!' }[currentLang] || 'Your turn!'; }
+// Barra de estado na vez da aluna (LEMBRAR, CRIAR e mini-conversa): "👉 Sua vez: responda em francês".
+function lzYourTurnStatus() {
+  if (currentLesson === null || !lessonState || lessonCompleted) return '';
+  const st = lessonSteps(lessonItems(currentLesson).length)[lessonState.pos];
+  return st && ['recall', 'create', 'chat'].includes(st.k) ? t('lz_your_turn', { lang: lzLangName() }) : '';
+}
 // Pedido curto falado no idioma estudado, para a vez da aluna.
 function repShort() { return { fr: 'Répète !', es: '¡Repite!', en: 'Repeat!', it: 'Ripeti!', pt: ptIsPT() ? 'Repete!' : 'Repita!' }[currentLang] || 'Repeat!'; }
 // Só as linhas [alvo] são lidas em voz alta; as [nat] só se o perfil tiver "Ler explicações em voz alta".
@@ -2984,7 +3033,7 @@ function voiceParts(text) {
   const parts = [];
   const readNat = !!(PROFILE && PROFILE.readNative);
   String(text || '').split('\n').forEach(line => {
-    if (IMG_TAG.test(line) || EST_TAG.test(line) || LBL_TAG.test(line)) return; // ilustração, estrutura e rótulo: não se leem
+    if (IMG_TAG.test(line) || EST_TAG.test(line) || LBL_TAG.test(line) || VER_TAG.test(line)) return; // ilustração, estrutura, rótulo e texto só mostrado: não se leem
     if (PAUSE_TAG.test(line)) { parts.push({ who: 'pause', ms: 800 }); return; }
     if (SLOW_TAG.test(line) || VOZ_TAG.test(line)) { const s = line.replace(SLOW_TAG, '').replace(VOZ_TAG, '').replace(/[\p{Extended_Pictographic}\u200D\uFE0F\u20E3]/gu, '').trim(); if (s) parts.push({ who: 'alvo', text: s, slow: SLOW_TAG.test(line), solo: true }); return; }
     const m = line.match(VOICE_TAG);
@@ -3015,8 +3064,11 @@ function speakToggle(text) { if (isSpeaking) stopSpeaking(); else speak(text); }
 function speak(text, onEnd) {
   synth.cancel();
   const token = ++speakToken;
-  const parts = voiceParts(text);
+  let parts = voiceParts(text);
   if (typeof SpeechSynthesisUtterance === 'undefined' || !parts.length) { if (onEnd) onEnd(); return; }
+  // Leitura lenta: voz local ou pedaços curtos com pausas (ver slowPlan).
+  const sp = parts.some(p => p.slow) ? slowPlan(voiceLocale()) : null;
+  if (sp && sp.chunks) parts = parts.flatMap(p => p.slow ? slowChunks(p.text).flatMap((c, k) => (k ? [{ who: 'pause', ms: 300 }] : []).concat([{ who: 'alvo', text: c, slow: true, solo: true }])) : [p]);
   const base = RATES[PROFILE && PROFILE.speed] || 0.95;
   isSpeaking = true;
   avatarState('talking', true);
@@ -3028,7 +3080,7 @@ function speak(text, onEnd) {
     finished = true;
     isSpeaking = false; speakStopper = null;
     avatarState('talking', false);
-    setStatus('ready', ok ? t('st_ready_reply') : t('st_ready'));
+    setStatus('ready', lzYourTurnStatus() || (ok ? t('st_ready_reply') : t('st_ready')));
     updateBusyUI();
     if (onEnd) onEnd();
   };
@@ -3045,14 +3097,14 @@ function speak(text, onEnd) {
     const utt = new SpeechSynthesisUtterance(p.text);
     const loc = p.who === 'nat' ? nativeVoiceLocale() : voiceLocale();
     utt.lang = loc; utt.pitch = 1.0;
-    utt.rate = rateOf(p); // nas lições e na Conversa guiada, o idioma estudado é lido mais devagar
-    const voice = getBestVoice(loc);
+    utt.rate = p.slow && sp ? sp.rate : rateOf(p); // nas lições e na Conversa guiada, o idioma estudado é lido mais devagar
+    const voice = p.slow && sp && sp.voice ? sp.voice : getBestVoice(loc);
     if (voice) utt.voice = voice;
     utt.onend = () => say(i + 1);
     utt.onerror = () => finish(false);
     synth.speak(utt);
   };
-  say(0);
+  setTimeout(() => say(0), 120); // depois de cancel(), o Chrome do Android pode perder a 1.ª frase se falar logo
   // Segurança: alguns aparelhos não avisam o fim da fala. Depois do tempo estimado + 3 s, sai do estado "falando"
   // (sem cortar o som, para não interromper uma voz que seja só mais lenta do que o previsto).
   setTimeout(() => { if (!finished && token === speakToken) finish(true); }, estMs + SPEECH_GRACE_MS);
@@ -3125,9 +3177,9 @@ function chatTask(i, n, lia) {
 function lzTurn(items, n) { return lessonScene(currentLesson, n, items); }
 // Texto do pedido de um passo (o app escreve tudo): ENSINAR, LEMBRAR ou fala da Lia na mini-conversa.
 function lzStepText(step, items, prev) {
-  if (step.k === 'teach') { const it = items[step.i]; return `[lbl] ${t('lz_new_phrase', { n: step.i + 1, k: items.length })}\n` + (it.e ? `[img] ${it.e}\n` : '') + `[pausa]\n[alvo] ${it.t}\n[devagar] ${it.t}\n${lzGloss(it)}\n[nat] ${lzRepeat(it)}.\n[voz] ${repShort()}`; }
-  if (step.k === 'recall') return (prev && prev.k === 'teach' ? `[nat] ${t('lz_recall_intro')}\n` : '') + `[nat] ${items[step.i].e ? items[step.i].e + ' ' : ''}${lzRecallQ(items[step.i])}`;
-  if (step.k === 'create') { const c = ppCreate(currentLesson, step.i); return (prev && prev.k !== 'create' ? `[nat] ${t('lz_create_intro')}\n` : '') + `[nat] ✍️ ${c.q.g}`; }
+  if (step.k === 'teach') { const it = items[step.i]; return `[lbl] ${t('lz_new_phrase', { n: step.i + 1, k: items.length })}\n` + (it.e ? `[img] ${it.e}\n` : '') + `[pausa]\n${lzAlvo(it.t)}\n${lzAlvo(it.t, true)}\n${lzGloss(it)}\n[nat] ${lzRepeat(it)}.\n[voz] ${repShort()}`; }
+  if (step.k === 'recall') return (prev && prev.k === 'teach' ? `[nat] ${t('lz_recall_intro')}\n` : '') + `[nat] ${items[step.i].e ? items[step.i].e + ' ' : ''}${lzRecallQ(items[step.i])}\n[voz] ${yourTurnCue()}`;
+  if (step.k === 'create') { const c = ppCreate(currentLesson, step.i); return (prev && prev.k !== 'create' ? `[nat] ${t('lz_create_intro')}\n` : '') + `[nat] ✍️ ${c.q.g}\n[voz] ${yourTurnCue()}`; }
   const tn = lzTurn(items, step.i);
   const task = chatTask(currentLesson, step.i, tn.lia.t);
   return (prev && prev.k !== 'chat' ? `[nat] ${t('lz_chat_intro')}\n` : '') + `[alvo] ${tn.lia.t}\n${lzGloss(tn.lia)}` + (task ? `\n[nat] 👉 ${task}` : '');
@@ -3148,7 +3200,7 @@ function lzFill(text) {
 function lzAgainText(step, items, tries) {
   const ex = lzExpected(step, items);
   if (step.k === 'create') return lzStepText(step, items, null); // CRIAR: o mesmo pedido (uma frase sua)
-  if (tries || step.k === 'teach') return `[nat] ${lzRepeat(ex)}:\n[alvo] ${lzFill(ex.t)}`;
+  if (tries || step.k === 'teach') return `[nat] ${lzRepeat(ex)}:\n${lzAlvo(lzFill(ex.t))}`;
   return lzStepText(step, items, null);
 }
 
@@ -3258,7 +3310,7 @@ function processLessonReply(reply) {
   const out = [];
   let hint = '', finished = false, advance = false;
   if (result === 'correct' && echo) {
-    out.push(`[nat] ${t('lz_chat_echo', { a: ex.t })}`);
+    out.push(`[nat] ${t('lz_chat_echo', { a: lzShow(ex.t) })}`);
     advance = true;
   } else if (result === 'correct') {
     out.push(`[alvo] ${tgt('correct')}`);
@@ -3266,28 +3318,28 @@ function processLessonReply(reply) {
     advance = true;
   } else if (result === 'wrong') {
     if (feedback) out.push(`[nat] ${feedback}`);
-    if (step.k !== 'create') nbAdd({ type: 'erro', wrong: userText, right: lzFill(ex.t), why: feedback });
-    out.push(`[nat] ${t(step.k === 'chat' || step.k === 'create' ? 'lz_possible' : 'lz_answer_is', { a: lzFill(ex.t) })}`);
+    if (step.k !== 'create') nbAdd({ type: 'erro', wrong: userText, right: lzPlain(lzFill(ex.t)), why: feedback });
+    out.push(`[nat] ${t(step.k === 'chat' || step.k === 'create' ? 'lz_possible' : 'lz_answer_is', { a: lzShow(lzFill(ex.t)) })}`);
     if (st.tries >= 1) advance = true; // 2.ª tentativa errada: segue em frente
     else if (step.k === 'create') { st.tries++; out.push(`[nat] ${t('lz_create_again')}`); hint = ex.t; }
-    else { st.tries++; out.push(`[nat] ${lzRepeat(ex)}:`, `[alvo] ${lzFill(ex.t)}`); }
+    else { st.tries++; out.push(`[nat] ${lzRepeat(ex)}:`, lzAlvo(lzFill(ex.t))); }
   } else {
     // question / unclear: explicação curta e o mesmo pedido outra vez (não conta como tentativa)
-    if (result === 'unclear' && step.k === 'teach') out.push(`[nat] ${t('lz_just_repeat', { a: lzFill(ex.t) })}`, `[alvo] ${lzFill(ex.t)}`);
+    if (result === 'unclear' && step.k === 'teach') out.push(`[nat] ${t('lz_just_repeat', { a: lzFill(ex.t) })}`, lzAlvo(lzFill(ex.t)));
     else {
       if (feedback) out.push(`[nat] ${feedback}`);
       else if (result === 'unclear') out.push(`[nat] ${t('lz_unclear')}`);
       out.push(lzAgainText(step, items, st.tries));
     }
-    if (step.k === 'recall' && !st.tries) hint = lzFill(ex.t);
-    if (step.k === 'chat' && !st.tries) hint = lzFill(ex.t);
+    if (step.k === 'recall' && !st.tries) hint = lzShow(lzFill(ex.t));
+    if (step.k === 'chat' && !st.tries) hint = lzShow(lzFill(ex.t));
     if (step.k === 'create') hint = ex.t;
   }
   if (advance) {
     st.pos++; st.tries = 0;
     const nx = steps[st.pos];
-    if (!nx) { finished = true; out.push(`[nat] ${t('lz_end')}`, `[alvo] ${items.map(x => x.t).join(' · ')}`); }
-    else { out.push(lzStepText(nx, items, step)); if (nx.k !== 'teach') hint = lzFill(lzExpected(nx, items).t); }
+    if (!nx) { finished = true; out.push(`[nat] ${t('lz_end')}`, `[ver] ${items.map(x => lzPlain(x.t)).join(' · ')}`, `[voz] ${items.map(x => { const v = lzForms(x.t); return v ? (v.same ? v.a : v.a + ' ' + v.b) : x.t; }).join(' · ')}`); }
+    else { out.push(lzStepText(nx, items, step)); if (nx.k !== 'teach') hint = lzShow(lzFill(lzExpected(nx, items).t)); }
   }
   const main = out.join('\n');
   chatHistory.push({ role: 'assistant', content: main });
@@ -3611,7 +3663,7 @@ function buildLessonSystem() {
   const items = lessonItems(i), steps = lessonSteps(items.length);
   const st = lessonState || { pos: 0, tries: 0 };
   const step = steps[Math.min(st.pos, steps.length - 1)], ex = lzExpected(step, items);
-  const list = items.map((x, k) => (k + 1) + '. «' + x.t + '» = ' + x.g).join('\n');
+  const list = items.map((x, k) => (k + 1) + '. «' + lzPlain(x.t) + '» = ' + x.g).join('\n');
   const first = s => String(s).split(/\.\s/)[0].replace(/[.!]+$/, '');
   let task;
   if (st.tries && step.k !== 'create') task = `After a mistake, ${N} was asked to repeat «${ex.t}». Judge if ${N} said it.`;
@@ -3625,7 +3677,7 @@ function buildLessonSystem() {
   return `You evaluate ONE answer of ${N}, ${NI.speaker}, ${isPP(i) ? 'a beginner (level A1) learning to build sentences' : 'an absolute beginner'} in a ${L} lesson. You do NOT talk to ${N}: the app writes everything ${N} sees. ${accentRule(P)}
 LESSON PHRASES:
 ${list}
-${isPP(i) ? `STRUCTURE OF THIS LESSON: «${ppStructure(i).t}» (the words in [ ] can be replaced by others)\n` : ''}("…" = ${N} MUST complete it with their own information (e.g. their name, ${N}): any sensible completion is correct, but the phrase said without the information is "wrong" (feedback: the personal information is missing). "A / B" = both forms are right.)
+${isPP(i) ? `STRUCTURE OF THIS LESSON: «${ppStructure(i).t}» (the words in [ ] can be replaced by others)\n` : ''}("…" = ${N} MUST complete it with their own information (e.g. their name, ${N}): any sensible completion is correct, but the phrase said without the information is "wrong" (feedback: the personal information is missing). "A / B" = both forms are right: they are the forms for a man and for a woman, ${N} may say either; never comment on which written form the speech recognition chose, especially when they sound the same.)
 ${usage ? `USAGE NOTES (the facts for every tip; never contradict them): ${usage}
 ` : ''}TASK: ${task}
 ${looksQ ? `ATTENTION: the message looks like a QUESTION or a request for explanation, maybe badly transcribed by the microphone (e.g. "qu'est-ce qui ne fait que très bien" = "what does «très bien» mean?"): result "question".\n` : ''}The message comes from SPEECH RECOGNITION: ignore capitals, accents, punctuation, apostrophes and similar-sounding glitches; never mention them.
@@ -3757,6 +3809,7 @@ function renderTagged(text) {
     if (IMG_TAG.test(line)) return `<span class="lz-emoji" aria-hidden="true">${esc(line.replace(IMG_TAG, ''))}</span>`;
     if (EST_TAG.test(line)) return `<span class="lz-pattern">🧩 ${esc(line.replace(EST_TAG, ''))}</span>`;
     if (LBL_TAG.test(line)) return `<span class="lz-label">${esc(line.replace(LBL_TAG, ''))}</span>`;
+    if (VER_TAG.test(line)) return esc(line.replace(VER_TAG, ''));
     const m = line.match(VOICE_TAG);
     const s = line.replace(VOICE_TAG, '').replace(/\[(nat|alvo)\]\s*/gi, '');
     return m && m[1].toLowerCase() === 'nat' ? `<span class="ln-nat">${esc(s)}</span>` : esc(s);
