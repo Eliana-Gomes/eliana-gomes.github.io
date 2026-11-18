@@ -3,12 +3,13 @@
 App de conversação para praticar idiomas (espanhol, inglês, francês, italiano e português, do Brasil ou de Portugal) por voz, com correção de erros. A interface e as explicações saem na língua nativa do aluno (português do Brasil, português de Portugal, espanhol, inglês, francês ou italiano). Publicado no GitHub Pages: https://eliana-gomes.github.io/eliana-voz.html
 
 ## Nome
-- O app chama-se **Parlia** e a tutora **Lia**. Assinatura pequena: "Parlia · by Luz em Movimento" (Início e tela da chave). O título da página e o manifest (`name` e `short_name`) são "Parlia"; nos seis dicionários a tutora aparece como Lia (rótulo dos balões "🎓 Lia"), e as instruções da IA dizem "You are Lia…".
+- O app chama-se **Parlia** e a tutora **Lia**. O logotipo completo (`parlia-logo`, com "by Luz em Movimento") aparece no topo do Início e na abertura; a tela da chave mantém a assinatura em texto "Parlia · by Luz em Movimento". O título da página e o manifest (`name` e `short_name`) são "Parlia"; nos seis dicionários a tutora aparece como Lia (rótulo dos balões "🎓 Lia"), e as instruções da IA dizem "You are Lia…".
 - O endereço continua `eliana-voz.html`. Os identificadores internos ficam com o nome antigo para não partir dados já guardados: `app: 'tutora-voz'` nos backups, as chaves do `localStorage` (`tutora_*`) e os arquivos `tutora-manifest.json` e `tutora-icon-*.png`.
 
 ## Arquivos
 - `eliana-voz.html` — o app inteiro (HTML, CSS e JavaScript num só arquivo).
-- `tutora-manifest.json`, `tutora-icon-192.png`, `tutora-icon-512.png` — instalação como app no telemóvel (PWA), com o nome "Parlia".
+- `tutora-manifest.json`, `tutora-icon-192.png`, `tutora-icon-512.png` — instalação como app no telemóvel (PWA), com o nome "Parlia" (ícones com o balão dourado e o caminho de luz).
+- `parlia-logo.webp` (≈ 28 KB, usado) e `parlia-logo.png` (≈ 215 KB, reserva para navegadores sem WebP) — logotipo completo, 800×300, reduzido do original de 2048 px (o original fica fora do repositório). Tem fundo petróleo próprio (#00262C, um pouco mais escuro que o petróleo noite); `.logo-img` esbate as margens com duas máscaras lineares para não se ver o retângulo. Usado com `<picture>` (WebP, senão PNG).
 - O resto do repositório é o site pessoal da Eliana: não mexer sem pedido.
 
 ## Como funciona
@@ -23,7 +24,7 @@ App de conversação para praticar idiomas (espanhol, inglês, francês, italian
 ## Visual
 - **Cores da marca** (variáveis no `:root`): ouro antigo `--gold` #BC8833 (principal), `--gold-glow` #DBA84C (brilho), `--gold-deep` #9D6F26 (profundo), petróleo noite `--night` #0B2A30 e petróleo da marca `--petrol` #00343D (camisola da Lia). O antigo dourado oliva (#B89A00/#7A6200) saiu.
 - **Dois temas, por variáveis** (`--bg`, `--surface`, `--line`, `--text`, `--text-2`, `--accent`, `--fill`, `--fix-*`…): o CSS usa só as variáveis, nunca cores soltas.
-  - **Identidade** (padrão, escuro): Início, celebrações e janelas (`.cel-card`), faixa da lição/teste (`.lesson-banner`, com barra de progresso `lzProgressBar`: passo atual / total de passos, ou pergunta / 8 no teste), barra de baixo, tela da chave e avisos (`.toast`): petróleo noite com texto creme e detalhes em #DBA84C. No Início há o "caminho de luz" (`.light-path`, SVG com uma curva dourada suave), assinatura da marca.
+  - **Identidade** (padrão, escuro): Início, celebrações e janelas (`.cel-card`), faixa da lição/teste (`.lesson-banner`, com barra de progresso `lzProgressBar`: passo atual / total de passos, ou pergunta / 8 no teste), barra de baixo, tela da chave e avisos (`.toast`): petróleo noite com texto creme e detalhes em #DBA84C. **Abertura** (`#splash`): ao abrir o app, o logotipo sobre o petróleo noite durante cerca de 1 s, com um esbatimento curto (sem animação se o aparelho pedir menos movimento). No topo do Início fica o logotipo (`.home-logo`) e, por baixo da saudação, o "caminho de luz" (`.light-path`, SVG com uma curva dourada suave), assinatura da marca.
   - **Estudo** (`body.study`, posto por `showView` em todas as telas menos o Início: Conversar com lições e teste, Caderno, lista do Do zero, Perfil): fundo creme #F4F0EA, cartões brancos com borda #E6DCCB, texto #1F2A2C, traduções e linhas `[nat]` em #5A5348, caixa de correção #FBF3E3 com borda #DBA84C e texto #5C3F10, microfone redondo #BC8833 com ícone branco em SVG (`MIC_SVG`/`STOP_SVG`).
   - **Modo escuro** (`body.study.dark`): as telas de estudo com fundo petróleo #00343D e cartões #0B3D47.
 - **Contraste (WCAG AA, 4,5:1 no texto normal)**: o texto dourado pequeno sobre fundo claro usa #8A6220 (#9D6F26 dá só 3,9:1, por isso fica para títulos grandes); texto sobre botões dourados é petróleo noite #0B2A30 (o branco sobre #BC8833 dá 3,1:1, que só serve para o ícone do microfone). Ao mudar cores, verificar de novo todos os pares de cores nos três temas.

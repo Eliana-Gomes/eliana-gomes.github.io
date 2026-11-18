@@ -12,6 +12,7 @@
 <link rel="apple-touch-icon" href="/tutora-icon-192.png">
 <link rel="icon" type="image/png" href="/tutora-icon-192.png">
 <link rel="manifest" href="/tutora-manifest.json">
+<link rel="preload" as="image" href="parlia-logo.webp" type="image/webp">
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Inter:wght@300;400;500;600&display=swap');
   /* Cores da marca: ouro antigo (principal, brilho, profundo), petróleo noite e petróleo. */
@@ -136,6 +137,17 @@
   .home-hello h2 { font-family: 'Cormorant Garamond', serif; font-size: 1.55rem; font-weight: 400; color: var(--text); overflow-wrap: anywhere; }
   .brand-sign { font-size: 0.7rem; color: var(--gold-glow); letter-spacing: 0.08em; text-transform: uppercase; margin-top: -12px; }
   .home-brand { font-size: 0.66rem; color: var(--gold-glow); letter-spacing: 0.1em; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  /* Logotipo (fundo petróleo próprio): as bordas esbatem-se no petróleo noite, sem retângulo visível. */
+  .logo-img { display: block; width: 100%; height: auto;
+    -webkit-mask-image: linear-gradient(to right, transparent, #000 7%, #000 93%, transparent), linear-gradient(to bottom, transparent, #000 11%, #000 89%, transparent);
+    -webkit-mask-composite: source-in; mask-image: linear-gradient(to right, transparent, #000 7%, #000 93%, transparent), linear-gradient(to bottom, transparent, #000 11%, #000 89%, transparent); mask-composite: intersect; }
+  .home-logo { width: min(100%, 320px); margin: -8px auto -6px; }
+  /* Abertura (~1 s): logotipo sobre o petróleo noite. */
+  .splash { position: fixed; inset: 0; z-index: 3000; background: var(--night); display: flex; align-items: center; justify-content: center; padding: 24px; transition: opacity .35s ease; }
+  .splash.hide { opacity: 0; pointer-events: none; }
+  .splash .logo-img { width: min(86vw, 460px); animation: splash-in .7s ease-out both; }
+  @keyframes splash-in { from { opacity: 0; transform: scale(0.96); } to { opacity: 1; transform: scale(1); } }
+  @media (prefers-reduced-motion: reduce) { .splash .logo-img { animation: none; } .splash { transition: none; } }
   /* Caminho de luz: assinatura da marca (traço dourado com curva suave). */
   .light-path { display: block; width: 100%; height: 56px; margin: -6px 0 -18px; pointer-events: none; }
   .home-tutor { display: flex; flex-direction: column; align-items: center; gap: 8px; }
@@ -295,6 +307,8 @@
 </style>
 </head>
 <body>
+<!-- ABERTURA (cerca de 1 s) -->
+<div class="splash" id="splash" aria-hidden="true"><picture><source srcset="parlia-logo.webp" type="image/webp"><img class="logo-img" src="parlia-logo.png" width="800" height="300" alt="Parlia · by Luz em Movimento"></picture></div>
 
 <!-- SETUP SCREEN -->
 <div class="setup-screen" id="setup-screen">
@@ -414,10 +428,10 @@
 
 <!-- 🏠 INÍCIO (vista) -->
 <section class="view home-view" id="view-home">
+  <div class="home-logo"><picture><source srcset="parlia-logo.webp" type="image/webp"><img class="logo-img" src="parlia-logo.png" width="800" height="300" alt="Parlia · by Luz em Movimento"></picture></div>
   <div class="home-top">
     <div class="photo-circle home-photo" id="home-photo"></div>
     <div class="home-hello">
-      <div class="home-brand">Parlia · by Luz em Movimento</div>
       <h2 id="home-hello"></h2>
     </div>
     <button class="streak-badge off" id="streak-badge" onclick="navTo('profile')">🔥 0</button>
@@ -558,6 +572,12 @@
 </nav>
 
 <script>
+// Abertura: some ao fim de cerca de 1 s (com um esbatimento curto).
+(function () {
+  const s = document.getElementById('splash');
+  if (!s) return;
+  setTimeout(() => { s.classList.add('hide'); setTimeout(() => s.remove(), 400); }, 1000);
+})();
 let currentLang = 'es', currentLangName = 'Spanish', currentLocale = 'es-ES';
 let currentTopic = 'Free conversation';
 let chatHistory = [], recognition = null, isRecording = false, isSpeaking = false;
