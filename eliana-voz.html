@@ -40,6 +40,7 @@
   .fix-main { font-size: 0.95rem; color: #9be3a8; font-weight: 500; }
   .fix-list { margin-top: 4px; color: #d4b800; }
   .fix-why { margin-top: 6px; color: #b8b49a; }
+  .fix-more { margin-top: 4px; font-size: 0.8rem; color: #b8b49a; }
   .fix-why summary { cursor: pointer; color: #d4b800; text-decoration: underline; list-style: none; }
   .msg-tools { display: flex; gap: 6px; margin-top: 5px; }
   .msg-tools button { background: transparent; border: 1px solid rgba(255,255,255,0.15); border-radius: 12px; color: var(--muted); font-size: 0.75rem; padding: 3px 9px; cursor: pointer; font-family: 'Inter', sans-serif; }
@@ -553,7 +554,7 @@ const NATIVES = {
 // Erros típicos de quem tem esta língua nativa (grupo) e aprende este idioma (em inglês, para as instruções da IA).
 const TYPICAL = {
   pt: {
-    es: 'conjugation ("mi conté" → "me cuente"), imperative ("me cuenten más" → "cuéntame más", "me explico primero los documentos" → "explícame primero los documentos"), agreement ("bajas"), "estar/hacer frío", articles, prepositions, Portuguese words, "se" instead of conditional "si" ("se tengo tiempo" → "si tengo tiempo"), and the missing object pronoun ("sí, compro" → "sí, lo compro")',
+    es: 'conjugation ("mi conté" → "me cuente"), imperative ("me cuenten más" → "cuéntame más", "me explico primero los documentos" → "explícame primero los documentos"), agreement ("bajas"), "estar/hacer frío", articles, prepositions, Portuguese words, "se" instead of conditional "si" ("se tengo tiempo" → "si tengo tiempo"), the missing object pronoun ("sí, compro" → "sí, lo compro", "y sirve caliente" → "y lo sirvo caliente", "leva al fuego" → "lo llevo al fuego"), reflexive verbs ("nosotros reuníamos" → "nos reuníamos", "que le llama" → "que se llama"), verb agreement ("algunas personas hace" → "algunas personas hacen"), "cuando niña" → "cuando era niña", "muy muchos" → "muchísimos", false friends and Portuguese words ("acerca de la mesa" (= about) → "alrededor de la mesa", "es muy raro encontrar" → "es muy difícil encontrar" when the meaning is hard, "salgado" → "salado", "pesquisar" → "buscar/investigar", "levar" → "llevar", "como mucha frecuencia" → "con mucha frecuencia")',
     en: 'false friends ("pretend" = fingir, "actually" = na verdade, "push" = empurrar), mandatory subject ("is raining" → "it is raining"), age with "be" ("I have 30 years" → "I am 30"), prepositions in/on/at, "make" vs "do", adjective order ("a car red" → "a red car")',
     fr: 'age with "avoir" ("je suis 30 ans" → "j\'ai 30 ans"), negation "ne … pas", partitive articles (du, de la, des), contractions (au, du), gender different from Portuguese, false friends ("attendre" = to wait)',
     it: 'double consonants, articles (il, lo, gli), articulated prepositions (nel, della), age with "avere", false friends ("burro" = butter, "salire" = to go up)'
@@ -1059,7 +1060,7 @@ const I18N = {
     write_toggle: '⌨️ Prefere escrever?', link_key: '🔑 Trocar chave',
     text_ph: 'Escreva aqui...', tip_label: '💡 Dica:', lbl_tutor: '🎓 Lia', lbl_you: '🎤 Você',
     btn_listen_again: 'Ouvir de novo', btn_translate: 'Mostrar tradução', btn_save: 'Salvar no caderno', saved: '✅ Salvo',
-    translating: 'Traduzindo…', translate_fail: 'Não consegui traduzir. Toque em 🌐 para tentar de novo.', why: 'Por quê?',
+    translating: 'Traduzindo…', translate_fail: 'Não consegui traduzir. Toque em 🌐 para tentar de novo.', why: 'Por quê?', fix_more: 'Mais {n} erro(s) desta frase foram guardados no 📒 Caderno.',
     import_invalid: 'Este arquivo não é um backup do Parlia.',
     import_confirm: 'Importar o backup{when}?\n\nIsto vai SUBSTITUIR neste celular:\n• o perfil{name}\n• o caderno ({items})\n• a racha ({days})\n• as lições do zero ({lessons})\n\nA chave API não muda.',
     import_when: ' de {date}', item_one: '1 item', item_many: '{n} itens', dayp_one: '1 dia com prática', dayp_many: '{n} dias com prática',
@@ -1121,7 +1122,7 @@ const I18N = {
     write_toggle: '⌨️ Preferes escrever?', link_key: '🔑 Mudar chave',
     text_ph: 'Escreve aqui...', tip_label: '💡 Dica:', lbl_tutor: '🎓 Lia', lbl_you: '🎤 Tu',
     btn_listen_again: 'Ouvir de novo', btn_translate: 'Mostrar tradução', btn_save: 'Guardar no caderno', saved: '✅ Guardado',
-    translating: 'A traduzir…', translate_fail: 'Não consegui traduzir. Toca em 🌐 para tentar de novo.', why: 'Porquê?',
+    translating: 'A traduzir…', translate_fail: 'Não consegui traduzir. Toca em 🌐 para tentar de novo.', why: 'Porquê?', fix_more: 'Mais {n} erro(s) desta frase ficaram guardados no 📒 Caderno.',
     import_invalid: 'Este ficheiro não é uma cópia de segurança do Parlia.',
     import_confirm: 'Importar a cópia{when}?\n\nIsto vai SUBSTITUIR neste telemóvel:\n• o perfil{name}\n• o caderno ({items})\n• a racha ({days})\n• as lições do zero ({lessons})\n\nA chave API não muda.',
     import_when: ' de {date}', item_one: '1 item', item_many: '{n} itens', dayp_one: '1 dia com prática', dayp_many: '{n} dias com prática',
@@ -1183,7 +1184,7 @@ const I18N = {
     write_toggle: '⌨️ ¿Prefieres escribir?', link_key: '🔑 Cambiar clave',
     text_ph: 'Escribe aquí...', tip_label: '💡 Consejo:', lbl_tutor: '🎓 Lia', lbl_you: '🎤 Tú',
     btn_listen_again: 'Escuchar de nuevo', btn_translate: 'Mostrar traducción', btn_save: 'Guardar en el cuaderno', saved: '✅ Guardado',
-    translating: 'Traduciendo…', translate_fail: 'No pude traducir. Toca 🌐 para intentarlo de nuevo.', why: '¿Por qué?',
+    translating: 'Traduciendo…', translate_fail: 'No pude traducir. Toca 🌐 para intentarlo de nuevo.', why: '¿Por qué?', fix_more: '{n} error(es) más de esta frase se guardaron en el 📒 Cuaderno.',
     import_invalid: 'Este archivo no es una copia de seguridad de Parlia.',
     import_confirm: '¿Importar la copia{when}?\n\nEsto va a SUSTITUIR en este móvil:\n• el perfil{name}\n• el cuaderno ({items})\n• la racha ({days})\n• las lecciones desde cero ({lessons})\n\nLa clave API no cambia.',
     import_when: ' del {date}', item_one: '1 elemento', item_many: '{n} elementos', dayp_one: '1 día con práctica', dayp_many: '{n} días con práctica',
@@ -1245,7 +1246,7 @@ const I18N = {
     write_toggle: '⌨️ Prefer to type?', link_key: '🔑 Change key',
     text_ph: 'Type here...', tip_label: '💡 Tip:', lbl_tutor: '🎓 Lia', lbl_you: '🎤 You',
     btn_listen_again: 'Listen again', btn_translate: 'Show translation', btn_save: 'Save to notebook', saved: '✅ Saved',
-    translating: 'Translating…', translate_fail: 'I could not translate. Tap 🌐 to try again.', why: 'Why?',
+    translating: 'Translating…', translate_fail: 'I could not translate. Tap 🌐 to try again.', why: 'Why?', fix_more: '{n} more mistake(s) from this sentence saved in your 📒 Notebook.',
     import_invalid: 'This file is not a Parlia backup.',
     import_confirm: 'Import the backup{when}?\n\nThis will REPLACE on this phone:\n• the profile{name}\n• the notebook ({items})\n• the streak ({days})\n• the lessons from scratch ({lessons})\n\nThe API key does not change.',
     import_when: ' from {date}', item_one: '1 item', item_many: '{n} items', dayp_one: '1 day of practice', dayp_many: '{n} days of practice',
@@ -1307,7 +1308,7 @@ const I18N = {
     write_toggle: '⌨️ Tu préfères écrire ?', link_key: '🔑 Changer de clé',
     text_ph: 'Écris ici...', tip_label: '💡 Astuce :', lbl_tutor: '🎓 Lia', lbl_you: '🎤 Toi',
     btn_listen_again: 'Réécouter', btn_translate: 'Afficher la traduction', btn_save: 'Enregistrer dans le carnet', saved: '✅ Enregistré',
-    translating: 'Traduction…', translate_fail: 'Je n’ai pas pu traduire. Touche 🌐 pour réessayer.', why: 'Pourquoi ?',
+    translating: 'Traduction…', translate_fail: 'Je n’ai pas pu traduire. Touche 🌐 pour réessayer.', why: 'Pourquoi ?', fix_more: '{n} autre(s) erreur(s) de cette phrase enregistrée(s) dans le 📒 Carnet.',
     import_invalid: 'Ce fichier n’est pas une sauvegarde de Parlia.',
     import_confirm: 'Importer la sauvegarde{when} ?\n\nCela va REMPLACER sur ce téléphone :\n• le profil{name}\n• le carnet ({items})\n• la série ({days})\n• les leçons à partir de zéro ({lessons})\n\nLa clé API ne change pas.',
     import_when: ' du {date}', item_one: '1 élément', item_many: '{n} éléments', dayp_one: '1 jour de pratique', dayp_many: '{n} jours de pratique',
@@ -1369,7 +1370,7 @@ const I18N = {
     write_toggle: '⌨️ Preferisci scrivere?', link_key: '🔑 Cambia chiave',
     text_ph: 'Scrivi qui...', tip_label: '💡 Consiglio:', lbl_tutor: '🎓 Lia', lbl_you: '🎤 Tu',
     btn_listen_again: 'Riascolta', btn_translate: 'Mostra traduzione', btn_save: 'Salva nel quaderno', saved: '✅ Salvato',
-    translating: 'Traduzione…', translate_fail: 'Non sono riuscita a tradurre. Tocca 🌐 per riprovare.', why: 'Perché?',
+    translating: 'Traduzione…', translate_fail: 'Non sono riuscita a tradurre. Tocca 🌐 per riprovare.', why: 'Perché?', fix_more: 'Altri {n} errori di questa frase sono salvati nel 📒 Quaderno.',
     import_invalid: 'Questo file non è un backup di Parlia.',
     import_confirm: 'Importare il backup{when}?\n\nQuesto SOSTITUIRÀ su questo telefono:\n• il profilo{name}\n• il quaderno ({items})\n• la serie ({days})\n• le lezioni da zero ({lessons})\n\nLa chiave API non cambia.',
     import_when: ' del {date}', item_one: '1 elemento', item_many: '{n} elementi', dayp_one: '1 giorno di pratica', dayp_many: '{n} giorni di pratica',
@@ -2391,12 +2392,20 @@ async function processInput(text) {
     // Só conta como correção se os dois lados forem diferentes de verdade (não só maiúsculas, acentos ou pontuação).
     const formKey = t => (t || '').replace(/^[📝\s]+/u, '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^\p{L}\p{N}]+/gu, ' ').trim();
     const realFix = l => { const [a, b] = l.split('·')[0].split('→'); return !!(formKey(a) && formKey(b) && formKey(a) !== formKey(b)); };
-    const gramFix = lines.filter(l => starts(l, '📝') && l.includes('→') && realFix(l)).slice(0, 1);
-    const fixLines = gramFix.length ? gramFix : lines.filter(l => starts(l, '🗣')).slice(0, 1);
+    const wasRepeating = !!repeatTarget;
+    let gramFix = lines.filter(l => starts(l, '📝') && l.includes('→') && realFix(l)).slice(0, 1);
+    // Erros extra da mesma fala (➕): não aparecem na conversa, só vão para o caderno (até 3 erros no total).
+    let extraFix = wasRepeating ? [] : lines.filter(l => starts(l, '➕') && l.includes('→') && realFix(l.replace(/^[➕\s]+/u, '')));
     const okLine = lines.find(l => starts(l, '✅')) || '';
     const sayLine = lines.find(l => starts(l, '💬')) || '';
-    let main = lines.filter(l => !['📝', '🗣', '✅', '🔁', '💬'].some(s => starts(l, s))).join('\n').trim();
-    const wasRepeating = !!repeatTarget;
+    // Sem 📝 mas com erros: a primeira linha ➕ passa a ser a correção; senão, a diferença entre a fala e a ✅.
+    if (!gramFix.length && !wasRepeating && !sayLine) {
+      if (extraFix.length) gramFix = ['📝 ' + extraFix.shift().replace(/^[➕\s]+/u, '')];
+      else { const d = diffFix(text, okLine.replace(/^[✅\s]+/u, '')); if (d) gramFix = [d]; }
+    }
+    extraFix = extraFix.slice(0, 2);
+    const fixLines = gramFix.length ? gramFix : lines.filter(l => starts(l, '🗣')).slice(0, 1);
+    let main = lines.filter(l => !['📝', '🗣', '✅', '🔁', '💬', '➕'].some(s => starts(l, s))).join('\n').trim();
     const unq = t => t.replace(/^[📝✅🔁💬🗣️\s]+/u, '').replace(/["“”«»]/g, '').trim();
     const ask = tgt('ask'), rep = tgt('rep');
     // Frase inteira na língua nativa: não é erro; mostra como dizer no idioma e pede para repetir.
@@ -2425,12 +2434,17 @@ async function processInput(text) {
         highlightError(lastUserDiv, wa);
         // Guarda a correção no caderno (📒 Meus erros).
         if (wa && wb) nbAdd({ type: 'erro', wrong: wa, right: wb, why: p0.slice(1).join('·').trim() });
+        extraFix.forEach(l => {
+          const p = l.replace(/^[➕\s]+/u, '').split('·'), [xa, xb] = p[0].split('→').map(t => unq(t || ''));
+          if (xa && xb) nbAdd({ type: 'erro', wrong: xa, right: xb, why: p.slice(1).join('·').trim() });
+        });
       }
       const short = fixLines.map(l => esc(l.split('·')[0].trim())).join('<br>');
       const why = fixLines.map(l => { const p = l.split('·'); return p[1] ? esc(p[0].replace(/^[📝🗣️\s]+/u,'').trim() + ': ' + p.slice(1).join('·').trim()) : ''; }).filter(Boolean).join('<br>');
       const html = (fixed ? `<div class="fix-main">✅ ${esc(fixed)}</div>` : '') +
         `<div class="fix-list">${short}</div>` +
-        (why ? `<details class="fix-why"><summary>${esc(t('why'))}</summary>${why}</details>` : '');
+        (why ? `<details class="fix-why"><summary>${esc(t('why'))}</summary>${why}</details>` : '') +
+        (gramFix.length && extraFix.length ? `<div class="fix-more">${esc(t('fix_more', { n: extraFix.length }))}</div>` : '');
       const pairs = gramFix.map(l => {
         const [a, b] = l.split('·')[0].split('→'); return [unq(a), unq(b)];
       }).filter(([a, b]) => a && b);
@@ -2448,6 +2462,24 @@ async function processInput(text) {
     removeLoading();
     setStatus('error', t('st_error') + (e && e.message ? e.message : t('no_connection')));
   }
+}
+
+// A IA reescreveu a frase (✅) sem linha 📝: a correção é o trecho em que a fala e a ✅ diferem
+// (palavras iguais no início e no fim ficam de fora). Só serve se o trecho for curto (uma correção só).
+function diffFix(said, ok) {
+  const norm = w => w.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^\p{L}\p{N}]/gu, '');
+  const a = String(said || '').split(/\s+/).filter(w => norm(w)), b = String(ok || '').split(/\s+/).filter(w => norm(w));
+  if (!a.length || !b.length) return '';
+  const na = a.map(norm), nb = b.map(norm);
+  let p = 0; while (p < na.length && p < nb.length && na[p] === nb[p]) p++;
+  let s = 0; while (s < na.length - p && s < nb.length - p && na[na.length - 1 - s] === nb[nb.length - 1 - s]) s++;
+  let ea = na.length - s, eb = nb.length - s;
+  if (p === ea && p === eb) return ''; // iguais (só maiúsculas, acentos ou pontuação)
+  if (p === ea || p === eb) { if (p > 0) p--; else { ea++; eb++; } } // palavra que falta ou sobra: mostra com a vizinha
+  const wa = a.slice(p, ea), wb = b.slice(p, eb);
+  if (!wa.length || !wb.length || wa.length > 6 || wb.length > 8) return '';
+  const clean = ws => ws.join(' ').replace(/^[,;:.!?¡¿]+|[,;:.!?]+$/g, '').trim();
+  return `📝 ${clean(wa)} → ${clean(wb)}`;
 }
 
 // Frase para repetir, tirada da frase ✅ sem reescrever: a oração (entre vírgulas/pontos) que contém a
@@ -2522,21 +2554,24 @@ Now and then (not in every reply), ask natural questions that lead ${N} to use t
 You are Lia, a ${L} tutor for ${N}, ${NI.speaker}. All explanations for ${N} are in ${EX}: ${NI.variant}. ${N}'s level in ${L}: ${lvl}. Adapt vocabulary and pace to that level (at beginner level, use very simple sentences).
 ${style}${accentRule(P) ? ' ' + accentRule(P) : ''}
 ${P.city ? `Context (for you only): ${N} lives in ${P.city}. Do NOT mention the city in your replies unless ${N} brings it up first.\n` : ''}You talk with ${N} and correct only REAL mistakes.
-The text comes from speech recognition: ignore punctuation, capital letters and accents. Repeated consecutive words (e.g. "el clima el clima") are microphone glitches, and hesitations like "eh", "em", "este", "pues", "um" are normal in speech: always ignore them.
+The text comes from speech recognition. TOLERANCE: ignore ONLY punctuation, capital letters, accents and words clearly mis-heard by the microphone (a sound-alike word that makes no sense there); everything else (grammar AND vocabulary) is checked strictly. Repeated consecutive words (e.g. "el clima el clima") are microphone glitches, and hesitations like "eh", "em", "este", "pues", "um" are normal in speech: always ignore them.
 If a word makes no sense but sounds like the right word (e.g. "mi tía ha ido bien" when they meant "mi día"), that is PRONUNCIATION, not grammar: reply as if they had said the right word and use the 🗣️ line.
 LETTERS, ACRONYMS, NUMBERS AND SIZES said aloud (e.g. "ex el", "doble ex", "ese eme") are transcription glitches: NEVER correct them as grammar. Understand what ${N} meant (e.g. "ex el" = XL) and teach how to say it in ${L} in a 🗣️ line, with the explanation in ${EX} (e.g. for Spanish: XL = "equis ele").
 IF ${N} CORRECTS A PIECE OF INFORMATION (e.g. "no, es XXL", "no, quise decir el martes"): accept the new information naturally and carry on. Do NOT say "${tgt('correct')}" and do NOT correct that clarification.
 WHOLE SENTENCE IN THE NATIVE LANGUAGE: if ${N} says a whole sentence in ${NI.short}, that is NOT a mistake: do not use 📝 or ✅. Reply only with one line starting with 💬 that says that sentence in ${L}, simple and at ${N}'s level. E.g.: 💬 ${tgt('sayEx')}
-WHAT TO CORRECT: only FORM — grammar, conjugation, agreement, prepositions, words in ${NI.short} or words that do not exist in ${L}. NEVER change the meaning of what ${N} said and never add information.
+WHAT TO CORRECT: only FORM — grammar, conjugation, agreement, pronouns, prepositions, false friends, words in ${NI.short}, words that do not exist in ${L} or a ${L} word with a different meaning from the one ${N} wants. NEVER change the meaning of what ${N} said and never add information.
+EVERY MESSAGE WITH A REAL MISTAKE GETS A 📝 LINE. Check every message word by word, also long ones. If there are several mistakes, choose the most important for the 📝 line, in this order of priority: 1) false friends, 2) words in ${NI.short} or that do not exist in ${L}, 3) conjugation and agreement, 4) pronouns (missing object or reflexive pronoun), 5) prepositions. Silently rephrasing the sentence correctly in your reply or in the ✅ line WITHOUT a 📝 line is NOT a correction and is forbidden: if your ✅ sentence differs from what ${N} said, there MUST be a 📝 line.
+EXTRA MISTAKES: if the same message has more real mistakes, add up to 2 more lines starting with ➕, in the same format as 📝 (➕ wrong part → right part · short explanation in ${EX}). They are not shown in the conversation: they are only saved in ${N}'s notebook to review later.
+ACCURACY: explanations of vocabulary, meaning and culture must be TRUE. Never invent a meaning or claim that a word is used in some country when you are not sure (e.g. "mole" is NOT a word for "blando" in any Spanish-speaking country). If you are not sure, say so honestly in one short line in ${EX} instead of inventing.
 CONJUGATION AND IMPERATIVE: ALWAYS correct conjugation and imperative mistakes, even when the meaning is clear and even in the FIRST message of the conversation (e.g. "me cuenten más" said to you → "cuéntame más"; "me explico primero los documentos" → "explícame primero los documentos"). Do not let them pass just because they are understandable.
-WHAT NOT TO CORRECT: correct sentences, sentences acceptable in normal use, or mere style alternatives. When in doubt, do NOT correct. Never repeat the sentence if it is correct.
-ONE CORRECTION AT A TIME: if there are several mistakes, the 📝 line shows ONLY the most important one; the others get no 📝 line or explanation, but they appear corrected in the ✅ sentence.
+WHAT NOT TO CORRECT: correct sentences, sentences acceptable in normal use, or mere style alternatives. Never repeat the sentence if it is correct. A grammar or vocabulary mistake is NEVER a "doubt": if a native speaker would not say it that way, it is a mistake and gets a 📝 line.
+ONE CORRECTION AT A TIME: if there are several mistakes, the 📝 line shows ONLY the most important one; the others get only ➕ lines (at most 2), and they all appear corrected in the ✅ sentence.
 MAKE ${N} TALK MORE: the goal is for ${N} to talk a lot and you little. Ask OPEN questions that require full sentences (why, how, what would you do, tell me about…). AVOID choice questions ("A or B?") and yes/no questions. After an open question, do NOT add answer options (no "is it because of A, B or C?"): the question ends there. If ${N} answers with only 1 to 3 words, now and then (not always) kindly ask, in ${L}, for a full sentence (e.g. in Spanish: "¿Me lo cuentas con una frase completa?").
-CONFUSING SENTENCE: if the sentence is confusing or makes no sense because of the microphone, do NOT guess or correct: reply only, in ${L}, "${tgt('again')}", with no 📝, 🗣️ or ✅ lines.
+CONFUSING SENTENCE: only if the microphone made the sentence impossible to understand (never because of grammar or vocabulary mistakes, which you correct), do NOT guess or correct: reply only, in ${L}, "${tgt('again')}", with no 📝, 🗣️ or ✅ lines.
 FORMAT:
 - First, a natural, warm reply in ${L}: at most 2 short sentences, followed by ONE open question.
 - BEFORE REPLYING, check the grammar of YOUR OWN sentences: tenses, agreement, prepositions. E.g. in Spanish "¿qué necesitas hacer la última vez que fuiste?" is WRONG; the right form is "¿qué necesitaste hacer la última vez que fuiste?". You are ${N}'s model: your sentences must be 100% correct.
-- ONLY if there is a real mistake, add at the end ONE SINGLE 📝 line (never more than one). The left side of → is EXACTLY the part ${N} said, copied without any change; the right side is the REAL correction, IDENTICAL to the matching part of the ✅ sentence (e.g. ✅ "Tengo muchas dudas" → 📝 tengo muchos gerais → tengo muchas dudas; NEVER "tengo muchos Gerais → tengo muchos gerais"). Both sides must really differ, not only in capitals, accents or punctuation; if that is the only difference, there is no mistake and no 📝 line. If the word came out strange because of the microphone, use the 🗣️ line, not 📝. The explanation after · has at most 10 words and MUST be in ${EX}, never in ${L}. Example:
+- If there is a real mistake (in EVERY message that has one), add at the end ONE SINGLE 📝 line (never more than one), then the ➕ lines if any. The left side of → is EXACTLY the part ${N} said, copied without any change; the right side is the REAL correction, IDENTICAL to the matching part of the ✅ sentence (e.g. ✅ "Tengo muchas dudas" → 📝 tengo muchos gerais → tengo muchas dudas; NEVER "tengo muchos Gerais → tengo muchos gerais"). Both sides must really differ, not only in capitals, accents or punctuation; if that is the only difference, there is no mistake and no 📝 line. If the word came out strange because of the microphone, use the 🗣️ line, not 📝. The explanation after · has at most 10 words and MUST be in ${EX}, never in ${L}. Example:
 📝 yo desenfoví → yo desarrollé · ${NI.exFix}
 - If there is no grammar mistake but the microphone heard a similar word (pronunciation), add a line, also in ${EX}:
 🗣️ ${NI.exPron}
@@ -2547,7 +2582,7 @@ WHEN THERE IS A MISTAKE: after correcting, do NOT continue the topic; the conver
 NEVER invent corrections: if a word seems mis-transcribed by the microphone (e.g. "Botía", "lo tomo" instead of "otoño"), do NOT correct it as grammar; at most use a 🗣️ line. Correct alternatives (e.g. "visto que", "ya que", "como") are NOT mistakes.
 ${typical ? `Watch for real mistakes that ${NI.short} speakers often make in ${L}: ${typical}.\n` : ''}IF ${N} ASKS FOR HELP WITH A WORD OR PRONUNCIATION (e.g. "corrígeme la palabra desarrollar"): do a mini drill. Say the word slowly, split into syllables (e.g. "de-sa-rro-llar"), give a short tip in ${EX} in a 🗣️ line, and ask them to repeat it.
 ${memory}${repeatTarget ? `REPETITION MODE: you asked ${N} to repeat ONLY this corrected sentence: "${repeatTarget}".
-- Evaluate ONLY that sentence and only the main correction (from the previous 📝 line), with no new 📝 or ✅ lines. Ignore the rest of the sentence, punctuation, hesitations and similar-sounding microphone glitches (e.g. "lo tomo" ≈ "otoño").
+- Evaluate ONLY that sentence and only the main correction (from the previous 📝 line), with no new 📝, ➕ or ✅ lines. Ignore the rest of the sentence, punctuation, hesitations and similar-sounding microphone glitches (e.g. "lo tomo" ≈ "otoño").
 - If it is right or almost right: start with "${tgt('correct')}", resume the conversation with ONE open question, and put on a separate last line: 🎯 OK
 - If the corrected mistake is still the same: in simple ${L}, say in one short sentence what is still missing, repeat the right sentence slowly, and put on a separate last line: 🎯 DE NOVO. Never call a wrong answer "almost right", "on the right track" or "OK": say clearly what is missing.
 - If ${N} asks a question or says they did not understand (in any language): explain in ONE short sentence in ${EX}, on a line starting with [nat] (so the app uses the right voice), then repeat the right sentence ("${repeatTarget}") and ask them to repeat it; put on a separate last line: 🎯 PERGUNTA
