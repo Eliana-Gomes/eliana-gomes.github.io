@@ -254,6 +254,10 @@
   .nb-tab { flex: 1; padding: 9px; border-radius: 20px; border: 1.5px solid var(--line); background: var(--surface); color: var(--text-2); font-size: 0.85rem; font-family: 'Inter', sans-serif; cursor: pointer; }
   .nb-tab.active { background: var(--fill); border-color: var(--fill); color: var(--on-fill); font-weight: 600; }
   .nb-list { display: flex; flex-direction: column; gap: 8px; }
+  .nb-sort { display: flex; gap: 6px; justify-content: flex-end; }
+  .nb-sort button { background: var(--surface); border: 1px solid var(--line); color: var(--text-2); border-radius: 14px; padding: 4px 12px; font-size: 0.75rem; font-family: 'Inter', sans-serif; cursor: pointer; }
+  .nb-sort button.active { border-color: var(--fill); background: var(--chip-bg); color: var(--accent); font-weight: 600; }
+  .nb-count { display: inline-block; background: var(--fill); color: var(--on-fill); border-radius: 10px; padding: 0 7px; font-size: 0.72rem; font-weight: 700; vertical-align: 1px; }
   .nb-item { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; display: flex; gap: 10px; align-items: flex-start; box-shadow: 0 1px 3px var(--shadow); }
   .nb-body { flex: 1; min-width: 0; font-size: 0.88rem; line-height: 1.5; overflow-wrap: anywhere; }
   .nb-wrong { color: var(--err); text-decoration: line-through; }
@@ -428,6 +432,10 @@
     <div class="nb-tabs">
       <button class="nb-tab active" id="nb-tab-erro" onclick="nbTab('erro')"></button>
       <button class="nb-tab" id="nb-tab-salva" onclick="nbTab('salva')"></button>
+    </div>
+    <div class="nb-sort" id="nb-sort" role="group">
+      <button data-sort="recent" onclick="nbSetSort('recent')" data-i18n="nb_sort_recent"></button>
+      <button data-sort="count" onclick="nbSetSort('count')" data-i18n="nb_sort_count"></button>
     </div>
     <div class="nb-list" id="nb-list"></div>
   </div>
@@ -1179,7 +1187,7 @@ const I18N = {
     save_btn: 'Salvar e começar →', backup_label: 'Backup (perfil, foto, caderno, racha, lições e testes; sem a chave API):',
     export_btn: '⬇️ Exportar meus dados', import_btn: '⬆️ Importar meus dados', name_required: 'Escreva seu nome, por favor.',
     lang_es: 'Espanhol', lang_en: 'Inglês', lang_fr: 'Francês', lang_it: 'Italiano', lang_pt: 'Português',
-    nb_title: '📒 Meu caderno', tab_errors: 'Meus erros', tab_saved: 'Salvas',
+    nb_title: '📒 Meu caderno', nb_sort_recent: 'Mais recentes', nb_sort_count: 'Mais repetidos', nb_times: 'Repetido {n} vezes', tab_errors: 'Meus erros', tab_saved: 'Salvas',
     nb_empty_errors: 'Ainda não há erros salvos neste idioma.<br>Cada correção 📝 da Lia entra aqui sozinha.',
     nb_empty_saved: 'Você ainda não salvou nenhuma frase neste idioma.<br>Toque em ⭐ numa mensagem da Lia (ou selecione um trecho e toque em ⭐).',
     listen: 'Ouvir', delete: 'Apagar', close: 'Fechar',
@@ -1241,7 +1249,7 @@ const I18N = {
     save_btn: 'Guardar e começar →', backup_label: 'Cópia de segurança (perfil, foto, caderno, racha, lições e testes; sem a chave API):',
     export_btn: '⬇️ Exportar os meus dados', import_btn: '⬆️ Importar os meus dados', name_required: 'Escreve o teu nome, por favor.',
     lang_es: 'Espanhol', lang_en: 'Inglês', lang_fr: 'Francês', lang_it: 'Italiano', lang_pt: 'Português',
-    nb_title: '📒 O meu caderno', tab_errors: 'Os meus erros', tab_saved: 'Guardadas',
+    nb_title: '📒 O meu caderno', nb_sort_recent: 'Mais recentes', nb_sort_count: 'Mais repetidos', nb_times: 'Repetido {n} vezes', tab_errors: 'Os meus erros', tab_saved: 'Guardadas',
     nb_empty_errors: 'Ainda não há erros guardados neste idioma.<br>Cada correção 📝 da Lia entra aqui sozinha.',
     nb_empty_saved: 'Ainda não guardaste nenhuma frase neste idioma.<br>Toca em ⭐ numa mensagem da Lia (ou seleciona um trecho e toca em ⭐).',
     listen: 'Ouvir', delete: 'Apagar', close: 'Fechar',
@@ -1303,7 +1311,7 @@ const I18N = {
     save_btn: 'Guardar y empezar →', backup_label: 'Copia de seguridad (perfil, foto, cuaderno, racha, lecciones y pruebas; sin la clave API):',
     export_btn: '⬇️ Exportar mis datos', import_btn: '⬆️ Importar mis datos', name_required: 'Escribe tu nombre, por favor.',
     lang_es: 'Español', lang_en: 'Inglés', lang_fr: 'Francés', lang_it: 'Italiano', lang_pt: 'Portugués',
-    nb_title: '📒 Mi cuaderno', tab_errors: 'Mis errores', tab_saved: 'Guardadas',
+    nb_title: '📒 Mi cuaderno', nb_sort_recent: 'Más recientes', nb_sort_count: 'Más repetidos', nb_times: 'Repetido {n} veces', tab_errors: 'Mis errores', tab_saved: 'Guardadas',
     nb_empty_errors: 'Todavía no hay errores guardados en este idioma.<br>Cada corrección 📝 de Lia entra aquí sola.',
     nb_empty_saved: 'Todavía no has guardado ninguna frase en este idioma.<br>Toca ⭐ en un mensaje de Lia (o selecciona un fragmento y toca ⭐).',
     listen: 'Escuchar', delete: 'Borrar', close: 'Cerrar',
@@ -1365,7 +1373,7 @@ const I18N = {
     save_btn: 'Save and start →', backup_label: 'Backup (profile, photo, notebook, streak, lessons and tests; without the API key):',
     export_btn: '⬇️ Export my data', import_btn: '⬆️ Import my data', name_required: 'Please write your name.',
     lang_es: 'Spanish', lang_en: 'English', lang_fr: 'French', lang_it: 'Italian', lang_pt: 'Portuguese',
-    nb_title: '📒 My notebook', tab_errors: 'My mistakes', tab_saved: 'Saved',
+    nb_title: '📒 My notebook', nb_sort_recent: 'Most recent', nb_sort_count: 'Most repeated', nb_times: 'Repeated {n} times', tab_errors: 'My mistakes', tab_saved: 'Saved',
     nb_empty_errors: 'No mistakes saved in this language yet.<br>Every 📝 correction from Lia is added here automatically.',
     nb_empty_saved: 'You have not saved any phrases in this language yet.<br>Tap ⭐ on one of Lia’s messages (or select part of it and tap ⭐).',
     listen: 'Listen', delete: 'Delete', close: 'Close',
@@ -1427,7 +1435,7 @@ const I18N = {
     save_btn: 'Enregistrer et commencer →', backup_label: 'Sauvegarde (profil, photo, carnet, série, leçons et tests ; sans la clé API) :',
     export_btn: '⬇️ Exporter mes données', import_btn: '⬆️ Importer mes données', name_required: 'Écris ton prénom, s’il te plaît.',
     lang_es: 'Espagnol', lang_en: 'Anglais', lang_fr: 'Français', lang_it: 'Italien', lang_pt: 'Portugais',
-    nb_title: '📒 Mon carnet', tab_errors: 'Mes erreurs', tab_saved: 'Enregistrées',
+    nb_title: '📒 Mon carnet', nb_sort_recent: 'Plus récents', nb_sort_count: 'Plus fréquents', nb_times: 'Répété {n} fois', tab_errors: 'Mes erreurs', tab_saved: 'Enregistrées',
     nb_empty_errors: 'Aucune erreur enregistrée dans cette langue pour l’instant.<br>Chaque correction 📝 de Lia arrive ici toute seule.',
     nb_empty_saved: 'Tu n’as encore enregistré aucune phrase dans cette langue.<br>Touche ⭐ sur un message de Lia (ou sélectionne un passage et touche ⭐).',
     listen: 'Écouter', delete: 'Supprimer', close: 'Fermer',
@@ -1489,7 +1497,7 @@ const I18N = {
     save_btn: 'Salva e inizia →', backup_label: 'Backup (profilo, foto, quaderno, serie, lezioni e test; senza la chiave API):',
     export_btn: '⬇️ Esporta i miei dati', import_btn: '⬆️ Importa i miei dati', name_required: 'Scrivi il tuo nome, per favore.',
     lang_es: 'Spagnolo', lang_en: 'Inglese', lang_fr: 'Francese', lang_it: 'Italiano', lang_pt: 'Portoghese',
-    nb_title: '📒 Il mio quaderno', tab_errors: 'I miei errori', tab_saved: 'Salvate',
+    nb_title: '📒 Il mio quaderno', nb_sort_recent: 'Più recenti', nb_sort_count: 'Più ripetuti', nb_times: 'Ripetuto {n} volte', tab_errors: 'I miei errori', tab_saved: 'Salvate',
     nb_empty_errors: 'Ancora nessun errore salvato in questa lingua.<br>Ogni correzione 📝 di Lia arriva qui da sola.',
     nb_empty_saved: 'Non hai ancora salvato nessuna frase in questa lingua.<br>Tocca ⭐ su un messaggio di Lia (o seleziona una parte e tocca ⭐).',
     listen: 'Ascolta', delete: 'Elimina', close: 'Chiudi',
@@ -3004,7 +3012,33 @@ const NB_KEY = 'tutora_caderno', NB_MAX = 300;
 let nbCurrentTab = 'erro';
 
 function nbLoad() {
-  try { const nb = JSON.parse(localStorage.getItem(NB_KEY) || '{}'); return nb && typeof nb === 'object' ? nb : {}; } catch(e) { return {}; }
+  let nb;
+  try { nb = JSON.parse(localStorage.getItem(NB_KEY) || '{}'); } catch(e) { nb = {}; }
+  if (!nb || typeof nb !== 'object') return {};
+  // Junta os erros repetidos já guardados (cadernos antigos ou importados).
+  let changed = false;
+  for (const lang of Object.keys(nb)) if (Array.isArray(nb[lang])) { const m = nbMerge(nb[lang]); if (m.length !== nb[lang].length) { nb[lang] = m; changed = true; } }
+  if (changed) nbStore(nb);
+  return nb;
+}
+// Mesmo erro = mesmo trecho errado e mesma correção, sem maiúsculas, acentos nem pontuação (a mesma chave da memória da Lia).
+function nbKey(it) {
+  const k = t => (t || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^\p{L}\p{N}]+/gu, ' ').trim();
+  return k(it.wrong) + '→' + k(it.right);
+}
+// Junta os cartões repetidos de uma lista: soma as vezes, fica a data mais recente e a explicação mais recente.
+function nbMerge(list) {
+  const out = [], seen = new Map();
+  for (const it of list) { // a lista está do mais recente para o mais antigo
+    if (!it || it.type !== 'erro') { out.push(it); continue; }
+    const k = nbKey(it), g = seen.get(k);
+    if (!g) { const c = Object.assign({}, it, { count: it.count || 1 }); seen.set(k, c); out.push(c); continue; }
+    g.count += it.count || 1;
+    if (!g.why && it.why) g.why = it.why;
+    if (!g.more && it.more) g.more = it.more;
+    if (String(it.date) > String(g.date)) g.date = it.date;
+  }
+  return out;
 }
 function nbStore(nb) { try { localStorage.setItem(NB_KEY, JSON.stringify(nb)); } catch(e) {} }
 function nbList() { const l = nbLoad()[currentLang]; return Array.isArray(l) ? l : []; }
@@ -3012,6 +3046,19 @@ function nbList() { const l = nbLoad()[currentLang]; return Array.isArray(l) ? l
 function nbAdd(item) {
   const nb = nbLoad();
   const list = Array.isArray(nb[currentLang]) ? nb[currentLang] : [];
+  // Erro que já está no caderno: não cria cartão novo; sobe para o topo, com a data de hoje e mais uma vez no contador.
+  if (item.type === 'erro') {
+    const k = nbKey(item), i = list.findIndex(x => x && x.type === 'erro' && nbKey(x) === k);
+    if (i >= 0) {
+      const old = list.splice(i, 1)[0];
+      list.unshift(Object.assign({}, old, { date: new Date().toISOString(), count: (old.count || 1) + 1, why: item.why || old.why, more: item.more || old.more }));
+      nb[currentLang] = list.slice(0, NB_MAX);
+      nbStore(nb);
+      if (currentView === 'notebook') renderNotebook();
+      return;
+    }
+    item = Object.assign({ count: 1 }, item);
+  }
   list.unshift(Object.assign({ id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6), date: new Date().toISOString() }, item));
   nb[currentLang] = list.slice(0, NB_MAX); // apaga os mais antigos
   nbStore(nb);
@@ -3033,12 +3080,15 @@ function topErrors(n) {
     if (it.type !== 'erro') return;
     const k = key(it.wrong) + '→' + key(it.right);
     const g = groups.get(k);
-    if (g) g.count++; else groups.set(k, { wrong: it.wrong, right: it.right, why: it.why, count: 1, order: idx });
+    if (g) g.count += it.count || 1; else groups.set(k, { wrong: it.wrong, right: it.right, why: it.why, count: it.count || 1, order: idx });
   });
   return [...groups.values()].sort((a, b) => b.count - a.count || a.order - b.order).slice(0, n || 5);
 }
 
 function nbTab(tab) { nbCurrentTab = tab; renderNotebook(); }
+// Ordem da aba "Meus erros": 'recent' (mais recentes) ou 'count' (mais repetidos). Fica guardada neste aparelho.
+let nbSort = (() => { try { return localStorage.getItem('tutora_caderno_ordem') === 'count' ? 'count' : 'recent'; } catch(e) { return 'recent'; } })();
+function nbSetSort(s) { nbSort = s; try { localStorage.setItem('tutora_caderno_ordem', s); } catch(e) {} renderNotebook(); }
 
 function renderNotebook() {
   const all = nbList();
@@ -3049,7 +3099,11 @@ function renderNotebook() {
   tE.classList.toggle('active', nbCurrentTab === 'erro'); tS.classList.toggle('active', nbCurrentTab === 'salva');
   const box = document.getElementById('nb-list');
   box.innerHTML = '';
-  const items = nbCurrentTab === 'erro' ? errs : saved;
+  let items = nbCurrentTab === 'erro' ? errs : saved;
+  const sortRow = document.getElementById('nb-sort');
+  sortRow.style.display = nbCurrentTab === 'erro' && errs.length > 1 ? 'flex' : 'none';
+  sortRow.querySelectorAll('button').forEach(b => b.classList.toggle('active', b.dataset.sort === nbSort));
+  if (nbCurrentTab === 'erro' && nbSort === 'count') items = items.slice().sort((a, b) => (b.count || 1) - (a.count || 1) || String(b.date).localeCompare(String(a.date)));
   if (!items.length) {
     box.innerHTML = nbCurrentTab === 'erro'
       ? `<div class="nb-empty">${t('nb_empty_errors')}</div>`
@@ -3066,6 +3120,7 @@ function renderNotebook() {
       const w = document.createElement('span'); w.className = 'nb-wrong'; w.textContent = it.wrong;
       const r = document.createElement('span'); r.className = 'nb-right'; r.textContent = it.right;
       line.append(w, ' → ', r);
+      if ((it.count || 1) > 1) { const c = document.createElement('span'); c.className = 'nb-count'; c.textContent = '×' + it.count; c.title = t('nb_times', { n: it.count }); line.append(' ', c); }
       body.appendChild(line);
       if (it.why) body.appendChild(mk('nb-why', it.why));
       if (it.more) { // explicação mais longa, em "Por quê?"
