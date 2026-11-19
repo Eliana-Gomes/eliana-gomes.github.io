@@ -176,6 +176,9 @@
   .int-chip span { display: inline-block; padding: 7px 12px; border-radius: 18px; border: 1px solid var(--line); background: var(--surface); color: var(--text-2); font-size: 0.82rem; }
   .int-chip input:checked + span { background: var(--fill); border-color: var(--fill); color: var(--on-fill); font-weight: 600; }
   .int-chip input:focus-visible + span { outline: 2px solid var(--fill); outline-offset: 2px; }
+  #pf-cancel-new { position: fixed; top: calc(10px + env(safe-area-inset-top, 0px)); left: 50%; transform: translateX(-50%); z-index: 60; width: auto; padding: 9px 20px; border-radius: 999px; background: var(--night); color: #F4F0EA; border: 1.5px solid var(--gold-glow); font-weight: 600; box-shadow: 0 4px 14px rgba(0,0,0,0.3); }
+  #pf-cancel-new::before { content: '✕ '; color: var(--gold-glow); }
+  body.newp #view-profile { padding-top: 64px; }
   .pf-err { width: 100%; font-size: 0.82rem; color: var(--err); margin-top: -4px; }
   .setup-screen .pf-err { color: #F2B8B5; text-align: center; }
   .api-input.pf-need { border-color: var(--gold-glow); box-shadow: 0 0 0 2px rgba(219,168,76,0.35); }
@@ -805,8 +808,18 @@ function profileCard(id) {
   setTimeout(() => { s.classList.add('hide'); setTimeout(() => s.remove(), 400); }, 1000);
 })();
 // Versão do app (fim da tela Perfil). Atualizada sozinha a cada commit que mexe neste arquivo (hook .git/hooks/pre-commit).
-const APP_VERSION = 80, APP_DATE = '2026-11-20';
+const APP_VERSION = 81, APP_DATE = '2026-11-20';
 let currentLang = 'es', currentLangName = 'Spanish', currentLocale = 'es-ES';
+// Teste de nível: uma pergunta que pede o nome (6 idiomas) perde essa frase; sem outra pergunta, fica "De onde você é?".
+const NAME_Q = /what'?s your name|what is your name|c[oó]mo te llamas|c[oó]mo se llama|cu[aá]l es tu nombre|comment tu t[’']?\s?appelles|comment vous vous appelez|comment vous appelez|comment t[’']?appelles[- ]tu|tu t[’']appelles comment|quel est ton (?:pr[ée])?nom|come ti chiami|come si chiama|qual [eè] il tuo nome|wie hei(?:ß|ss)t du|wie hei(?:ß|ss)en sie|wie ist dein name|como (?:voc[eê] )?se chama|como te chamas|qual [eé] (?:o )?(?:seu|teu) nome/i;
+const TEST_FROM = { es: '¿De dónde eres?', en: 'Where are you from?', fr: 'Tu viens d’où ?', it: 'Di dove sei?', de: 'Woher kommst du?', pt: 'De onde você é?', ptPT: 'De onde és?' };
+function testNoName(q) {
+  if (!NAME_Q.test(q)) return q;
+  const parts = String(q).match(/[¡¿]?[^.!?¡¿]*[.!?]+|[^.!?]+$/g) || [q];
+  let kept = parts.filter(s => !NAME_Q.test(s)).join(' ').replace(/\s+/g, ' ').trim();
+  if (!/\?/.test(kept)) kept = (kept ? kept + ' ' : '') + (currentLang === 'pt' && ptIsPT() ? TEST_FROM.ptPT : TEST_FROM[currentLang] || TEST_FROM.en);
+  return kept.replace(/\s+([?!])/g, currentLang === 'fr' ? ' $1' : '$1').replace(/¿\s+/g, '¿');
+}
 let currentTopic = 'Free conversation';
 let chatHistory = [], recognition = null, isRecording = false, isSpeaking = false;
 let synth = window.speechSynthesis || { getVoices: () => [], cancel() {}, speak() {}, onvoiceschanged: null }, voices = [], API_KEY = '';
@@ -2453,7 +2466,7 @@ function startApp() {
   if (!PROFILE) { // primeira vez (ou pessoa nova): perfil sem barra de navegação
     fillProfileForm(); showView('profile');
     if (pendingNew()) {
-      document.getElementById('pf-cancel-new').style.display = '';
+      document.getElementById('pf-cancel-new').style.display = ''; document.body.classList.add('newp');
       nameErr(false);
       try { history.pushState({ view: 'profile', newp: true }, ''); } catch(e) {}
       setTimeout(() => { const i = document.getElementById('pf-name'); i.scrollIntoView({ block: 'center' }); i.focus(); }, 300);
@@ -2530,7 +2543,7 @@ function commitNewProfile() {
   const r = profilesLoad();
   if (!r.list.some(p => p.id === pn.id)) { r.list.push({ id: pn.id }); r.next = Math.max(r.next, Number(pn.id.slice(1)) + 1); profilesStore(r); }
   try { localStorage.setItem(ACTIVE_KEY, pn.id); sessionStorage.removeItem(PENDING_KEY); sessionStorage.setItem(CHOSEN_KEY, pn.id); } catch(e) {}
-  document.getElementById('pf-cancel-new').style.display = 'none';
+  document.getElementById('pf-cancel-new').style.display = 'none'; document.body.classList.remove('newp');
   document.getElementById('pf-name').classList.remove('pf-need');
 }
 function nameErr(show) {
@@ -2734,7 +2747,7 @@ function renderHome() {
   const show = cur !== null ? cur : startNext >= 0 ? startNext : null;
   card.style.display = show === null ? 'none' : 'flex';
   if (show !== null) {
-    document.getElementById('card-continue-t').firstChild.textContent = t(cur !== null ? 'card_continue' : 'card_start', { n: lessonNum(show) });
+    document.getElementById('card-continue-t').firstChild.textContent = t(cur !== null && lessonStarted(cur) ? 'card_continue' : 'card_start', { n: lessonNum(show) });
     card.querySelector('.ico').textContent = trackEmoji(show);
     document.getElementById('card-continue-d').textContent = lessonUI(show)[0];
   }
@@ -3091,6 +3104,8 @@ function renderZero() {
   });
 }
 // Lição com conversa guardada que pode ser retomada (mesma língua nativa e variante, formato com passos).
+// Lição começada de verdade: guardada e com pelo menos uma resposta da aluna.
+function lessonStarted(i) { const s = lessonSessions()[currentLang]; return lessonResumable(i) && ((s.st && (s.st.pos > 0 || s.st.tries > 0)) || s.log.some(m => m && m.role === 'user')); }
 function lessonResumable(i) {
   const s = lessonSessions()[currentLang];
   return !!(s && s.lesson === i && s.st && Number.isInteger(s.st.pos) && Array.isArray(s.log) && s.log.length &&
@@ -5617,14 +5632,15 @@ async function startTest() {
   const P = PROFILE, NI = NATIVES[getNative(P)];
   const system = `You create an ORAL level test of ${currentLangName} for ${P.name}, ${NI.speaker}. ${accentRule(P)}
 Write ${TEST_TOTAL} short questions (at most 15 words each) in ${currentLangName}, addressed to ${P.name}, in increasing difficulty:
-1. greeting and asking their name; 2. everyday present (where they are from, where they live); 3. everyday present (routine); 4. past (what they did yesterday); 5. past (last weekend); 6. future plans; 7. opinion and why, on an everyday topic; 8. hypothesis ("what would you do if…").
+1. a short greeting that uses ${P.name}'s name and ONE easy question about where they are from; 2. everyday present (where they live or what they do); 3. everyday present (routine); 4. past (what they did yesterday); 5. past (last weekend); 6. future plans; 7. opinion and why, on an everyday topic; 8. hypothesis ("what would you do if…").
+NEVER ask for ${P.name}'s name in any question: you already know it.
 No translations and no numbering inside the sentences. Reply ONLY with JSON: {"perguntas": ["…", "…"]}`;
   try {
     const out = await busyAI([{ role: 'user', content: 'Create the test questions.' }], system);
     removeLoading();
     if (currentTest !== test) return; // a aluna saiu do teste entretanto
     const j = parseJsonReply(out);
-    const qs = j && Array.isArray(j.perguntas) ? j.perguntas.filter(s => typeof s === 'string' && s.trim()).map(s => s.trim()).slice(0, TEST_TOTAL) : [];
+    const qs = j && Array.isArray(j.perguntas) ? j.perguntas.filter(s => typeof s === 'string' && s.trim()).map(s => testNoName(s.trim())).slice(0, TEST_TOTAL) : [];
     if (qs.length < 6) throw new Error(t('test_fail'));
     test.q = qs;
     askTestQuestion();
