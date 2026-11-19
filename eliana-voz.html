@@ -775,7 +775,7 @@ function profileCard(id) {
   setTimeout(() => { s.classList.add('hide'); setTimeout(() => s.remove(), 400); }, 1000);
 })();
 // Versão do app (fim da tela Perfil). Atualizada sozinha a cada commit que mexe neste arquivo (hook .git/hooks/pre-commit).
-const APP_VERSION = 71, APP_DATE = '2026-11-19';
+const APP_VERSION = 72, APP_DATE = '2026-11-19';
 let currentLang = 'es', currentLangName = 'Spanish', currentLocale = 'es-ES';
 let currentTopic = 'Free conversation';
 let chatHistory = [], recognition = null, isRecording = false, isSpeaking = false;
@@ -2731,11 +2731,15 @@ function setLang(code) {
 
 function setTopic(el, topic) {
   toggleChooserRow(false);
+  const modeChange = topic === 'Free conversation' && guidedMode; // "Livre" passa ao modo livre: conversa nova
+  const transition = !modeChange && canThemeTransition();
   currentTopic = topic;
   exitTest();
   currentLesson = null;
   if (topic === 'Free conversation') setGuided(false); // "Livre" é o modo livre (exclusivo com a Conversa guiada)
+  if (topic === 'Free conversation' && transition) pickFocus();
   updateGuidedUI();
+  if (transition) { themeTransition(); return; }
   resetConversationExtras();
   chatHistory = []; repeatTarget = ""; repeatTries = 0; clearTranscript(); ttsCancel();
   setTimeout(() => greet(), 200);
@@ -3082,7 +3086,14 @@ function openThemeSheet() {
 function closeThemeSheet() { document.getElementById('theme-sheet').classList.remove('show'); }
 // Tema dos interesses: conversa sem cenário com esse assunto principal (greet usa-o em vez de sortear).
 let forcedFocus = null;
-function chooseInterestTheme(k) { forcedFocus = k; currentTopic = 'Free conversation'; restartConversation(); }
+function chooseInterestTheme(k) {
+  if (canThemeTransition()) {
+    currentTopic = 'Free conversation'; chatFocus = k; focusTurns = 0;
+    try { const used = focusLoad(); used[k] = new Date().toISOString(); store.setItem(FOCUS_KEY, JSON.stringify(used)); } catch(e) {}
+    updateGuidedUI(); themeTransition(); return;
+  }
+  forcedFocus = k; currentTopic = 'Free conversation'; restartConversation();
+}
 function changeTheme() { if (currentTopic !== 'Free conversation') currentTopic = 'Free conversation'; restartConversation(); }
 // Dica fixa do idioma: aparece no máximo 1 vez por dia por idioma (até a aluna falar ou tocar em ✕).
 function tipSeenMap() { try { return JSON.parse(localStorage.getItem('parlia_dica') || '{}'); } catch(e) { return {}; } }
@@ -3585,12 +3596,16 @@ function lzLowLevel() { const v = normLevel(((PROFILE && PROFILE.levels) || {})[
 async function ensureGuidedTr(text) {
   if (!(guidedMode || lzLowLevel()) || currentLesson !== null || currentTest) return text;
   // Uma linha só entre parênteses já é tradução: passa a [nat]; traduções repetidas seguidas saem.
-  const L0 = String(text || '').split('\n').map(l => /^\s*\(.*\)\s*$/.test(l) && !/^\s*\[/.test(l) ? '[nat] ' + l.trim() : l);
+  const natG = NATIVES[getNative(PROFILE)].group;
+  const isNatLine = l => { if (/^\s*\[/.test(l)) return false; if (/^\s*\(.*\)\s*$/.test(l)) return true; const g = guessLang(l); return g.best === natG && g.sc[g.best] >= 3; };
+  const L0 = String(text || '').split('\n').map(l => isNatLine(l) ? '[nat] ' + (/^\s*\(.*\)\s*$/.test(l) ? l.trim() : '(' + l.trim() + ')') : l);
   const L = L0.filter((l, i) => !(/^\s*\[nat\]/i.test(l) && i && /^\s*\[nat\]/i.test(L0[i - 1]))), miss = [];
   if (L.join('\n') !== String(text || '')) text = L.join('\n');
   L.forEach((l, i) => {
     if (/^\s*\[(?!alvo\])/i.test(l) || !/\p{L}/u.test(l) || /^\s*[📝✅💭➕🗣]/u.test(l)) return;
-    if (L[i + 1] && /^\s*\[nat\]/i.test(L[i + 1])) return;
+    // Coberta se, depois desta frase e das frases no idioma estudado que vêm logo a seguir, há uma tradução.
+    let j = i + 1; while (j < L.length && !/^\s*\[/.test(L[j]) && /\p{L}/u.test(L[j]) && !/^\s*[📝✅💭➕🗣]/u.test(L[j])) j++;
+    if (L[j] && /^\s*\[nat\]/i.test(L[j])) return;
     miss.push(i);
   });
   if (!miss.length) return text;
@@ -3700,6 +3715,29 @@ function composeReviewed(rev, conv) {
   pendingCont = conti;
   return rev.errors.map((e, k) => `${k ? '➕' : '📝'} ${e.wrong} → ${e.right} · ${e.why}`).join('\n') + `\n✅ ${rev.corrected}`;
 }
+// Tema atual em inglês, para a IA: o cenário escolhido ou o assunto dos interesses escolhido (ou sorteado).
+function themeEn() {
+  if (currentTopic !== 'Free conversation') return currentTopic + (currentLang === 'de' && typeof TOPIC_DE !== 'undefined' && TOPIC_DE[currentTopic] ? ' (' + TOPIC_DE[currentTopic] + ')' : '');
+  const it = chatFocus && INTERESTS.find(x => x.k === chatFocus);
+  return it ? it.en : 'a concrete, simple everyday subject';
+}
+// Trocar de tema a meio da conversa (mesmo modo): a Lia faz uma transição curta e segue no tema novo, sem recomeçar.
+function canThemeTransition() { return currentLesson === null && !currentTest && chatStartedMode === guidedMode && !isBusy() && !!document.querySelector('#transcript .msg'); }
+async function themeTransition() {
+  stopRecording(); ttsCancel(); hideSuggestions(); lastSuggestions = []; pendingCont = null; repeatTarget = ''; repeatTries = 0; focusTurns = 0;
+  const L = currentLangName;
+  chatHistory.push({ role: 'user', content: `(${PROFILE.name} chose a new topic: ${themeEn()}. Make a very short transition in ${L}, like "Let's talk about …" in ${L}, and ask ONE simple question about the NEW topic. No corrections.)` });
+  setStatus('gold', t('st_preparing')); addLoadingMsg();
+  try {
+    let recent = chatHistory.slice(-20); while (recent.length && recent[0].role !== 'user') recent = recent.slice(1);
+    const reply = await busyAI(recent.map(m => ({ role: m.role, content: m.content })), buildSystem());
+    const g = guidedMode ? guidedSplit(reply) : { main: reply, sugg: [] };
+    g.main = await ensureGuidedTr(limitEmoji(cleanConv(g.main) || g.main));
+    removeLoading(); addMsg('tutor', g.main); speak(g.main, null, { chime: guidedMode });
+    chatHistory.push({ role: 'assistant', content: g.main });
+    if (guidedMode) showSuggestions(g.sugg);
+  } catch(e) { removeLoading(); setStatus('error', t('st_error') + (e && e.message ? e.message : t('no_connection'))); }
+}
 // ── AI ──
 async function greet() {
   if (currentLesson !== null) return greetLesson();
@@ -3709,8 +3747,8 @@ async function greet() {
   const system = buildSystem();
   chatStartedMode = guidedMode;
   const prompt = guidedMode
-    ? `Briefly greet ${PROFILE.name} as Lia, in ${currentLangName}, and start a GUIDED conversation for a beginner. ${currentTopic === 'Free conversation' ? `Propose ONE concrete, simple everyday subject taken from the main subject or from ${PROFILE.name}'s interests (e.g. breakfast, favourite music, the weekend) and ask ONE simple closed question about it.` : `Ask ONE simple closed question about "${currentTopic}".`} Never ask what ${PROFILE.name} would like to talk about and never mention "free conversation". Follow the GUIDED CONVERSATION rules: a [nat] translation line after EACH sentence and the 2 💭 lines. No 📝 or ✅ lines.`
-    : `Briefly introduce yourself as Lia, in ${currentLangName}, and invite ${PROFILE.name} to practise "${currentTopic}". At most 2 short sentences: a warm welcome and one open question (no "A or B?"), with no 📝 or ✅ lines.`;
+    ? `Briefly greet ${PROFILE.name} as Lia, in ${currentLangName}, and start a GUIDED conversation for a beginner. The topic of this conversation is: ${themeEn()}. Talk about THIS topic (not another one): start with ONE simple closed question about a concrete, everyday aspect of it. Never ask what ${PROFILE.name} would like to talk about and never mention "free conversation". Follow the GUIDED CONVERSATION rules: a [nat] translation line after EACH sentence and the 2 💭 lines. No 📝 or ✅ lines.`
+    : `Briefly introduce yourself as Lia, in ${currentLangName}, and start the conversation about this topic (not another one): ${themeEn()}. At most 2 short sentences: a warm welcome and one open question (no "A or B?"), with no 📝 or ✅ lines.`;
   try {
     const reply = await busyAI([{ role: 'user', content: prompt }], system);
     const g = guidedMode ? guidedSplit(reply) : { main: reply, sugg: [] };
@@ -4709,7 +4747,8 @@ NO HIDDEN CORRECTIONS: if you repeat or rephrase ${N}'s sentence, every word you
 WHEN THERE IS A MISTAKE: after correcting, do NOT continue the topic; the conversation continues after the repetition.
 NEVER invent corrections: if a word seems mis-transcribed by the microphone (e.g. "Botía", "lo tomo" instead of "otoño"), do NOT correct it as grammar; at most use a 🗣️ line. Correct alternatives (e.g. "visto que", "ya que", "como") are NOT mistakes.
 ${typical ? `Watch for real mistakes that ${NI.short} speakers often make in ${L}: ${typical}.\n` : ''}IF ${N} ASKS FOR HELP WITH A WORD OR PRONUNCIATION (e.g. "corrígeme la palabra desarrollar"): do a mini drill. Say the word slowly, split into syllables (e.g. "de-sa-rro-llar"), give a tip of at most 12 words in ${EX} in a 🗣️ line, and ask them to repeat it.
-${CACHE_MARK}${interests}${memory}${repeatTarget ? `REPETITION MODE: you asked ${N} to repeat ONLY this corrected sentence: "${repeatTarget}".
+${CACHE_MARK}THEME chosen for this conversation (the whole conversation is about it; do not switch to another subject unless ${N} does): ${themeEn()}.
+${interests}${memory}${repeatTarget ? `REPETITION MODE: you asked ${N} to repeat ONLY this corrected sentence: "${repeatTarget}".
 - Evaluate ONLY that sentence and only the main correction (from the previous 📝 line), with no new 📝, ➕ or ✅ lines. Ignore the rest of the sentence, punctuation, hesitations and similar-sounding microphone glitches (e.g. "lo tomo" ≈ "otoño").
 - If it is right or almost right: start with "${tgt('correct')}", resume the conversation with ONE ${dunnoEasier ? 'EASIER question than your last one (yes/no or a simple choice), because ' + N + ' did not know how to answer' : 'open question'}, and put on a separate last line: 🎯 OK
 - If the corrected mistake is still the same: in simple ${L}, say in one short sentence what is still missing, repeat the right sentence slowly, and put on a separate last line: 🎯 DE NOVO. Never call a wrong answer "almost right", "on the right track" or "OK": say clearly what is missing.
