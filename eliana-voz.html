@@ -775,7 +775,7 @@ function profileCard(id) {
   setTimeout(() => { s.classList.add('hide'); setTimeout(() => s.remove(), 400); }, 1000);
 })();
 // Versão do app (fim da tela Perfil). Atualizada sozinha a cada commit que mexe neste arquivo (hook .git/hooks/pre-commit).
-const APP_VERSION = 74, APP_DATE = '2026-11-19';
+const APP_VERSION = 75, APP_DATE = '2026-11-19';
 let currentLang = 'es', currentLangName = 'Spanish', currentLocale = 'es-ES';
 let currentTopic = 'Free conversation';
 let chatHistory = [], recognition = null, isRecording = false, isSpeaking = false;
@@ -2810,8 +2810,12 @@ function guidedSplit(text) {
 // da frase que aparecem na transcrição (iguais, parecidas pela distância de edição, ou dentro de outra palavra); pelo
 // menos uma palavra-chave (4+ letras) tem de aparecer.
 function fzSim(a, b) { const n = a.length, m = b.length; if (!n || !m) return 0; let p = Array.from({ length: m + 1 }, (_, j) => j); for (let i = 1; i <= n; i++) { const c = [i]; for (let j = 1; j <= m; j++) c[j] = Math.min(p[j] + 1, c[j - 1] + 1, p[j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1)); p = c; } return 1 - p[m] / Math.max(n, m); }
+// Negação (6 idiomas): uma frase com negação e outra sem nunca são "parecidas" («Nein, ich arbeite nicht» ≠ «Ich arbeite allein»).
+const NEG_WORDS = new Set(['nicht', 'kein', 'keine', 'keinen', 'keinem', 'keiner', 'keines', 'nie', 'niemals', 'ne', 'n', 'pas', 'jamais', 'no', 'nunca', 'jamas', 'not', 'never', 'non', 'mai', 'nao']);
+function hasNeg(words) { return words.some((w, i) => NEG_WORDS.has(w) || (w === 't' && i && /n$/.test(words[i - 1]))); }
 function sugFuzzy(text, cand) {
   const A = lzWords(text), B = lzWords(cand); if (!A.length || !B.length) return 0;
+  if (hasNeg(A) !== hasNeg(B)) return 0;
   const joined = A.join('');
   const hit = w => A.includes(w) || (w.length >= 4 && A.some(x => x.length >= 4 && (fzSim(x, w) >= 0.6 || x.includes(w) || w.includes(x)))) || (w.length >= 5 && joined.includes(w.slice(0, 5)));
   const hits = B.filter(hit), key = B.filter(w => w.length >= 4);
@@ -4007,6 +4011,7 @@ function lzWords(s) { return lzNorm(s).split(' ').filter(Boolean); }
 // Pronomes e artigos (5 línguas): nunca contam como "palavra curta" tolerada (je ≠ tu, um ≠ uma…).
 const LZ_PROTECTED = new Set('je tu il elle on nous vous ils elles me te se m t s l le la les un une des du de moi toi yo el ella usted nos lo los las una i you he she it we they a an the my your io lui lei noi voi mi ti si gli eu ele ela o os as um uma meu minha teu tua seu sua en au aux del al in at from da di dal dalla dallo dall dai dagli alla allo ai agli nel nella em do no na dos das nos nas der den dem des ein eine einen einem einer ich du er wir ihr mich mir dich dir aus im an am auf von vom zu zum zur mit nach bei fur'.split(' '));
 function lzWordsClose(a, b) {
+  if (hasNeg(a) !== hasNeg(b)) return false; // negação de um lado só: nunca "parecidas"
   const short = w => w.length <= 3 && !LZ_PROTECTED.has(w), n = a.length, m = b.length;
   const d = Array.from({ length: n + 1 }, (_, i) => Array.from({ length: m + 1 }, (_, j) => i === 0 ? (b.slice(0, j).every(short) ? j : 99) : j === 0 ? (a.slice(0, i).every(short) ? i : 99) : 0));
   for (let i = 1; i <= n; i++) for (let j = 1; j <= m; j++) {
