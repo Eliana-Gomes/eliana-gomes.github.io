@@ -176,6 +176,10 @@
   .int-chip span { display: inline-block; padding: 7px 12px; border-radius: 18px; border: 1px solid var(--line); background: var(--surface); color: var(--text-2); font-size: 0.82rem; }
   .int-chip input:checked + span { background: var(--fill); border-color: var(--fill); color: var(--on-fill); font-weight: 600; }
   .int-chip input:focus-visible + span { outline: 2px solid var(--fill); outline-offset: 2px; }
+  .pf-err { width: 100%; font-size: 0.82rem; color: var(--err); margin-top: -4px; }
+  .setup-screen .pf-err { color: #F2B8B5; text-align: center; }
+  .api-input.pf-need { border-color: var(--gold-glow); box-shadow: 0 0 0 2px rgba(219,168,76,0.35); }
+  #choice-sub { white-space: pre-line; }
   .pf-hint { width: 100%; font-size: 0.78rem; color: var(--text-2); margin-top: -4px; }
   .pf-check { width: 100%; display: flex; align-items: center; gap: 10px; font-size: 0.85rem; color: var(--text); cursor: pointer; }
   .pf-check input { width: 20px; height: 20px; accent-color: var(--gold); flex-shrink: 0; }
@@ -196,7 +200,7 @@
   .lbl-photo { width: 20px; height: 20px; border-radius: 50%; object-fit: cover; vertical-align: middle; margin-right: 4px; border: 1px solid var(--user-line); }
   .nb-view.active { padding: 20px 16px 100px; }
 
-  .toast { position: fixed; left: 50%; bottom: 84px; transform: translateX(-50%); z-index: 1100; max-width: 90%; background: var(--night); border: 1px solid var(--gold-glow); color: #F4F0EA; border-radius: 12px; padding: 10px 14px; font-size: 0.85rem; text-align: center; box-shadow: 0 6px 20px rgba(0,0,0,0.4); opacity: 0; pointer-events: none; transition: opacity 0.3s; }
+  .toast { white-space: pre-line; position: fixed; left: 50%; bottom: 84px; transform: translateX(-50%); z-index: 1100; max-width: 90%; background: var(--night); border: 1px solid var(--gold-glow); color: #F4F0EA; border-radius: 12px; padding: 10px 14px; font-size: 0.85rem; text-align: center; box-shadow: 0 6px 20px rgba(0,0,0,0.4); opacity: 0; pointer-events: none; transition: opacity 0.3s; }
   .toast.show { opacity: 1; }
   .modal { position: fixed; inset: 0; z-index: 1060; background: rgba(5,22,26,0.88); display: none; align-items: center; justify-content: center; padding: 16px; }
   .modal.show { display: flex; }
@@ -427,7 +431,8 @@
 <div class="setup-screen" id="setup-screen">
   <div class="setup-logo"><picture><source srcset="parlia-logo.webp" type="image/webp"><img class="logo-img" src="parlia-logo.png" width="800" height="300" alt="Parlia · by Luz em Movimento"></picture></div>
   <p data-i18n-html="setup_text"></p>
-  <input class="api-input" id="api-key-input" type="password" data-i18n-ph="key_ph" />
+  <input class="api-input" id="api-key-input" type="password" data-i18n-ph="key_ph" oninput="document.getElementById('key-err').style.display='none'" />
+  <div class="pf-err" id="key-err" style="display:none"></div>
   <button class="api-btn" onclick="saveKey()" data-i18n="enter_btn"></button>
   <button class="backup-btn" id="setup-cancel" style="display:none" onclick="cancelOwnKey()" data-i18n="lz_cancel"></button>
   <div id="ts-box" style="position:absolute;left:-9999px;top:0"></div>
@@ -465,6 +470,7 @@
 
 <!-- 👤 PERFIL (vista) -->
 <section class="view prof-view" id="view-profile">
+  <button class="backup-btn" id="pf-cancel-new" style="display:none" onclick="cancelNewProfile()" data-i18n="lz_cancel"></button>
   <h2 data-i18n="profile_title"></h2>
   <div class="pf-photo-row">
     <div class="photo-circle pf-photo" id="pf-photo"></div>
@@ -490,7 +496,8 @@
     <option value="it">🇮🇹 Italiano</option>
   </select>
   <div class="prof-label" data-i18n="name_q"></div>
-  <input class="api-input" id="pf-name" data-i18n-ph="name_ph" />
+  <input class="api-input" id="pf-name" data-i18n-ph="name_ph" oninput="nameErr(false)" />
+  <div class="pf-err" id="pf-name-err" style="display:none"></div>
   <div class="prof-label" data-i18n="interests_q"></div>
   <div class="pf-interests" id="pf-interests" role="group"></div>
   <div class="prof-label" data-i18n="likes_more_q"></div>
@@ -748,12 +755,31 @@
 // Partilhado por todos: a chave da IA ('eliana_api_key'). Lista dos perfis: 'tutora_perfis'; pessoa ativa: 'tutora_perfil_ativo'.
 const PROFILE_KEYS = ['tutora_profile', 'tutora_foto', 'tutora_caderno', 'tutora_racha', 'tutora_zero', 'tutora_licao', 'tutora_teste', 'tutora_idioma', 'tutora_assuntos', 'tutora_guiada', 'tutora_caderno_ordem'];
 const PROFILES_KEY = 'tutora_perfis', ACTIVE_KEY = 'tutora_perfil_ativo', CHOSEN_KEY = 'parlia_escolhido';
+// "Adicionar pessoa": o perfil novo fica provisório (só nesta sessão do navegador) até "Salvar e começar";
+// fechar ou voltar sem salvar não cria nada. { id, prev } = o id que vai ter e a pessoa de antes.
+const PENDING_KEY = 'parlia_novo_perfil';
+function pendingNew() { try { const p = JSON.parse(sessionStorage.getItem(PENDING_KEY) || 'null'); return p && /^p\d+$/.test(p.id || '') ? p : null; } catch(e) { return null; } }
 function profilesLoad() {
   try { const r = JSON.parse(localStorage.getItem(PROFILES_KEY) || 'null'); if (r && Array.isArray(r.list) && r.list.length) return { list: r.list.filter(p => p && p.id), next: Number(r.next) || r.list.length + 1 }; } catch(e) {}
   return { list: [{ id: 'p1' }], next: 2 };
 }
 function profilesStore(r) { try { localStorage.setItem(PROFILES_KEY, JSON.stringify(r)); } catch(e) {} }
+// Perfis sem nome e sem progresso (os antigos "Nova pessoa") são apagados ao abrir o app (fica sempre pelo menos um).
+function cleanupProvisional() {
+  const r = profilesLoad(); if (r.list.length < 2) return;
+  const J = (k, id) => { try { return JSON.parse(localStorage.getItem(pkey(k, id)) || 'null'); } catch(e) { return null; } };
+  const progress = id => { const nb = J('tutora_caderno', id) || {}, ra = J('tutora_racha', id) || {}, z = J('tutora_zero', id) || {}, li = J('tutora_licao', id) || {}, te = J('tutora_teste', id) || {};
+    return Object.values(nb).some(l => Array.isArray(l) && l.length) || Object.keys(ra.days || {}).length > 0 || Object.values(z).some(e => e && ((e.done || []).length || e.current != null)) || Object.keys(li).length > 0 || Object.keys(te).length > 0; };
+  let drop = r.list.filter(p => !profileCard(p.id).name && !progress(p.id)).map(p => p.id);
+  if (drop.length === r.list.length) drop = drop.slice(1);
+  if (!drop.length) return;
+  drop.forEach(id => PROFILE_KEYS.forEach(k => { try { localStorage.removeItem(pkey(k, id)); } catch(e) {} }));
+  r.list = r.list.filter(p => !drop.includes(p.id));
+  profilesStore(r);
+}
+cleanupProvisional();
 function readActive() {
+  const pn = pendingNew(); if (pn && !profilesLoad().list.some(p => p.id === pn.id)) return pn.id; // perfil novo, ainda por salvar
   const r = profilesLoad();
   let a = null; try { a = localStorage.getItem(ACTIVE_KEY); } catch(e) {}
   return r.list.some(p => p.id === a) ? a : r.list[0].id;
@@ -779,7 +805,7 @@ function profileCard(id) {
   setTimeout(() => { s.classList.add('hide'); setTimeout(() => s.remove(), 400); }, 1000);
 })();
 // Versão do app (fim da tela Perfil). Atualizada sozinha a cada commit que mexe neste arquivo (hook .git/hooks/pre-commit).
-const APP_VERSION = 79, APP_DATE = '2026-11-19';
+const APP_VERSION = 80, APP_DATE = '2026-11-20';
 let currentLang = 'es', currentLangName = 'Spanish', currentLocale = 'es-ES';
 let currentTopic = 'Free conversation';
 let chatHistory = [], recognition = null, isRecording = false, isSpeaking = false;
@@ -1759,7 +1785,7 @@ const I18N = {
     ptvar_q: 'Variante do português (voz, vocabulário e correções):', ptvar_br: 'Brasil', ptvar_pt: 'Portugal',
     style_q: 'Estilo da Lia:', style_friendly: 'Amigável', style_formal: 'Formal', style_fun: 'Divertida',
     save_btn: 'Salvar e começar →', backup_label: 'Backup (perfil, foto, caderno, racha, lições e testes; sem a chave API):',
-    export_btn: '⬇️ Exportar meus dados', import_btn: '⬆️ Importar meus dados', name_required: 'Escreva seu nome, por favor.',
+    export_btn: '⬇️ Exportar meus dados', import_btn: '⬆️ Importar meus dados', name_required: 'Escreva o seu nome', yes_replace: 'Substituir', yes_update: 'Atualizar', keep_btn: 'Manter',
     lang_es: 'Espanhol', lang_en: 'Inglês', lang_fr: 'Francês', lang_it: 'Italiano', lang_pt: 'Português', lang_de: "Alemão",
     nb_title: '📒 Meu caderno', nb_sort_recent: 'Mais recentes', nb_sort_count: 'Mais repetidos', nb_times: 'Repetido {n} vezes', tab_errors: 'Meus erros', tab_saved: 'Salvas',
     nb_empty_errors: 'Ainda não há erros salvos neste idioma.<br>Cada correção 📝 da Lia entra aqui sozinha.',
@@ -1821,7 +1847,7 @@ const I18N = {
     ptvar_q: 'Variante do português (voz, vocabulário e correções):', ptvar_br: 'Brasil', ptvar_pt: 'Portugal',
     style_q: 'Estilo da Lia:', style_friendly: 'Amigável', style_formal: 'Formal', style_fun: 'Divertida',
     save_btn: 'Guardar e começar →', backup_label: 'Cópia de segurança (perfil, foto, caderno, racha, lições e testes; sem a chave API):',
-    export_btn: '⬇️ Exportar os meus dados', import_btn: '⬆️ Importar os meus dados', name_required: 'Escreve o teu nome, por favor.',
+    export_btn: '⬇️ Exportar os meus dados', import_btn: '⬆️ Importar os meus dados', name_required: 'Escreve o teu nome', yes_replace: 'Substituir', yes_update: 'Atualizar', keep_btn: 'Manter',
     lang_es: 'Espanhol', lang_en: 'Inglês', lang_fr: 'Francês', lang_it: 'Italiano', lang_pt: 'Português', lang_de: "Alemão",
     nb_title: '📒 O meu caderno', nb_sort_recent: 'Mais recentes', nb_sort_count: 'Mais repetidos', nb_times: 'Repetido {n} vezes', tab_errors: 'Os meus erros', tab_saved: 'Guardadas',
     nb_empty_errors: 'Ainda não há erros guardados neste idioma.<br>Cada correção 📝 da Lia entra aqui sozinha.',
@@ -1883,7 +1909,7 @@ const I18N = {
     ptvar_q: 'Variante del portugués (voz, vocabulario y correcciones):', ptvar_br: 'Brasil', ptvar_pt: 'Portugal',
     style_q: 'Estilo de Lia:', style_friendly: 'Amable', style_formal: 'Formal', style_fun: 'Divertida',
     save_btn: 'Guardar y empezar →', backup_label: 'Copia de seguridad (perfil, foto, cuaderno, racha, lecciones y pruebas; sin la clave API):',
-    export_btn: '⬇️ Exportar mis datos', import_btn: '⬆️ Importar mis datos', name_required: 'Escribe tu nombre, por favor.',
+    export_btn: '⬇️ Exportar mis datos', import_btn: '⬆️ Importar mis datos', name_required: 'Escribe tu nombre', yes_replace: 'Sustituir', yes_update: 'Actualizar', keep_btn: 'Mantener',
     lang_es: 'Español', lang_en: 'Inglés', lang_fr: 'Francés', lang_it: 'Italiano', lang_pt: 'Portugués', lang_de: "Alemán",
     nb_title: '📒 Mi cuaderno', nb_sort_recent: 'Más recientes', nb_sort_count: 'Más repetidos', nb_times: 'Repetido {n} veces', tab_errors: 'Mis errores', tab_saved: 'Guardadas',
     nb_empty_errors: 'Todavía no hay errores guardados en este idioma.<br>Cada corrección 📝 de Lia entra aquí sola.',
@@ -1945,7 +1971,7 @@ const I18N = {
     ptvar_q: 'Portuguese variant (voice, vocabulary and corrections):', ptvar_br: 'Brazil', ptvar_pt: 'Portugal',
     style_q: 'Lia’s style:', style_friendly: 'Friendly', style_formal: 'Formal', style_fun: 'Fun',
     save_btn: 'Save and start →', backup_label: 'Backup (profile, photo, notebook, streak, lessons and tests; without the API key):',
-    export_btn: '⬇️ Export my data', import_btn: '⬆️ Import my data', name_required: 'Please write your name.',
+    export_btn: '⬇️ Export my data', import_btn: '⬆️ Import my data', name_required: 'Write your name', yes_replace: 'Replace', yes_update: 'Update', keep_btn: 'Keep',
     lang_es: 'Spanish', lang_en: 'English', lang_fr: 'French', lang_it: 'Italian', lang_pt: 'Portuguese', lang_de: "German",
     nb_title: '📒 My notebook', nb_sort_recent: 'Most recent', nb_sort_count: 'Most repeated', nb_times: 'Repeated {n} times', tab_errors: 'My mistakes', tab_saved: 'Saved',
     nb_empty_errors: 'No mistakes saved in this language yet.<br>Every 📝 correction from Lia is added here automatically.',
@@ -2007,7 +2033,7 @@ const I18N = {
     ptvar_q: 'Variante du portugais (voix, vocabulaire et corrections) :', ptvar_br: 'Brésil', ptvar_pt: 'Portugal',
     style_q: 'Style de Lia :', style_friendly: 'Sympathique', style_formal: 'Formel', style_fun: 'Drôle',
     save_btn: 'Enregistrer et commencer →', backup_label: 'Sauvegarde (profil, photo, carnet, série, leçons et tests ; sans la clé API) :',
-    export_btn: '⬇️ Exporter mes données', import_btn: '⬆️ Importer mes données', name_required: 'Écris ton prénom, s’il te plaît.',
+    export_btn: '⬇️ Exporter mes données', import_btn: '⬆️ Importer mes données', name_required: 'Écris ton prénom', yes_replace: 'Remplacer', yes_update: 'Mettre à jour', keep_btn: 'Garder',
     lang_es: 'Espagnol', lang_en: 'Anglais', lang_fr: 'Français', lang_it: 'Italien', lang_pt: 'Portugais', lang_de: "Allemand",
     nb_title: '📒 Mon carnet', nb_sort_recent: 'Plus récents', nb_sort_count: 'Plus fréquents', nb_times: 'Répété {n} fois', tab_errors: 'Mes erreurs', tab_saved: 'Enregistrées',
     nb_empty_errors: 'Aucune erreur enregistrée dans cette langue pour l’instant.<br>Chaque correction 📝 de Lia arrive ici toute seule.',
@@ -2069,7 +2095,7 @@ const I18N = {
     ptvar_q: 'Variante del portoghese (voce, vocabolario e correzioni):', ptvar_br: 'Brasile', ptvar_pt: 'Portogallo',
     style_q: 'Stile di Lia:', style_friendly: 'Amichevole', style_formal: 'Formale', style_fun: 'Divertente',
     save_btn: 'Salva e inizia →', backup_label: 'Backup (profilo, foto, quaderno, serie, lezioni e test; senza la chiave API):',
-    export_btn: '⬇️ Esporta i miei dati', import_btn: '⬆️ Importa i miei dati', name_required: 'Scrivi il tuo nome, per favore.',
+    export_btn: '⬇️ Esporta i miei dati', import_btn: '⬆️ Importa i miei dati', name_required: 'Scrivi il tuo nome', yes_replace: 'Sostituire', yes_update: 'Aggiornare', keep_btn: 'Mantenere',
     lang_es: 'Spagnolo', lang_en: 'Inglese', lang_fr: 'Francese', lang_it: 'Italiano', lang_pt: 'Portoghese', lang_de: "Tedesco",
     nb_title: '📒 Il mio quaderno', nb_sort_recent: 'Più recenti', nb_sort_count: 'Più ripetuti', nb_times: 'Ripetuto {n} volte', tab_errors: 'I miei errori', tab_saved: 'Salvate',
     nb_empty_errors: 'Ancora nessun errore salvato in questa lingua.<br>Ogni correzione 📝 di Lia arriva qui da sola.',
@@ -2390,7 +2416,8 @@ function askUnsaved(target) {
 
 function saveProfile() {
   const name = document.getElementById('pf-name').value.trim();
-  if (!name) { alert(t('name_required')); return false; }
+  if (!name) { nameErr(true); const i = document.getElementById('pf-name'); i.scrollIntoView({ block: 'center' }); i.focus(); return false; }
+  nameErr(false);
   const old = PROFILE;
   const levels = Object.assign({}, DEFAULT_LEVELS, (PROFILE && PROFILE.levels) || {});
   LANGS.forEach(l => { const s = document.getElementById('pf-lv-' + l.code); if (s) levels[l.code] = s.value; });
@@ -2411,6 +2438,7 @@ function saveProfile() {
   const langChanged = old && (getNative(old) !== PROFILE.native || (old.ptVariant || 'Brasil') !== PROFILE.ptVariant);
   if (langChanged) { try { store.removeItem(LESSON_KEY); } catch(e) {} }
   try { store.setItem('tutora_profile', JSON.stringify(PROFILE)); } catch(e) {}
+  commitNewProfile();
   chatHistory = []; repeatTarget = ""; repeatTries = 0; clearTranscript();
   profileBaseline = null;
   init();
@@ -2422,7 +2450,16 @@ let appStarted = false;
 function startApp() {
   appStarted = true;
   PROFILE = loadProfile();
-  if (!PROFILE) { fillProfileForm(); showView('profile'); return; } // primeira vez: perfil sem barra de navegação
+  if (!PROFILE) { // primeira vez (ou pessoa nova): perfil sem barra de navegação
+    fillProfileForm(); showView('profile');
+    if (pendingNew()) {
+      document.getElementById('pf-cancel-new').style.display = '';
+      nameErr(false);
+      try { history.pushState({ view: 'profile', newp: true }, ''); } catch(e) {}
+      setTimeout(() => { const i = document.getElementById('pf-name'); i.scrollIntoView({ block: 'center' }); i.focus(); }, 300);
+    }
+    return;
+  }
   init();
   goHome();
 }
@@ -2431,12 +2468,14 @@ function startApp() {
 // Ao abrir o app com mais de um perfil, pergunta quem vai estudar (uma vez por sessão do navegador). Escolher
 // outra pessoa grava-a como ativa e recarrega o app (estado limpo, com os dados dessa pessoa).
 function chosenThisSession() { try { return sessionStorage.getItem(CHOSEN_KEY) === ACTIVE_ID; } catch(e) { return false; } }
-function needChooser() { return profilesLoad().list.length > 1 && !chosenThisSession(); }
+function namedProfiles() { return profilesLoad().list.filter(p => profileCard(p.id).name); }
+function needChooser() { return namedProfiles().length > 1 && !chosenThisSession() && !pendingNew(); }
 function showChooser(atStart) {
   const r = profilesLoad(), grid = document.getElementById('who-grid');
   grid.innerHTML = '';
   r.list.forEach(p => {
     const c = profileCard(p.id);
+    if (!c.name) return; // perfil sem nome (provisório): nunca aparece
     const b = document.createElement('button'); b.className = 'who-item' + (p.id === ACTIVE_ID ? ' active' : '');
     const ph = document.createElement('div'); ph.className = 'photo-circle';
     if (c.foto) { const img = document.createElement('img'); img.src = c.foto; img.alt = ''; ph.appendChild(img); } else ph.textContent = '👤';
@@ -2470,12 +2509,34 @@ function chooseProfile(id) {
   try { sessionStorage.setItem(CHOSEN_KEY, id); } catch(e) {}
   if (!appStarted) { hideChooser(); startApp(); } else closeChooser();
 }
-// "+ Adicionar pessoa": perfil novo e vazio (o app abre o formulário do primeiro perfil).
+// "+ Adicionar pessoa": abre o formulário do perfil novo; o perfil só entra na lista ao salvar.
 function addProfile() {
   const r = profilesLoad();
-  const id = 'p' + r.next; r.next++; r.list.push({ id });
-  profilesStore(r);
-  switchTo(id);
+  const id = 'p' + r.next;
+  PROFILE_KEYS.forEach(k => { try { localStorage.removeItem(pkey(k, id)); } catch(e) {} }); // restos de uma tentativa sem salvar (ex.: foto)
+  try { sessionStorage.setItem(PENDING_KEY, JSON.stringify({ id, prev: ACTIVE_ID })); sessionStorage.setItem(CHOSEN_KEY, id); } catch(e) {}
+  location.reload();
+}
+// Cancelar (ou "voltar") sem salvar: apaga o que a pessoa nova já tinha guardado (ex.: foto) e volta à pessoa de antes.
+function cancelNewProfile() {
+  const pn = pendingNew(); if (!pn) return;
+  PROFILE_KEYS.forEach(k => { try { localStorage.removeItem(pkey(k, pn.id)); } catch(e) {} });
+  try { sessionStorage.removeItem(PENDING_KEY); sessionStorage.setItem(CHOSEN_KEY, pn.prev); } catch(e) {}
+  location.reload();
+}
+// Ao salvar: o perfil novo entra na lista e passa a ser a pessoa ativa.
+function commitNewProfile() {
+  const pn = pendingNew(); if (!pn || pn.id !== ACTIVE_ID) return;
+  const r = profilesLoad();
+  if (!r.list.some(p => p.id === pn.id)) { r.list.push({ id: pn.id }); r.next = Math.max(r.next, Number(pn.id.slice(1)) + 1); profilesStore(r); }
+  try { localStorage.setItem(ACTIVE_KEY, pn.id); sessionStorage.removeItem(PENDING_KEY); sessionStorage.setItem(CHOSEN_KEY, pn.id); } catch(e) {}
+  document.getElementById('pf-cancel-new').style.display = 'none';
+  document.getElementById('pf-name').classList.remove('pf-need');
+}
+function nameErr(show) {
+  const e = document.getElementById('pf-name-err'), i = document.getElementById('pf-name');
+  e.textContent = show ? '✏️ ' + t('name_required') : ''; e.style.display = show ? '' : 'none';
+  i.classList.toggle('pf-need', !!show || (!!pendingNew() && !i.value.trim()));
 }
 // "Apagar este perfil": confirmação dupla; apaga só os dados desta pessoa.
 function deleteProfile() {
@@ -2497,7 +2558,7 @@ function deleteProfile() {
 function saveKey() {
   const k = document.getElementById('api-key-input').value.trim();
   if (!k.startsWith('sk-ant-') && !k.startsWith('sk-')) {
-    alert(t('key_invalid'));
+    const ke = document.getElementById('key-err'); ke.textContent = '✏️ ' + t('key_invalid'); ke.style.display = '';
     return;
   }
   try { store.setItem('eliana_api_key', k); } catch(e) {}
@@ -2552,7 +2613,7 @@ window.addEventListener('load', () => {
   applyI18n();
   setStatus('ready', t('st_starting'));
   API_KEY = loadKey();
-  profilesStore(profilesLoad()); try { localStorage.setItem(ACTIVE_KEY, ACTIVE_ID); } catch(e) {}
+  profilesStore(profilesLoad()); if (!pendingNew()) { try { localStorage.setItem(ACTIVE_KEY, ACTIVE_ID); } catch(e) {} }
   if (API_KEY || !useOwnKey()) {
     document.getElementById('setup-screen').style.display = 'none';
     if (!useOwnKey()) serverSession().catch(() => {}); // Turnstile ao abrir: a sessão fica pronta antes da 1.ª mensagem
@@ -2625,6 +2686,7 @@ window.addEventListener('popstate', (e) => {
   backPending = false;
   if (zeroPopSkip) { zeroPopSkip = false; return; } // entrada da lista retirada ao escolher uma lição
   if (whoOpen() && appStarted) { hideChooser(); return; } // "Quem vai estudar?" aberta por "Trocar de pessoa": fecha e fica
+  if (!PROFILE && pendingNew()) { cancelNewProfile(); return; } // pessoa nova: "voltar" sem salvar não cria nada
   if (!PROFILE) return; // ainda no primeiro perfil
   document.getElementById('choice-modal').classList.remove('show');
   // Voltar com a lista de lições aberta: fecha só a lista e fica na conversa.
@@ -5655,10 +5717,10 @@ function showTestResult(r) {
   const cur = (PROFILE.levels || {})[currentLang] || DEFAULT_LEVELS[currentLang];
   if (r.level !== cur) {
     setTimeout(() => {
-      if (confirm(t('test_confirm', { lang: langUI(currentLang), level: t('lvl_' + r.level) }))) {
+      askChoice(t('test_confirm', { lang: langUI(currentLang), level: t('lvl_' + r.level) }), '', t('yes_update'), () => {
         PROFILE.levels = Object.assign({}, DEFAULT_LEVELS, PROFILE.levels || {}, { [currentLang]: r.level });
         try { store.setItem('tutora_profile', JSON.stringify(PROFILE)); } catch(e) {}
-      }
+      }, t('keep_btn'), null);
     }, 600);
   }
 }
@@ -5698,10 +5760,10 @@ function handlePhoto(input) {
     c.getContext('2d').drawImage(img, 0, 0, w, h);
     URL.revokeObjectURL(url);
     try { store.setItem(PHOTO_KEY, c.toDataURL('image/jpeg', 0.85)); }
-    catch(e) { alert(t('photo_save_fail')); return; }
+    catch(e) { showToast(t('photo_save_fail')); return; }
     renderPhotos();
   };
-  img.onerror = () => { URL.revokeObjectURL(url); alert(t('photo_fail')); };
+  img.onerror = () => { URL.revokeObjectURL(url); showToast(t('photo_fail')); };
   img.src = url;
 }
 function removePhoto() {
@@ -5746,7 +5808,7 @@ function importData(input) {
   reader.onload = () => {
     let data = null;
     try { data = JSON.parse(reader.result); } catch(e) {}
-    if (!data || data.app !== 'tutora-voz') { alert(t('import_invalid')); return; }
+    if (!data || data.app !== 'tutora-voz') { showToast(t('import_invalid')); return; }
     const caderno = {};
     Object.keys(data.caderno && typeof data.caderno === 'object' ? data.caderno : {}).forEach(lang => {
       const l = data.caderno[lang];
@@ -5765,14 +5827,15 @@ function importData(input) {
       if (e && typeof e === 'object') zero[lang] = { done: Array.isArray(e.done) ? e.done.filter(n => Number.isInteger(n) && n >= 0 && n < LESSON_COUNT) : [], seen: !!e.seen, current: Number.isInteger(e.current) && e.current >= 0 && e.current < ZERO_TOTAL ? e.current : null };
     });
     const nLessons = Object.values(zero).reduce((n, e) => n + e.done.length, 0);
-    const ok = confirm(t('import_confirm', {
+    const msg = t('import_confirm', {
       lessons: hasZero ? t('lessons_n', { n: nLessons }) : '—',
       when: when ? t('import_when', { date: when }) : '',
       name: data.profile && data.profile.name ? ' (' + data.profile.name + ')' : '',
       items: nItems === 1 ? t('item_one') : t('item_many', { n: nItems }),
       days: nDays === 1 ? t('dayp_one') : t('dayp_many', { n: nDays })
-    }));
-    if (!ok) return;
+    });
+    const mq = msg.split('\n');
+    askChoice(mq[0], mq.slice(1).join('\n').trim(), t('yes_replace'), () => {
     try {
       if (data.profile && data.profile.name) store.setItem('tutora_profile', JSON.stringify(data.profile));
       store.setItem(NB_KEY, JSON.stringify(caderno));
@@ -5790,16 +5853,17 @@ function importData(input) {
       }
       // Foto: só substitui se a cópia trouxer uma imagem válida.
       if (typeof data.foto === 'string' && /^data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+/=]+$/.test(data.foto)) store.setItem(PHOTO_KEY, data.foto);
-    } catch(e) { alert(t('import_save_fail') + (e && e.message ? e.message : e)); return; }
+    } catch(e) { showToast(t('import_save_fail') + (e && e.message ? e.message : e)); return; }
     PROFILE = loadProfile() || PROFILE;
     // Recomeça a conversa com os dados importados (outra língua, outros níveis…).
     chatHistory = []; repeatTarget = ''; repeatTries = 0; clearTranscript();
     init();
     fillProfileForm();      // mostra os dados importados nos campos do perfil
     updateStreakBadge();
-    alert(t('import_ok'));
+    showToast(t('import_ok'));
+    }, t('lz_cancel'), null);
   };
-  reader.onerror = () => alert(t('read_fail'));
+  reader.onerror = () => showToast(t('read_fail'));
   reader.readAsText(file);
 }
 
