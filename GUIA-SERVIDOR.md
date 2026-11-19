@@ -29,6 +29,7 @@ No fim de cada parte, escreva "feito" no chat.
 3. Você clica em "Allow" (Permitir).
 4. Eu publico o servidor, ainda sem as chaves.
 5. Eu digo o endereço dele (termina em .workers.dev).
+6. Feito em 19/11/2026. O endereço é: https://parlia-servidor.parlia-servidor.workers.dev
 
 ---
 
@@ -122,7 +123,7 @@ Sem ela, a página responde "Not found", como se não existisse.
 1. Pegue o endereço do servidor que eu te passei (termina em .workers.dev).
 2. Acrescente no fim: /api/stats?key=
 3. Logo depois do "=", cole a sua chave de leitura.
-4. Fica assim: https://parlia-servidor.SEU-NOME.workers.dev/api/stats?key=SUA-CHAVE
+4. Fica assim: https://parlia-servidor.parlia-servidor.workers.dev/api/stats?key=SUA-CHAVE
 5. Abra esse endereço no navegador.
 6. Aparecem os últimos dias: "calls" (chamadas), "costUsd" (custo em dólares) e "refused" (recusas por limite).
 7. Dica: salve esse endereço completo como favorito, só no seu navegador.
