@@ -99,6 +99,37 @@ No fim de cada parte, escreva "feito" no chat.
 
 ---
 
+## Parte D2 — Chave de leitura do uso (STATS_KEY)
+
+Esta chave abre a página do uso do dia (chamadas e custo).
+Sem ela, a página responde "Not found", como se não existisse.
+
+1. Eu gero outro valor aleatório e ponho na área de transferência.
+2. Eu aviso quando estiver pronto.
+3. No painel da Cloudflare: "Workers & Pages" → "parlia-servidor" → "Settings".
+4. Em "Variables and Secrets", clique em "Add".
+5. Em "Type", escolha: Secret
+6. Em "Variable name", escreva: STATS_KEY
+7. Clique em "Value" e aperte Ctrl+V.
+8. Clique em "Deploy" (ou "Save").
+9. Agora guarde a mesma chave para você: abra o gerenciador de senhas (ou um bloco de notas privado) e aperte Ctrl+V.
+10. Não cole essa chave no chat.
+11. Depois, copie qualquer outra palavra (para tirar a chave da área de transferência).
+12. Escreva "feito" no chat.
+
+### Como abrir o uso do dia
+
+1. Pegue o endereço do servidor que eu te passei (termina em .workers.dev).
+2. Acrescente no fim: /api/stats?key=
+3. Logo depois do "=", cole a sua chave de leitura.
+4. Fica assim: https://parlia-servidor.SEU-NOME.workers.dev/api/stats?key=SUA-CHAVE
+5. Abra esse endereço no navegador.
+6. Aparecem os últimos dias: "calls" (chamadas), "costUsd" (custo em dólares) e "refused" (recusas por limite).
+7. Dica: salve esse endereço completo como favorito, só no seu navegador.
+8. Não mande esse endereço para ninguém (ele contém a chave).
+
+---
+
 ## Parte E — Ligar o app ao servidor (eu faço)
 
 1. Eu ponho no app o endereço do servidor e a Site Key.
@@ -111,7 +142,7 @@ No fim de cada parte, escreva "feito" no chat.
 
 ## Para você, no dia a dia
 
-- Uso do dia (número de chamadas e custo, sem conversas): abra o endereço do servidor com /api/stats no fim.
+- Uso do dia (número de chamadas e custo, sem conversas): veja "Como abrir o uso do dia", na Parte D2.
 - Para testar com a sua própria chave: Perfil → Avançado → "Usar minha própria chave da API".
 - O diagnóstico (5 toques na versão, no fim do Perfil) mostra se o app usa o servidor ou a chave própria.
 - Se quiser trocar a chave da Anthropic: crie uma nova no Console, troque o ANTHROPIC_API_KEY na Cloudflare e apague a antiga no Console.

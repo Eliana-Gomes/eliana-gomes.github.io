@@ -51,6 +51,14 @@ export async function verifySession(secret, token, now = Date.now()) {
   if (!p || !DEVICE_RE.test(p.d || '') || !(p.exp > now)) return null;
   return p;
 }
+// Compara dois segredos sem revelar pelo tempo onde diferem (resumos SHA-256 comparados byte a byte). Segredo vazio = nunca.
+async function sameSecret(secret, given) {
+  if (!secret || typeof given !== 'string' || !given) return false;
+  const [a, b] = await Promise.all([secret, given].map(s => crypto.subtle.digest('SHA-256', enc.encode(s))));
+  const x = new Uint8Array(a), y = new Uint8Array(b); let d = 0;
+  for (let i = 0; i < x.length; i++) d |= x[i] ^ y[i];
+  return d === 0;
+}
 // O IP nunca é guardado: só um resumo (SHA-256 com o segredo), que muda se o segredo mudar.
 async function ipHash(secret, ip) {
   return b64u(await crypto.subtle.digest('SHA-256', enc.encode(secret + '|' + (ip || '?')))).slice(0, 22);
@@ -131,7 +139,11 @@ export default {
   async fetch(req, env) {
     const url = new URL(req.url), origin = req.headers.get('Origin') || '';
     if (url.pathname === '/api/health') return json({ ok: true }, 200, env, origin);
-    if (url.pathname === '/api/stats' && req.method === 'GET') return json(await limiter(env, '/stats'), 200, env, origin);
+    // Uso do dia: só com a chave de leitura (segredo STATS_KEY); sem ela, 404 (como se não existisse).
+    if (url.pathname === '/api/stats' && req.method === 'GET') {
+      if (!(await sameSecret(env.STATS_KEY, url.searchParams.get('key')))) return new Response('Not found', { status: 404 });
+      return new Response(JSON.stringify(await limiter(env, '/stats'), null, 2), { status: 200, headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' } });
+    }
     if (origin !== env.ALLOWED_ORIGIN) return fail('parlia_forbidden', 'origin', 403, env, origin);
     if (req.method === 'OPTIONS') return new Response(null, { status: 204, headers: cors(env, origin) });
     if (req.method !== 'POST') return fail('parlia_bad_request', 'method', 405, env, origin);
