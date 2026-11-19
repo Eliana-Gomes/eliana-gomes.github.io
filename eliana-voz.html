@@ -723,7 +723,7 @@ function profileCard(id) {
   setTimeout(() => { s.classList.add('hide'); setTimeout(() => s.remove(), 400); }, 1000);
 })();
 // Versão do app (fim da tela Perfil). Atualizada sozinha a cada commit que mexe neste arquivo (hook .git/hooks/pre-commit).
-const APP_VERSION = 62, APP_DATE = '2026-11-19';
+const APP_VERSION = 63, APP_DATE = '2026-11-19';
 let currentLang = 'es', currentLangName = 'Spanish', currentLocale = 'es-ES';
 let currentTopic = 'Free conversation';
 let chatHistory = [], recognition = null, isRecording = false, isSpeaking = false;
@@ -3666,6 +3666,8 @@ function lzProtDiff(text, expected) {
     return !fm.includes('…') && u.some(w => LZ_PROTECTED.has(w) && !es.has(w));
   });
 }
+// A resposta tem uma palavra que não é preposição, pronome nem artigo e que não está na frase esperada? (outra frase, não a mesma com erro)
+function lzContentDiff(text, expected) { const v = lzForms(expected), e = new Set(lzWords(v ? v.a + ' ' + v.b : expected)); return lzWords(text).some(w => !LZ_PROTECTED.has(w) && !e.has(w)); }
 // Quantas palavras da frase esperada estão na resposta (para distinguir "outra frase" de "a mesma com erros").
 function lzOverlap(text, expected) {
   const v = lzForms(expected), e = lzWords(String(v ? v.a : expected || '').replace(/…/g, ' ')), u = new Set(lzWords(text));
@@ -3916,7 +3918,15 @@ function processLessonReply(reply, local, why) {
     if (other) { result = 'alternative'; fully = true; } else if (lzOverlap(userText, ex.t) < 0.6) result = 'wrong';
   }
   // "Também se diz assim!" só para respostas 100% corretas; com um erro pequeno: "Quase! Também daria «…», mas aqui a frase era: «…»".
-  if (result === 'alternative' && !local && !fully) { if (fixed && lzNorm(fixed) !== lzNorm(userText)) altFix = fixed; else result = 'wrong'; }
+  if (result === 'alternative' && !local && !fully) {
+    // "fixed" só vale se for a frase DA ALUNA corrigida: diferente da resposta dela e diferente da frase esperada.
+    const fixOk = fixed && lzNorm(fixed) !== lzNorm(userText) && !lzMatch(fixed, ex.t) && lzNorm(fixed) !== lzNorm(lzFill(ex.t));
+    if (fixOk) altFix = fixed;
+    // A IA devolveu a frase esperada como "fixed": se a resposta é outra frase (outras palavras) sem erro de preposição,
+    // pronome ou artigo, é uma alternativa correta ("Também se diz assim!"); senão é a frase esperada com erro.
+    else if (lzContentDiff(userText, lzFill(ex.t)) && !lzProtDiff(userText, lzFill(ex.t))) fully = true;
+    else result = 'wrong';
+  }
   // Resposta sem relação com o pedido (fora de ENSINAR e CRIAR) = errada.
   if (result === 'unclear' && step.k !== 'teach' && step.k !== 'create') result = 'wrong';
   if (step.k !== 'create' && (result === 'wrong' || result === 'alternative')) feedback = lzRelevantFeedback(feedback, userText, ex.t); // só nos erros
@@ -3924,7 +3934,10 @@ function processLessonReply(reply, local, why) {
   const out = [];
   let hint = '', finished = false, advance = false, requeue = false;
   if (result === 'correct' && why === 'scene') {
-    out.push(`[fala] ${t('lz_perfect')}`, `[fala] ${t('lz_also', { q: lzQ(exShow) })}`, lzSay1(exShow));
+    out.push(`[fala] ${t('lz_perfect')}`);
+    // "Também daria" só quando a resposta modelo é mesmo diferente (nenhuma das duas contém a outra).
+    const a = ' ' + lzNorm(userText) + ' ', b = ' ' + lzNorm(exShow) + ' ';
+    if (!a.includes(b) && !b.includes(a)) out.push(`[fala] ${t('lz_also', { q: lzQ(exShow) })}`, lzSay1(exShow));
     advance = true;
   } else if (result === 'correct' && why === 'partial') {
     out.push(`[fala] ${t('lz_just_say', { q: lzQ(exShow) })}`, lzSay1(exShow));
@@ -3956,7 +3969,7 @@ function processLessonReply(reply, local, why) {
         // [22] Dica de pronúncia fixa (sem IA), no máximo 1 por frase na lição.
         const tip = result === 'wrong' && !(st.tips || []).includes(step.k + step.i) ? lzPronTip(userText, exShow) : '';
         if (tip) { st.tips = (st.tips || []).concat([step.k + step.i]); out.push(`[ver] 🗣️ ${tip}`, lzMixedVoice(tip)); }
-        if (feedback && step.k !== 'teach') out.push(`[nat] ${feedback}`); // ao ENSINAR, o bloco basta; o comentário segue "Ler explicações"
+        if (feedback && step.k !== 'teach' && !tip) out.push(`[nat] ${feedback}`); // ao ENSINAR, o bloco basta; com a dica 🗣️, a linha da IA diria o mesmo
         out.push(`[fala] ${lzNI().repeatEx}:`, lzShowOnly(exShow));
       }
     }
@@ -4341,7 +4354,7 @@ ${usage ? `USAGE NOTES (the facts for every tip; never contradict them): ${usage
 ${looksQ ? `ATTENTION: the message looks like a QUESTION or a request for explanation, maybe badly transcribed by the microphone (e.g. "qu'est-ce qui ne fait que très bien" = "what does «très bien» mean?"): result "question".\n` : ''}The message comes from SPEECH RECOGNITION: ignore capitals, accents, punctuation, apostrophes and similar-sounding glitches; never mention them.
 Reply ONLY with this JSON, nothing before or after:
 {"result": "correct" | "alternative" | "wrong" | "question" | "unclear", "feedback": "…", "fully_correct": true | false, "fixed": "…"}
-fully_correct: true ONLY if ${N}'s answer, as said, is a completely correct and natural ${L} phrase (no grammar, vocabulary or preposition mistake), whether or not it is the expected one. fixed: when result is "alternative" and fully_correct is false, ${N}'s own phrase with the small mistake corrected (same words and meaning, in ${L}); otherwise "".
+fully_correct: true ONLY if ${N}'s answer, as said, is a completely correct and natural ${L} phrase (no grammar, vocabulary or preposition mistake), whether or not it is the expected one. fixed: ONLY when result is "alternative" and fully_correct is false: ${N}'s OWN phrase with the minimal correction (keep ${N}'s words and structure, in ${L}) — NEVER the expected phrase; otherwise "". Examples, if «Je viens du Brésil.» were expected: «je suis du Brésil» → "alternative", fully_correct true, fixed ""; «je suis de Brésil» → "alternative", fully_correct false, fixed "Je suis du Brésil."; «je viens de Brésil» → "wrong" (the expected phrase with a mistake), fully_correct false, fixed "".
 ${step.k !== 'create' && step.k !== 'chat' ? `STRICT: "correct" ONLY if the expected phrase «${lzPlain(ex.t)}» is present, with the same meaning and the same structure (speech-recognition glitches are fine). A DIFFERENT correct phrase that would also work (e.g. «Moi, c’est …» when «Je m’appelle …» was expected) is "alternative", never "correct". Anything else is "wrong".\n` : ''}
 - "correct": the answer is right. feedback: "" or at most ONE useful usage tip (one objective sentence of at most 12 words, e.g. "${NI.exShort}") ABOUT THE ${L.toUpperCase()} PHRASE, quoted in ${L} between «» (when or with whom to use it), NEVER about its translation (wrong: "Use «tchau» para se despedir de amigos"; right: "«Goodbye!» é um pouco formal; entre amigos se diz mais «Bye!»"); or, for a correct alternative, the difference in one short sentence. Tips must be true and consistent with the usage notes and with the other lesson phrases (e.g. «Good afternoon» from noon until about 6 p.m.).
 - "alternative": a different but correct phrase with the same meaning (not the expected one). feedback: "".
