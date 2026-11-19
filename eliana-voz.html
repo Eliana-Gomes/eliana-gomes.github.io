@@ -722,7 +722,7 @@ function profileCard(id) {
   setTimeout(() => { s.classList.add('hide'); setTimeout(() => s.remove(), 400); }, 1000);
 })();
 // Versão do app (fim da tela Perfil). Atualizada sozinha a cada commit que mexe neste arquivo (hook .git/hooks/pre-commit).
-const APP_VERSION = 59, APP_DATE = '2026-11-19';
+const APP_VERSION = 60, APP_DATE = '2026-11-19';
 let currentLang = 'es', currentLangName = 'Spanish', currentLocale = 'es-ES';
 let currentTopic = 'Free conversation';
 let chatHistory = [], recognition = null, isRecording = false, isSpeaking = false;
@@ -3184,8 +3184,8 @@ function versionTap() {
 
 // ── SPEECH SYNTHESIS ──
 // Marcas de voz no início das linhas: [nat] = língua nativa do aluno, [alvo] = idioma estudado (linha sem marca = idioma estudado).
-const VOICE_TAG = /^\s*\[(nat|alvo|ins)\]\s*/i, INS_TAG = /^\s*\[ins\]\s*/i;
-function stripTags(text) { return String(text || '').split('\n').filter(l => !IMG_TAG.test(l) && !LBL_TAG.test(l) && !voiceOnly(l)).map(l => l.replace(VOICE_TAG, '').replace(EST_TAG, '').replace(VER_TAG, '')).join('\n').replace(/\[(nat|alvo|ins)\]\s*/gi, ''); }
+const VOICE_TAG = /^\s*\[(nat|alvo|ins|fala)\]\s*/i, INS_TAG = /^\s*\[ins\]\s*/i, FALA_TAG = /^\s*\[fala\]\s*/i;
+function stripTags(text) { return String(text || '').split('\n').filter(l => !IMG_TAG.test(l) && !LBL_TAG.test(l) && !voiceOnly(l)).map(l => l.replace(VOICE_TAG, '').replace(EST_TAG, '').replace(VER_TAG, '')).join('\n').replace(/\[(nat|alvo|ins|fala)\]\s*/gi, ''); }
 // Linha [img] = ilustração (emoji grande) das lições: só se mostra.
 const IMG_TAG = /^\s*\[img\]\s*/i;
 // Linha [est] = estrutura da lição dos Primeiros passos (caixa): só se mostra.
@@ -3213,6 +3213,14 @@ function lzAlvo(s, slow, compact) {
   const tag = slow ? '[devagar]' : '[voz]';
   return (slow ? '' : `[ver] ${compact ? lzQ(s) : lzShow(s)}\n`) + (v.same ? `${tag} ${v.a}` : `${tag} ${v.a}\n[pausa]\n${tag} ${v.b}`);
 }
+// Frase certa só para a voz: normal e devagar (as duas formas homem/mulher se a pronúncia for diferente).
+function lzSay2(s) {
+  const v = lzForms(s), ws = v ? (v.same ? [v.a] : [v.a, v.b]) : [s];
+  return ws.map(w => `[voz] ${w}`).join('\n[pausa]\n') + '\n' + ws.map(w => `[devagar] ${w}`).join('\n[pausa]\n');
+}
+function lzSay1(s) { const v = lzForms(s); return `[voz] ${v ? v.a : s}`; }
+// Frase só na tela (não lida: já foi dita antes).
+function lzShowOnly(s) { return `[ver] ${lzForms(s) ? lzQ(s) : s}`; }
 // Deixas e pedidos curtos (antigos e atuais): se a aluna os repetir, não é resposta nem erro (lzCueEcho).
 const LZ_CUES = ['à toi', 'te toca', 'your turn', 'tocca a te', 'sua vez', 'é a tua vez', 'a tua vez', 'répète', 'repite', 'repeat', 'ripeti', 'repita', 'repete', 'répète avec moi', 'repite conmigo', 'repeat after me', 'ripeti con me', 'repita comigo', 'repete comigo'];
 function lzCueEcho(text) { const n = lzNorm(text); return !!n && LZ_CUES.some(c => lzNorm(c) === n); }
@@ -3261,8 +3269,9 @@ function voiceParts(text) {
     if (SLOW_TAG.test(line) || VOZ_TAG.test(line)) { const s = line.replace(SLOW_TAG, '').replace(VOZ_TAG, '').replace(/[\p{Extended_Pictographic}\u200D\uFE0F\u20E3]/gu, '').trim(); if (s) parts.push({ who: 'alvo', text: s, slow: SLOW_TAG.test(line), solo: true }); return; }
     const m = line.match(VOICE_TAG);
     const who = m ? m[1].toLowerCase() : 'alvo';
-    if (INS_TAG.test(line)) {
-      const s = insSpeech(line.replace(INS_TAG, ''));
+    if (INS_TAG.test(line) || FALA_TAG.test(line)) {
+      const raw = line.replace(INS_TAG, '').replace(FALA_TAG, '');
+      const s = insSpeech(FALA_TAG.test(line) ? raw.replace(/«[^»]*»|“[^”]*”|"[^"]*"/g, ' ') : raw);
       if (!s) return;
       if (nativeVoiceAvailable()) parts.push({ who: 'nat', text: s, ins: true });
       else dlog(0, `instrução não falada: sem voz para ${nativeVoiceLocale()} no aparelho («${s}»)`);
@@ -3293,6 +3302,7 @@ function nativeVoiceAvailable() {
 // Instrução falada: sem emoji, sem parênteses, sem aspas, palavras em MAIÚSCULAS em minúsculas, ": " vira ". ".
 function insSpeech(s) {
   let r = String(s || '').replace(/\([^)]*\)/g, ' ')
+    .replace(/\s*[\p{Extended_Pictographic}\u200D\uFE0F\u20E3]+\s*(?=\p{Lu})/gu, '. ')
     .replace(/[\p{Extended_Pictographic}\u200D\uFE0F\u20E3]/gu, '')
     .replace(/(?<!\p{L})(\p{Lu}{2,})(?!\p{L})/gu, w => w.toLowerCase())
     .replace(/:\s+(?=\p{L})/gu, '. ')
@@ -3300,7 +3310,7 @@ function insSpeech(s) {
     .replace(/[«»"“”]/g, '');
   r = r.replace(/\s+/g, ' ').replace(/\s+([,.!?:;])/g, '$1').replace(/([.!?:])\s*,/g, '$1').replace(/,\s*([.!?:;])/g, '$1')
     .replace(/([.!?])\s*:/g, '$1').replace(/:\s*:/g, ':').replace(/([.!?])(\s*[.!?])+/g, '$1').replace(/(^|[.!?]\s+)(\p{Ll})/gu, (m, a, b) => a + b.toUpperCase()).trim();
-  r = r.replace(/[,:;]$/, '').trim();
+  r = r.replace(/^[\s.,:;!?]+/, '').replace(/[,:;]$/, '').trim();
   if (r && !/[.!?…]$/.test(r)) r += '.';
   return r;
 }
@@ -3501,7 +3511,7 @@ function lzFill(text, lk, li) {
 function lzAgainText(step, items, tries) {
   const ex = lzExpected(step, items);
   if (step.k === 'create') return lzStepText(step, items, null); // CRIAR: o mesmo pedido (uma frase sua)
-  if (tries || step.k === 'teach') return `[nat] ${lzRepeat(ex)}:\n${lzAlvo(lzFill(ex.t), false, !!tries)}`;
+  if (tries || step.k === 'teach') return `[fala] ${lzRepeat(ex)}:\n${lzAlvo(lzFill(ex.t), false, !!tries)}`;
   return lzStepText(step, items, null);
 }
 
@@ -3619,7 +3629,7 @@ function lzLiaEcho(text, expected) {
   const u = lzWords(text); if (!u.length || lzMatch(text, expected)) return false;
   const last = [...chatHistory].reverse().find(m => m.role === 'assistant');
   const lines = String((last && last.content) || '').split('\n')
-    .filter(l => !/^\s*\[(nat|ins|img|lbl|est|pausa)\]/i.test(l))
+    .filter(l => !/^\s*\[(nat|ins|fala|img|lbl|est|pausa)\]/i.test(l))
     .map(l => l.replace(/^\s*\[(alvo|voz|ver|devagar)\]\s*/i, '').replace(/\([^)]*\)/g, ' '));
   lines.push(tgt('correct'), repShort());
   return lines.some(l => {
@@ -3769,7 +3779,7 @@ function lessonPreCheck(text) {
 // "Não entendi bem o seu nome 🙂 Diga de novo: «…»" (não é erro nem tentativa).
 function lessonSlotUnclear(step, items) {
   const ex = lzExpected(step, items), q = lzQ(lzFill(ex.t));
-  const main = `[nat] ${t(lzSlotKind(ex.t) === 'name' ? 'lz_name_unclear' : 'lz_data_unclear', { q })}`;
+  const main = `[fala] ${t(lzSlotKind(ex.t) === 'name' ? 'lz_name_unclear' : 'lz_data_unclear', { q })}\n${lzSay1(lzFill(ex.t))}`;
   chatHistory.push({ role: 'assistant', content: main });
   addMsg('tutor', main, '', false, main, ex.t, lzPlain(lzFill(ex.t)));
   speak(main, null, { chime: true });
@@ -3777,7 +3787,7 @@ function lessonSlotUnclear(step, items) {
 // Eco (a aluna repetiu a fala da Lia): não é erro nem tentativa; mostra o pedido outra vez, com a instrução.
 function lessonEchoReply(step, items) {
   const st = lessonState, ex = lzExpected(step, items);
-  const main = `[nat] ${t('lz_echo_lia')}\n` + lzAgainText(step, items, st.tries);
+  const main = `[fala] ${t('lz_echo_lia')}\n` + lzAgainText(step, items, st.tries);
   chatHistory.push({ role: 'assistant', content: main });
   addMsg('tutor', main, '', false, main, ex.t, step.k === 'teach' ? '' : lzPlain(lzFill(ex.t)));
   speak(main, null, { chime: true });
@@ -3814,26 +3824,26 @@ function processLessonReply(reply, local, why) {
     if (step.k === 'create') {
       // CRIAR: a frase é da aluna; mostra uma resposta possível e pede outra frase sua (2 vezes, depois segue).
       if (feedback) out.push(`[nat] ${feedback}`);
-      out.push(`[nat] ${t('lz_possible', { a: ex.t })}`);
-      if (st.tries >= 2) { out.push(`[nat] ${t('lz_later')}`); advance = true; requeue = true; }
+      out.push(`[fala] ${t('lz_possible', { a: ex.t })}`, lzSay1(ex.t));
+      if (st.tries >= 2) { out.push(`[fala] ${t('lz_later')}`); advance = true; requeue = true; }
       else { st.tries++; out.push(`[ins] ${t('lz_create_again')}`); hint = ex.t; }
     } else {
       if (result === 'wrong') nbAdd({ type: 'erro', wrong: userText, right: lzPlain(exShow), why: feedback });
-      if (st.tries >= 2) { out.push(`[nat] ${t('lz_later')}`); advance = true; requeue = true; } // já mostrou o bloco 2 vezes
+      if (st.tries >= 2) { out.push(`[fala] ${t('lz_later')}`); advance = true; requeue = true; } // já mostrou o bloco 2 vezes
       else {
         st.tries++;
         // Sempre o mesmo bloco, escrito pelo app: "Quase! A frase é: «…». Repita comigo:" + a frase.
-        out.push(`[nat] ${t(why === 'answered' && st.tries === 1 ? 'lz_answered' : result === 'alternative' && st.tries === 1 ? 'lz_alt' : 'lz_block', { q: lzQ(exShow) })}`);
-        if (feedback && step.k !== 'teach') out.push(`[nat] ${feedback}`); // ao ENSINAR, o bloco basta
-        out.push(`[nat] ${lzRepeat(ex)}:`, lzAlvo(exShow, false, true));
+        out.push(`[fala] ${t(why === 'answered' && st.tries === 1 ? 'lz_answered' : result === 'alternative' && st.tries === 1 ? 'lz_alt' : 'lz_block', { q: lzQ(exShow) })}`, lzSay2(exShow));
+        if (feedback && step.k !== 'teach') out.push(`[nat] ${feedback}`); // ao ENSINAR, o bloco basta; o comentário segue "Ler explicações"
+        out.push(`[fala] ${lzRepeat(ex)}:`, lzShowOnly(exShow));
       }
     }
   } else {
     // question / unclear (ENSINAR, CRIAR): explicação curta e o mesmo pedido outra vez (não conta como tentativa)
-    if (result === 'unclear' && step.k === 'teach') out.push(`[nat] ${t('lz_just_repeat', { a: exShow })}`, lzAlvo(exShow, false, true));
+    if (result === 'unclear' && step.k === 'teach') out.push(`[fala] ${t('lz_just_repeat', { a: exShow })}`, lzAlvo(exShow, false, true));
     else {
       if (feedback) out.push(`[nat] ${feedback}`);
-      else if (result === 'unclear') out.push(`[nat] ${t('lz_unclear')}`);
+      else if (result === 'unclear') out.push(`[fala] ${t('lz_unclear')}`);
       out.push(lzAgainText(step, items, st.tries));
     }
     if ((step.k === 'recall' || step.k === 'chat') && !st.tries) hint = lzPlain(exShow);
@@ -3847,7 +3857,7 @@ function processLessonReply(reply, local, why) {
     }
     st.pos++; st.tries = 0;
     const nx = steps[st.pos];
-    if (!nx) { finished = true; out.push(`[nat] ${t('lz_end')}`, `[ver] ${items.map(x => lzPlain(lzFill(x.t))).join(' · ')}`, `[voz] ${items.map(x => { const v = lzForms(x.t); return lzFill(v ? (v.same ? v.a : v.a + ' ' + v.b) : x.t); }).join(' · ')}`); }
+    if (!nx) { finished = true; out.push(`[fala] ${t('lz_end')}`, `[ver] ${items.map(x => lzPlain(lzFill(x.t))).join(' · ')}`, `[voz] ${items.map(x => { const v = lzForms(x.t); return lzFill(v ? (v.same ? v.a : v.a + ' ' + v.b) : x.t); }).join(' · ')}`); }
     else { out.push(lzStepText(nx, items, step)); if (nx.k !== 'teach') hint = lzPlain(lzFill(lzExpected(nx, items).t)); }
   }
   const main = out.join('\n');
@@ -3984,7 +3994,9 @@ async function processInput(text) {
       const better = BETTER[currentLang] || ((a, b) => `${b}.`);
       const sayFull = tgt('sayFull');
       const spokenFix = pairs.length ? pairs.map(([a, b]) => better(a, b)).join(' ') : (fixed ? `${sayFull} ${fixed}.` : '');
-      const spoken = gramFix.length && !wasRepeating ? `${spokenFix} ${rep} ${fragment}.` : (spokenFix ? `${spokenFix} ${main}` : main);
+      let spoken = gramFix.length && !wasRepeating ? `${spokenFix} ${rep} ${fragment}.` : (spokenFix ? `${spokenFix} ${main}` : main);
+      if (!gramFix.length) { const pron = fixLines.map(l => mixedSpeech(firstSentence(l.replace(/^[🗣️\s]+/u, '').split('·')[0]))).join('\n'); if (pron) spoken = [spokenFix, pron, main].filter(Boolean).join('\n'); }
+      if (gramFix.length && extraFix.length) spoken += `\n[fala] ${t('fix_more', { n: extraFix.length })}`;
       addMsg('tutor', main, html, true, spoken, fixed);
       speak(spoken);
     } else {
@@ -3999,6 +4011,16 @@ async function processInput(text) {
   }
 }
 
+// Linha na língua nativa com palavras do idioma entre «» ou aspas: cada parte com a sua voz (uma fala por parte).
+function mixedSpeech(s) {
+  const out = [];
+  String(s || '').split(/(«[^»]*»|“[^”]*”|"[^"]*")/).forEach(p => {
+    const q = p.match(/^[«“"](.*)[»”"]$/);
+    if (q) { if (q[1].trim()) out.push(`[voz] ${q[1].trim()}`); }
+    else if (p.replace(/[^\p{L}\p{N}]/gu, '')) out.push(`[fala] ${p.replace(/[()]/g, ' ')}`);
+  });
+  return out.join('\n');
+}
 // A IA reescreveu a frase (✅) sem linha 📝: a correção é o trecho em que a fala e a ✅ diferem
 // (palavras iguais no início e no fim ficam de fora). Só serve se o trecho for curto (uma correção só).
 function diffFix(said, ok) {
@@ -4323,7 +4345,7 @@ function renderTagged(text) {
     if (LBL_TAG.test(line)) return `<span class="lz-label">${esc(line.replace(LBL_TAG, ''))}</span>`;
     if (VER_TAG.test(line)) return esc(line.replace(VER_TAG, ''));
     const m = line.match(VOICE_TAG);
-    const s = line.replace(VOICE_TAG, '').replace(/\[(nat|alvo|ins)\]\s*/gi, '');
+    const s = line.replace(VOICE_TAG, '').replace(/\[(nat|alvo|ins|fala)\]\s*/gi, '');
     return m && m[1].toLowerCase() !== 'alvo' ? `<span class="ln-nat">${esc(s)}</span>` : esc(s);
   }).join('<br>');
 }
