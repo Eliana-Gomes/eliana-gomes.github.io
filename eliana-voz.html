@@ -779,7 +779,7 @@ function profileCard(id) {
   setTimeout(() => { s.classList.add('hide'); setTimeout(() => s.remove(), 400); }, 1000);
 })();
 // Versão do app (fim da tela Perfil). Atualizada sozinha a cada commit que mexe neste arquivo (hook .git/hooks/pre-commit).
-const APP_VERSION = 76, APP_DATE = '2026-11-19';
+const APP_VERSION = 77, APP_DATE = '2026-11-19';
 let currentLang = 'es', currentLangName = 'Spanish', currentLocale = 'es-ES';
 let currentTopic = 'Free conversation';
 let chatHistory = [], recognition = null, isRecording = false, isSpeaking = false;
@@ -4967,8 +4967,8 @@ const AI_TIMEOUT_MS = 45000;
 const MODEL_FAST = 'claude-haiku-5-5', MODEL_REVIEW = 'claude-sonnet-5-5', REVIEW_TIMEOUT_MS = 8000;
 // ── Servidor Parlia (Cloudflare Worker): guarda a chave da Anthropic e controla o uso. Enquanto o endereço ou a
 // Site Key do Turnstile estiverem vazios, o app usa a chave própria (o modo antigo). Nada aqui é segredo.
-const SERVER_URL = '';
-const TURNSTILE_SITEKEY = '';
+const SERVER_URL = 'https://parlia-servidor.parlia-servidor.workers.dev';
+const TURNSTILE_SITEKEY = '0x4AAAAAAGJN7ZHIF93cJg41';
 const OWN_KEY_FLAG = 'parlia_chave_propria', DEVICE_KEY = 'parlia_aparelho', SESSION_KEY = 'parlia_sessao', REFUSED_KEY = 'parlia_recusas';
 function serverReady() { return !!SERVER_URL && !!TURNSTILE_SITEKEY; }
 function useOwnKey() { if (!serverReady()) return true; try { return localStorage.getItem(OWN_KEY_FLAG) === '1'; } catch(e) { return false; } }
