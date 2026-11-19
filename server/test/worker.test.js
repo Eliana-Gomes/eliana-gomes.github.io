@@ -82,7 +82,7 @@ await check('outro IP', await call('/api/chat', { body: ok, token: s2.session, i
 const g = await storage.get('g:' + today); g.costUsd = 1.0; await storage.put('g:' + today, g);
 await check('teto de gasto do dia (US$ 1,00)', await call('/api/chat', { body: ok, token: s2.session, ip: '9.9.9.9' }), 429, 'daily_budget');
 // Registos
-for (const [n, q, want] of [['sem chave', '', 404], ['chave errada', '?key=errada', 404], ['chave certa', '?key=leitura-teste', 200]]) { const r = await call('/api/stats' + q, { method: 'GET', origin: '' }); const pass = r.status === want; if (!pass) fails++; console.log(`${pass ? '✔' : '✘'} /api/stats ${n}: HTTP ${r.status}`); }
+for (const [n, q, want] of [['sem chave', '', 404], ['chave errada', '?key=errada', 404], ['chave certa', '?key=leitura-teste', 200], ['chave certa com espaço no fim', '?key=leitura-teste%20', 200]]) { const r = await call('/api/stats' + q, { method: 'GET', origin: '' }); const pass = r.status === want; if (!pass) fails++; console.log(`${pass ? '✔' : '✘'} /api/stats ${n}: HTTP ${r.status}`); }
 const st = await (await call('/api/stats?key=leitura-teste', { method: 'GET', origin: '' })).json();
 console.log('registo do dia:', JSON.stringify(st.days[0]));
 console.log('guardado no servidor (chaves):', [...storage.m.keys()].join(', '));

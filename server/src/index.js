@@ -53,7 +53,9 @@ export async function verifySession(secret, token, now = Date.now()) {
 }
 // Compara dois segredos sem revelar pelo tempo onde diferem (resumos SHA-256 comparados byte a byte). Segredo vazio = nunca.
 async function sameSecret(secret, given) {
-  if (!secret || typeof given !== 'string' || !given) return false;
+  if (typeof secret !== 'string' || typeof given !== 'string') return false;
+  secret = secret.trim(); given = given.trim(); // espaços ao colar não contam
+  if (!secret || !given) return false;
   const [a, b] = await Promise.all([secret, given].map(s => crypto.subtle.digest('SHA-256', enc.encode(s))));
   const x = new Uint8Array(a), y = new Uint8Array(b); let d = 0;
   for (let i = 0; i < x.length; i++) d |= x[i] ^ y[i];

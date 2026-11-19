@@ -72,7 +72,7 @@
   .fix-main { font-size: 0.95rem; color: var(--ok); font-weight: 600; }
   .fix-list { margin-top: 4px; color: var(--fix-text); }
   .fix-why { margin-top: 6px; color: var(--fix-text); }
-  .fix-more { margin-top: 4px; font-size: 0.8rem; color: var(--fix-text); }
+  .fix-more { margin-top: 4px; font-size: 0.72rem; color: var(--fix-text); opacity: 0.85; }
   .fix-short { margin-top: 2px; color: var(--fix-text); }
   .nb-more { margin-top: 2px; font-size: 0.78rem; color: var(--text-2); }
   .nb-more summary { cursor: pointer; color: var(--accent); text-decoration: underline; list-style: none; }
@@ -779,7 +779,7 @@ function profileCard(id) {
   setTimeout(() => { s.classList.add('hide'); setTimeout(() => s.remove(), 400); }, 1000);
 })();
 // Versão do app (fim da tela Perfil). Atualizada sozinha a cada commit que mexe neste arquivo (hook .git/hooks/pre-commit).
-const APP_VERSION = 78, APP_DATE = '2026-11-19';
+const APP_VERSION = 79, APP_DATE = '2026-11-19';
 let currentLang = 'es', currentLangName = 'Spanish', currentLocale = 'es-ES';
 let currentTopic = 'Free conversation';
 let chatHistory = [], recognition = null, isRecording = false, isSpeaking = false;
@@ -1782,7 +1782,7 @@ const I18N = {
     write_toggle: '⌨️ Prefere escrever?', link_key: '🔑 Trocar chave',
     text_ph: 'Escreva aqui...', tip_label: '💡 Dica:', lbl_tutor: '🎓 Lia', lbl_you: '🎤 Você',
     btn_listen_again: 'Ouvir de novo', btn_translate: 'Mostrar tradução', btn_save: 'Salvar no caderno', saved: '✅ Salvo',
-    translating: 'Traduzindo…', translate_fail: 'Não consegui traduzir. Toque em 🌐 para tentar de novo.', why: 'Por quê?', fix_more: 'Mais {n} erro(s) desta frase foram guardados no 📒 Caderno.',
+    translating: 'Traduzindo…', translate_fail: 'Não consegui traduzir. Toque em 🌐 para tentar de novo.', why: 'Por quê?', fix_more: '📒 +{n} no Caderno',
     import_invalid: 'Este arquivo não é um backup do Parlia.',
     import_confirm: 'Importar o backup{when}?\n\nIsto vai SUBSTITUIR neste celular:\n• o perfil{name}\n• o caderno ({items})\n• a racha ({days})\n• as lições do zero ({lessons})\n\nA chave API não muda.',
     import_when: ' de {date}', item_one: '1 item', item_many: '{n} itens', dayp_one: '1 dia com prática', dayp_many: '{n} dias com prática',
@@ -1844,7 +1844,7 @@ const I18N = {
     write_toggle: '⌨️ Preferes escrever?', link_key: '🔑 Mudar chave',
     text_ph: 'Escreve aqui...', tip_label: '💡 Dica:', lbl_tutor: '🎓 Lia', lbl_you: '🎤 Tu',
     btn_listen_again: 'Ouvir de novo', btn_translate: 'Mostrar tradução', btn_save: 'Guardar no caderno', saved: '✅ Guardado',
-    translating: 'A traduzir…', translate_fail: 'Não consegui traduzir. Toca em 🌐 para tentar de novo.', why: 'Porquê?', fix_more: 'Mais {n} erro(s) desta frase ficaram guardados no 📒 Caderno.',
+    translating: 'A traduzir…', translate_fail: 'Não consegui traduzir. Toca em 🌐 para tentar de novo.', why: 'Porquê?', fix_more: '📒 +{n} no Caderno',
     import_invalid: 'Este ficheiro não é uma cópia de segurança do Parlia.',
     import_confirm: 'Importar a cópia{when}?\n\nIsto vai SUBSTITUIR neste telemóvel:\n• o perfil{name}\n• o caderno ({items})\n• a racha ({days})\n• as lições do zero ({lessons})\n\nA chave API não muda.',
     import_when: ' de {date}', item_one: '1 item', item_many: '{n} itens', dayp_one: '1 dia com prática', dayp_many: '{n} dias com prática',
@@ -1906,7 +1906,7 @@ const I18N = {
     write_toggle: '⌨️ ¿Prefieres escribir?', link_key: '🔑 Cambiar clave',
     text_ph: 'Escribe aquí...', tip_label: '💡 Consejo:', lbl_tutor: '🎓 Lia', lbl_you: '🎤 Tú',
     btn_listen_again: 'Escuchar de nuevo', btn_translate: 'Mostrar traducción', btn_save: 'Guardar en el cuaderno', saved: '✅ Guardado',
-    translating: 'Traduciendo…', translate_fail: 'No pude traducir. Toca 🌐 para intentarlo de nuevo.', why: '¿Por qué?', fix_more: '{n} error(es) más de esta frase se guardaron en el 📒 Cuaderno.',
+    translating: 'Traduciendo…', translate_fail: 'No pude traducir. Toca 🌐 para intentarlo de nuevo.', why: '¿Por qué?', fix_more: '📒 +{n} en el Cuaderno',
     import_invalid: 'Este archivo no es una copia de seguridad de Parlia.',
     import_confirm: '¿Importar la copia{when}?\n\nEsto va a SUSTITUIR en este móvil:\n• el perfil{name}\n• el cuaderno ({items})\n• la racha ({days})\n• las lecciones desde cero ({lessons})\n\nLa clave API no cambia.',
     import_when: ' del {date}', item_one: '1 elemento', item_many: '{n} elementos', dayp_one: '1 día con práctica', dayp_many: '{n} días con práctica',
@@ -1968,7 +1968,7 @@ const I18N = {
     write_toggle: '⌨️ Prefer to type?', link_key: '🔑 Change key',
     text_ph: 'Type here...', tip_label: '💡 Tip:', lbl_tutor: '🎓 Lia', lbl_you: '🎤 You',
     btn_listen_again: 'Listen again', btn_translate: 'Show translation', btn_save: 'Save to notebook', saved: '✅ Saved',
-    translating: 'Translating…', translate_fail: 'I could not translate. Tap 🌐 to try again.', why: 'Why?', fix_more: '{n} more mistake(s) from this sentence saved in your 📒 Notebook.',
+    translating: 'Translating…', translate_fail: 'I could not translate. Tap 🌐 to try again.', why: 'Why?', fix_more: '📒 +{n} in your Notebook',
     import_invalid: 'This file is not a Parlia backup.',
     import_confirm: 'Import the backup{when}?\n\nThis will REPLACE on this phone:\n• the profile{name}\n• the notebook ({items})\n• the streak ({days})\n• the lessons from scratch ({lessons})\n\nThe API key does not change.',
     import_when: ' from {date}', item_one: '1 item', item_many: '{n} items', dayp_one: '1 day of practice', dayp_many: '{n} days of practice',
@@ -2030,7 +2030,7 @@ const I18N = {
     write_toggle: '⌨️ Tu préfères écrire ?', link_key: '🔑 Changer de clé',
     text_ph: 'Écris ici...', tip_label: '💡 Astuce :', lbl_tutor: '🎓 Lia', lbl_you: '🎤 Toi',
     btn_listen_again: 'Réécouter', btn_translate: 'Afficher la traduction', btn_save: 'Enregistrer dans le carnet', saved: '✅ Enregistré',
-    translating: 'Traduction…', translate_fail: 'Je n’ai pas pu traduire. Touche 🌐 pour réessayer.', why: 'Pourquoi ?', fix_more: '{n} autre(s) erreur(s) de cette phrase enregistrée(s) dans le 📒 Carnet.',
+    translating: 'Traduction…', translate_fail: 'Je n’ai pas pu traduire. Touche 🌐 pour réessayer.', why: 'Pourquoi ?', fix_more: '📒 +{n} dans le Carnet',
     import_invalid: 'Ce fichier n’est pas une sauvegarde de Parlia.',
     import_confirm: 'Importer la sauvegarde{when} ?\n\nCela va REMPLACER sur ce téléphone :\n• le profil{name}\n• le carnet ({items})\n• la série ({days})\n• les leçons à partir de zéro ({lessons})\n\nLa clé API ne change pas.',
     import_when: ' du {date}', item_one: '1 élément', item_many: '{n} éléments', dayp_one: '1 jour de pratique', dayp_many: '{n} jours de pratique',
@@ -2092,7 +2092,7 @@ const I18N = {
     write_toggle: '⌨️ Preferisci scrivere?', link_key: '🔑 Cambia chiave',
     text_ph: 'Scrivi qui...', tip_label: '💡 Consiglio:', lbl_tutor: '🎓 Lia', lbl_you: '🎤 Tu',
     btn_listen_again: 'Riascolta', btn_translate: 'Mostra traduzione', btn_save: 'Salva nel quaderno', saved: '✅ Salvato',
-    translating: 'Traduzione…', translate_fail: 'Non sono riuscita a tradurre. Tocca 🌐 per riprovare.', why: 'Perché?', fix_more: 'Altri {n} errori di questa frase sono salvati nel 📒 Quaderno.',
+    translating: 'Traduzione…', translate_fail: 'Non sono riuscita a tradurre. Tocca 🌐 per riprovare.', why: 'Perché?', fix_more: '📒 +{n} nel Quaderno',
     import_invalid: 'Questo file non è un backup di Parlia.',
     import_confirm: 'Importare il backup{when}?\n\nQuesto SOSTITUIRÀ su questo telefono:\n• il profilo{name}\n• il quaderno ({items})\n• la serie ({days})\n• le lezioni da zero ({lessons})\n\nLa chiave API non cambia.',
     import_when: ' del {date}', item_one: '1 elemento', item_many: '{n} elementi', dayp_one: '1 giorno di pratica', dayp_many: '{n} giorni di pratica',
@@ -3693,7 +3693,11 @@ async function ensureGuidedTr(text) {
   const natG = NATIVES[getNative(PROFILE)].group;
   const isNatLine = l => { if (/^\s*\[/.test(l)) return false; if (/^\s*\(.*\)\s*$/.test(l)) return true; const g = guessLang(l); return g.best === natG && g.sc[g.best] >= 3; };
   const L0 = String(text || '').split('\n').map(l => isNatLine(l) ? '[nat] ' + (/^\s*\(.*\)\s*$/.test(l) ? l.trim() : '(' + l.trim() + ')') : l);
-  const L = L0.filter((l, i) => !(/^\s*\[nat\]/i.test(l) && i && /^\s*\[nat\]/i.test(L0[i - 1]))), miss = [];
+  const L1 = L0.filter((l, i) => !(/^\s*\[nat\]/i.test(l) && i && /^\s*\[nat\]/i.test(L0[i - 1])));
+  const plainOf = l => lzNorm(String(l).replace(/^\s*\[nat\]\s*/i, '').replace(/^\s*\(|\)\s*$/g, ''));
+  const sameTr = (a, b) => { const x = plainOf(a), y = plainOf(b); return !!x && (x === y || fzSim(x, y) >= 0.85); };
+  const isNat = l => !!l && /^\s*\[nat\]/i.test(l);
+  const L = L1.filter((l, i) => !(!/^\s*\[/.test(l) && ((isNat(L1[i - 1]) && sameTr(l, L1[i - 1])) || (isNat(L1[i + 1]) && sameTr(l, L1[i + 1]))))), miss = [];
   if (L.join('\n') !== String(text || '')) text = L.join('\n');
   L.forEach((l, i) => {
     if (/^\s*\[(?!alvo\])/i.test(l) || !/\p{L}/u.test(l) || /^\s*[📝✅💭➕🗣]/u.test(l)) return;
@@ -3753,7 +3757,7 @@ function reviewOverride(N) {
 }
 // Tira elogios de "certo" do início de uma fala do Haiku (o app é que confirma).
 function cleanPraise(s) {
-  const re = /^\s*(?:parfait|c[’']est juste|tr[eè]s bien|exactement|correct[oa]?|perfect[oa]?|perfetto|perfeito|muy bien|molto bene|muito bem|well done|bien dit|esatto|exacto|exato|giusto|bravo|great job)\b\s*[!.,]*\s*/i;
+  const re = /^\s*[¡¿]?\s*(?:c[’']est (?:juste|correct|ça)|tr[eè]s bien|bien dit|bien jou[ée]|parfait(?:ement)?|exactement|exact|correct[oa]?|correto|corret[ao]|cert[oa]|muy bien|muito bem|molto bene|sehr gut|richtig|genau|giusto|esatto|exacto|exato|perfect[oa]?|perfeit[oa]|perfett[oa]|perfekt|perfect|well done|great job|good job|that[’']?s (?:right|correct)|bravissim[oa]|bravo|isso mesmo|eso es|ottimo)(?![\p{L}])\s*[!.,]*\s*/iu;
   let out = String(s || ''), prev;
   do { prev = out; out = out.replace(re, ''); } while (out !== prev);
   return out.replace(/^\s*\n/, '');
@@ -3766,21 +3770,52 @@ const CONV_GRAMMAR_LINE = /\b(?:verbe|grammaire|conjugaison|partitif|passé comp
 function cleanConv(s) {
   const out = []; let skipNat = false;
   String(s || '').split('\n').forEach(l => {
-    if (skipNat && /^\s*\[nat\]/i.test(l)) { skipNat = false; return; }
+    if (skipNat && /^\s*(?:\[nat\]|\()/i.test(l)) { skipNat = false; return; }
     skipNat = false;
     if (CONV_FIX_LINE.test(l) || (!/^\s*\[nat\]/i.test(l) && CONV_GRAMMAR_LINE.test(l))) { skipNat = true; return; }
-    const c = /^\s*\[nat\]/i.test(l) ? l : cleanPraise(l);
+    // Linha de tradução ([nat] ou só entre parênteses): tira o elogio do início, ex.: "(Correto! Muito bem! …)".
+    const nm = l.match(/^(\s*(?:\[nat\]\s*)?\()([\s\S]*?)(\)?\s*)$/i);
+    const c = nm ? (cleanPraise(nm[2]).trim() ? nm[1] + cleanPraise(nm[2]) + nm[3] : '') : /^\s*\[nat\]/i.test(l) ? l : cleanPraise(l);
     if (c.trim()) out.push(c); else skipNat = true;
   });
   return out.join('\n').trim();
 }
 // Continuação do Haiku guardada enquanto a aluna repete a frase corrigida (mostrada quando a repetição está certa).
-let pendingCont = null;
+let pendingCont = null, answeredQ = '';
+const CONT_EXPL = /=|«|»|detalh|detall|detail|dettagl|explica|\berros?\b|\berror|errore|erreur|fehler|gram[aá]t|grammai|conjug|\bverb/i;
+function staleCont(body) {
+  const lines = String(body || '').split('\n').filter(l => l.trim());
+  const natL = l => /^\s*(?:\[nat\]|\()/i.test(l);
+  if (lines.some(l => natL(l) && CONT_EXPL.test(l))) return 'explicação';
+  const q = lines.filter(l => !natL(l) && /\?/.test(l)).map(l => lzNorm(stripTags(l)));
+  if (!q.length) return 'sem pergunta';
+  const prev = String(answeredQ || '').split('\n').filter(l => !natL(l) && /\?/.test(l)).map(l => lzNorm(stripTags(l)));
+  const same = (a, b) => !!a && !!b && (a === b || fzSim(a, b) >= 0.8 || (b.length >= 12 && a.includes(b)) || (a.length >= 12 && b.includes(a)));
+  return q.some(a => prev.some(b => same(a, b))) ? 'pergunta repetida' : '';
+}
+// Pergunta NOVA depois da repetição certa (a continuação guardada não servia).
+async function freshCont() {
+  const N = PROFILE.name;
+  let recent = chatHistory.slice(-20); while (recent.length && recent[0].role !== 'user') recent = recent.slice(1);
+  const msgs = recent.map(m => ({ role: m.role, content: m.content }));
+  const note = `(Note for Lia: ${N} has just repeated the corrected sentence correctly and the app already confirmed it. Do NOT confirm, correct or explain anything, no 🎯 line. Continue the conversation with ONE NEW question you have not asked yet — never your previous question again.)`;
+  if (msgs.length && msgs[msgs.length - 1].role === 'user') msgs[msgs.length - 1] = { role: 'user', content: msgs[msgs.length - 1].content + '\n' + note }; else msgs.push({ role: 'user', content: note });
+  addLoadingMsg();
+  try { return await busyAI(msgs, buildSystem() + (precisionOn() ? reviewOverride(N) : '')); } catch(e) { return ''; } finally { removeLoading(); }
+}
 async function showPendingCont(prefix) {
   const raw = pendingCont; pendingCont = null;
   if (!raw) return false;
-  const g = guidedMode ? guidedSplit(raw) : { main: raw, sugg: [] };
-  const main = (prefix ? prefix + '\n' : '') + await ensureGuidedTr(limitEmoji(cleanConv(g.main)));
+  let g = guidedMode ? guidedSplit(raw) : { main: raw, sugg: [] };
+  let body = limitEmoji(cleanConv(g.main));
+  const why = staleCont(body);
+  if (why) {
+    dlog(0, 'conversa: continuação guardada descartada (' + why + ') → pergunta nova');
+    const fresh = await freshCont();
+    g = guidedMode ? guidedSplit(fresh) : { main: fresh, sugg: [] };
+    body = limitEmoji(cleanConv(String(g.main).replace(/🎯\s*[A-ZÀ-Ú ]*/gu, '')));
+  }
+  const main = (prefix ? prefix + '\n' : '') + (body ? await ensureGuidedTr(body) : '');
   chatHistory.push({ role: 'assistant', content: main });
   addMsg('tutor', main); speak(main, null, { chime: guidedMode });
   if (g.sugg.length) showSuggestions(g.sugg);
@@ -4506,6 +4541,7 @@ async function sendText() {
 }
 
 async function processInput(text) {
+  if (currentLesson === null && !repeatTarget) answeredQ = (chatHistory.slice(0, -1).reverse().find(m => m.role === 'assistant') || {}).content || '';
   // Teste de nível: as respostas não são corrigidas nem enviadas à IA uma a uma.
   if (currentTest && !currentTest.finished) { handleTestAnswer(text); return; }
   if (currentTest && currentTest.finished) exitTest(); // depois do resultado, a conversa segue normal
@@ -4695,7 +4731,6 @@ async function processInput(text) {
       const spokenFix = pairs.length ? pairs.map(([a, b]) => better(a, b)).join(' ') : (fixed ? `${sayFull} ${fixed}.` : '');
       let spoken = gramFix.length && !wasRepeating ? `${spokenFix} ${rep} ${fragment}.` : (spokenFix ? `${spokenFix} ${main}` : main);
       if (!gramFix.length) { const pron = fixLines.map(l => mixedSpeech(firstSentence(l.replace(/^[🗣️\s]+/u, '').split('·')[0]))).join('\n'); if (pron) spoken = [spokenFix, pron, main].filter(Boolean).join('\n'); }
-      if (gramFix.length && extraFix.length) spoken += `\n[fala] ${t('fix_more', { n: extraFix.length })}`;
       main = await ensureGuidedTr(main);
       addMsg('tutor', main, html, true, spoken, fixed);
       speak(spoken);
@@ -4835,6 +4870,7 @@ Now and then (not in every reply), ask natural questions that lead ${N} to use t
 ` : '';
   return `${langRule(NI)}
 You are Lia, a ${L} tutor for ${N}, ${NI.speaker}. All explanations for ${N} are in ${EX}: ${NI.variant}. ${N}'s level in ${L}: ${lvl}. Adapt vocabulary and pace to that level (at beginner level, use very simple sentences).
+NAME: ${N}'s name is "${N}" and you already know it. NEVER ask ${N} for their name (in the Introductions scenario, if you ask it as practice, the answer is "${N}"). Always call ${N} "${N}": if another name comes up, keep using "${N}".
 ${style}${accentRule(P) ? ' ' + accentRule(P) : ''}
 ${P.city ? `Context (for you only): ${N} lives in ${P.city}. Do NOT mention the city in your replies unless ${N} brings it up first.\n` : ''}You talk with ${N} and correct only REAL mistakes.
 The text comes from speech recognition. TOLERANCE: ignore ONLY punctuation, capital letters, accents and words clearly mis-heard by the microphone (a sound-alike word that makes no sense there); everything else (grammar AND vocabulary) is checked strictly. Repeated consecutive words (e.g. "el clima el clima") are microphone glitches, and hesitations like "eh", "em", "este", "pues", "um" are normal in speech: always ignore them.
