@@ -779,7 +779,7 @@ function profileCard(id) {
   setTimeout(() => { s.classList.add('hide'); setTimeout(() => s.remove(), 400); }, 1000);
 })();
 // Versão do app (fim da tela Perfil). Atualizada sozinha a cada commit que mexe neste arquivo (hook .git/hooks/pre-commit).
-const APP_VERSION = 77, APP_DATE = '2026-11-19';
+const APP_VERSION = 78, APP_DATE = '2026-11-19';
 let currentLang = 'es', currentLangName = 'Spanish', currentLocale = 'es-ES';
 let currentTopic = 'Free conversation';
 let chatHistory = [], recognition = null, isRecording = false, isSpeaking = false;
@@ -4979,7 +4979,7 @@ function deviceId() {
     localStorage.setItem(DEVICE_KEY, d); return d; } catch(e) { return 'sem-armazenamento-' + Math.random().toString(36).slice(2, 12); }
 }
 // Turnstile (anti-robô, invisível): um token ao abrir o app; o servidor troca-o por um token de sessão de 12 h.
-let tsScript = null, sessionPromise = null;
+let tsScript = null, sessionPromise = null, tsWidget = null;
 function loadTurnstile() {
   if (window.turnstile) return Promise.resolve();
   if (!tsScript) tsScript = new Promise((res, rej) => { const s = document.createElement('script'); s.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit'; s.async = true; s.onload = res; s.onerror = () => { tsScript = null; rej(new Error('turnstile')); }; document.head.appendChild(s); });
@@ -4987,9 +4987,11 @@ function loadTurnstile() {
 }
 function turnstileToken() {
   return loadTurnstile().then(() => new Promise((res, rej) => {
+    // Um anti-robô de cada vez: o anterior (ex.: sessão expirada) é removido antes de criar outro.
+    if (tsWidget !== null) { try { window.turnstile.remove(tsWidget); } catch(e) {} tsWidget = null; }
     const box = document.getElementById('ts-box'); box.innerHTML = '<div></div>';
     const timer = setTimeout(() => rej(new Error('turnstile')), 20000);
-    try { window.turnstile.render(box.firstChild, { sitekey: TURNSTILE_SITEKEY, callback: tok => { clearTimeout(timer); res(tok); }, 'error-callback': () => { clearTimeout(timer); rej(new Error('turnstile')); } }); }
+    try { tsWidget = window.turnstile.render(box.firstChild, { sitekey: TURNSTILE_SITEKEY, callback: tok => { clearTimeout(timer); res(tok); }, 'error-callback': () => { clearTimeout(timer); rej(new Error('turnstile')); } }); }
     catch(e) { clearTimeout(timer); rej(e); }
   }));
 }
