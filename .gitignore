@@ -1,0 +1,12 @@
+# Segredos e ficheiros locais do servidor: nunca no repositório.
+.dev.vars
+.dev.vars.*
+**/.dev.vars
+**/.dev.vars.*
+.env
+.env.*
+*.secret
+*.key
+server/node_modules/
+server/.wrangler/
+node_modules/

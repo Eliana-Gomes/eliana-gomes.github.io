@@ -1,0 +1,9 @@
+{
+  "name": "parlia-servidor",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node test/worker.test.js",
+    "deploy": "npx wrangler@4.165.0 deploy"
+  }
+}

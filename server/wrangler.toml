@@ -1,0 +1,22 @@
+# Parlia — servidor (Cloudflare Workers, plano gratuito).
+# Os segredos NÃO ficam aqui: ANTHROPIC_API_KEY, TURNSTILE_SECRET e SESSION_SECRET entram só pelo painel da Cloudflare
+# (Worker → Settings → Variables and Secrets → Add → Secret).
+name = "parlia-servidor"
+main = "src/index.js"
+compatibility_date = "2026-11-01"
+workers_dev = true
+
+[vars]
+ALLOWED_ORIGIN = "https://eliana-gomes.github.io"
+
+# Limites e registos: um Durable Object (SQLite, incluído no plano gratuito).
+[[durable_objects.bindings]]
+name = "LIMITER"
+class_name = "Limiter"
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["Limiter"]
+
+[observability]
+enabled = false
