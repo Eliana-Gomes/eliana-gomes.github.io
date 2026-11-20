@@ -13,7 +13,7 @@ class MemStorage {
 const storage = new MemStorage();
 const limiterObj = new Limiter({ storage }, {});
 const env = {
-  ALLOWED_ORIGIN: ORIGIN, ANTHROPIC_API_KEY: 'chave-de-teste', TURNSTILE_SECRET: 'ts-teste', SESSION_SECRET: 'segredo-de-teste-123', STATS_KEY: 'leitura-teste', DIAG_CODE: 'codigo-diag-teste',
+  ALLOWED_ORIGINS: ORIGIN + ',https://localhost,capacitor://localhost', ANTHROPIC_API_KEY: 'chave-de-teste', TURNSTILE_SECRET: 'ts-teste', SESSION_SECRET: 'segredo-de-teste-123', STATS_KEY: 'leitura-teste', DIAG_CODE: 'codigo-diag-teste',
   LIMITER: { idFromName: () => 'global', get: () => ({ fetch: (u, init) => limiterObj.fetch(new Request(u, init)) }) },
 };
 let upstream = [];
@@ -59,6 +59,9 @@ await check('campo a mais (tools)', await call('/api/chat', { body: { ...ok, too
 await check('thinking ligado (adaptive)', await call('/api/chat', { body: { ...ok, thinking: { type: 'adaptive' } }, token: T }), 400, 'thinking');
 await check('imagem na mensagem', await call('/api/chat', { body: { ...ok, messages: [{ role: 'user', content: [{ type: 'image', source: {} }] }] }, token: T }), 400, 'messages');
 await check('pedido grande demais (30 KB)', await call('/api/chat', { body: { ...ok, messages: [{ role: 'user', content: 'a'.repeat(30 * 1024) }] }, token: T }), 413, 'too_large');
+await check('origem do app Android (https://localhost)', await call('/api/chat', { body: ok, token: T, origin: 'https://localhost' }), 200);
+await check('origem do app iOS (capacitor://localhost)', await call('/api/chat', { body: ok, token: T, origin: 'capacitor://localhost' }), 200);
+await check('http://localhost (sem https) recusado', await call('/api/chat', { body: ok, token: T, origin: 'http://localhost' }), 403, 'origin');
 await check('origem errada', await call('/api/chat', { body: ok, token: T, origin: 'https://site-estranho.com' }), 403, 'origin');
 await check('sem origem (curl)', await call('/api/chat', { body: ok, token: T, origin: '' }), 403, 'origin');
 await check('sem token', await call('/api/chat', { body: ok }), 401, 'session');

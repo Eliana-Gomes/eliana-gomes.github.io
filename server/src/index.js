@@ -17,9 +17,11 @@ const b64u = buf => btoa(String.fromCharCode(...new Uint8Array(buf))).replace(/\
 const unb64u = s => Uint8Array.from(atob(s.replace(/-/g, '+').replace(/_/g, '/')), c => c.charCodeAt(0));
 export const today = () => new Date().toISOString().slice(0, 10); // dia em UTC
 
+// Origens aceites: o site e o app (Capacitor: https://localhost no Android, capacitor://localhost no iOS). Variável ALLOWED_ORIGINS (lista separada por vírgulas).
+export function originOk(env, origin) { return !!origin && String(env.ALLOWED_ORIGINS || env.ALLOWED_ORIGIN || '').split(',').map(x => x.trim()).filter(Boolean).includes(origin); }
 function cors(env, origin) {
   const h = { 'Vary': 'Origin' };
-  if (origin && origin === env.ALLOWED_ORIGIN) {
+  if (originOk(env, origin)) {
     h['Access-Control-Allow-Origin'] = origin;
     h['Access-Control-Allow-Methods'] = 'POST, GET, OPTIONS';
     h['Access-Control-Allow-Headers'] = 'Content-Type, Authorization';
@@ -158,7 +160,7 @@ export default {
       if (!(await sameSecret(env.STATS_KEY, url.searchParams.get('key')))) return new Response('Not found', { status: 404 });
       return new Response(JSON.stringify(await limiter(env, '/stats'), null, 2), { status: 200, headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' } });
     }
-    if (origin !== env.ALLOWED_ORIGIN) return fail('parlia_forbidden', 'origin', 403, env, origin);
+    if (!originOk(env, origin)) return fail('parlia_forbidden', 'origin', 403, env, origin);
     if (req.method === 'OPTIONS') return new Response(null, { status: 204, headers: cors(env, origin) });
     if (req.method !== 'POST') return fail('parlia_bad_request', 'method', 405, env, origin);
     try {

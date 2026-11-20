@@ -7,7 +7,8 @@ compatibility_date = "2026-11-01"
 workers_dev = true
 
 [vars]
-ALLOWED_ORIGIN = "https://eliana-gomes.github.io"
+# Site e app (Capacitor: Android https://localhost, iOS capacitor://localhost).
+ALLOWED_ORIGINS = "https://eliana-gomes.github.io,https://localhost,capacitor://localhost"
 
 # Limites e registos: um Durable Object (SQLite, incluído no plano gratuito).
 [[durable_objects.bindings]]
