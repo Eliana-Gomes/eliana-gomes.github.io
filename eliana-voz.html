@@ -181,6 +181,33 @@
   body.newp #view-profile { padding-top: 64px; }
   .privacy-link { display: block; text-align: center; margin: 14px auto 2px; font-size: 0.85rem; color: var(--text-2); text-decoration: underline; text-underline-offset: 3px; }
   .setup-screen .privacy-link, .who-screen .privacy-link { color: #C9C2B6; }
+  .pf-block .prof-label { margin-bottom: -4px; margin-top: 4px; }
+  .pf-block { width: 100%; background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 12px 14px 14px; display: flex; flex-direction: column; gap: 10px; }
+  .pf-bt { font-family: 'Cormorant Garamond', serif; font-size: 1.3rem; font-weight: 600; color: var(--accent); }
+  .pf-langs { display: flex; flex-direction: column; gap: 10px; width: 100%; }
+  .pf-lang-row { display: flex; flex-direction: column; gap: 6px; padding: 8px 0; border-top: 1px solid var(--line); }
+  .pf-lang-row:first-child { border-top: 0; }
+  .pf-lang-name { font-weight: 600; }
+  .lang-pick { width: 100%; text-align: left; background: rgba(255,255,255,0.06); color: #F4F0EA; border: 1px solid rgba(219,168,76,0.45); border-radius: 14px; padding: 12px 14px; font: inherit; font-size: 1rem; cursor: pointer; }
+  .lang-screen { position: fixed; inset: 0; z-index: 80; background: var(--night); color: #F4F0EA; overflow-y: auto; justify-content: center; }
+  .ls-wrap { width: 100%; max-width: 520px; padding: calc(14px + env(safe-area-inset-top, 0px)) 16px calc(var(--tabbar-h, 64px) + 24px); display: flex; flex-direction: column; gap: 10px; }
+  .ls-head { display: flex; align-items: center; justify-content: space-between; }
+  .ls-head h2 { font-family: 'Cormorant Garamond', serif; color: var(--gold-glow); font-size: 1.8rem; margin: 0; }
+  .ls-label { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.06em; color: #C9C2B6; margin-top: 8px; }
+  .ls-card { width: 100%; display: flex; flex-wrap: wrap; align-items: center; gap: 12px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.12); border-radius: 16px; padding: 12px 14px; color: inherit; font: inherit; text-align: left; cursor: pointer; }
+  .ls-card.current { border: 1.5px solid var(--gold-glow); background: rgba(219,168,76,0.10); cursor: default; }
+  .ls-flag { font-size: 2.4rem; line-height: 1; }
+  .ls-info { flex: 1; min-width: 0; }
+  .ls-name { font-size: 1.1rem; font-weight: 600; }
+  .ls-line { color: var(--gold-glow); font-size: 0.92rem; }
+  .ls-prog { color: #C9C2B6; font-size: 0.82rem; }
+  .ls-go { font-size: 1.6rem; color: var(--gold-glow); }
+  .ls-sels { width: 100%; display: flex; flex-direction: column; gap: 8px; }
+  .ls-sel { display: flex; flex-direction: column; gap: 4px; font-size: 0.82rem; color: #C9C2B6; }
+  .ls-sel .api-select { background: rgba(255,255,255,0.08); color: #F4F0EA; border-color: rgba(255,255,255,0.25); }
+  .ls-sel .api-select option { color: #1F2A2C; }
+  .ls-modes { display: flex; flex-wrap: wrap; gap: 8px; }
+  .ls-modes .topic-pill { color: #F4F0EA; border-color: rgba(219,168,76,0.5); background: transparent; }
   .pf-err { width: 100%; font-size: 0.82rem; color: var(--err); margin-top: -4px; }
   .setup-screen .pf-err { color: #F2B8B5; text-align: center; }
   .api-input.pf-need { border-color: var(--gold-glow); box-shadow: 0 0 0 2px rgba(219,168,76,0.35); }
@@ -471,6 +498,17 @@
   </div>
 </div>
 
+<div class="lang-screen" id="lang-screen" style="display:none" role="dialog" aria-modal="true">
+  <div class="ls-wrap">
+    <div class="ls-head"><h2 data-i18n="langs_title"></h2><button class="who-close" onclick="closeLangScreen()" aria-label="✕">✕</button></div>
+    <div class="ls-label" data-i18n="langs_current"></div>
+    <div id="ls-current"></div>
+    <div id="ls-modes-wrap"><div class="ls-label" data-i18n="langs_modes"></div><div class="ls-modes" id="ls-modes"></div></div>
+    <div class="ls-label" data-i18n="langs_more"></div>
+    <div id="ls-more"></div>
+  </div>
+</div>
+
 <div class="theme-sheet" id="theme-sheet" onclick="if(event.target===this)closeThemeSheet()" role="dialog" aria-modal="true">
   <div class="theme-card"><div class="theme-title"><b data-i18n="themes_title"></b><button class="who-close" onclick="closeThemeSheet()" aria-label="✕">✕</button></div><div class="theme-list" id="theme-list"></div></div>
 </div>
@@ -479,6 +517,9 @@
 <section class="view prof-view" id="view-profile">
   <button class="backup-btn" id="pf-cancel-new" style="display:none" onclick="cancelNewProfile()" data-i18n="lz_cancel"></button>
   <h2 data-i18n="profile_title"></h2>
+  <p data-i18n="profile_text"></p>
+  <div class="pf-block">
+  <div class="pf-bt" data-i18n="pf_b_personal"></div>
   <div class="pf-photo-row">
     <div class="photo-circle pf-photo" id="pf-photo"></div>
     <div class="pf-photo-btns">
@@ -489,10 +530,13 @@
     <input type="file" id="photo-gallery" accept="image/*" style="display:none" onchange="handlePhoto(this)" />
     <input type="file" id="photo-camera" accept="image/*" capture="user" style="display:none" onchange="handlePhoto(this)" />
   </div>
-  <p data-i18n="profile_text"></p>
-  <div class="streak-stats" id="pf-streak"></div>
-  <div class="prof-label" data-i18n="pf_tests_label"></div>
-  <div class="pf-tests" id="pf-tests"></div>
+  <div class="prof-label" data-i18n="name_q"></div>
+  <input class="api-input" id="pf-name" data-i18n-ph="name_ph" oninput="nameErr(false)" />
+  <div class="pf-err" id="pf-name-err" style="display:none"></div>
+  <div class="prof-label" data-i18n="interests_q"></div>
+  <div class="pf-interests" id="pf-interests" role="group"></div>
+  <div class="prof-label" data-i18n="likes_more_q"></div>
+  <input class="api-input" id="pf-likes" maxlength="200" data-i18n-ph="likes_more_ph" />
   <div class="prof-label" data-i18n="native_q"></div>
   <select class="api-select" id="pf-native" onchange="previewNative(this.value)">
     <option value="pt-BR">🇧🇷 Português (Brasil)</option>
@@ -502,20 +546,20 @@
     <option value="fr">🇫🇷 Français</option>
     <option value="it">🇮🇹 Italiano</option>
   </select>
-  <div class="prof-label" data-i18n="name_q"></div>
-  <input class="api-input" id="pf-name" data-i18n-ph="name_ph" oninput="nameErr(false)" />
-  <div class="pf-err" id="pf-name-err" style="display:none"></div>
-  <div class="prof-label" data-i18n="interests_q"></div>
-  <div class="pf-interests" id="pf-interests" role="group"></div>
-  <div class="prof-label" data-i18n="likes_more_q"></div>
-  <input class="api-input" id="pf-likes" maxlength="200" data-i18n-ph="likes_more_ph" />
   <div class="prof-label" data-i18n="country_q"></div>
   <select class="api-select" id="pf-country" onchange="document.getElementById('pf-country-other').style.display = this.value === 'other' ? '' : 'none'"></select>
   <input class="api-input" id="pf-country-other" data-i18n-ph="country_other_ph" style="display:none" />
   <div class="prof-label" data-i18n="city_q"></div>
   <input class="api-input" id="pf-city" data-i18n-ph="city_ph" />
-  <div class="prof-label" data-i18n="level_q"></div>
-  <div class="prof-grid" id="pf-levels"></div>
+  <button class="backup-btn" onclick="showChooser()" data-i18n="switch_person"></button>
+  </div>
+  <div class="pf-block">
+  <div class="pf-bt" data-i18n="pf_b_study"></div>
+  <div class="streak-stats" id="pf-streak"></div>
+  <div class="prof-label" data-i18n="pf_tests_label"></div>
+  <div class="pf-tests" id="pf-tests"></div>
+  <div class="prof-label" data-i18n="level_goal_q"></div>
+  <div class="pf-langs" id="pf-levels"></div>
   <div class="prof-label" data-i18n="speed_q"></div>
   <select class="api-select" id="pf-speed">
     <option value="lenta" data-i18n="speed_lenta"></option>
@@ -541,11 +585,9 @@
     <option value="divertida" data-i18n="style_fun"></option>
   </select>
   <label class="pf-check"><input type="checkbox" id="pf-readnat" /> <span data-i18n="readnat_q"></span></label>
-  <div class="prof-label" data-i18n="adv_title"></div>
-  <label class="pf-check"><input type="checkbox" id="pf-precise" /> <span data-i18n="precise_q"></span></label>
-  <div class="pf-hint" data-i18n="precise_hint"></div>
-  <div id="pf-ownkey-wrap" style="display:none"><label class="pf-check"><input type="checkbox" id="pf-ownkey" onchange="setOwnKey(this.checked)" /> <span data-i18n="own_key_q"></span></label>
-  <div class="pf-hint" data-i18n="own_key_hint"></div></div>
+  </div>
+  <div class="pf-block">
+  <div class="pf-bt" data-i18n="pf_b_look"></div>
   <div class="prof-label" data-i18n="textsize_q"></div>
   <select class="api-select" id="pf-textsize" onchange="previewDisplay()">
     <option value="normal" data-i18n="textsize_normal"></option>
@@ -553,17 +595,28 @@
     <option value="muito grande" data-i18n="textsize_xlarge"></option>
   </select>
   <label class="pf-check"><input type="checkbox" id="pf-dark" onchange="previewDisplay()" /> <span data-i18n="dark_q"></span></label>
+  </div>
   <button class="api-btn" onclick="saveProfile()" data-i18n="save_btn"></button>
+  <div class="pf-block">
+  <div class="pf-bt" data-i18n="pf_b_help"></div>
+  <button class="backup-btn" onclick="contactParlia()" data-i18n="contact_btn"></button>
+  <a class="privacy-link" href="privacidade.html" target="_blank" rel="noopener" onclick="this.href=privacyUrl()" data-i18n="privacy_link"></a>
+  </div>
+  <div class="pf-block">
+  <div class="pf-bt" data-i18n="adv_title"></div>
+  <label class="pf-check"><input type="checkbox" id="pf-precise" /> <span data-i18n="precise_q"></span></label>
+  <div class="pf-hint" data-i18n="precise_hint"></div>
+  <div id="pf-ownkey-wrap" style="display:none"><label class="pf-check"><input type="checkbox" id="pf-ownkey" onchange="setOwnKey(this.checked)" /> <span data-i18n="own_key_q"></span></label>
+  <div class="pf-hint" data-i18n="own_key_hint"></div></div>
   <div class="prof-label" data-i18n="backup_label"></div>
   <div class="backup-row">
     <button class="backup-btn" onclick="exportData()" data-i18n="export_btn"></button>
     <button class="backup-btn" onclick="document.getElementById('import-file').click()" data-i18n="import_btn"></button>
   </div>
   <input type="file" id="import-file" accept=".json,application/json" style="display:none" onchange="importData(this)" />
-  <button class="backup-btn" onclick="showChooser()" data-i18n="switch_person"></button>
-  <button class="backup-btn key-btn" onclick="deleteProfile()" data-i18n="delete_profile"></button>
   <button class="backup-btn key-btn" id="key-btn" onclick="clearKey()" data-i18n="link_key"></button>
-  <a class="privacy-link" href="privacidade.html" target="_blank" rel="noopener" onclick="this.href=privacyUrl()" data-i18n="privacy_link"></a>
+  </div>
+  <button class="backup-btn key-btn" onclick="deleteProfile()" data-i18n="delete_profile"></button>
   <div class="app-version" id="app-version" onclick="versionTap()"></div>
 </section>
 
@@ -614,7 +667,7 @@
     <div class="avatar home-avatar" id="home-avatar"></div>
     <div class="home-sub" data-i18n="home_sub"></div>
   </div>
-  <div class="lang-row"></div>
+  <button class="lang-pick" id="home-lang" onclick="openLangScreen(false)"></button>
   <button class="home-card primary" id="card-continue" onclick="continueLesson()">
     <span class="ico">🌱</span><span class="ctxt"><span class="ct" id="card-continue-t">&#8203;</span><span class="cd" id="card-continue-d"></span></span>
   </button>
@@ -658,10 +711,9 @@
       <ellipse class="av-mouth-open" cx="60" cy="78.5" rx="5.5" ry="4" fill="#7a2e2a"/>
     </svg>
   </div></div>
-    <div class="focus-bar" id="focus-bar"><span class="fb-text" id="fb-text"></span><button class="fb-restart" id="fb-restart" onclick="restartLesson()" aria-label="↺" style="display:none">↺</button><button class="fb-btn" id="fb-btn" onclick="toggleChooserRow()" data-i18n="fb_change"></button></div>
+    <div class="focus-bar" id="focus-bar"><span class="fb-text" id="fb-text"></span><button class="fb-restart" id="fb-restart" onclick="restartLesson()" aria-label="↺" style="display:none">↺</button><button class="fb-btn" id="fb-btn" onclick="openLangScreen(true)" data-i18n="fb_change"></button></div>
   </div>
   <div class="fb-progress" id="fb-progress" style="display:none"><span></span></div>
-  <div class="lang-row"></div>
   <div class="topic-row" id="topic-row">
     <button class="topic-pill" id="zero-pill" onclick="openZero()" data-i18n="zero_btn"></button>
     <button class="topic-pill" id="guided-pill" onclick="toggleGuided()" data-i18n="guided_btn"></button>
@@ -813,7 +865,7 @@ function profileCard(id) {
   setTimeout(() => { s.classList.add('hide'); setTimeout(() => s.remove(), 400); }, 1000);
 })();
 // Versão do app (fim da tela Perfil). Atualizada sozinha a cada commit que mexe neste arquivo (hook .git/hooks/pre-commit).
-const APP_VERSION = 84, APP_DATE = '2026-11-20';
+const APP_VERSION = 85, APP_DATE = '2026-11-20';
 let currentLang = 'es', currentLangName = 'Spanish', currentLocale = 'es-ES';
 // Teste de nível: uma pergunta que pede o nome (6 idiomas) perde essa frase; sem outra pergunta, fica "De onde você é?".
 const NAME_Q = /what'?s your name|what is your name|c[oó]mo te llamas|c[oó]mo se llama|cu[aá]l es tu nombre|comment tu t[’']?\s?appelles|comment vous vous appelez|comment vous appelez|comment t[’']?appelles[- ]tu|tu t[’']appelles comment|quel est ton (?:pr[ée])?nom|come ti chiami|come si chiama|qual [eè] il tuo nome|wie hei(?:ß|ss)t du|wie hei(?:ß|ss)en sie|wie ist dein name|como (?:voc[eê] )?se chama|como te chamas|qual [eé] (?:o )?(?:seu|teu) nome/i;
@@ -848,8 +900,19 @@ function applyLangVars() {
   currentLangName = l.code === 'pt' ? (ptIsPT() ? 'European Portuguese (Portugal)' : 'Brazilian Portuguese') : l.name;
   currentLocale = l.code === 'pt' ? (ptIsPT() ? 'pt-PT' : 'pt-BR') : l.locale;
 }
-const DEFAULT_LEVELS = { es: 'intermediário', en: 'básico', fr: 'iniciante', it: 'iniciante', de: 'iniciante', pt: 'iniciante' };
-const LEVELS = ['iniciante', 'básico', 'intermediário', 'avançado'];
+// Níveis do QECR (v85). Perfis antigos: iniciante → A1, básico → A2, intermediário → B1, avançado → B2 (normLevel, loadProfile).
+const DEFAULT_LEVELS = { es: 'A1', en: 'A1', fr: 'A1', it: 'A1', de: 'A1', pt: 'A1' };
+const LEVELS = ['A0', 'A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
+const OLD_LEVELS = { iniciante: 'A1', basico: 'A2', intermediario: 'B1', avancado: 'B2' };
+const LEVEL_EN = { A0: 'absolute beginner', A1: 'beginner', A2: 'elementary', B1: 'intermediate', B2: 'upper intermediate', C1: 'advanced', C2: 'proficient' };
+function lvlRank(v) { return LEVELS.indexOf(normLevel(v) || 'A1'); }
+function curLevel() { return normLevel(((PROFILE && PROFILE.levels) || {})[currentLang]) || DEFAULT_LEVELS[currentLang] || 'A1'; }
+function lvlLabel(v) { v = normLevel(v) || 'A1'; return v + ' — ' + t('lvl_' + v); }
+function lvlEn(v) { v = normLevel(v) || 'A1'; return v + ' (CEFR, ' + LEVEL_EN[v] + ')'; }
+// Objetivo por idioma (PROFILE.goals = { idioma: chave }).
+const GOALS = ['travel', 'abroad', 'work', 'study', 'family', 'culture', 'exam'];
+const GOAL_EN = { travel: 'travelling', abroad: 'living abroad', work: 'work', study: 'studies', family: 'family and friends', culture: 'culture and leisure', exam: 'an exam or certificate' };
+function curGoal(code) { const g = ((PROFILE && PROFILE.goals) || {})[code || currentLang]; return GOALS.includes(g) ? g : ''; }
 
 // ── LÍNGUA NATIVA DO ALUNO ──
 // ui: dicionário da interface; expl/speaker/short/variant: em inglês, para as instruções da IA; exFix/exPron/exTr/repeatEx:
@@ -1802,7 +1865,7 @@ const I18N = {
     accent_q: 'Sotaque do espanhol (voz e vocabulário):', accent_es: 'Espanha', accent_latam: 'América Latina',
     ptvar_q: 'Variante do português (voz, vocabulário e correções):', ptvar_br: 'Brasil', ptvar_pt: 'Portugal',
     style_q: 'Estilo da Lia:', style_friendly: 'Amigável', style_formal: 'Formal', style_fun: 'Divertida',
-    save_btn: 'Salvar e começar →', backup_label: 'Backup (perfil, foto, caderno, racha, lições e testes; sem a chave API):',
+    save_btn: 'Salvar e começar →', lvl_A0: 'Estou começando do zero', lvl_A1: 'Entendo e uso frases muito simples', lvl_A2: 'Falo de coisas do dia a dia com frases curtas', lvl_B1: 'Consigo falar em detalhe sobre temas do dia a dia', lvl_B2: 'Converso com fluência sobre muitos temas', lvl_C1: 'Me expresso com facilidade, também no trabalho', lvl_C2: 'Falo como um nativo, com nuances', goal_travel: 'Viajar', goal_abroad: 'Viver no estrangeiro', goal_work: 'Trabalho', goal_study: 'Estudos', goal_family: 'Família e amigos', goal_culture: 'Cultura e lazer', goal_exam: 'Exame ou certificado', goal_none: 'Sem objetivo definido', pf_b_personal: '👤 Pessoal', pf_b_study: '📚 Estudo', pf_b_look: '🎨 Aparência', pf_b_help: '💬 Contato e ajuda', contact_btn: '✉️ Falar com a Parlia', langs_title: 'Idiomas', langs_current: 'Estudando agora', langs_more: 'Mais idiomas', langs_modes: 'Modo de prática', modes_themes: '🎭 Temas', lang_lessons: '{d} de {total} lições', lang_nb: '📒 {n} no Caderno', lang_new: 'Ainda não começou', level_label: 'Nível', goal_label: 'Objetivo', contact_subject: 'Parlia — contato', contact_body: 'Escreva aqui a sua mensagem:', contact_device: 'Aparelho', contact_version: 'Versão', contact_lang: 'Idioma estudado', contact_ui: 'Língua da interface', level_goal_q: 'Nível e objetivo em cada idioma', backup_label: 'Backup (perfil, foto, caderno, racha, lições e testes; sem a chave API):',
     export_btn: '⬇️ Exportar meus dados', import_btn: '⬆️ Importar meus dados', name_required: 'Escreva o seu nome', yes_replace: 'Substituir', yes_update: 'Atualizar', keep_btn: 'Manter',
     lang_es: 'Espanhol', lang_en: 'Inglês', lang_fr: 'Francês', lang_it: 'Italiano', lang_pt: 'Português', lang_de: "Alemão",
     nb_title: '📒 Meu caderno', nb_sort_recent: 'Mais recentes', nb_sort_count: 'Mais repetidos', nb_times: 'Repetido {n} vezes', tab_errors: 'Meus erros', tab_saved: 'Salvas',
@@ -1864,7 +1927,7 @@ const I18N = {
     accent_q: 'Sotaque do espanhol (voz e vocabulário):', accent_es: 'Espanha', accent_latam: 'América Latina',
     ptvar_q: 'Variante do português (voz, vocabulário e correções):', ptvar_br: 'Brasil', ptvar_pt: 'Portugal',
     style_q: 'Estilo da Lia:', style_friendly: 'Amigável', style_formal: 'Formal', style_fun: 'Divertida',
-    save_btn: 'Guardar e começar →', backup_label: 'Cópia de segurança (perfil, foto, caderno, racha, lições e testes; sem a chave API):',
+    save_btn: 'Guardar e começar →', lvl_A0: 'Estou a começar do zero', lvl_A1: 'Entendo e uso frases muito simples', lvl_A2: 'Falo de coisas do dia a dia com frases curtas', lvl_B1: 'Consigo falar em pormenor sobre temas do dia a dia', lvl_B2: 'Converso com fluência sobre muitos temas', lvl_C1: 'Exprimo-me com facilidade, também no trabalho', lvl_C2: 'Falo como um nativo, com nuances', goal_travel: 'Viajar', goal_abroad: 'Viver no estrangeiro', goal_work: 'Trabalho', goal_study: 'Estudos', goal_family: 'Família e amigos', goal_culture: 'Cultura e lazer', goal_exam: 'Exame ou certificado', goal_none: 'Sem objetivo definido', pf_b_personal: '👤 Pessoal', pf_b_study: '📚 Estudo', pf_b_look: '🎨 Aparência', pf_b_help: '💬 Contacto e ajuda', contact_btn: '✉️ Falar com a Parlia', langs_title: 'Idiomas', langs_current: 'A estudar agora', langs_more: 'Mais idiomas', langs_modes: 'Modo de prática', modes_themes: '🎭 Temas', lang_lessons: '{d} de {total} lições', lang_nb: '📒 {n} no Caderno', lang_new: 'Ainda não começou', level_label: 'Nível', goal_label: 'Objetivo', contact_subject: 'Parlia — contacto', contact_body: 'Escreve aqui a tua mensagem:', contact_device: 'Aparelho', contact_version: 'Versão', contact_lang: 'Idioma estudado', contact_ui: 'Língua da interface', level_goal_q: 'Nível e objetivo em cada idioma', backup_label: 'Cópia de segurança (perfil, foto, caderno, racha, lições e testes; sem a chave API):',
     export_btn: '⬇️ Exportar os meus dados', import_btn: '⬆️ Importar os meus dados', name_required: 'Escreve o teu nome', yes_replace: 'Substituir', yes_update: 'Atualizar', keep_btn: 'Manter',
     lang_es: 'Espanhol', lang_en: 'Inglês', lang_fr: 'Francês', lang_it: 'Italiano', lang_pt: 'Português', lang_de: "Alemão",
     nb_title: '📒 O meu caderno', nb_sort_recent: 'Mais recentes', nb_sort_count: 'Mais repetidos', nb_times: 'Repetido {n} vezes', tab_errors: 'Os meus erros', tab_saved: 'Guardadas',
@@ -1926,7 +1989,7 @@ const I18N = {
     accent_q: 'Acento del español (voz y vocabulario):', accent_es: 'España', accent_latam: 'América Latina',
     ptvar_q: 'Variante del portugués (voz, vocabulario y correcciones):', ptvar_br: 'Brasil', ptvar_pt: 'Portugal',
     style_q: 'Estilo de Lia:', style_friendly: 'Amable', style_formal: 'Formal', style_fun: 'Divertida',
-    save_btn: 'Guardar y empezar →', backup_label: 'Copia de seguridad (perfil, foto, cuaderno, racha, lecciones y pruebas; sin la clave API):',
+    save_btn: 'Guardar y empezar →', lvl_A0: 'Empiezo desde cero', lvl_A1: 'Entiendo y uso frases muy sencillas', lvl_A2: 'Hablo de cosas cotidianas con frases cortas', lvl_B1: 'Puedo hablar en detalle sobre temas cotidianos', lvl_B2: 'Converso con fluidez sobre muchos temas', lvl_C1: 'Me expreso con facilidad, también en el trabajo', lvl_C2: 'Hablo como un nativo, con matices', goal_travel: 'Viajar', goal_abroad: 'Vivir en el extranjero', goal_work: 'Trabajo', goal_study: 'Estudios', goal_family: 'Familia y amigos', goal_culture: 'Cultura y ocio', goal_exam: 'Examen o certificado', goal_none: 'Sin objetivo definido', pf_b_personal: '👤 Personal', pf_b_study: '📚 Estudio', pf_b_look: '🎨 Apariencia', pf_b_help: '💬 Contacto y ayuda', contact_btn: '✉️ Escribir a la Parlia', langs_title: 'Idiomas', langs_current: 'Estudiando ahora', langs_more: 'Más idiomas', langs_modes: 'Modo de práctica', modes_themes: '🎭 Temas', lang_lessons: '{d} de {total} lecciones', lang_nb: '📒 {n} en el Cuaderno', lang_new: 'Aún no empezaste', level_label: 'Nivel', goal_label: 'Objetivo', contact_subject: 'Parlia — contacto', contact_body: 'Escribe aquí tu mensaje:', contact_device: 'Dispositivo', contact_version: 'Versión', contact_lang: 'Idioma que estudias', contact_ui: 'Lengua de la interfaz', level_goal_q: 'Nivel y objetivo en cada idioma', backup_label: 'Copia de seguridad (perfil, foto, cuaderno, racha, lecciones y pruebas; sin la clave API):',
     export_btn: '⬇️ Exportar mis datos', import_btn: '⬆️ Importar mis datos', name_required: 'Escribe tu nombre', yes_replace: 'Sustituir', yes_update: 'Actualizar', keep_btn: 'Mantener',
     lang_es: 'Español', lang_en: 'Inglés', lang_fr: 'Francés', lang_it: 'Italiano', lang_pt: 'Portugués', lang_de: "Alemán",
     nb_title: '📒 Mi cuaderno', nb_sort_recent: 'Más recientes', nb_sort_count: 'Más repetidos', nb_times: 'Repetido {n} veces', tab_errors: 'Mis errores', tab_saved: 'Guardadas',
@@ -1988,7 +2051,7 @@ const I18N = {
     accent_q: 'Spanish accent (voice and vocabulary):', accent_es: 'Spain', accent_latam: 'Latin America',
     ptvar_q: 'Portuguese variant (voice, vocabulary and corrections):', ptvar_br: 'Brazil', ptvar_pt: 'Portugal',
     style_q: 'Lia’s style:', style_friendly: 'Friendly', style_formal: 'Formal', style_fun: 'Fun',
-    save_btn: 'Save and start →', backup_label: 'Backup (profile, photo, notebook, streak, lessons and tests; without the API key):',
+    save_btn: 'Save and start →', lvl_A0: 'I’m starting from zero', lvl_A1: 'I understand and use very simple phrases', lvl_A2: 'I talk about everyday things in short sentences', lvl_B1: 'I can talk in detail about everyday topics', lvl_B2: 'I speak fluently about many topics', lvl_C1: 'I express myself easily, also at work', lvl_C2: 'I speak like a native, with nuance', goal_travel: 'Travel', goal_abroad: 'Living abroad', goal_work: 'Work', goal_study: 'Studies', goal_family: 'Family and friends', goal_culture: 'Culture and leisure', goal_exam: 'Exam or certificate', goal_none: 'No set goal', pf_b_personal: '👤 Personal', pf_b_study: '📚 Study', pf_b_look: '🎨 Appearance', pf_b_help: '💬 Contact and help', contact_btn: '✉️ Contact Parlia', langs_title: 'Languages', langs_current: 'Studying now', langs_more: 'More languages', langs_modes: 'Practice mode', modes_themes: '🎭 Topics', lang_lessons: '{d} of {total} lessons', lang_nb: '📒 {n} in your Notebook', lang_new: 'Not started yet', level_label: 'Level', goal_label: 'Goal', contact_subject: 'Parlia — contact', contact_body: 'Write your message here:', contact_device: 'Device', contact_version: 'Version', contact_lang: 'Language studied', contact_ui: 'Interface language', level_goal_q: 'Level and goal for each language', backup_label: 'Backup (profile, photo, notebook, streak, lessons and tests; without the API key):',
     export_btn: '⬇️ Export my data', import_btn: '⬆️ Import my data', name_required: 'Write your name', yes_replace: 'Replace', yes_update: 'Update', keep_btn: 'Keep',
     lang_es: 'Spanish', lang_en: 'English', lang_fr: 'French', lang_it: 'Italian', lang_pt: 'Portuguese', lang_de: "German",
     nb_title: '📒 My notebook', nb_sort_recent: 'Most recent', nb_sort_count: 'Most repeated', nb_times: 'Repeated {n} times', tab_errors: 'My mistakes', tab_saved: 'Saved',
@@ -2050,7 +2113,7 @@ const I18N = {
     accent_q: 'Accent de l’espagnol (voix et vocabulaire) :', accent_es: 'Espagne', accent_latam: 'Amérique latine',
     ptvar_q: 'Variante du portugais (voix, vocabulaire et corrections) :', ptvar_br: 'Brésil', ptvar_pt: 'Portugal',
     style_q: 'Style de Lia :', style_friendly: 'Sympathique', style_formal: 'Formel', style_fun: 'Drôle',
-    save_btn: 'Enregistrer et commencer →', backup_label: 'Sauvegarde (profil, photo, carnet, série, leçons et tests ; sans la clé API) :',
+    save_btn: 'Enregistrer et commencer →', lvl_A0: 'Je commence de zéro', lvl_A1: 'Je comprends et j’utilise des phrases très simples', lvl_A2: 'Je parle du quotidien avec des phrases courtes', lvl_B1: 'Je peux parler en détail de sujets du quotidien', lvl_B2: 'Je parle avec aisance de nombreux sujets', lvl_C1: 'Je m’exprime facilement, même au travail', lvl_C2: 'Je parle comme un natif, avec des nuances', goal_travel: 'Voyager', goal_abroad: 'Vivre à l’étranger', goal_work: 'Travail', goal_study: 'Études', goal_family: 'Famille et amis', goal_culture: 'Culture et loisirs', goal_exam: 'Examen ou certificat', goal_none: 'Pas d’objectif défini', pf_b_personal: '👤 Personnel', pf_b_study: '📚 Études', pf_b_look: '🎨 Apparence', pf_b_help: '💬 Contact et aide', contact_btn: '✉️ Écrire à Parlia', langs_title: 'Langues', langs_current: 'En cours', langs_more: 'Autres langues', langs_modes: 'Mode de pratique', modes_themes: '🎭 Thèmes', lang_lessons: '{d} leçons sur {total}', lang_nb: '📒 {n} dans le Carnet', lang_new: 'Pas encore commencé', level_label: 'Niveau', goal_label: 'Objectif', contact_subject: 'Parlia — contact', contact_body: 'Écris ton message ici :', contact_device: 'Appareil', contact_version: 'Version', contact_lang: 'Langue étudiée', contact_ui: 'Langue de l’interface', level_goal_q: 'Niveau et objectif pour chaque langue', backup_label: 'Sauvegarde (profil, photo, carnet, série, leçons et tests ; sans la clé API) :',
     export_btn: '⬇️ Exporter mes données', import_btn: '⬆️ Importer mes données', name_required: 'Écris ton prénom', yes_replace: 'Remplacer', yes_update: 'Mettre à jour', keep_btn: 'Garder',
     lang_es: 'Espagnol', lang_en: 'Anglais', lang_fr: 'Français', lang_it: 'Italien', lang_pt: 'Portugais', lang_de: "Allemand",
     nb_title: '📒 Mon carnet', nb_sort_recent: 'Plus récents', nb_sort_count: 'Plus fréquents', nb_times: 'Répété {n} fois', tab_errors: 'Mes erreurs', tab_saved: 'Enregistrées',
@@ -2112,7 +2175,7 @@ const I18N = {
     accent_q: 'Accento dello spagnolo (voce e vocabolario):', accent_es: 'Spagna', accent_latam: 'America Latina',
     ptvar_q: 'Variante del portoghese (voce, vocabolario e correzioni):', ptvar_br: 'Brasile', ptvar_pt: 'Portogallo',
     style_q: 'Stile di Lia:', style_friendly: 'Amichevole', style_formal: 'Formale', style_fun: 'Divertente',
-    save_btn: 'Salva e inizia →', backup_label: 'Backup (profilo, foto, quaderno, serie, lezioni e test; senza la chiave API):',
+    save_btn: 'Salva e inizia →', lvl_A0: 'Comincio da zero', lvl_A1: 'Capisco e uso frasi molto semplici', lvl_A2: 'Parlo della vita quotidiana con frasi brevi', lvl_B1: 'Posso parlare in dettaglio di temi quotidiani', lvl_B2: 'Converso con scioltezza su molti temi', lvl_C1: 'Mi esprimo con facilità, anche al lavoro', lvl_C2: 'Parlo come un madrelingua, con sfumature', goal_travel: 'Viaggiare', goal_abroad: 'Vivere all’estero', goal_work: 'Lavoro', goal_study: 'Studio', goal_family: 'Famiglia e amici', goal_culture: 'Cultura e tempo libero', goal_exam: 'Esame o certificato', goal_none: 'Nessun obiettivo', pf_b_personal: '👤 Personale', pf_b_study: '📚 Studio', pf_b_look: '🎨 Aspetto', pf_b_help: '💬 Contatti e aiuto', contact_btn: '✉️ Scrivi a Parlia', langs_title: 'Lingue', langs_current: 'Stai studiando', langs_more: 'Altre lingue', langs_modes: 'Modalità di pratica', modes_themes: '🎭 Temi', lang_lessons: '{d} lezioni su {total}', lang_nb: '📒 {n} nel Quaderno', lang_new: 'Non ancora iniziata', level_label: 'Livello', goal_label: 'Obiettivo', contact_subject: 'Parlia — contatto', contact_body: 'Scrivi qui il tuo messaggio:', contact_device: 'Dispositivo', contact_version: 'Versione', contact_lang: 'Lingua studiata', contact_ui: 'Lingua dell’interfaccia', level_goal_q: 'Livello e obiettivo per ogni lingua', backup_label: 'Backup (profilo, foto, quaderno, serie, lezioni e test; senza la chiave API):',
     export_btn: '⬇️ Esporta i miei dati', import_btn: '⬆️ Importa i miei dati', name_required: 'Scrivi il tuo nome', yes_replace: 'Sostituire', yes_update: 'Aggiornare', keep_btn: 'Mantenere',
     lang_es: 'Spagnolo', lang_en: 'Inglese', lang_fr: 'Francese', lang_it: 'Italiano', lang_pt: 'Portoghese', lang_de: "Tedesco",
     nb_title: '📒 Il mio quaderno', nb_sort_recent: 'Più recenti', nb_sort_count: 'Più ripetuti', nb_times: 'Ripetuto {n} volte', tab_errors: 'I miei errori', tab_saved: 'Salvate',
@@ -2250,17 +2313,78 @@ function applyI18n() {
   if (document.getElementById('zero-screen').style.display !== 'none') renderZero();
 }
 
-// Seletores de idioma (no Início e na conversa).
+// Botão do idioma no Início ("🇫🇷 Francês · B1 · Viajar ›"): abre a tela de idiomas.
 function renderLangPills() {
-  document.querySelectorAll('.lang-row').forEach(row => {
-    row.innerHTML = '';
-    visibleLangs().forEach(l => {
-      const b = document.createElement('button');
-      b.className = 'lang-pill' + (l.code === currentLang ? ' active' : '');
-      b.textContent = langFlag(l.code) + ' ' + langUI(l.code);
-      b.onclick = () => setLang(l.code);
-      row.appendChild(b);
-    });
+  const b = document.getElementById('home-lang'); if (!b) return;
+  const g = curGoal();
+  b.textContent = langFlag(currentLang) + ' ' + langUI(currentLang) + ' · ' + curLevel() + (g ? ' · ' + t('goal_' + g) : '') + '  ›';
+  if (document.getElementById('lang-screen').style.display !== 'none') renderLangScreen();
+}
+// ── Tela de idiomas: o atual em destaque (nível, objetivo, progresso, com escolha de nível e objetivo), os outros em "Mais idiomas".
+let langScreenFromChat = false, langPopThen = null;
+function langProgress(code) {
+  let z = {}; try { z = (JSON.parse(store.getItem('tutora_zero') || '{}') || {})[code] || {}; } catch(e) {}
+  const done = (z.done || []).filter(i => i < PP_START).length, pp = (z.done || []).filter(i => i >= PP_START).length;
+  let nb = 0; try { nb = (nbLoad()[code] || []).length; } catch(e) {}
+  return { done, pp, nb, started: done + pp > 0 || nb > 0 || !!(PROFILE && PROFILE.levels && PROFILE.goals && PROFILE.goals[code]) };
+}
+function langScreenOpen() { return document.getElementById('lang-screen').style.display !== 'none'; }
+function openLangScreen(fromChat) {
+  langScreenFromChat = !!fromChat; toggleChooserRow(false);
+  renderLangScreen();
+  document.getElementById('lang-screen').style.display = 'flex';
+  if (!(history.state && history.state.langs)) { try { history.pushState(Object.assign({}, history.state || { view: currentView }, { langs: true }), ''); } catch(e) {} }
+}
+function hideLangScreen() { document.getElementById('lang-screen').style.display = 'none'; }
+// Fecha (tirando a entrada do histórico) e, se for o caso, faz a escolha depois.
+function closeLangScreen(then) {
+  if (history.state && history.state.langs) { langPopThen = then || null; history.back(); return; }
+  hideLangScreen(); if (then) then();
+}
+function setLangLevel(code, v) {
+  if (!PROFILE) return; PROFILE.levels = Object.assign({}, DEFAULT_LEVELS, PROFILE.levels || {}, { [code]: v });
+  try { store.setItem('tutora_profile', JSON.stringify(PROFILE)); } catch(e) {} renderLangPills(); renderHome(); updateLessonBanner();
+}
+function setLangGoal(code, g) {
+  if (!PROFILE) return; PROFILE.goals = Object.assign({}, PROFILE.goals || {}); if (g) PROFILE.goals[code] = g; else delete PROFILE.goals[code];
+  try { store.setItem('tutora_profile', JSON.stringify(PROFILE)); } catch(e) {} renderLangPills();
+}
+function renderLangScreen() {
+  const cur = document.getElementById('ls-current'), more = document.getElementById('ls-more'), modes = document.getElementById('ls-modes');
+  const line = code => { const lv = normLevel(((PROFILE && PROFILE.levels) || {})[code]) || DEFAULT_LEVELS[code] || 'A1', g = curGoal(code); return lv + (g ? ' · ' + t('goal_' + g) : ''); };
+  const prog = code => { const p = langProgress(code); const a = [];
+    if (p.done || p.pp) a.push(t('lang_lessons', { d: p.done + p.pp, total: ZERO_TOTAL * (p.done >= ZERO_TOTAL ? 2 : 1) }));
+    if (p.nb) a.push(t('lang_nb', { n: p.nb })); return a.join(' · ') || (p.started ? '' : t('lang_new')); };
+  // Atual
+  cur.innerHTML = '';
+  const c = document.createElement('div'); c.className = 'ls-card current';
+  c.innerHTML = '<div class="ls-flag"></div><div class="ls-info"><div class="ls-name"></div><div class="ls-line"></div><div class="ls-prog"></div></div>';
+  c.querySelector('.ls-flag').textContent = langFlag(currentLang);
+  c.querySelector('.ls-name').textContent = langUI(currentLang);
+  c.querySelector('.ls-line').textContent = line(currentLang);
+  c.querySelector('.ls-prog').textContent = prog(currentLang);
+  const sels = document.createElement('div'); sels.className = 'ls-sels';
+  const mk = (label, opts, val, fn) => { const w = document.createElement('label'); w.className = 'ls-sel'; const s = document.createElement('span'); s.textContent = label; const se = document.createElement('select'); se.className = 'api-select';
+    opts.forEach(([v, tx]) => { const o = document.createElement('option'); o.value = v; o.textContent = tx; se.appendChild(o); }); se.value = val; se.onchange = () => { fn(se.value); renderLangScreen(); }; w.append(s, se); return w; };
+  sels.append(mk(t('level_label'), LEVELS.map(v => [v, lvlLabel(v)]), curLevel(), v => setLangLevel(currentLang, v)),
+    mk(t('goal_label'), [['', t('goal_none')], ...GOALS.map(g => [g, t('goal_' + g)])], curGoal(), g => setLangGoal(currentLang, g)));
+  c.appendChild(sels); cur.appendChild(c);
+  // Modos (só a partir da conversa)
+  document.getElementById('ls-modes-wrap').style.display = langScreenFromChat ? '' : 'none';
+  modes.innerHTML = '';
+  [[t('zero_btn'), () => openZero()], [t('guided_btn'), () => startGuided()], [t('topic_free'), () => startFree()], [t('modes_themes'), () => openThemeSheet()]].forEach(([tx, fn]) => {
+    const b = document.createElement('button'); b.className = 'topic-pill'; b.textContent = tx; b.onclick = () => closeLangScreen(fn); modes.appendChild(b); });
+  // Mais idiomas
+  more.innerHTML = '';
+  visibleLangs().filter(l => l.code !== currentLang).forEach(l => {
+    const r = document.createElement('button'); r.className = 'ls-card';
+    r.innerHTML = '<div class="ls-flag"></div><div class="ls-info"><div class="ls-name"></div><div class="ls-line"></div><div class="ls-prog"></div></div><div class="ls-go">›</div>';
+    r.querySelector('.ls-flag').textContent = langFlag(l.code);
+    r.querySelector('.ls-name').textContent = langUI(l.code);
+    r.querySelector('.ls-line').textContent = line(l.code);
+    r.querySelector('.ls-prog').textContent = prog(l.code);
+    r.onclick = () => closeLangScreen(() => setLang(l.code));
+    more.appendChild(r);
   });
 }
 
@@ -2349,6 +2473,18 @@ function checkedInterests() { return [...document.querySelectorAll('#pf-interest
 // "Parlia v52 · 18/11/2026" no fim do Perfil (data no formato da língua nativa).
 // Política de privacidade (privacidade.html): em português, espanhol ou inglês, conforme a língua da interface.
 function privacyUrl() { const n = (typeof uiLang === 'function' ? uiLang() : getNative(PROFILE)) || ''; return 'privacidade.html?lang=' + (/^pt/.test(n) ? 'pt' : /^es/.test(n) ? 'es' : 'en'); }
+function deviceModel() {
+  const ua = navigator.userAgent || '', m = ua.match(/Android [\d.]+; ([^;)]+)/);
+  if (m && !/^K$/.test(m[1].trim())) return 'Android · ' + m[1].trim();
+  if (/iPhone|iPad/.test(ua)) return (ua.match(/iPhone|iPad/) || [''])[0] + ' · iOS ' + ((ua.match(/OS ([\d_]+)/) || [, ''])[1] || '').replace(/_/g, '.');
+  if (/Android/.test(ua)) return 'Android ' + ((ua.match(/Android ([\d.]+)/) || [, ''])[1] || '');
+  return ua.slice(0, 120);
+}
+function contactParlia() {
+  const body = t('contact_body') + '\n\n\n\n——\n' + t('contact_version') + ': Parlia v' + APP_VERSION + ' · ' + APP_DATE + '\n' +
+    t('contact_lang') + ': ' + langUI(currentLang) + ' (' + curLevel() + ')\n' + t('contact_ui') + ': ' + uiLang() + '\n' + t('contact_device') + ': ' + deviceModel();
+  location.href = 'mailto:parlia.app@gmail.com?subject=' + encodeURIComponent(t('contact_subject')) + '&body=' + encodeURIComponent(body);
+}
 function renderVersion() {
   const el = document.getElementById('app-version'); if (!el) return;
   let d = APP_DATE;
@@ -2356,7 +2492,13 @@ function renderVersion() {
   el.textContent = `Parlia v${APP_VERSION} · ${d}`;
 }
 function loadProfile() {
-  try { return JSON.parse(store.getItem('tutora_profile') || 'null'); } catch(e) { return null; }
+  let p = null; try { p = JSON.parse(store.getItem('tutora_profile') || 'null'); } catch(e) { return null; }
+  // Migração para o QECR (v85): níveis antigos (iniciante, básico…) passam a A1, A2, B1, B2 e ficam gravados.
+  if (p && p.levels && Object.values(p.levels).some(v => !LEVELS.includes(v))) {
+    const lv = {}; Object.entries(p.levels).forEach(([k, v]) => { lv[k] = normLevel(v) || 'A1'; }); p.levels = lv;
+    try { store.setItem('tutora_profile', JSON.stringify(p)); } catch(e) {}
+  }
+  return p;
 }
 function renderLevelGrid(levels) {
   const grid = document.getElementById('pf-levels');
@@ -2365,15 +2507,19 @@ function renderLevelGrid(levels) {
   grid.innerHTML = '';
   // "Variante do português" só aparece quando o português está disponível para aprender.
   document.getElementById('pf-ptvar-wrap').style.display = visibleLangs().some(l => l.code === 'pt') ? 'contents' : 'none';
+  const gcur = {}; LANGS.forEach(l => { const s = document.getElementById('pf-goal-' + l.code); if (s) gcur[l.code] = s.value; });
   visibleLangs().forEach(l => {
-    const lab = document.createElement('label');
-    lab.className = 'prof-label'; lab.style.margin = '0';
-    lab.append(langFlag(l.code) + ' ' + langUI(l.code));
+    const lab = document.createElement('div');
+    lab.className = 'pf-lang-row';
+    const nm = document.createElement('div'); nm.className = 'pf-lang-name'; nm.textContent = langFlag(l.code) + ' ' + langUI(l.code); lab.appendChild(nm);
+    const gs = document.createElement('select'); gs.className = 'api-select'; gs.id = 'pf-goal-' + l.code;
+    ['', ...GOALS].forEach(g => { const o = document.createElement('option'); o.value = g; o.textContent = g ? t('goal_' + g) : t('goal_none'); gs.appendChild(o); });
+    gs.value = gcur[l.code] !== undefined ? gcur[l.code] : curGoal(l.code);
     const sel = document.createElement('select');
     sel.className = 'api-select'; sel.id = 'pf-lv-' + l.code;
-    LEVELS.forEach(v => { const o = document.createElement('option'); o.value = v; o.textContent = t('lvl_' + v); sel.appendChild(o); });
-    sel.value = (levels && levels[l.code]) || cur[l.code] || DEFAULT_LEVELS[l.code];
-    lab.appendChild(sel);
+    LEVELS.forEach(v => { const o = document.createElement('option'); o.value = v; o.textContent = lvlLabel(v); sel.appendChild(o); });
+    sel.value = normLevel((levels && levels[l.code]) || cur[l.code]) || DEFAULT_LEVELS[l.code];
+    lab.appendChild(sel); lab.appendChild(gs);
     grid.appendChild(lab);
   });
 }
@@ -2415,6 +2561,7 @@ function profileSnapshot() {
   const v = id => { const el = document.getElementById(id); return el ? (el.type === 'checkbox' ? el.checked : el.value) : null; };
   const levels = {};
   LANGS.forEach(l => { const s = document.getElementById('pf-lv-' + l.code); if (s) levels[l.code] = s.value; });
+  LANGS.forEach(l => { const g = document.getElementById('pf-goal-' + l.code); if (g) levels['goal_' + l.code] = g.value; });
   return JSON.stringify([v('pf-native'), v('pf-name').trim(), v('pf-city').trim(), v('pf-country'), v('pf-country-other').trim(), levels, v('pf-speed'), v('pf-accent'), v('pf-ptvar'), v('pf-style'), v('pf-readnat'), v('pf-precise'), v('pf-textsize'), v('pf-dark'), checkedInterests(), v('pf-likes').trim()]);
 }
 function profileDirty() { return !!PROFILE && currentView === 'profile' && profileBaseline !== null && profileSnapshot() !== profileBaseline; }
@@ -2452,7 +2599,8 @@ function saveProfile() {
     readNative: document.getElementById('pf-readnat').checked,
     precise: document.getElementById('pf-precise').checked,
     textSize: document.getElementById('pf-textsize').value,
-    darkMode: document.getElementById('pf-dark').checked
+    darkMode: document.getElementById('pf-dark').checked,
+    goals: (() => { const g = Object.assign({}, (old && old.goals) || {}); LANGS.forEach(l => { const s = document.getElementById('pf-goal-' + l.code); if (s) { if (s.value) g[l.code] = s.value; else delete g[l.code]; } }); return g; })()
   };
   uiOverride = null;
   const langChanged = old && (getNative(old) !== PROFILE.native || (old.ptVariant || 'Brasil') !== PROFILE.ptVariant);
@@ -2705,6 +2853,7 @@ function goHome() {
 window.addEventListener('popstate', (e) => {
   backPending = false;
   if (zeroPopSkip) { zeroPopSkip = false; return; } // entrada da lista retirada ao escolher uma lição
+  if (langScreenOpen()) { hideLangScreen(); const fn = langPopThen; langPopThen = null; if (fn) setTimeout(fn, 0); return; } // tela de idiomas
   if (whoOpen() && appStarted) { hideChooser(); return; } // "Quem vai estudar?" aberta por "Trocar de pessoa": fecha e fica
   if (!PROFILE && pendingNew()) { cancelNewProfile(); return; } // pessoa nova: "voltar" sem salvar não cria nada
   if (!PROFILE) return; // ainda no primeiro perfil
@@ -2738,7 +2887,7 @@ function renderHome() {
     // intermediário ou acima → Conversar.
     const lvl = (PROFILE.levels || {})[currentLang] || DEFAULT_LEVELS[currentLang];
     const doneZero = zeroLang().done.filter(i => i < PP_START).length;
-    const recId = lvl === 'iniciante' && doneZero < 4 ? 'card-continue' : ['iniciante', 'básico'].includes(lvl) ? 'card-guided' : 'card-chat';
+    const recId = lvlRank(lvl) <= 1 && doneZero < 4 ? 'card-continue' : lvlRank(lvl) <= 2 ? 'card-guided' : 'card-chat';
     ['card-continue', 'card-guided', 'card-chat'].forEach(id => {
       const c = document.getElementById(id), ct = c.querySelector('.ct');
       c.classList.toggle('recommended', id === recId);
@@ -2762,7 +2911,7 @@ function renderHome() {
   { const dz = e.done.filter(i => i < PP_START).length, tr = dz >= ZERO_TOTAL && ppUnlocked() ? 1 : 0, d = tr ? e.done.filter(i => i >= PP_START).length : dz;
     document.getElementById('card-lessons-d').textContent = t('card_lessons_sub', { d, total: ZERO_TOTAL }); }
   const last = testLoad()[currentLang], lv = last && normLevel(last.level);
-  document.getElementById('card-test-d').textContent = lv ? t('card_test_last', { level: t('lvl_' + lv) }) : t('card_test_d');
+  document.getElementById('card-test-d').textContent = lv ? t('card_test_last', { level: lv }) : t('card_test_d');
   renderPhotos();
 }
 // "Continuar lição": se a lição ainda está aberta na conversa, volta a ela; senão, repõe a conversa guardada
@@ -3047,7 +3196,7 @@ function nextLessonIdx(done, track) { const s = (track || 0) * PP_START; for (le
 // Primeiros passos: disponível depois da lição 12 do Do zero, ou com nível básico ou acima no perfil.
 function ppUnlocked() {
   const lvl = ((PROFILE && PROFILE.levels) || {})[currentLang] || DEFAULT_LEVELS[currentLang];
-  return zeroLang().done.includes(PP_START - 1) || ['básico', 'intermediário', 'avançado'].includes(lvl);
+  return zeroLang().done.includes(PP_START - 1) || lvlRank(lvl) >= 2;
 }
 
 function openZero() {
@@ -3148,7 +3297,7 @@ function askChoice(q, sub, aLabel, aFn, bLabel, bFn) {
 function maybeAutoZero() {
   if (!PROFILE) return false;
   const lvl = (PROFILE.levels || {})[currentLang] || DEFAULT_LEVELS[currentLang];
-  if (lvl === 'iniciante' && !zeroLang().seen) { openZero(); return true; }
+  if (lvlRank(lvl) <= 1 && !zeroLang().seen) { openZero(); return true; }
   return false;
 }
 
@@ -3771,7 +3920,7 @@ function speak(text, onEnd, opts) {
 // Conversa guiada: toda fala da Lia no idioma estudado tem a tradução por baixo. Se a IA esquecer alguma linha,
 // o app pede só essas traduções (uma chamada curta) e acrescenta as linhas [nat].
 // Iniciante ou básico no idioma atual: também na conversa livre, cada fala da Lia leva a tradução por baixo.
-function lzLowLevel() { const v = normLevel(((PROFILE && PROFILE.levels) || {})[currentLang]) || normLevel(DEFAULT_LEVELS[currentLang]); return v === 'iniciante' || v === 'básico'; }
+function lzLowLevel() { return lvlRank(curLevel()) <= 2; } // A0–A2: tradução visível
 // Tradução visível na conversa (guiada, livre, cenários, sugestões): só para iniciante e básico; os outros usam o 🌐.
 function showTr() { return lzLowLevel(); }
 function splitSentences(line) { return (String(line).match(/[¡¿]?[^.!?¡¿…]*[.!?…]+["»”)]*|[^.!?…]+$/g) || [String(line)]).map(s => s.trim()).filter(Boolean); }
@@ -3844,7 +3993,7 @@ async function reviewSentence(text, intended) {
   const lvl = (P.levels || {})[currentLang] || DEFAULT_LEVELS[currentLang];
   const lastLia = stripTags(([...chatHistory].reverse().find(m => m.role === 'assistant') || {}).content || '').replace(/\s+/g, ' ').slice(0, 600);
   const system = `${langRule(NI)}
-You review ONE sentence said by ${N}, ${NI.speaker}, learning ${L} (level: ${lvl}), in a CONVERSATION. ${accentRule(P)}
+You review ONE sentence said by ${N}, ${NI.speaker}, learning ${L} (level: ${lvlEn(lvl)}), in a CONVERSATION. ${accentRule(P)}
 It comes from SPEECH RECOGNITION: ignore capital letters, punctuation, accents and hesitations ("euh", "eh", "pues").
 Check word by word: articles and partitives (French after a negation: «je n'achète pas de pain», not «pas du pain»), negation and word order (e.g. «je n'ai pas souvent acheté», not «je n'ai acheté pas souvent»), gender and number agreement, verb forms, prepositions, pronouns, false friends, words from another language, and a word that changes the meaning (e.g. «trop» = too much, «très» = very).
 In a conversation you correct only real ERRORS. A correct answer in another plausible tense is NOT an error (e.g. to «Tu fais tes courses au supermarché ?», «Oui, j'ai fait mes courses au supermarché» is fine: ok = true). Tense and mood matter only when the other form is wrong or changes the meaning (e.g. to «Qu'est-ce que tu aimerais faire là-bas ?» the answer needs «J'aimerais + infinitive», never the past tense).
@@ -4966,7 +5115,7 @@ function buildSystem() {
   const P = PROFILE || { name: 'the learner', city: '', levels: {} };
   const NI = NATIVES[getNative(P)];
   const N = P.name, EX = NI.expl, L = currentLangName;
-  const lvl = (P.levels && P.levels[currentLang]) || DEFAULT_LEVELS[currentLang] || 'intermediário';
+  const lvl = curLevel();
   const typical = (TYPICAL[NI.group] || {})[currentLang];
   const style = {
     'amigável': 'Style: friendly, warm and encouraging.',
@@ -4989,7 +5138,7 @@ ${mem.map(e => `- "${e.wrong}" → "${e.right}"${e.why ? ' (' + e.why + ')' : ''
 Now and then (not in every reply), ask natural questions that lead ${N} to use these structures. NEVER announce that you are doing this or mention this list.
 ` : '';
   return `${langRule(NI)}
-You are Lia, a ${L} tutor for ${N}, ${NI.speaker}. All explanations for ${N} are in ${EX}: ${NI.variant}. ${N}'s level in ${L}: ${lvl}. Adapt vocabulary and pace to that level (at beginner level, use very simple sentences).
+You are Lia, a ${L} tutor for ${N}, ${NI.speaker}. All explanations for ${N} are in ${EX}: ${NI.variant}. ${N}'s level in ${L}: ${lvlEn(lvl)}. Adapt vocabulary and pace to that level (at beginner level, use very simple sentences).
 NAME: ${N}'s name is "${N}" and you already know it. NEVER ask ${N} for their name (in the Introductions scenario, if you ask it as practice, the answer is "${N}"). Always call ${N} "${N}": if another name comes up, keep using "${N}".
 ${style}${accentRule(P) ? ' ' + accentRule(P) : ''}
 ${P.city ? `Context (for you only): ${N} lives in ${P.city}. Do NOT mention the city in your replies unless ${N} brings it up first.\n` : ''}You talk with ${N} and correct only REAL mistakes.
@@ -5024,7 +5173,7 @@ NO HIDDEN CORRECTIONS: if you repeat or rephrase ${N}'s sentence, every word you
 WHEN THERE IS A MISTAKE: after correcting, do NOT continue the topic; the conversation continues after the repetition.
 NEVER invent corrections: if a word seems mis-transcribed by the microphone (e.g. "Botía", "lo tomo" instead of "otoño"), do NOT correct it as grammar; at most use a 🗣️ line. Correct alternatives (e.g. "visto que", "ya que", "como") are NOT mistakes.
 ${typical ? `Watch for real mistakes that ${NI.short} speakers often make in ${L}: ${typical}.\n` : ''}IF ${N} ASKS FOR HELP WITH A WORD OR PRONUNCIATION (e.g. "corrígeme la palabra desarrollar"): do a mini drill. Say the word slowly, split into syllables (e.g. "de-sa-rro-llar"), give a tip of at most 12 words in ${EX} in a 🗣️ line, and ask them to repeat it.
-${CACHE_MARK}THEME chosen for this conversation (the whole conversation is about it; do not switch to another subject unless ${N} does): ${themeEn()}.
+${CACHE_MARK}${curGoal() ? `GOAL: ${N} studies ${L} for ${GOAL_EN[curGoal()]}; prefer situations and vocabulary that help with it.\n` : ''}THEME chosen for this conversation (the whole conversation is about it; do not switch to another subject unless ${N} does): ${themeEn()}.
 ${interests}${memory}${repeatTarget ? `REPETITION MODE: you asked ${N} to repeat ONLY this corrected sentence: "${repeatTarget}".
 - Evaluate ONLY that sentence and only the main correction (from the previous 📝 line), with no new 📝, ➕ or ✅ lines. Ignore the rest of the sentence, punctuation, hesitations and similar-sounding microphone glitches (e.g. "lo tomo" ≈ "otoño").
 - If it is right or almost right: start with "${tgt('correct')}", resume the conversation with ONE ${dunnoEasier ? 'EASIER question than your last one (yes/no or a simple choice), because ' + N + ' did not know how to answer' : 'open question'}, and put on a separate last line: 🎯 OK
@@ -5032,7 +5181,7 @@ ${interests}${memory}${repeatTarget ? `REPETITION MODE: you asked ${N} to repeat
 - If ${N} asks a question or says they did not understand (in any language): explain in ONE objective sentence of at most 12 words in ${EX}, on a line starting with [nat] (so the app uses the right voice), then repeat the right sentence ("${repeatTarget}") and ask them to repeat it; put on a separate last line: 🎯 PERGUNTA
 - If ${N}, instead of repeating, corrects a piece of information (e.g. "no, es XXL"): accept it, do NOT say "${tgt('correct')}", do not correct, continue the conversation with ONE question and put on a separate last line: 🎯 ESCLARECIMENTO` : ''}
 GRAMMAR CHECK, ALWAYS, BEFORE REPLYING: read ${N}'s sentence word by word and check articles and partitives (e.g. French: after a negation it is «de», not «du / de la / des»: «je n'achète pas souvent de pain», not «pas souvent du pain»), negation, agreement (gender and number), prepositions and verb tenses. If there is ANY real mistake, use the 📝/✅ format before continuing. Praise such as «Parfait !», «C'est juste !», «Très bien !» ONLY when the sentence has no mistake.
-${!guidedMode && lzLowLevel() ? `TRANSLATIONS: ${N} is a ${normLevel((P.levels || {})[currentLang]) === 'iniciante' ? 'beginner' : 'basic-level learner'}: after EACH sentence you write in ${L}, WITHOUT EXCEPTION, add a line "[nat] (translation in ${EX})". FORMAT: the ${L} sentence on its own line, its translation on the NEXT line in parentheses; never ${EX} words on the same line as ${L} words.\n` : `NO TRANSLATIONS: never write translations or any ${EX} version of your sentences (${N} can tap 🌐 to see one).\n`}${guidedMode ? guidedRules(P, NI, N, EX, L) : ''}Conversation topic: "${currentTopic}"${currentLang === 'de' && TOPIC_DE[currentTopic] ? ' (' + TOPIC_DE[currentTopic] + ')' : ''}${currentTopic !== 'Free conversation' ? ' (stay on this topic for the WHOLE conversation)' : ''}`;
+${!guidedMode && lzLowLevel() ? `TRANSLATIONS: ${N} is a ${lvlRank(curLevel()) <= 1 ? 'beginner' : 'basic-level learner'}: after EACH sentence you write in ${L}, WITHOUT EXCEPTION, add a line "[nat] (translation in ${EX})". FORMAT: the ${L} sentence on its own line, its translation on the NEXT line in parentheses; never ${EX} words on the same line as ${L} words.\n` : `NO TRANSLATIONS: never write translations or any ${EX} version of your sentences (${N} can tap 🌐 to see one).\n`}${guidedMode ? guidedRules(P, NI, N, EX, L) : ''}Conversation topic: "${currentTopic}"${currentLang === 'de' && TOPIC_DE[currentTopic] ? ' (' + TOPIC_DE[currentTopic] + ')' : ''}${currentTopic !== 'Free conversation' ? ' (stay on this topic for the WHOLE conversation)' : ''}`;
 }
 // Alemão: o que cada cenário comum cobre na Alemanha.
 const TOPIC_DE = { 'At the bank or post office': 'in Germany: opening a bank account (Girokonto), the bank card, a bank transfer (Überweisung)' };
@@ -5393,7 +5542,7 @@ async function suggestReplies() {
   box.innerHTML = `<div class="suggest-note">${esc(t('sug_thinking'))}</div>`;
   box.classList.add('show');
   const P = PROFILE || { name: 'aluno', levels: {} };
-  const lvl = (P.levels && P.levels[currentLang]) || 'intermediário';
+  const lvl = lvlEn(curLevel());
   const convo = chatHistory.slice(-8).map(m => (m.role === 'user' ? P.name : 'Lia') + ': ' + stripTags(m.content)).join('\n');
   const topicNow = currentLesson !== null ? 'a beginner lesson; use ONLY these phrases: ' + lessonItems(currentLesson).map(x => x.t).join(' · ') : currentTopic;
   const system = `You help ${P.name}, a learner of ${currentLangName} (level: ${currentLesson !== null ? 'absolute beginner' : lvl}), reply to Lia, the tutor, in a conversation about "${topicNow}". ${accentRule(P)}
@@ -5648,8 +5797,10 @@ function parseJsonReply(text) {
 }
 // Aceita "Intermediário", "intermediario", etc.
 function normLevel(v) {
-  const k = String(v || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').trim();
-  return LEVELS.find(l => l.normalize('NFD').replace(/[̀-ͯ]/g, '') === k) || null;
+  const s = String(v || '').trim(), u = s.toUpperCase().slice(0, 2);
+  if (LEVELS.includes(u) && (s.length === 2 || /^[ABC][0-2]\b/i.test(s))) return u;
+  const k = s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+  return OLD_LEVELS[k] || null;
 }
 
 function setTestUI(on) {
@@ -5726,8 +5877,8 @@ async function finishTest() {
   const P = PROFILE, NI = NATIVES[getNative(P)], EX = NI.expl, lang = currentLang;
   const system = `${langRule(NI)}
 You are a ${currentLangName} examiner. Assess the spoken level of ${P.name} (${NI.speaker}) from the answers to a ${TEST_TOTAL}-question test of increasing difficulty. The answers come from speech recognition: ignore punctuation, capitals, accents and microphone glitches. "(no answer)" = they did not answer. ${accentRule(P)}
-Levels: "iniciante" (does not answer or only isolated words), "básico" (simple present-tense sentences), "intermediário" (uses past and future with some mistakes, explains opinions), "avançado" (uses hypotheses and complex structures with few mistakes).
-Reply ONLY with JSON: {"nivel": "iniciante|básico|intermediário|avançado", "explicacao": "one short sentence in ${EX}", "fortes": ["…", "…"], "melhorar": ["…", "…"]}. The texts go in ${EX} (${NI.variant}), at most 12 words each; "fortes" and "melhorar" have exactly 2 items. Keep the JSON keys and the level values exactly as shown.`;
+Levels (CEFR): "A0" (does not answer or only isolated words), "A1" (very simple phrases about themselves), "A2" (simple present-tense sentences about everyday life), "B1" (uses past and future with some mistakes, explains opinions in detail), "B2" (fluent, hypotheses and complex sentences with few mistakes), "C1" (precise and natural, rare mistakes), "C2" (native-like). Be strict: an 8-question oral test rarely proves C1 or C2.
+Reply ONLY with JSON: {"nivel": "A0|A1|A2|B1|B2|C1|C2", "explicacao": "one short sentence in ${EX}", "fortes": ["…", "…"], "melhorar": ["…", "…"]}. The texts go in ${EX} (${NI.variant}), at most 12 words each; "fortes" and "melhorar" have exactly 2 items. Keep the JSON keys and the level values exactly as shown.`;
   const qa = test.q.map((q, i) => `${i + 1}. ${q}\nAnswer: ${test.a[i] || '(no answer)'}`).join('\n\n');
   try {
     const out = await busyAI([{ role: 'user', content: qa }], system);
@@ -5751,14 +5902,14 @@ Reply ONLY with JSON: {"nivel": "iniciante|básico|intermediário|avançado", "e
 }
 function showTestResult(r) {
   const li = arr => arr.map(s => `<li>${esc(s)}</li>`).join('');
-  const html = `<div class="test-card"><div class="lvl-title">${esc(t('test_result_title', { level: t('lvl_' + r.level) }))}</div>` +
+  const html = `<div class="test-card"><div class="lvl-title">${esc(t('test_result_title', { level: lvlLabel(r.level) }))}</div>` +
     (r.strengths.length ? `<div class="sec">${esc(t('test_strong'))}</div><ul>${li(r.strengths)}</ul>` : '') +
     (r.improve.length ? `<div class="sec">${esc(t('test_improve'))}</div><ul>${li(r.improve)}</ul>` : '') +
     `<div class="sec">${esc(t('test_recommend'))}</div><div class="rec"></div></div>`;
-  const div = addMsg('tutor', '[nat] ' + (r.explanation || t('test_result_title', { level: t('lvl_' + r.level) })), html, true);
+  const div = addMsg('tutor', '[nat] ' + (r.explanation || t('test_result_title', { level: lvlLabel(r.level) })), html, true);
   // Recomendação: iniciante/básico → próxima lição do Do zero; senão → Conversar.
   const next = nextLessonIdx(zeroLang().done);
-  const lessonFirst = (r.level === 'iniciante' || r.level === 'básico') && next >= 0;
+  const lessonFirst = lvlRank(r.level) <= 2 && next >= 0;
   const rec = div.querySelector('.rec');
   const bLesson = document.createElement('button');
   if (next >= 0) {
@@ -5776,7 +5927,7 @@ function showTestResult(r) {
   const cur = (PROFILE.levels || {})[currentLang] || DEFAULT_LEVELS[currentLang];
   if (r.level !== cur) {
     setTimeout(() => {
-      askChoice(t('test_confirm', { lang: langUI(currentLang), level: t('lvl_' + r.level) }), '', t('yes_update'), () => {
+      askChoice(t('test_confirm', { lang: langUI(currentLang), level: lvlLabel(r.level) }), '', t('yes_update'), () => {
         PROFILE.levels = Object.assign({}, DEFAULT_LEVELS, PROFILE.levels || {}, { [currentLang]: r.level });
         try { store.setItem('tutora_profile', JSON.stringify(PROFILE)); } catch(e) {}
       }, t('keep_btn'), null);
@@ -5797,7 +5948,7 @@ function renderTestsSummary() {
     const r = all[l.code];
     let d = '';
     try { d = new Date(r.date).toLocaleDateString(nativeInfo().date); } catch(e) {}
-    return `<div>${langFlag(l.code)} ${esc(langUI(l.code))}: <span class="lvl">${esc(t('lvl_' + normLevel(r.level)))}</span> <span class="when">· ${esc(d)}</span></div>`;
+    return `<div>${langFlag(l.code)} ${esc(langUI(l.code))}: <span class="lvl">${esc(lvlLabel(r.level))}</span> <span class="when">· ${esc(d)}</span></div>`;
   }).join('');
 }
 
