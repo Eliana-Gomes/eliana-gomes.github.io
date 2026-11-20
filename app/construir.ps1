@@ -1,4 +1,4 @@
-# Parlia — build do app Android (Capacitor). Correr no PowerShell, na pasta parlia-app:  .\construir.ps1
+﻿# Parlia — build do app Android (Capacitor). Correr no PowerShell, na pasta parlia-app:  .\construir.ps1
 # 1) Antes, se for para a Play Store, aumentar versionCode (e versionName) em versao-app.json.
 # 2) Copia o site (eliana-voz.html e companhia) para www/, sincroniza os plugins e compila o .aab e o .apk assinados.
 # A senha da chave vem da cópia cifrada pelo Windows (parlia-chaves\senha-keystore.dpapi), só para este processo.
@@ -16,7 +16,8 @@ $env:PARLIA_KS_PASS = [Runtime.InteropServices.Marshal]::PtrToStringBSTR([Runtim
 $env:PARLIA_KEYSTORE = 'C:\Users\HP840G~1\parlia-chaves\parlia-upload.keystore'
 try {
   Push-Location android
-  & .\gradlew.bat bundleRelease assembleRelease --no-daemon -q *> ..\build.log
+  # Pelo cmd: os avisos do Gradle (stderr) não contam como erro no PowerShell.
+  cmd /c "gradlew.bat bundleRelease assembleRelease --no-daemon -q > ..\build.log 2>&1"
   if ($LASTEXITCODE -ne 0) { throw "Falhou o build (ver build.log)" }
 } finally { Pop-Location; Remove-Item Env:PARLIA_KS_PASS, Env:PARLIA_KEYSTORE -ErrorAction SilentlyContinue }
 $v = Get-Content versao-app.json -Raw | ConvertFrom-Json

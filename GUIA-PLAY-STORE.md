@@ -6,7 +6,7 @@ Os nomes dos botões estão como aparecem na Play Console em português.
 
 O app é nativo (Capacitor), com o código da Parlia dentro.
 O arquivo para a Play Store fica em:
-C:\Users\HP 840 G1\parlia-app\saida\Parlia-1.0.1-codigo2-site-v90.aab
+C:\Users\HP 840 G1\parlia-app\saida\Parlia-1.0.2-codigo3-site-v91.aab
 (O nome diz a versão do app, o código e de que versão do site foi feito.)
 
 Antes de tudo, faça a Parte A do GUIA-TESTE-APK.md (localhost no Turnstile).
@@ -49,8 +49,8 @@ Antes de tudo, faça a Parte A do GUIA-TESTE-APK.md (localhost no Turnstile).
 1. Menu: "Testar e lançar" → "Testes" → "Teste fechado".
 2. Toque em "Criar faixa" (ou use a faixa "Alfa" que já existe).
 3. Toque em "Criar versão".
-4. Em "App bundles", toque em "Enviar" e escolha o arquivo Parlia-1.0.1-codigo2-site-v90.aab.
-5. Nome da versão: 1.0.1 (2)
+4. Em "App bundles", toque em "Enviar" e escolha o arquivo Parlia-1.0.2-codigo3-site-v91.aab.
+5. Nome da versão: 1.0.2 (3)
 6. Notas da versão (pt-BR): Primeira versão de teste da Parlia.
 7. Toque em "Próxima" e depois em "Salvar".
 8. Ainda não envie para revisão: faça antes as partes E a H.

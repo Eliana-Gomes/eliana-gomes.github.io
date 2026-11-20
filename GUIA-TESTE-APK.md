@@ -22,7 +22,7 @@ Dentro do app, a Parlia corre no endereço "localhost". O anti-robô (Turnstile)
 ## Parte B — Levar o APK para o celular
 
 O arquivo fica no computador em:
-C:\Users\HP 840 G1\parlia-app\saida\Parlia-1.0.1-codigo2-site-v90-teste.apk
+C:\Users\HP 840 G1\parlia-app\saida\Parlia-1.0.2-codigo3-site-v91-teste.apk
 
 1. Abra o Google Drive no computador (drive.google.com).
 2. Arraste o arquivo .apk para uma pasta sua do Drive.
@@ -50,7 +50,7 @@ O Android pergunta se pode instalar apps desta origem.
 
 1. A Parlia abre com a tela petróleo e o logotipo.
 2. Vá ao Perfil e role até ao fim.
-3. Deve aparecer: "Parlia v90 · …" e, por baixo, "App 1.0.1 (código 2) · feito do site v90".
+3. Deve aparecer: "Parlia v91 · …" e, por baixo, "App 1.0.2 (código 3) · feito do site v91".
 4. Vá a Conversar.
 5. A Lia fala (voz do celular).
 6. Toque no microfone.
@@ -69,7 +69,7 @@ O Android pergunta se pode instalar apps desta origem.
 2. O microfone não ouve: Configurações → Apps → Parlia → Permissões → Microfone → "Permitir durante o uso".
 3. Reconhecimento de voz em falta: instale (ou atualize) o app "Google" na Play Store.
 4. "A Lia não está disponível agora": confirme a Parte A (localhost no Turnstile).
-5. Diagnóstico: Perfil → 5 toques em "Parlia v90" → código → "Copiar registro" e mande-me o texto.
+5. Diagnóstico: Perfil → 5 toques em "Parlia v91" → código → "Copiar registro" e mande-me o texto.
 
 ---
 
