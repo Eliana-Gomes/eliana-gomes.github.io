@@ -211,6 +211,9 @@
   .pf-save-bar { position: fixed; left: 0; right: 0; bottom: var(--tabbar-h, 0px); z-index: 40; padding: 10px 16px calc(10px + env(safe-area-inset-bottom, 0px)); background: linear-gradient(to top, var(--bg) 70%, transparent); display: flex; justify-content: center; }
   .pf-save-bar .api-btn { width: 100%; max-width: 520px; margin: 0; box-shadow: 0 4px 14px rgba(0,0,0,0.18); }
   #view-profile { padding-bottom: calc(var(--tabbar-h, 0px) + 96px) !important; }
+  .diag-dev { display: flex; flex-direction: column; gap: 8px; border: 1px dashed rgba(219,168,76,0.6); border-radius: 12px; padding: 10px 12px; margin-bottom: 10px; }
+  .diag-dev-t { font-weight: 600; color: var(--gold-glow); font-size: 0.9rem; }
+  .diag-dev .pf-check, .diag-dev .pf-hint { color: #F4F0EA; }
   #pf-ownkey-wrap { display: flex; flex-direction: column; gap: 10px; width: 100%; }
   .who-btn { margin-top: 4px; background: transparent; border: 1px solid var(--gold-glow); color: var(--gold-glow); border-radius: 999px; padding: 5px 12px; font: inherit; font-size: 0.82rem; cursor: pointer; }
   .pf-who { align-self: center; color: var(--accent); border-color: var(--accent); }
@@ -504,6 +507,12 @@
       <button class="cel-btn" onclick="renderDiag()">Atualizar</button>
       <button class="cel-btn" onclick="clearDiag()">Limpar</button>
     </div>
+    <div class="diag-dev">
+      <div class="diag-dev-t">Modo de testes da desenvolvedora</div>
+      <div id="pf-ownkey-wrap" style="display:none"><label class="pf-check"><input type="checkbox" id="pf-ownkey" onchange="setOwnKey(this.checked)" /> <span data-i18n="own_key_q"></span></label>
+      <div class="pf-hint" data-i18n="own_key_hint"></div></div>
+      <button class="backup-btn key-btn" id="key-btn" onclick="closeDiag(); clearKey()" data-i18n="link_key"></button>
+    </div>
     <pre class="diag-text" id="diag-text"></pre>
   </div>
 </div>
@@ -615,15 +624,12 @@
   <div class="pf-bt" data-i18n="adv_title"></div>
   <label class="pf-check"><input type="checkbox" id="pf-precise" /> <span data-i18n="precise_q"></span></label>
   <div class="pf-hint" data-i18n="precise_hint"></div>
-  <div id="pf-ownkey-wrap" style="display:none"><label class="pf-check"><input type="checkbox" id="pf-ownkey" onchange="setOwnKey(this.checked)" /> <span data-i18n="own_key_q"></span></label>
-  <div class="pf-hint" data-i18n="own_key_hint"></div></div>
   <div class="prof-label" data-i18n="backup_label"></div>
   <div class="backup-row">
     <button class="backup-btn" onclick="exportData()" data-i18n="export_btn"></button>
     <button class="backup-btn" onclick="document.getElementById('import-file').click()" data-i18n="import_btn"></button>
   </div>
   <input type="file" id="import-file" accept=".json,application/json" style="display:none" onchange="importData(this)" />
-  <button class="backup-btn key-btn" id="key-btn" onclick="clearKey()" data-i18n="link_key"></button>
   </div>
   <button class="backup-btn key-btn" onclick="deleteProfile()" data-i18n="delete_profile"></button>
   <div class="app-version" id="app-version" onclick="versionTap()"></div>
@@ -876,7 +882,7 @@ function profileCard(id) {
   setTimeout(() => { s.classList.add('hide'); setTimeout(() => s.remove(), 400); }, 1000);
 })();
 // Versão do app (fim da tela Perfil). Atualizada sozinha a cada commit que mexe neste arquivo (hook .git/hooks/pre-commit).
-const APP_VERSION = 86, APP_DATE = '2026-11-20';
+const APP_VERSION = 87, APP_DATE = '2026-11-20';
 let currentLang = 'es', currentLangName = 'Spanish', currentLocale = 'es-ES';
 // Teste de nível: uma pergunta que pede o nome (6 idiomas) perde essa frase; sem outra pergunta, fica "De onde você é?".
 const NAME_Q = /what'?s your name|what is your name|c[oó]mo te llamas|c[oó]mo se llama|cu[aá]l es tu nombre|comment tu t[’']?\s?appelles|comment vous vous appelez|comment vous appelez|comment t[’']?appelles[- ]tu|tu t[’']appelles comment|quel est ton (?:pr[ée])?nom|come ti chiami|come si chiama|qual [eè] il tuo nome|wie hei(?:ß|ss)t du|wie hei(?:ß|ss)en sie|wie ist dein name|como (?:voc[eê] )?se chama|como te chamas|qual [eé] (?:o )?(?:seu|teu) nome/i;
@@ -2795,7 +2801,7 @@ function clearKey() {
 function setOwnKey(on) {
   if (on) {
     API_KEY = loadKey();
-    if (!API_KEY) { document.getElementById('api-key-input').value = ''; document.getElementById('setup-cancel').style.display = ''; document.getElementById('setup-screen').style.display = 'flex'; return; }
+    if (!API_KEY) { closeDiag(); document.getElementById('api-key-input').value = ''; document.getElementById('setup-cancel').style.display = ''; document.getElementById('setup-screen').style.display = 'flex'; return; }
     try { localStorage.setItem(OWN_KEY_FLAG, '1'); } catch(e) {}
     showToast(t('own_key_on'));
   } else {
@@ -3716,7 +3722,7 @@ function diagText() {
     `2.ª leitura (lenta): ${vn(sp.voice)} · rate ${sp.rate} · caminho: ${sp.path}`,
     `Última leitura lenta usada: ${lastSlowPlan ? lastSlowPlan.path + ' · ' + lastSlowPlan.voice + ' · rate ' + lastSlowPlan.rate : '(ainda nenhuma)'}`,
     `speechSynthesis agora: speaking=${!!synth.speaking} pending=${!!synth.pending} paused=${!!synth.paused}`,
-    '', 'CAMINHO DA IA: ' + (useOwnKey() ? 'chave própria' + (serverReady() ? ' (escolhida no Perfil)' : ' (servidor ainda não configurado)') : 'servidor ' + SERVER_URL + ' · aparelho ' + deviceId().slice(0, 6) + '… · sessão ' + (savedSession() ? 'válida até ' + new Date(savedSession().exp).toLocaleTimeString() : 'por obter')),
+    '', 'CAMINHO DA IA: ' + (useOwnKey() ? 'chave própria' + (serverReady() ? ' (modo de testes, no Diagnóstico)' : ' (servidor ainda não configurado)') : 'servidor ' + SERVER_URL + ' · aparelho ' + deviceId().slice(0, 6) + '… · sessão ' + (savedSession() ? 'válida até ' + new Date(savedSession().exp).toLocaleTimeString() : 'por obter')),
     'Recusas do servidor por limite nesta sessão: ' + (() => { try { const r = JSON.parse(sessionStorage.getItem(REFUSED_KEY) || '{}'); return Object.keys(r).length ? Object.entries(r).map(([k, v]) => k + ' ×' + v).join(', ') : 'nenhuma'; } catch(e) { return '?'; } })(),
     '', ...costLines(),
     '', 'REGISTO (hora · nº da fala · evento):',
@@ -3725,7 +3731,7 @@ function diagText() {
   return lines.join('\n');
 }
 function renderDiag() { const p = document.getElementById('diag-text'); if (p) p.textContent = diagText(); }
-function openDiag() { loadVoices(); renderDiag(); document.getElementById('diag-screen').style.display = 'flex'; }
+function openDiag() { loadVoices(); renderDiag(); refreshKeyUI(); document.getElementById('diag-screen').style.display = 'flex'; }
 function closeDiag() { document.getElementById('diag-screen').style.display = 'none'; }
 function copyDiag() {
   const txt = diagText();
