@@ -813,7 +813,7 @@ function profileCard(id) {
   setTimeout(() => { s.classList.add('hide'); setTimeout(() => s.remove(), 400); }, 1000);
 })();
 // Versão do app (fim da tela Perfil). Atualizada sozinha a cada commit que mexe neste arquivo (hook .git/hooks/pre-commit).
-const APP_VERSION = 83, APP_DATE = '2026-11-20';
+const APP_VERSION = 84, APP_DATE = '2026-11-20';
 let currentLang = 'es', currentLangName = 'Spanish', currentLocale = 'es-ES';
 // Teste de nível: uma pergunta que pede o nome (6 idiomas) perde essa frase; sem outra pergunta, fica "De onde você é?".
 const NAME_Q = /what'?s your name|what is your name|c[oó]mo te llamas|c[oó]mo se llama|cu[aá]l es tu nombre|comment tu t[’']?\s?appelles|comment vous vous appelez|comment vous appelez|comment t[’']?appelles[- ]tu|tu t[’']appelles comment|quel est ton (?:pr[ée])?nom|come ti chiami|come si chiama|qual [eè] il tuo nome|wie hei(?:ß|ss)t du|wie hei(?:ß|ss)en sie|wie ist dein name|como (?:voc[eê] )?se chama|como te chamas|qual [eé] (?:o )?(?:seu|teu) nome/i;
@@ -2988,7 +2988,7 @@ function showSuggestions(sugs) {
     const b = document.createElement('button');
     b.className = 'suggest-chip';
     const m = document.createElement('span'); m.textContent = '🔊 ' + s.t; b.appendChild(m);
-    if (s.g) { const tr = document.createElement('span'); tr.className = 'sug-tr'; tr.textContent = s.g; b.appendChild(tr); } // tradução: só escrita
+    if (s.g && (showTr() || currentLesson !== null)) { const tr = document.createElement('span'); tr.className = 'sug-tr'; tr.textContent = s.g; b.appendChild(tr); } // tradução: só escrita
     b.onclick = () => speakToggle(s.t);
     box.appendChild(b);
   });
@@ -3020,7 +3020,7 @@ async function dontKnow() {
   }
   if (!ans || !ans.t) { setStatus('ready', t('st_ready')); return; }
   const ask = tgt('ask');
-  const main = `[nat] ${t('dunno_intro')}\n${ask}: «${ans.t}»${ans.g ? `\n[nat] (${ans.g})` : ''}`;
+  const main = `[nat] ${t('dunno_intro')}\n${ask}: «${ans.t}»${ans.g && showTr() ? `\n[nat] (${ans.g})` : ''}`;
   chatHistory.push({ role: 'user', content: `(${P.name} tapped "I don't know".)` }, { role: 'assistant', content: main });
   repeatTarget = ans.t; repeatTries = 0; dunnoEasier = true;
   addMsg('tutor', main, '', false, `${ans.t}. ${tgt('rep')} ${ans.t}.`, ans.t);
@@ -3653,6 +3653,7 @@ function voiceParts(text) {
       return;
     }
     if (who === 'nat' && !readNat) return;
+    if (who === 'alvo' && currentLesson === null && !currentTest && !m) { const trAll = (String(text).match(/\(([^)]*)\)/g) || []).join(' '); const sg = splitGlued(line.replace(/\([^)]*\)/g, ' '), trAll); if (sg.nat) { line = sg.keep; if (!line.trim()) return; } }
     const s = line.replace(VOICE_TAG, '').replace(/\[(nat|alvo)\]\s*/gi, '').replace(/[📝✅❌🎤🔊💡👤🛒🏥🏠🏦🎓🗣️🎯🔁💬🌐🌱]/gu, '').replace(/[\p{Extended_Pictographic}\u200D\uFE0F\u20E3]/gu, '').replace(/\*\*/g, '')
       .replace(/\([^)]*\)/g, ' ').replace(/\s+/g, ' ').trim();
     if (!s) return;
@@ -3771,8 +3772,43 @@ function speak(text, onEnd, opts) {
 // o app pede só essas traduções (uma chamada curta) e acrescenta as linhas [nat].
 // Iniciante ou básico no idioma atual: também na conversa livre, cada fala da Lia leva a tradução por baixo.
 function lzLowLevel() { const v = normLevel(((PROFILE && PROFILE.levels) || {})[currentLang]) || normLevel(DEFAULT_LEVELS[currentLang]); return v === 'iniciante' || v === 'básico'; }
+// Tradução visível na conversa (guiada, livre, cenários, sugestões): só para iniciante e básico; os outros usam o 🌐.
+function showTr() { return lzLowLevel(); }
+function splitSentences(line) { return (String(line).match(/[¡¿]?[^.!?¡¿…]*[.!?…]+["»”)]*|[^.!?…]+$/g) || [String(line)]).map(s => s.trim()).filter(Boolean); }
+// Frase claramente na língua nativa (palavras típicas): ≥ 2 pontos e pelo menos 1 a mais do que qualquer outra língua.
+function nativeSentence(s) {
+  const natG = NATIVES[getNative(PROFILE)].group, g = guessLang(s), v = Object.values(g.sc).sort((a, b) => b - a);
+  return g.best === natG && g.sc[natG] >= 2 && g.sc[natG] >= v[1] + 1;
+}
+// Separa, numa linha do idioma estudado, as frases na língua nativa (pelas palavras ou por repetirem a tradução ao lado, trText).
+function splitGlued(line, trText) {
+  const parts = splitSentences(line); if (!parts.length) return { keep: line, nat: '' };
+  const tr = ' ' + lzNorm(String(trText || '').replace(/^\s*\[nat\]\s*/i, '')) + ' ';
+  const tg = currentLang;
+  const isNat = parts.map(s => { const g = guessLang(s), n = lzNorm(s); return nativeSentence(s) || (!!n && tr.trim() !== '' && (g.sc[tg] || 0) < 1 && tr.includes(' ' + n + ' ')); });
+  // Frase curta logo antes de uma frase na língua nativa («Que bom!»), sem ¡¿ e sem mais palavras do idioma estudado: também é tradução.
+  const natG = NATIVES[getNative(PROFILE)].group;
+  const weakNat = s => { const g = guessLang(s); return !/[¡¿]/.test(s) && !(g.sc[tg] || 0) && ((g.sc[natG] || 0) > 0 || lzWords(s).length <= 3); };
+  for (let k = parts.length - 2; k >= 0; k--) if (isNat[k + 1] && !isNat[k] && weakNat(parts[k])) isNat[k] = true;
+  if (!isNat.some(Boolean)) return { keep: line, nat: '' };
+  return { keep: parts.filter((s, k) => !isNat[k]).join(' '), nat: parts.filter((s, k) => isNat[k]).join(' ') };
+}
+const isTrLine = l => !!l && (/^\s*\[nat\]\s*\(/i.test(l) || /^\s*\(.*\)\s*$/.test(l));
 async function ensureGuidedTr(text) {
-  if (!(guidedMode || lzLowLevel()) || currentLesson !== null || currentTest) return text;
+  if (currentLesson !== null || currentTest) return text;
+  // Tradução grudada na mesma linha ("¿Te gusta la moda? Você gosta de moda?"): sai da linha; se a linha seguinte já é a tradução, fica só essa.
+  { const src = String(text || '').split('\n'), out = [];
+    src.forEach((l, i) => {
+      if (/^\s*\[/.test(l) || isTrLine(l) || !/\p{L}/u.test(l) || /^\s*[📝✅💭➕🗣]/u.test(l)) { out.push(l); return; }
+      const nx = src[i + 1], { keep, nat } = splitGlued(l, isTrLine(nx) ? nx : '');
+      if (!nat) { out.push(l); return; }
+      dlog(0, 'conversa: tradução grudada tirada da linha («' + nat.slice(0, 60) + '»)');
+      if (keep) out.push(keep);
+      if (!isTrLine(nx)) out.push('[nat] (' + nat.replace(/^\(|\)$/g, '') + ')');
+    });
+    text = out.join('\n'); }
+  // Intermediário e avançado: nenhuma tradução visível (nem entre parênteses, nem linha inteira na língua nativa); o 🌐 traduz.
+  if (!showTr()) return String(text || '').split('\n').filter(l => !isTrLine(l) && !(!/^\s*\[/.test(l) && /\p{L}/u.test(l) && !/^\s*[📝✅💭➕🗣]/u.test(l) && nativeSentence(l))).join('\n');
   // Uma linha só entre parênteses já é tradução: passa a [nat]; traduções repetidas seguidas saem.
   const natG = NATIVES[getNative(PROFILE)].group;
   const isNatLine = l => { if (/^\s*\[/.test(l)) return false; if (/^\s*\(.*\)\s*$/.test(l)) return true; const g = guessLang(l); return g.best === natG && g.sc[g.best] >= 3; };
@@ -3916,7 +3952,7 @@ async function notUnderstood() {
   if (guidedMode && turnSuggestions.length) showSuggestions(turnSuggestions);
 }
 function offerPhrase(s, sugg) {
-  const offer = `[fala] 👉 ${t('g_you_can_say', { q: '«' + s.t + '»' })}\n[voz] ${s.t}` + (s.g ? `\n[nat] (${s.g})` : '');
+  const offer = `[fala] 👉 ${t('g_you_can_say', { q: '«' + s.t + '»' })}\n[voz] ${s.t}` + (s.g && showTr() ? `\n[nat] (${s.g})` : '');
   offered = { t: s.t, g: s.g };
   chatHistory.push({ role: 'assistant', content: offer });
   addMsg('tutor', offer, '', false, offer, s.t);
@@ -4362,8 +4398,8 @@ function lzParse(reply) {
 // Em que língua está uma explicação? Conta palavras típicas de cada língua (as frases citadas entre «», "" ou “” não
 // contam, porque são do idioma estudado). Devolve o grupo (pt, es, en, fr, it) e a pontuação de cada um.
 const LANG_WORDS = {
-  pt: 'não é são você uma um com do da dos das em ao às também isso isto essa esse palavra faltou falta certo correto aqui pelo pela ou mas fica depois sem quer dizer diz os o nas nos no na muito ela ele eu usa usa-se quando está estão vai tem têm usar som até umas uns dia meio amigos lugar pronome significa sobre outra outro mesmo assim já só ainda forma tempo passado pessoa terminação acento troca trocar errado',
-  es: 'es son el la los las del al una con más también eso esto palabra correcto aquí pero lo muy hay y sin quiere decir dice en se usa cuando está están va tiene usar sonido hasta unos día amigos lugar pronombre significa sobre otra otro mismo así ya solo todavía forma tiempo pasado persona desde irse llegar falta',
+  pt: 'sou sua seu suas seus oi olá bom boa gosta gosto gostas obrigado obrigada tudo vocês fazer faz agora hoje então não é são você uma um com do da dos das em ao às também isso isto essa esse palavra faltou falta certo correto aqui pelo pela ou mas fica depois sem quer dizer diz os o nas nos no na muito ela ele eu usa usa-se quando está estão vai tem têm usar som até umas uns dia meio amigos lugar pronome significa sobre outra outro mesmo assim já só ainda forma tempo passado pessoa terminação acento troca trocar errado',
+  es: 'soy eres hola qué cómo dónde bien bueno buena hoy ahora gusta gustan yo es son el la los las del al una con más también eso esto palabra correcto aquí pero lo muy hay y sin quiere decir dice en se usa cuando está están va tiene usar sonido hasta unos día amigos lugar pronombre significa sobre otra otro mismo así ya solo todavía forma tiempo pasado persona desde irse llegar falta',
   en: 'is are the an with for more also this that word here but not and of to it you your use say means verb correct missing when should must be about places place pronoun from arriving leaving evening friends instead needs there only same other form tense past person ending',
   fr: 'est sont le la les des du une un avec pour plus aussi ce cette mot ici mais ne pas et qui que on dit très sans au aux il elle c l d qu quand verbe faut pronom manque veut dire dès en arrivant partant lieu doit être pluriel entre amis autre même aussi forme temps passé personne',
   it: 'è sono il lo la gli della dello delle nel nella una un con per più anche questo questa parola qui ma non che di si dice molto senza quando verbo serve va al plurale pronome manca vuol dire riguardo luogo dopo arrivi amici altra altro stesso così già solo ancora forma tempo passato persona'
@@ -4996,7 +5032,7 @@ ${interests}${memory}${repeatTarget ? `REPETITION MODE: you asked ${N} to repeat
 - If ${N} asks a question or says they did not understand (in any language): explain in ONE objective sentence of at most 12 words in ${EX}, on a line starting with [nat] (so the app uses the right voice), then repeat the right sentence ("${repeatTarget}") and ask them to repeat it; put on a separate last line: 🎯 PERGUNTA
 - If ${N}, instead of repeating, corrects a piece of information (e.g. "no, es XXL"): accept it, do NOT say "${tgt('correct')}", do not correct, continue the conversation with ONE question and put on a separate last line: 🎯 ESCLARECIMENTO` : ''}
 GRAMMAR CHECK, ALWAYS, BEFORE REPLYING: read ${N}'s sentence word by word and check articles and partitives (e.g. French: after a negation it is «de», not «du / de la / des»: «je n'achète pas souvent de pain», not «pas souvent du pain»), negation, agreement (gender and number), prepositions and verb tenses. If there is ANY real mistake, use the 📝/✅ format before continuing. Praise such as «Parfait !», «C'est juste !», «Très bien !» ONLY when the sentence has no mistake.
-${!guidedMode && lzLowLevel() ? `TRANSLATIONS: ${N} is a ${normLevel((P.levels || {})[currentLang]) === 'iniciante' ? 'beginner' : 'basic-level learner'}: after EACH sentence you write in ${L}, WITHOUT EXCEPTION, add a line "[nat] (translation in ${EX})".\n` : ''}${guidedMode ? guidedRules(P, NI, N, EX, L) : ''}Conversation topic: "${currentTopic}"${currentLang === 'de' && TOPIC_DE[currentTopic] ? ' (' + TOPIC_DE[currentTopic] + ')' : ''}${currentTopic !== 'Free conversation' ? ' (stay on this topic for the WHOLE conversation)' : ''}`;
+${!guidedMode && lzLowLevel() ? `TRANSLATIONS: ${N} is a ${normLevel((P.levels || {})[currentLang]) === 'iniciante' ? 'beginner' : 'basic-level learner'}: after EACH sentence you write in ${L}, WITHOUT EXCEPTION, add a line "[nat] (translation in ${EX})". FORMAT: the ${L} sentence on its own line, its translation on the NEXT line in parentheses; never ${EX} words on the same line as ${L} words.\n` : `NO TRANSLATIONS: never write translations or any ${EX} version of your sentences (${N} can tap 🌐 to see one).\n`}${guidedMode ? guidedRules(P, NI, N, EX, L) : ''}Conversation topic: "${currentTopic}"${currentLang === 'de' && TOPIC_DE[currentTopic] ? ' (' + TOPIC_DE[currentTopic] + ')' : ''}${currentTopic !== 'Free conversation' ? ' (stay on this topic for the WHOLE conversation)' : ''}`;
 }
 // Alemão: o que cada cenário comum cobre na Alemanha.
 const TOPIC_DE = { 'At the bank or post office': 'in Germany: opening a bank account (Girokonto), the bank card, a bank transfer (Überweisung)' };
@@ -5007,10 +5043,10 @@ function guidedRules(P, NI, N, EX, L) {
   const qs = turn <= 3 ? 'Ask a CLOSED question: yes/no or a simple choice ("A or B?").'
     : turn <= 7 ? 'Alternate closed questions (yes/no, A or B) and very simple open questions (what, where, when).'
     : 'Ask simple open questions (what, where, why, how) that need a short sentence.';
-  return `GUIDED CONVERSATION: ${N} is a beginner. These rules OVERRIDE the length and question rules above:
+  const low = lzLowLevel();
+  return `GUIDED CONVERSATION: ${N} ${low ? 'is a beginner' : 'chose simple, guided practice'}. These rules OVERRIDE the length and question rules above:
 - Your reply: at most 2 very short, simple sentences in ${L}, each with AT MOST 8 words, in the present tense when possible.
-- After EACH sentence you write in ${L}, WITHOUT EXCEPTION (also very short ones, reactions such as «Super !» and requests to repeat), add a line "[nat] (translation in ${EX})".
-- If you did NOT understand ${N}'s message (the microphone made it unclear): put a first line "🎯 CONFUSO", then ask your LAST question again in a SIMPLER way (with its [nat] translation line) and add the 2 💭 lines. Never just ask ${N} to say it again.
+${low ? `- FORMAT: each sentence in ${L} on its own line; after EACH one, WITHOUT EXCEPTION (also very short ones, reactions such as «Super !» and requests to repeat), the NEXT line is its translation: "[nat] (translation in ${EX})". Never write ${EX} words on the same line as ${L} words.\n` : `- NO TRANSLATIONS: never write translations or any ${EX} version of your sentences (${N} can tap 🌐 to see one).\n`}- If you did NOT understand ${N}'s message (the microphone made it unclear): put a first line "🎯 CONFUSO", then ask your LAST question again in a SIMPLER way${low ? ' (with its [nat] translation line)' : ''} and add the 2 💭 lines. Never just ask ${N} to say it again.
 - The 💭 suggestions must be 100% correct and natural ${L} (check articles, agreement and verb forms twice): the app accepts them as correct answers.
 - Questions (this is ${N}'s message number ${turn}): ${qs}
 ${learned.length ? `- Prefer the words and structures ${N} already learned in the lessons: ${learned.join(' · ')}\n` : ''}- At the very end, add exactly 2 lines starting with "💭 ", each a short possible answer for ${N} to your question, in ${L} (at most 8 words, simple, different from each other), in this format: 💭 answer in ${L} | its translation in ${EX}
