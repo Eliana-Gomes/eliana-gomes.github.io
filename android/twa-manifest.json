@@ -1,0 +1,52 @@
+{
+  "packageId": "com.luzemmovimento.parlia",
+  "host": "eliana-gomes.github.io",
+  "name": "Parlia",
+  "launcherName": "Parlia",
+  "display": "standalone",
+  "themeColor": "#0B2A30",
+  "themeColorDark": "#0B2A30",
+  "navigationColor": "#0B2A30",
+  "navigationColorDark": "#0B2A30",
+  "navigationDividerColor": "#0B2A30",
+  "navigationDividerColorDark": "#0B2A30",
+  "backgroundColor": "#0B2A30",
+  "enableNotifications": false,
+  "startUrl": "/eliana-voz.html",
+  "iconUrl": "https://eliana-gomes.github.io/tutora-icon-512.png",
+  "maskableIconUrl": "https://eliana-gomes.github.io/tutora-icon-maskable-512.png",
+  "splashScreenFadeOutDuration": 300,
+  "signingKey": {
+    "path": "C:\\Users\\HP840G~1\\parlia-chaves\\parlia-upload.keystore",
+    "alias": "parlia"
+  },
+  "appVersionName": "1.0.0",
+  "appVersionCode": 1,
+  "shortcuts": [],
+  "generatorApp": "bubblewrap-cli",
+  "webManifestUrl": "https://eliana-gomes.github.io/tutora-manifest.json",
+  "fallbackType": "customtabs",
+  "features": {},
+  "alphaDependencies": {
+    "enabled": false
+  },
+  "enableSiteSettingsShortcut": true,
+  "isChromeOSOnly": false,
+  "isMetaQuest": false,
+  "fullScopeUrl": "https://eliana-gomes.github.io/",
+  "minSdkVersion": 24,
+  "orientation": "portrait",
+  "fingerprints": [
+    {
+      "name": "chave de upload (parlia-upload.keystore)",
+      "value": "AC:1E:19:92:FF:26:C9:EA:71:68:F7:91:72:19:38:07:F3:40:D6:C2:FB:70:1D:42:F9:63:8B:1B:37:B3:29:18"
+    }
+  ],
+  "additionalTrustedOrigins": [],
+  "retainedBundles": [],
+  "protocolHandlers": [],
+  "fileHandlers": [],
+  "launchHandlerClientMode": "",
+  "displayOverride": [],
+  "appVersion": "1.0.0"
+}
