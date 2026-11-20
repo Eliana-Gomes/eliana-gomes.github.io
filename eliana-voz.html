@@ -179,6 +179,8 @@
   #pf-cancel-new { position: fixed; top: calc(10px + env(safe-area-inset-top, 0px)); left: 50%; transform: translateX(-50%); z-index: 60; width: auto; padding: 9px 20px; border-radius: 999px; background: var(--night); color: #F4F0EA; border: 1.5px solid var(--gold-glow); font-weight: 600; box-shadow: 0 4px 14px rgba(0,0,0,0.3); }
   #pf-cancel-new::before { content: '✕ '; color: var(--gold-glow); }
   body.newp #view-profile { padding-top: 64px; }
+  .privacy-link { display: block; text-align: center; margin: 14px auto 2px; font-size: 0.85rem; color: var(--text-2); text-decoration: underline; text-underline-offset: 3px; }
+  .setup-screen .privacy-link, .who-screen .privacy-link { color: #C9C2B6; }
   .pf-err { width: 100%; font-size: 0.82rem; color: var(--err); margin-top: -4px; }
   .setup-screen .pf-err { color: #F2B8B5; text-align: center; }
   .api-input.pf-need { border-color: var(--gold-glow); box-shadow: 0 0 0 2px rgba(219,168,76,0.35); }
@@ -440,6 +442,7 @@
   <button class="backup-btn" id="setup-cancel" style="display:none" onclick="cancelOwnKey()" data-i18n="lz_cancel"></button>
   <div id="ts-box" style="position:absolute;left:-9999px;top:0"></div>
   <p class="api-note" data-i18n-html="key_note_html"></p>
+  <a class="privacy-link" href="privacidade.html" target="_blank" rel="noopener" onclick="this.href=privacyUrl()" data-i18n="privacy_link"></a>
 </div>
 
 
@@ -450,6 +453,7 @@
     <div class="setup-logo"><picture><source srcset="parlia-logo.webp" type="image/webp"><img class="logo-img" src="parlia-logo.png" width="800" height="300" alt="Parlia · by Luz em Movimento"></picture></div>
     <h2 data-i18n="who_title"></h2>
     <div class="who-grid" id="who-grid"></div>
+    <a class="privacy-link" href="privacidade.html" target="_blank" rel="noopener" onclick="this.href=privacyUrl()" data-i18n="privacy_link"></a>
   </div>
 </div>
 
@@ -559,6 +563,7 @@
   <button class="backup-btn" onclick="showChooser()" data-i18n="switch_person"></button>
   <button class="backup-btn key-btn" onclick="deleteProfile()" data-i18n="delete_profile"></button>
   <button class="backup-btn key-btn" id="key-btn" onclick="clearKey()" data-i18n="link_key"></button>
+  <a class="privacy-link" href="privacidade.html" target="_blank" rel="noopener" onclick="this.href=privacyUrl()" data-i18n="privacy_link"></a>
   <div class="app-version" id="app-version" onclick="versionTap()"></div>
 </section>
 
@@ -808,7 +813,7 @@ function profileCard(id) {
   setTimeout(() => { s.classList.add('hide'); setTimeout(() => s.remove(), 400); }, 1000);
 })();
 // Versão do app (fim da tela Perfil). Atualizada sozinha a cada commit que mexe neste arquivo (hook .git/hooks/pre-commit).
-const APP_VERSION = 81, APP_DATE = '2026-11-20';
+const APP_VERSION = 82, APP_DATE = '2026-11-20';
 let currentLang = 'es', currentLangName = 'Spanish', currentLocale = 'es-ES';
 // Teste de nível: uma pergunta que pede o nome (6 idiomas) perde essa frase; sem outra pergunta, fica "De onde você é?".
 const NAME_Q = /what'?s your name|what is your name|c[oó]mo te llamas|c[oó]mo se llama|cu[aá]l es tu nombre|comment tu t[’']?\s?appelles|comment vous vous appelez|comment vous appelez|comment t[’']?appelles[- ]tu|tu t[’']appelles comment|quel est ton (?:pr[ée])?nom|come ti chiami|come si chiama|qual [eè] il tuo nome|wie hei(?:ß|ss)t du|wie hei(?:ß|ss)en sie|wie ist dein name|como (?:voc[eê] )?se chama|como te chamas|qual [eé] (?:o )?(?:seu|teu) nome/i;
@@ -1834,7 +1839,7 @@ const I18N = {
     card_chat_t: 'Conversar', card_chat_d: 'Temas do dia a dia e conversa livre', card_test_t: 'Teste de nível', card_test_d: 'Descubra o seu nível no idioma',
     back_home: '← Início',
     tab_home: 'Início', tab_chat: 'Conversar', tab_notebook: 'Caderno', tab_profile: 'Perfil',
-    photo_gallery: '🖼️ Galeria', photo_camera: '📷 Câmera', photo_remove: '✕ Remover foto', photo_fail: 'Não consegui abrir a foto.', photo_save_fail: 'Não consegui salvar a foto.',
+    photo_gallery: '🖼️ Galeria', photo_camera: '📷 Câmera', photo_remove: '✕ Remover foto', privacy_link: 'Privacidade', photo_fail: 'Não consegui abrir a foto.', photo_save_fail: 'Não consegui salvar a foto.',
     empty_reply: 'A Lia não respondeu', ai_timeout: 'A Lia demorou demais a responder. Tente de novo.', busy_thinking: 'A Lia está pensando…', busy_speaking: 'Toque no avatar ou em 🔊 para interromper', unsaved_q: 'Salvar alterações?', unsaved_save: 'Salvar', unsaved_discard: 'Descartar', lang_changed: 'A sua língua mudou: as lições guardadas vão recomeçar.',
     lz_intro: 'Lição {n}: {title}. Você vai aprender {k} frases, uma de cada vez.', lz_fill: '(com os seus dados)', lz_recall_intro: 'Agora vamos lembrar as frases.', lz_chat_intro: 'Agora uma pequena conversa com estas frases.', lz_answer_is: 'A resposta é: «{a}».', lz_possible: 'Uma resposta possível: «{a}».', lz_unclear: 'Não entendi bem. Vamos de novo.', lz_recall_q: 'Como se diz "{txt}" em {lang}?', lz_end: 'Parabéns! Você terminou a lição. As frases que aprendeu:', lz_inprogress: 'A lição {n} está em andamento.', lz_continue: 'Continuar', lz_restart_full: 'Recomeçar do início', lz_restart_btn: '↺ Recomeçar', lz_restart_q: 'Recomeçar esta lição do início?', lz_restart: 'Recomeçar', lz_cancel: 'Cancelar', lz_tag_progress: 'Em andamento',
     hint_label: '💡 Dica', readnat_q: 'Ler explicações em voz alta (além das frases no idioma)', textsize_q: 'Tamanho do texto', textsize_normal: 'Normal', textsize_large: 'Grande', textsize_xlarge: 'Muito grande', dark_q: 'Modo escuro (telas de estudo em petróleo)',
@@ -1896,7 +1901,7 @@ const I18N = {
     card_chat_t: 'Conversar', card_chat_d: 'Temas do dia a dia e conversa livre', card_test_t: 'Teste de nível', card_test_d: 'Descobre o teu nível no idioma',
     back_home: '← Início',
     tab_home: 'Início', tab_chat: 'Conversar', tab_notebook: 'Caderno', tab_profile: 'Perfil',
-    photo_gallery: '🖼️ Galeria', photo_camera: '📷 Câmara', photo_remove: '✕ Remover foto', photo_fail: 'Não consegui abrir a foto.', photo_save_fail: 'Não consegui guardar a foto.',
+    photo_gallery: '🖼️ Galeria', photo_camera: '📷 Câmara', photo_remove: '✕ Remover foto', privacy_link: 'Privacidade', photo_fail: 'Não consegui abrir a foto.', photo_save_fail: 'Não consegui guardar a foto.',
     empty_reply: 'A Lia não respondeu', ai_timeout: 'A Lia demorou demasiado a responder. Tenta de novo.', busy_thinking: 'A Lia está a pensar…', busy_speaking: 'Toca no avatar ou em 🔊 para interromper', unsaved_q: 'Guardar as alterações?', unsaved_save: 'Guardar', unsaved_discard: 'Descartar', lang_changed: 'A tua língua mudou: as lições guardadas vão recomeçar.',
     lz_intro: 'Lição {n}: {title}. Vais aprender {k} frases, uma de cada vez.', lz_fill: '(com os teus dados)', lz_recall_intro: 'Agora vamos lembrar as frases.', lz_chat_intro: 'Agora uma pequena conversa com estas frases.', lz_answer_is: 'A resposta é: «{a}».', lz_possible: 'Uma resposta possível: «{a}».', lz_unclear: 'Não percebi bem. Vamos outra vez.', lz_recall_q: 'Como se diz "{txt}" em {lang}?', lz_end: 'Parabéns! Terminaste a lição. As frases que aprendeste:', lz_inprogress: 'A lição {n} está em curso.', lz_continue: 'Continuar', lz_restart_full: 'Recomeçar do início', lz_restart_btn: '↺ Recomeçar', lz_restart_q: 'Recomeçar esta lição do início?', lz_restart: 'Recomeçar', lz_cancel: 'Cancelar', lz_tag_progress: 'Em curso',
     hint_label: '💡 Dica', readnat_q: 'Ler explicações em voz alta (além das frases no idioma)', textsize_q: 'Tamanho do texto', textsize_normal: 'Normal', textsize_large: 'Grande', textsize_xlarge: 'Muito grande', dark_q: 'Modo escuro (ecrãs de estudo em petróleo)',
@@ -1958,7 +1963,7 @@ const I18N = {
     card_chat_t: 'Conversar', card_chat_d: 'Temas del día a día y conversación libre', card_test_t: 'Prueba de nivel', card_test_d: 'Descubre tu nivel en el idioma',
     back_home: '← Inicio',
     tab_home: 'Inicio', tab_chat: 'Conversar', tab_notebook: 'Cuaderno', tab_profile: 'Perfil',
-    photo_gallery: '🖼️ Galería', photo_camera: '📷 Cámara', photo_remove: '✕ Quitar foto', photo_fail: 'No pude abrir la foto.', photo_save_fail: 'No pude guardar la foto.',
+    photo_gallery: '🖼️ Galería', photo_camera: '📷 Cámara', photo_remove: '✕ Quitar foto', privacy_link: 'Privacidad', photo_fail: 'No pude abrir la foto.', photo_save_fail: 'No pude guardar la foto.',
     empty_reply: 'Lia no respondió', ai_timeout: 'Lia tardó demasiado en responder. Inténtalo de nuevo.', busy_thinking: 'Lia está pensando…', busy_speaking: 'Toca el avatar o 🔊 para interrumpir', unsaved_q: '¿Guardar los cambios?', unsaved_save: 'Guardar', unsaved_discard: 'Descartar', lang_changed: 'Tu idioma cambió: las lecciones guardadas volverán a empezar.',
     lz_intro: 'Lección {n}: {title}. Vas a aprender {k} frases, una por una.', lz_fill: '(con tus datos)', lz_recall_intro: 'Ahora vamos a recordar las frases.', lz_chat_intro: 'Ahora, una pequeña conversación con estas frases.', lz_answer_is: 'La respuesta es: «{a}».', lz_possible: 'Una respuesta posible: «{a}».', lz_unclear: 'No entendí bien. Otra vez.', lz_recall_q: '¿Cómo se dice "{txt}" en {lang}?', lz_end: '¡Felicidades! Terminaste la lección. Las frases que aprendiste:', lz_inprogress: 'La lección {n} está en curso.', lz_continue: 'Continuar', lz_restart_full: 'Empezar de nuevo', lz_restart_btn: '↺ Empezar de nuevo', lz_restart_q: '¿Empezar esta lección de nuevo?', lz_restart: 'Empezar de nuevo', lz_cancel: 'Cancelar', lz_tag_progress: 'En curso',
     hint_label: '💡 Pista', readnat_q: 'Leer las explicaciones en voz alta (además de las frases en el idioma)', textsize_q: 'Tamaño del texto', textsize_normal: 'Normal', textsize_large: 'Grande', textsize_xlarge: 'Muy grande', dark_q: 'Modo oscuro (pantallas de estudio en azul petróleo)',
@@ -2020,7 +2025,7 @@ const I18N = {
     card_chat_t: 'Talk', card_chat_d: 'Everyday topics and free conversation', card_test_t: 'Level test', card_test_d: 'Find out your level in the language',
     back_home: '← Home',
     tab_home: 'Home', tab_chat: 'Talk', tab_notebook: 'Notebook', tab_profile: 'Profile',
-    photo_gallery: '🖼️ Gallery', photo_camera: '📷 Camera', photo_remove: '✕ Remove photo', photo_fail: 'I could not open the photo.', photo_save_fail: 'I could not save the photo.',
+    photo_gallery: '🖼️ Gallery', photo_camera: '📷 Camera', photo_remove: '✕ Remove photo', privacy_link: 'Privacy', photo_fail: 'I could not open the photo.', photo_save_fail: 'I could not save the photo.',
     empty_reply: 'Lia did not answer', ai_timeout: 'Lia took too long to answer. Please try again.', busy_thinking: 'Lia is thinking…', busy_speaking: 'Tap the avatar or 🔊 to stop', unsaved_q: 'Save changes?', unsaved_save: 'Save', unsaved_discard: 'Discard', lang_changed: 'Your language changed: saved lessons will start again.',
     lz_intro: 'Lesson {n}: {title}. You will learn {k} phrases, one at a time.', lz_fill: '(with your own details)', lz_recall_intro: 'Now let’s remember the phrases.', lz_chat_intro: 'Now a short conversation with these phrases.', lz_answer_is: 'The answer is: «{a}».', lz_possible: 'A possible answer: «{a}».', lz_unclear: 'I didn’t quite understand. Let’s try again.', lz_recall_q: 'How do you say "{txt}" in {lang}?', lz_end: 'Well done! You finished the lesson. The phrases you learned:', lz_inprogress: 'Lesson {n} is in progress.', lz_continue: 'Continue', lz_restart_full: 'Start again from the beginning', lz_restart_btn: '↺ Start again', lz_restart_q: 'Start this lesson again from the beginning?', lz_restart: 'Start again', lz_cancel: 'Cancel', lz_tag_progress: 'In progress',
     hint_label: '💡 Hint', readnat_q: 'Read explanations aloud (as well as the phrases in the language)', textsize_q: 'Text size', textsize_normal: 'Normal', textsize_large: 'Large', textsize_xlarge: 'Extra large', dark_q: 'Dark mode (petrol-blue study screens)',
@@ -2082,7 +2087,7 @@ const I18N = {
     card_chat_t: 'Converser', card_chat_d: 'Thèmes du quotidien et conversation libre', card_test_t: 'Test de niveau', card_test_d: 'Découvre ton niveau dans la langue',
     back_home: '← Accueil',
     tab_home: 'Accueil', tab_chat: 'Converser', tab_notebook: 'Carnet', tab_profile: 'Profil',
-    photo_gallery: '🖼️ Galerie', photo_camera: '📷 Appareil photo', photo_remove: '✕ Retirer la photo', photo_fail: 'Je n’ai pas pu ouvrir la photo.', photo_save_fail: 'Je n’ai pas pu enregistrer la photo.',
+    photo_gallery: '🖼️ Galerie', photo_camera: '📷 Appareil photo', photo_remove: '✕ Retirer la photo', privacy_link: 'Confidentialité', photo_fail: 'Je n’ai pas pu ouvrir la photo.', photo_save_fail: 'Je n’ai pas pu enregistrer la photo.',
     empty_reply: 'Lia n’a pas répondu', ai_timeout: 'Lia a mis trop de temps à répondre. Réessaie.', busy_thinking: 'Lia réfléchit…', busy_speaking: 'Touche l’avatar ou 🔊 pour l’interrompre', unsaved_q: 'Enregistrer les modifications ?', unsaved_save: 'Enregistrer', unsaved_discard: 'Ignorer', lang_changed: 'Ta langue a changé : les leçons enregistrées vont recommencer.',
     lz_intro: 'Leçon {n} : {title}. Tu vas apprendre {k} phrases, une à la fois.', lz_fill: '(avec tes informations)', lz_recall_intro: 'Maintenant, on révise les phrases.', lz_chat_intro: 'Maintenant, une petite conversation avec ces phrases.', lz_answer_is: 'La réponse est : «{a}».', lz_possible: 'Une réponse possible : «{a}».', lz_unclear: 'Je n’ai pas bien compris. On recommence.', lz_recall_q: 'Comment dit-on « {txt} » en {lang} ?', lz_end: 'Bravo ! Tu as terminé la leçon. Les phrases que tu as apprises :', lz_inprogress: 'La leçon {n} est en cours.', lz_continue: 'Continuer', lz_restart_full: 'Recommencer depuis le début', lz_restart_btn: '↺ Recommencer', lz_restart_q: 'Recommencer cette leçon depuis le début ?', lz_restart: 'Recommencer', lz_cancel: 'Annuler', lz_tag_progress: 'En cours',
     hint_label: '💡 Indice', readnat_q: 'Lire les explications à voix haute (en plus des phrases dans la langue)', textsize_q: 'Taille du texte', textsize_normal: 'Normale', textsize_large: 'Grande', textsize_xlarge: 'Très grande', dark_q: 'Mode sombre (écrans d’étude bleu pétrole)',
@@ -2144,7 +2149,7 @@ const I18N = {
     card_chat_t: 'Conversare', card_chat_d: 'Temi di tutti i giorni e conversazione libera', card_test_t: 'Test di livello', card_test_d: 'Scopri il tuo livello nella lingua',
     back_home: '← Home',
     tab_home: 'Home', tab_chat: 'Conversare', tab_notebook: 'Quaderno', tab_profile: 'Profilo',
-    photo_gallery: '🖼️ Galleria', photo_camera: '📷 Fotocamera', photo_remove: '✕ Rimuovi foto', photo_fail: 'Non sono riuscita ad aprire la foto.', photo_save_fail: 'Non sono riuscita a salvare la foto.',
+    photo_gallery: '🖼️ Galleria', photo_camera: '📷 Fotocamera', photo_remove: '✕ Rimuovi foto', privacy_link: 'Privacy', photo_fail: 'Non sono riuscita ad aprire la foto.', photo_save_fail: 'Non sono riuscita a salvare la foto.',
     empty_reply: 'Lia non ha risposto', ai_timeout: 'Lia ci ha messo troppo a rispondere. Riprova.', busy_thinking: 'Lia sta pensando…', busy_speaking: 'Tocca l’avatar o 🔊 per interrompere', unsaved_q: 'Salvare le modifiche?', unsaved_save: 'Salva', unsaved_discard: 'Scarta', lang_changed: 'La tua lingua è cambiata: le lezioni salvate ricominceranno.',
     lz_intro: 'Lezione {n}: {title}. Imparerai {k} frasi, una alla volta.', lz_fill: '(con i tuoi dati)', lz_recall_intro: 'Ora ripassiamo le frasi.', lz_chat_intro: 'Ora una piccola conversazione con queste frasi.', lz_answer_is: 'La risposta è: «{a}».', lz_possible: 'Una risposta possibile: «{a}».', lz_unclear: 'Non ho capito bene. Riproviamo.', lz_recall_q: 'Come si dice "{txt}" in {lang}?', lz_end: 'Complimenti! Hai finito la lezione. Le frasi che hai imparato:', lz_inprogress: 'La lezione {n} è in corso.', lz_continue: 'Continua', lz_restart_full: 'Ricomincia dall’inizio', lz_restart_btn: '↺ Ricomincia', lz_restart_q: 'Ricominciare questa lezione dall’inizio?', lz_restart: 'Ricomincia', lz_cancel: 'Annulla', lz_tag_progress: 'In corso',
     hint_label: '💡 Suggerimento', readnat_q: 'Leggere ad alta voce le spiegazioni (oltre alle frasi nella lingua)', textsize_q: 'Dimensione del testo', textsize_normal: 'Normale', textsize_large: 'Grande', textsize_xlarge: 'Molto grande', dark_q: 'Modalità scura (schermate di studio blu petrolio)',
@@ -2342,6 +2347,8 @@ function pickFocus() {
 }
 function checkedInterests() { return [...document.querySelectorAll('#pf-interests input:checked')].map(i => i.value); }
 // "Parlia v52 · 18/11/2026" no fim do Perfil (data no formato da língua nativa).
+// Política de privacidade (privacidade.html): em português, espanhol ou inglês, conforme a língua da interface.
+function privacyUrl() { const n = (typeof uiLang === 'function' ? uiLang() : getNative(PROFILE)) || ''; return 'privacidade.html?lang=' + (/^pt/.test(n) ? 'pt' : /^es/.test(n) ? 'es' : 'en'); }
 function renderVersion() {
   const el = document.getElementById('app-version'); if (!el) return;
   let d = APP_DATE;

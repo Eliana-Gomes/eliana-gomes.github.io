@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Parlia · Privacidade</title>
+<meta name="description" content="Política de privacidade do app Parlia, by Luz em Movimento.">
+<link rel="icon" type="image/png" href="/tutora-icon-192.png">
+<style>
+  :root { --night: #0B2A30; --petrol: #00343D; --gold: #BC8833; --gold-glow: #DBA84C; --cream: #F4F0EA; --text: #1F2A2C; --text-2: #5A5348; --line: #E6DCCB; --link: #8A6220; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--cream); color: var(--text); font: 1rem/1.65 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; }
+  header { background: #00262C; color: var(--cream); padding: 18px 16px 14px; text-align: center; }
+  header img { width: 220px; max-width: 70%; height: auto; display: block; margin: 0 auto 6px; }
+  .langs { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-top: 8px; }
+  .langs button { background: transparent; color: var(--cream); border: 1.5px solid rgba(219,168,76,0.5); border-radius: 999px; padding: 6px 14px; font: inherit; font-size: 0.9rem; cursor: pointer; }
+  .langs button.on { background: var(--gold-glow); color: var(--night); border-color: var(--gold-glow); font-weight: 600; }
+  main { max-width: 720px; margin: 0 auto; padding: 8px 16px 40px; }
+  h1 { font-family: Georgia, "Times New Roman", serif; font-weight: 600; color: var(--night); font-size: 1.7rem; margin: 18px 0 2px; }
+  .date { color: var(--text-2); font-size: 0.9rem; margin: 0 0 14px; }
+  section.card { background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 4px 16px 10px; margin: 12px 0; }
+  h2 { font-family: Georgia, "Times New Roman", serif; color: var(--night); font-size: 1.15rem; margin: 14px 0 4px; }
+  p, li { margin: 6px 0; }
+  ul { padding-left: 20px; margin: 6px 0; }
+  a { color: var(--link); text-underline-offset: 2px; }
+  .lang { display: none; }
+  .lang.on { display: block; }
+  footer { text-align: center; color: var(--text-2); font-size: 0.85rem; padding: 0 16px 30px; }
+  @media (prefers-color-scheme: dark) {
+    body { background: var(--petrol); color: var(--cream); }
+    h1, h2 { color: var(--gold-glow); }
+    section.card { background: #0B3D47; border-color: #1E5560; }
+    .date, footer { color: #C9C2B6; }
+    a { color: var(--gold-glow); }
+  }
+</style>
+</head>
+<body>
+<header>
+  <picture><source srcset="parlia-logo.webp" type="image/webp"><img src="parlia-logo.png" width="800" height="300" alt="Parlia · by Luz em Movimento"></picture>
+  <div class="langs" role="group" aria-label="Idioma / Language">
+    <button data-l="pt" onclick="setL('pt')">Português</button>
+    <button data-l="es" onclick="setL('es')">Español</button>
+    <button data-l="en" onclick="setL('en')">English</button>
+  </div>
+</header>
+<main>
+
+<!-- ───────── PORTUGUÊS (BRASIL) ───────── -->
+<div class="lang" id="l-pt" lang="pt-BR">
+  <h1>Política de privacidade</h1>
+  <p class="date">Última atualização: 20 de novembro de 2026</p>
+
+  <section class="card">
+    <h2>Quem é o responsável</h2>
+    <p>Eliana Gomes · Luz em Movimento · Huelva, Espanha.</p>
+    <p>Contato: <a href="mailto:parlia.app@gmail.com">parlia.app@gmail.com</a></p>
+  </section>
+
+  <section class="card">
+    <h2>Em resumo</h2>
+    <ul>
+      <li>O Parlia não tem conta nem login.</li>
+      <li>Não tem anúncios.</li>
+      <li>Não usa rastreamento nem análise de uso.</li>
+      <li>Não vendemos nem compartilhamos os seus dados para publicidade.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Dados guardados no seu aparelho</h2>
+    <p>Ficam só no navegador do seu aparelho (armazenamento local):</p>
+    <ul>
+      <li>os perfis de cada pessoa: nome, língua nativa, idiomas e níveis, interesses, país de origem, cidade e preferências (voz, texto, tema);</li>
+      <li>a foto do perfil, se você escolher uma;</li>
+      <li>o progresso: lições, testes de nível, dias de prática;</li>
+      <li>o Caderno (erros e frases salvas) e a conversa da lição em andamento;</li>
+      <li>um número aleatório do aparelho, que não identifica você, e um código de sessão do nosso servidor;</li>
+      <li>uma estimativa do custo das conversas, para o painel de diagnóstico.</li>
+    </ul>
+    <p>Estes dados não saem do aparelho, a não ser quando você usa "Exportar meus dados". A foto nunca é enviada.</p>
+  </section>
+
+  <section class="card">
+    <h2>Voz</h2>
+    <p>O microfone e a leitura em voz alta usam os serviços do próprio navegador ou do sistema.</p>
+    <p>No Android, com o Chrome, o Google pode processar o áudio do microfone, conforme a <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">política de privacidade do Google</a>.</p>
+    <p>O Parlia recebe só o texto reconhecido. Não grava nem envia áudio.</p>
+  </section>
+
+  <section class="card">
+    <h2>Conversas com a Lia</h2>
+    <p>Para a Lia responder, o app envia pela internet:</p>
+    <ul>
+      <li>o texto da conversa (as suas frases e as da Lia);</li>
+      <li>as instruções da Lia, com alguns dados do perfil: nome, língua nativa, nível, cidade, interesses, o que você escreveu sobre os seus gostos e os erros que mais se repetem no Caderno. Nas lições, o país e a cidade podem aparecer nas frases.</li>
+    </ul>
+    <p>Esse envio passa pelo nosso servidor na Cloudflare, que o encaminha à API da Anthropic (a empresa do modelo de IA Claude). A Anthropic gera a resposta.</p>
+    <p>Veja a <a href="https://www.anthropic.com/legal/privacy" target="_blank" rel="noopener">política de privacidade da Anthropic</a> e a <a href="https://www.cloudflare.com/privacypolicy/" target="_blank" rel="noopener">política de privacidade da Cloudflare</a>.</p>
+    <p>Se você ativar "Usar minha própria chave da API" (Perfil → Avançado), o app envia a conversa direto à Anthropic, sem passar pelo nosso servidor.</p>
+  </section>
+
+  <section class="card">
+    <h2>O que o nosso servidor guarda</h2>
+    <ul>
+      <li>Não guarda as conversas.</li>
+      <li>Guarda, por dia, quantas mensagens cada aparelho enviou (pelo número aleatório). Apaga no dia seguinte.</li>
+      <li>Guarda, por dia, um resumo cifrado (hash) do endereço IP, nunca o IP em si, só para limitar abusos. Apaga no dia seguinte.</li>
+      <li>Guarda totais do dia (número de mensagens, custo, recusas), sem dados de pessoas. Apaga depois de 62 dias.</li>
+      <li>O registro de pedidos da Cloudflare (logs) está desligado.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Proteção contra robôs (Turnstile)</h2>
+    <p>Ao abrir o app, o Cloudflare Turnstile verifica, sem pedir nada a você, que quem usa é uma pessoa e não um robô.</p>
+    <p>Para isso, a Cloudflare recolhe alguns sinais técnicos do navegador. Veja o <a href="https://www.cloudflare.com/turnstile-privacy-policy/" target="_blank" rel="noopener">Cloudflare Turnstile Privacy Addendum</a>.</p>
+  </section>
+
+  <section class="card">
+    <h2>Outros serviços</h2>
+    <ul>
+      <li>O app está hospedado no GitHub Pages. O GitHub pode registrar o endereço IP de quem abre a página (<a href="https://docs.github.com/site-policy/privacy-policies/github-general-privacy-statement" target="_blank" rel="noopener">política do GitHub</a>).</li>
+      <li>As letras do app vêm do Google Fonts. O Google recebe o endereço IP ao enviá-las (<a href="https://policies.google.com/privacy" target="_blank" rel="noopener">política do Google</a>).</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Os seus direitos (RGPD)</h2>
+    <ul>
+      <li><b>Apagar:</b> Perfil → "Apagar este perfil" apaga os dados dessa pessoa. Para apagar tudo, limpe os dados do site nas configurações do navegador (ou desinstale o app).</li>
+      <li><b>Levar os seus dados:</b> Perfil → "Exportar meus dados" baixa um arquivo com o perfil, a foto, o Caderno, o progresso e os testes.</li>
+      <li><b>Dúvidas ou pedidos:</b> escreva para <a href="mailto:parlia.app@gmail.com">parlia.app@gmail.com</a>.</li>
+      <li>Você também pode reclamar à Agência Espanhola de Proteção de Dados (<a href="https://www.aepd.es" target="_blank" rel="noopener">aepd.es</a>).</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Crianças</h2>
+    <p>O Parlia não é destinado a menores de 13 anos sem a supervisão dos pais ou responsáveis.</p>
+  </section>
+
+  <section class="card">
+    <h2>Mudanças</h2>
+    <p>Se esta política mudar, a data no topo é atualizada.</p>
+  </section>
+</div>
+
+<!-- ───────── ESPAÑOL ───────── -->
+<div class="lang" id="l-es" lang="es">
+  <h1>Política de privacidad</h1>
+  <p class="date">Última actualización: 20 de noviembre de 2026</p>
+
+  <section class="card">
+    <h2>Responsable</h2>
+    <p>Eliana Gomes · Luz em Movimento · Huelva, España.</p>
+    <p>Contacto: <a href="mailto:parlia.app@gmail.com">parlia.app@gmail.com</a></p>
+  </section>
+
+  <section class="card">
+    <h2>En resumen</h2>
+    <ul>
+      <li>Parlia no tiene cuenta ni inicio de sesión.</li>
+      <li>No tiene anuncios.</li>
+      <li>No usa rastreo ni análisis de uso.</li>
+      <li>No vendemos ni compartimos tus datos para publicidad.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Datos guardados en tu dispositivo</h2>
+    <p>Se quedan solo en el navegador de tu dispositivo (almacenamiento local):</p>
+    <ul>
+      <li>los perfiles de cada persona: nombre, lengua materna, idiomas y niveles, intereses, país de origen, ciudad y preferencias (voz, texto, tema);</li>
+      <li>la foto del perfil, si eliges una;</li>
+      <li>el progreso: lecciones, pruebas de nivel, días de práctica;</li>
+      <li>el Cuaderno (errores y frases guardadas) y la conversación de la lección en curso;</li>
+      <li>un número aleatorio del dispositivo, que no te identifica, y un código de sesión de nuestro servidor;</li>
+      <li>una estimación del coste de las conversaciones, para el panel de diagnóstico.</li>
+    </ul>
+    <p>Estos datos no salen del dispositivo, salvo cuando usas "Exportar mis datos". La foto nunca se envía.</p>
+  </section>
+
+  <section class="card">
+    <h2>Voz</h2>
+    <p>El micrófono y la lectura en voz alta usan los servicios del propio navegador o del sistema.</p>
+    <p>En Android, con Chrome, Google puede procesar el audio del micrófono, según la <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">política de privacidad de Google</a>.</p>
+    <p>Parlia recibe solo el texto reconocido. No graba ni envía audio.</p>
+  </section>
+
+  <section class="card">
+    <h2>Conversaciones con Lia</h2>
+    <p>Para que Lia responda, la app envía por internet:</p>
+    <ul>
+      <li>el texto de la conversación (tus frases y las de Lia);</li>
+      <li>las instrucciones de Lia, con algunos datos del perfil: nombre, lengua materna, nivel, ciudad, intereses, lo que escribiste sobre tus gustos y los errores que más se repiten en el Cuaderno. En las lecciones, el país y la ciudad pueden aparecer en las frases.</li>
+    </ul>
+    <p>Ese envío pasa por nuestro servidor en Cloudflare, que lo reenvía a la API de Anthropic (la empresa del modelo de IA Claude). Anthropic genera la respuesta.</p>
+    <p>Consulta la <a href="https://www.anthropic.com/legal/privacy" target="_blank" rel="noopener">política de privacidad de Anthropic</a> y la <a href="https://www.cloudflare.com/privacypolicy/" target="_blank" rel="noopener">política de privacidad de Cloudflare</a>.</p>
+    <p>Si activas "Usar mi propia clave de la API" (Perfil → Avanzado), la app envía la conversación directamente a Anthropic, sin pasar por nuestro servidor.</p>
+  </section>
+
+  <section class="card">
+    <h2>Qué guarda nuestro servidor</h2>
+    <ul>
+      <li>No guarda las conversaciones.</li>
+      <li>Guarda, por día, cuántos mensajes envió cada dispositivo (por el número aleatorio). Lo borra al día siguiente.</li>
+      <li>Guarda, por día, un resumen cifrado (hash) de la dirección IP, nunca la IP en sí, solo para limitar abusos. Lo borra al día siguiente.</li>
+      <li>Guarda totales del día (número de mensajes, coste, rechazos), sin datos de personas. Los borra a los 62 días.</li>
+      <li>El registro de peticiones de Cloudflare (logs) está desactivado.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Protección contra robots (Turnstile)</h2>
+    <p>Al abrir la app, Cloudflare Turnstile comprueba, sin pedirte nada, que quien la usa es una persona y no un robot.</p>
+    <p>Para ello, Cloudflare recoge algunas señales técnicas del navegador. Consulta el <a href="https://www.cloudflare.com/turnstile-privacy-policy/" target="_blank" rel="noopener">Cloudflare Turnstile Privacy Addendum</a>.</p>
+  </section>
+
+  <section class="card">
+    <h2>Otros servicios</h2>
+    <ul>
+      <li>La app está alojada en GitHub Pages. GitHub puede registrar la dirección IP de quien abre la página (<a href="https://docs.github.com/site-policy/privacy-policies/github-general-privacy-statement" target="_blank" rel="noopener">política de GitHub</a>).</li>
+      <li>Las letras de la app vienen de Google Fonts. Google recibe la dirección IP al enviarlas (<a href="https://policies.google.com/privacy" target="_blank" rel="noopener">política de Google</a>).</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Tus derechos (RGPD)</h2>
+    <ul>
+      <li><b>Borrar:</b> Perfil → "Borrar este perfil" borra los datos de esa persona. Para borrarlo todo, elimina los datos del sitio en la configuración del navegador (o desinstala la app).</li>
+      <li><b>Llevarte tus datos:</b> Perfil → "Exportar mis datos" descarga un archivo con el perfil, la foto, el Cuaderno, el progreso y las pruebas.</li>
+      <li><b>Dudas o solicitudes:</b> escribe a <a href="mailto:parlia.app@gmail.com">parlia.app@gmail.com</a>.</li>
+      <li>También puedes reclamar ante la Agencia Española de Protección de Datos (<a href="https://www.aepd.es" target="_blank" rel="noopener">aepd.es</a>).</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Menores</h2>
+    <p>Parlia no está destinada a menores de 13 años sin la supervisión de sus padres o tutores.</p>
+  </section>
+
+  <section class="card">
+    <h2>Cambios</h2>
+    <p>Si esta política cambia, se actualiza la fecha de arriba.</p>
+  </section>
+</div>
+
+<!-- ───────── ENGLISH ───────── -->
+<div class="lang" id="l-en" lang="en">
+  <h1>Privacy policy</h1>
+  <p class="date">Last updated: 20 November 2026</p>
+
+  <section class="card">
+    <h2>Who is responsible</h2>
+    <p>Eliana Gomes · Luz em Movimento · Huelva, Spain.</p>
+    <p>Contact: <a href="mailto:parlia.app@gmail.com">parlia.app@gmail.com</a></p>
+  </section>
+
+  <section class="card">
+    <h2>In short</h2>
+    <ul>
+      <li>Parlia has no account and no login.</li>
+      <li>It has no ads.</li>
+      <li>It uses no tracking and no usage analytics.</li>
+      <li>We do not sell or share your data for advertising.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Data stored on your device</h2>
+    <p>It stays only in the browser on your device (local storage):</p>
+    <ul>
+      <li>each person's profile: name, native language, languages and levels, interests, country of origin, city and settings (voice, text, theme);</li>
+      <li>the profile photo, if you choose one;</li>
+      <li>progress: lessons, level tests, practice days;</li>
+      <li>the Notebook (mistakes and saved sentences) and the conversation of the lesson in progress;</li>
+      <li>a random device number, which does not identify you, and a session code from our server;</li>
+      <li>an estimate of the cost of conversations, for the diagnostics panel.</li>
+    </ul>
+    <p>This data does not leave your device, except when you use "Export my data". The photo is never sent.</p>
+  </section>
+
+  <section class="card">
+    <h2>Voice</h2>
+    <p>The microphone and reading aloud use the services of your browser or operating system.</p>
+    <p>On Android, with Chrome, Google may process the microphone audio, under the <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Google Privacy Policy</a>.</p>
+    <p>Parlia only receives the recognised text. It does not record or send audio.</p>
+  </section>
+
+  <section class="card">
+    <h2>Conversations with Lia</h2>
+    <p>For Lia to reply, the app sends over the internet:</p>
+    <ul>
+      <li>the text of the conversation (your sentences and Lia's);</li>
+      <li>Lia's instructions, with some profile data: name, native language, level, city, interests, what you wrote about your tastes, and the mistakes repeated most in your Notebook. In lessons, your country and city may appear in the sentences.</li>
+    </ul>
+    <p>This goes through our server on Cloudflare, which forwards it to the Anthropic API (the company behind the Claude AI model). Anthropic generates the reply.</p>
+    <p>See the <a href="https://www.anthropic.com/legal/privacy" target="_blank" rel="noopener">Anthropic Privacy Policy</a> and the <a href="https://www.cloudflare.com/privacypolicy/" target="_blank" rel="noopener">Cloudflare Privacy Policy</a>.</p>
+    <p>If you turn on "Use my own API key" (Profile → Advanced), the app sends the conversation directly to Anthropic, without our server.</p>
+  </section>
+
+  <section class="card">
+    <h2>What our server stores</h2>
+    <ul>
+      <li>It does not store conversations.</li>
+      <li>It stores, per day, how many messages each device sent (by the random number). Deleted the next day.</li>
+      <li>It stores, per day, a hashed summary of the IP address, never the IP itself, only to limit abuse. Deleted the next day.</li>
+      <li>It stores daily totals (number of messages, cost, refusals), with no personal data. Deleted after 62 days.</li>
+      <li>Cloudflare request logging is turned off.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Bot protection (Turnstile)</h2>
+    <p>When you open the app, Cloudflare Turnstile checks, without asking you anything, that a person and not a bot is using it.</p>
+    <p>To do this, Cloudflare collects some technical signals from the browser. See the <a href="https://www.cloudflare.com/turnstile-privacy-policy/" target="_blank" rel="noopener">Cloudflare Turnstile Privacy Addendum</a>.</p>
+  </section>
+
+  <section class="card">
+    <h2>Other services</h2>
+    <ul>
+      <li>The app is hosted on GitHub Pages. GitHub may log the IP address of visitors (<a href="https://docs.github.com/site-policy/privacy-policies/github-general-privacy-statement" target="_blank" rel="noopener">GitHub privacy statement</a>).</li>
+      <li>The app's fonts come from Google Fonts. Google receives the IP address when serving them (<a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Google Privacy Policy</a>).</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Your rights (GDPR)</h2>
+    <ul>
+      <li><b>Delete:</b> Profile → "Delete this profile" deletes that person's data. To delete everything, clear the site data in your browser settings (or uninstall the app).</li>
+      <li><b>Take your data:</b> Profile → "Export my data" downloads a file with the profile, photo, Notebook, progress and tests.</li>
+      <li><b>Questions or requests:</b> write to <a href="mailto:parlia.app@gmail.com">parlia.app@gmail.com</a>.</li>
+      <li>You can also complain to the Spanish Data Protection Agency (<a href="https://www.aepd.es" target="_blank" rel="noopener">aepd.es</a>).</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Children</h2>
+    <p>Parlia is not intended for children under 13 without the supervision of a parent or guardian.</p>
+  </section>
+
+  <section class="card">
+    <h2>Changes</h2>
+    <p>If this policy changes, the date at the top is updated.</p>
+  </section>
+</div>
+
+</main>
+<footer>Parlia · by Luz em Movimento</footer>
+<script>
+  function setL(l) {
+    document.querySelectorAll('.lang').forEach(d => d.classList.toggle('on', d.id === 'l-' + l));
+    document.querySelectorAll('.langs button').forEach(b => b.classList.toggle('on', b.dataset.l === l));
+    document.documentElement.lang = l === 'pt' ? 'pt-BR' : l;
+    try { history.replaceState(null, '', '?lang=' + l); } catch (e) {}
+  }
+  (function () {
+    const q = new URLSearchParams(location.search).get('lang');
+    const nav = (navigator.language || 'pt').slice(0, 2).toLowerCase();
+    setL(['pt', 'es', 'en'].includes(q) ? q : ['pt', 'es'].includes(nav) ? nav : 'en');
+  })();
+</script>
+</body>
+</html>
