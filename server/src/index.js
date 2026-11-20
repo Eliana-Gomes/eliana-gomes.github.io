@@ -7,7 +7,7 @@ export const MODELS = { // US$ por milhão de tokens: [entrada, saída, leitura 
   'claude-haiku-5-5': [0.10, 0.50, 0.01, 0.125],
   'claude-sonnet-5-5': [2, 10, 0.10, 2.5],
 };
-export const LIMITS = { maxTokens: 1024, maxBody: 24 * 1024, maxMessages: 60, sessionHours: 12, perDevice: 300, perIp: 600, dailyBudgetUsd: 1.00 };
+export const LIMITS = { maxTokens: 1024, maxBody: 24 * 1024, maxMessages: 60, sessionHours: 12, perDevice: 300, perIp: 600, dailyBudgetUsd: 1.00, diagHours: 24, diagFailsDevice: 5, diagFailsIp: 20 };
 const THINKING_OK = ['disabled', 'between_tools'];
 const DEVICE_RE = /^[A-Za-z0-9_-]{16,64}$/;
 
@@ -36,19 +36,21 @@ const fail = (type, code, status, env, origin) => json({ error: { type, code } }
 async function hmacKey(secret) {
   return crypto.subtle.importKey('raw', enc.encode(secret), { name: 'HMAC', hash: 'SHA-256' }, false, ['sign', 'verify']);
 }
-export async function signSession(secret, device, now = Date.now()) {
-  const payload = b64u(enc.encode(JSON.stringify({ d: device, exp: now + LIMITS.sessionHours * 3600e3 })));
+// kind '' = sessão normal (12 h, para /api/chat); 'diag' = sessão de diagnóstico (24 h). Uma não serve pela outra.
+export async function signSession(secret, device, now = Date.now(), kind = '') {
+  const hours = kind === 'diag' ? LIMITS.diagHours : LIMITS.sessionHours;
+  const payload = b64u(enc.encode(JSON.stringify(kind ? { d: device, exp: now + hours * 3600e3, k: kind } : { d: device, exp: now + hours * 3600e3 })));
   const sig = await crypto.subtle.sign('HMAC', await hmacKey(secret), enc.encode(payload));
   return payload + '.' + b64u(sig);
 }
-export async function verifySession(secret, token, now = Date.now()) {
+export async function verifySession(secret, token, now = Date.now(), kind = '') {
   if (!token || typeof token !== 'string' || token.split('.').length !== 2) return null;
   const [payload, sig] = token.split('.');
   let ok = false;
   try { ok = await crypto.subtle.verify('HMAC', await hmacKey(secret), unb64u(sig), enc.encode(payload)); } catch (e) { return null; }
   if (!ok) return null;
   let p; try { p = JSON.parse(new TextDecoder().decode(unb64u(payload))); } catch (e) { return null; }
-  if (!p || !DEVICE_RE.test(p.d || '') || !(p.exp > now)) return null;
+  if (!p || !DEVICE_RE.test(p.d || '') || !(p.exp > now) || (p.k || '') !== kind) return null;
   return p;
 }
 // Compara dois segredos sem revelar pelo tempo onde diferem (resumos SHA-256 comparados byte a byte). Segredo vazio = nunca.
@@ -110,6 +112,16 @@ async function session(req, env, origin) {
   return json({ session: token, expiresInHours: LIMITS.sessionHours }, 200, env, origin);
 }
 
+// Código do diagnóstico: compara com o segredo DIAG_CODE em tempo constante; 5 erros por aparelho por hora (e 20 por IP).
+async function diag(req, env, origin) {
+  let b; try { b = await req.json(); } catch (e) { return fail('parlia_bad_request', 'json', 400, env, origin); }
+  if (!b || !DEVICE_RE.test(b.device || '') || typeof b.code !== 'string') return fail('parlia_bad_request', 'fields', 400, env, origin);
+  const ip = await ipHash(env.SESSION_SECRET, req.headers.get('CF-Connecting-IP'));
+  const lock = await limiter(env, '/diagcheck', { device: b.device, ip });
+  if (!lock.ok) return fail('parlia_limit', 'diag_locked', 429, env, origin);
+  if (!(await sameSecret(env.DIAG_CODE, b.code))) { await limiter(env, '/diagfail', { device: b.device, ip }); return fail('parlia_forbidden', 'diag_code', 403, env, origin); }
+  return json({ diag: await signSession(env.SESSION_SECRET, b.device, Date.now(), 'diag'), expiresInHours: LIMITS.diagHours }, 200, env, origin);
+}
 async function chat(req, env, origin) {
   const auth = req.headers.get('Authorization') || '';
   const s = await verifySession(env.SESSION_SECRET, auth.replace(/^Bearer\s+/i, ''));
@@ -152,6 +164,7 @@ export default {
     try {
       if (url.pathname === '/api/session') return await session(req, env, origin);
       if (url.pathname === '/api/chat') return await chat(req, env, origin);
+      if (url.pathname === '/api/diag') return await diag(req, env, origin);
     } catch (e) { return fail('parlia_server', 'internal', 500, env, origin); }
     return fail('parlia_bad_request', 'not_found', 404, env, origin);
   },
@@ -182,6 +195,14 @@ export class Limiter {
       await this.st.put(gk, g);
       return Response.json({ ok: true });
     }
+    if (path === '/diagcheck' || path === '/diagfail') {
+      const hr = new Date().toISOString().slice(0, 13), dk = 'df:' + hr + ':' + b.device, ik = 'dfi:' + hr + ':' + b.ip;
+      const dc = (await this.st.get(dk)) || 0, ic = (await this.st.get(ik)) || 0;
+      if (path === '/diagcheck') return Response.json({ ok: dc < LIMITS.diagFailsDevice && ic < LIMITS.diagFailsIp });
+      g.refused.diag_code = (g.refused.diag_code || 0) + 1;
+      await this.st.put({ [dk]: dc + 1, [ik]: ic + 1, [gk]: g });
+      return Response.json({ ok: true });
+    }
     if (path === '/note') { g.refused[b.what] = (g.refused[b.what] || 0) + 1; await this.st.put(gk, g); return Response.json({ ok: true }); }
     if (path === '/stats') {
       const days = [...(await this.st.list({ prefix: 'g:' })).entries()].map(([k, v]) => ({ day: k.slice(2), ...v })).sort((a, c) => c.day.localeCompare(a.day)).slice(0, 31);
@@ -192,7 +213,7 @@ export class Limiter {
   // Uma vez por dia: apaga os contadores por aparelho e por IP dos dias anteriores, e os totais com mais de 62 dias.
   async cleanup(day) {
     if ((await this.st.get('cleaned')) === day) return;
-    for (const p of ['d:', 'i:']) {
+    for (const p of ['d:', 'i:', 'df:', 'dfi:']) {
       const old = [...(await this.st.list({ prefix: p })).keys()].filter(k => !k.startsWith(p + day));
       for (let i = 0; i < old.length; i += 128) await this.st.delete(old.slice(i, i + 128));
     }

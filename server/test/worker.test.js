@@ -1,6 +1,6 @@
 // Teste do Worker em Node (sem Cloudflare e sem internet): Anthropic, Turnstile e o Durable Object são simulados.
 // Correr: node server/test/worker.test.js
-import worker, { Limiter, LIMITS, signSession } from '../src/index.js';
+import worker, { Limiter, LIMITS, signSession, verifySession } from '../src/index.js';
 
 const ORIGIN = 'https://eliana-gomes.github.io';
 class MemStorage {
@@ -13,7 +13,7 @@ class MemStorage {
 const storage = new MemStorage();
 const limiterObj = new Limiter({ storage }, {});
 const env = {
-  ALLOWED_ORIGIN: ORIGIN, ANTHROPIC_API_KEY: 'chave-de-teste', TURNSTILE_SECRET: 'ts-teste', SESSION_SECRET: 'segredo-de-teste-123', STATS_KEY: 'leitura-teste',
+  ALLOWED_ORIGIN: ORIGIN, ANTHROPIC_API_KEY: 'chave-de-teste', TURNSTILE_SECRET: 'ts-teste', SESSION_SECRET: 'segredo-de-teste-123', STATS_KEY: 'leitura-teste', DIAG_CODE: 'codigo-diag-teste',
   LIMITER: { idFromName: () => 'global', get: () => ({ fetch: (u, init) => limiterObj.fetch(new Request(u, init)) }) },
 };
 let upstream = [];
@@ -78,6 +78,16 @@ const ipKey = [...storage.m.keys()].find(k => k.startsWith('i:'));
 await storage.put(ipKey, LIMITS.perIp);
 await check(`limite por IP (${LIMITS.perIp}/dia)`, await call('/api/chat', { body: ok, token: s2.session }), 429, 'ip_limit');
 await check('outro IP', await call('/api/chat', { body: ok, token: s2.session, ip: '5.6.7.8' }), 200);
+// Código do diagnóstico
+const DD = 'aparelho-diag-0001';
+const dg = await check('diagnóstico com o código certo', await call('/api/diag', { body: { device: DD, code: 'codigo-diag-teste' }, ip: '7.7.7.7' }), 200);
+console.log('   → sessão de diagnóstico válida por ' + dg.expiresInHours + ' h');
+await check('sessão de diagnóstico não serve para /api/chat', await call('/api/chat', { body: ok, token: dg.diag, ip: '7.7.7.7' }), 401, 'session');
+await check('sessão normal não é sessão de diagnóstico (verifySession)', new Response(JSON.stringify((await verifySession(env.SESSION_SECRET, T, Date.now(), 'diag')) ? {} : { error: { code: 'recusada' } }), { status: 401 }), 401, 'recusada');
+await check('diagnóstico sem origem', await call('/api/diag', { body: { device: DD, code: 'x' }, origin: '' }), 403, 'origin');
+for (let i = 1; i <= 5; i++) await check('código errado ' + i + '/5', await call('/api/diag', { body: { device: DD, code: 'errado' + i }, ip: '7.7.7.7' }), 403, 'diag_code');
+await check('6.ª tentativa (bloqueado por 1 h), mesmo com o código certo', await call('/api/diag', { body: { device: DD, code: 'codigo-diag-teste' }, ip: '7.7.7.7' }), 429, 'diag_locked');
+await check('outro aparelho, outro IP: passa', await call('/api/diag', { body: { device: 'aparelho-diag-0002', code: 'codigo-diag-teste' }, ip: '8.8.8.8' }), 200);
 // Teto global: US$ 1,00 por dia.
 const g = await storage.get('g:' + today); g.costUsd = 1.0; await storage.put('g:' + today, g);
 await check('teto de gasto do dia (US$ 1,00)', await call('/api/chat', { body: ok, token: s2.session, ip: '9.9.9.9' }), 429, 'daily_budget');
