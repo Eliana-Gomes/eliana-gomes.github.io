@@ -7,7 +7,7 @@ export const MODELS = { // US$ por milhão de tokens: [entrada, saída, leitura 
   'claude-haiku-5-5': [0.10, 0.50, 0.01, 0.125],
   'claude-sonnet-5-5': [2, 10, 0.10, 2.5],
 };
-export const LIMITS = { maxTokens: 1024, maxBody: 24 * 1024, maxMessages: 60, sessionHours: 12, perDevice: 300, perIp: 600, dailyBudgetUsd: 1.00, diagHours: 24, diagFailsDevice: 5, diagFailsIp: 20 };
+export const LIMITS = { maxTokens: 1024, maxBody: 24 * 1024, maxMessages: 60, sessionHours: 12, perDevice: 300, perIp: 600, dailyBudgetUsd: 1.00, diagHours: 24, diagFailsDevice: 5, diagFailsIp: 20, reportBody: 8 * 1024, reportsPerDevice: 10, reportDays: 90 };
 const THINKING_OK = ['disabled', 'between_tools'];
 const DEVICE_RE = /^[A-Za-z0-9_-]{16,64}$/;
 
@@ -124,6 +124,40 @@ async function diag(req, env, origin) {
   if (!(await sameSecret(env.DIAG_CODE, b.code))) { await limiter(env, '/diagfail', { device: b.device, ip }); return fail('parlia_forbidden', 'diag_code', 403, env, origin); }
   return json({ diag: await signSession(env.SESSION_SECRET, b.device, Date.now(), 'diag'), expiresInHours: LIMITS.diagHours }, 200, env, origin);
 }
+// Denúncia de uma resposta da IA (política "AI-Generated Content" da Google Play). Só estes campos; nunca o aparelho,
+// o IP nem dados do perfil junto com a denúncia. 10 por aparelho por dia (contador à parte). Guardada 90 dias.
+export const REPORT_REASONS = ['offensive', 'wrong', 'other'];
+const REPORT_FIELDS = { reason: 0, comment: 300, response: 4000, lastUser: 1000, lang: 10, level: 2, source: 12 };
+export function checkReport(b) {
+  if (!b || typeof b !== 'object' || Array.isArray(b)) return 'fields';
+  if (!Object.keys(b).every(k => k in REPORT_FIELDS)) return 'fields';
+  if (!REPORT_REASONS.includes(b.reason)) return 'reason';
+  for (const k of ['comment', 'response', 'lastUser', 'lang', 'level', 'source']) {
+    if (b[k] === undefined) continue;
+    if (typeof b[k] !== 'string' || b[k].length > REPORT_FIELDS[k]) return k;
+  }
+  if (!b.response || !b.response.trim()) return 'response';
+  if (b.lang !== undefined && b.lang !== '' && !/^[a-z]{2,4}$/.test(b.lang)) return 'lang';
+  if (b.level !== undefined && b.level !== '' && !/^[ABC][0-2]$/.test(b.level)) return 'level';
+  if (b.source !== undefined && b.source !== '' && !['lesson', 'conversation'].includes(b.source)) return 'source';
+  return '';
+}
+async function report(req, env, origin) {
+  const auth = req.headers.get('Authorization') || '';
+  const s = await verifySession(env.SESSION_SECRET, auth.replace(/^Bearer\s+/i, ''));
+  if (!s) return fail('parlia_session', 'session', 401, env, origin);
+  if (+(req.headers.get('Content-Length') || 0) > LIMITS.reportBody) return fail('parlia_bad_request', 'too_large', 413, env, origin);
+  const raw = await req.text();
+  if (enc.encode(raw).length > LIMITS.reportBody) return fail('parlia_bad_request', 'too_large', 413, env, origin);
+  let b; try { b = JSON.parse(raw); } catch (e) { return fail('parlia_bad_request', 'json', 400, env, origin); }
+  const bad = checkReport(b);
+  if (bad) return fail('parlia_bad_request', bad, 400, env, origin);
+  const lim = await limiter(env, '/reportcheck', { device: s.d });
+  if (!lim.ok) return fail('parlia_limit', 'report_limit', 429, env, origin);
+  const rec = { reason: b.reason, comment: (b.comment || '').trim(), response: b.response, lastUser: b.lastUser || '', lang: b.lang || '', level: b.level || '', source: b.source || '' };
+  await limiter(env, '/report', rec);
+  return json({ ok: true }, 200, env, origin);
+}
 async function chat(req, env, origin) {
   const auth = req.headers.get('Authorization') || '';
   const s = await verifySession(env.SESSION_SECRET, auth.replace(/^Bearer\s+/i, ''));
@@ -160,6 +194,11 @@ export default {
       if (!(await sameSecret(env.STATS_KEY, url.searchParams.get('key')))) return new Response('Not found', { status: 404 });
       return new Response(JSON.stringify(await limiter(env, '/stats'), null, 2), { status: 200, headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' } });
     }
+    // Denúncias (mais recentes primeiro): só com a chave de leitura; sem ela, 404.
+    if (url.pathname === '/api/reports' && req.method === 'GET') {
+      if (!(await sameSecret(env.STATS_KEY, url.searchParams.get('key')))) return new Response('Not found', { status: 404 });
+      return new Response(JSON.stringify(await limiter(env, '/reports'), null, 2), { status: 200, headers: { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' } });
+    }
     if (!originOk(env, origin)) return fail('parlia_forbidden', 'origin', 403, env, origin);
     if (req.method === 'OPTIONS') return new Response(null, { status: 204, headers: cors(env, origin) });
     if (req.method !== 'POST') return fail('parlia_bad_request', 'method', 405, env, origin);
@@ -167,6 +206,7 @@ export default {
       if (url.pathname === '/api/session') return await session(req, env, origin);
       if (url.pathname === '/api/chat') return await chat(req, env, origin);
       if (url.pathname === '/api/diag') return await diag(req, env, origin);
+      if (url.pathname === '/api/report') return await report(req, env, origin);
     } catch (e) { return fail('parlia_server', 'internal', 500, env, origin); }
     return fail('parlia_bad_request', 'not_found', 404, env, origin);
   },
@@ -205,6 +245,24 @@ export class Limiter {
       await this.st.put({ [dk]: dc + 1, [ik]: ic + 1, [gk]: g });
       return Response.json({ ok: true });
     }
+    if (path === '/reportcheck') {
+      await this.cleanup(day);
+      const rk = 'rd:' + day + ':' + b.device, rc = (await this.st.get(rk)) || 0;
+      if (rc >= LIMITS.reportsPerDevice) { g.refused.report_limit = (g.refused.report_limit || 0) + 1; await this.st.put(gk, g); return Response.json({ ok: false }); }
+      await this.st.put(rk, rc + 1);
+      return Response.json({ ok: true });
+    }
+    if (path === '/report') {
+      // Chave com a data e um número aleatório: nada que ligue a denúncia ao aparelho ou ao IP.
+      const at = new Date().toISOString(), id = crypto.randomUUID().slice(0, 8);
+      g.reports = (g.reports || 0) + 1;
+      await this.st.put({ ['rep:' + at + ':' + id]: { at, ...b }, [gk]: g });
+      return Response.json({ ok: true });
+    }
+    if (path === '/reports') {
+      const list = [...(await this.st.list({ prefix: 'rep:' })).values()].sort((a, c) => c.at.localeCompare(a.at));
+      return Response.json({ total: list.length, keptDays: LIMITS.reportDays, reports: list });
+    }
     if (path === '/note') { g.refused[b.what] = (g.refused[b.what] || 0) + 1; await this.st.put(gk, g); return Response.json({ ok: true }); }
     if (path === '/stats') {
       const days = [...(await this.st.list({ prefix: 'g:' })).entries()].map(([k, v]) => ({ day: k.slice(2), ...v })).sort((a, c) => c.day.localeCompare(a.day)).slice(0, 31);
@@ -215,13 +273,17 @@ export class Limiter {
   // Uma vez por dia: apaga os contadores por aparelho e por IP dos dias anteriores, e os totais com mais de 62 dias.
   async cleanup(day) {
     if ((await this.st.get('cleaned')) === day) return;
-    for (const p of ['d:', 'i:', 'df:', 'dfi:']) {
+    for (const p of ['d:', 'i:', 'df:', 'dfi:', 'rd:']) {
       const old = [...(await this.st.list({ prefix: p })).keys()].filter(k => !k.startsWith(p + day));
       for (let i = 0; i < old.length; i += 128) await this.st.delete(old.slice(i, i + 128));
     }
     const lim = new Date(Date.now() - 62 * 864e5).toISOString().slice(0, 10);
     const oldG = [...(await this.st.list({ prefix: 'g:' })).keys()].filter(k => k.slice(2) < lim);
     if (oldG.length) await this.st.delete(oldG);
+    // Denúncias: apagadas depois de 90 dias.
+    const limR = new Date(Date.now() - LIMITS.reportDays * 864e5).toISOString();
+    const oldR = [...(await this.st.list({ prefix: 'rep:' })).keys()].filter(k => k.slice(4, 28) < limR);
+    for (let i = 0; i < oldR.length; i += 128) await this.st.delete(oldR.slice(i, i + 128));
     await this.st.put('cleaned', day);
   }
 }

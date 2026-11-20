@@ -226,6 +226,15 @@
   .test-diff-btns .cel-btn { flex: 1; margin: 0; }
   .ls-link { background: none; border: 0; color: #C9C2B6; text-decoration: underline; text-underline-offset: 3px; font: inherit; font-size: 0.85rem; padding: 4px 0; cursor: pointer; }
   .app-version-sub { font-size: 0.72rem; opacity: 0.85; margin-top: 2px; }
+  .msg-tools .msg-flag { margin-left: auto; opacity: 0.5; border-color: transparent; background: transparent; padding: 3px 7px; }
+  .msg-tools .msg-flag:hover, .msg-tools .msg-flag:focus-visible { opacity: 0.9; }
+  .msg-tools .msg-flag.reported { opacity: 0.9; color: var(--err); cursor: default; }
+  .rep-card { text-align: left; gap: 10px; display: flex; flex-direction: column; max-width: 420px; }
+  .rep-opts { display: flex; flex-direction: column; gap: 6px; }
+  .rep-opt { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border: 1px solid rgba(219,168,76,0.35); border-radius: 12px; cursor: pointer; }
+  .rep-opt input { accent-color: var(--gold); width: 18px; height: 18px; }
+  .rep-comment { resize: vertical; min-height: 64px; font: inherit; }
+  .rep-notice { font-size: 0.8rem; opacity: 0.85; line-height: 1.45; }
   .pf-err { width: 100%; font-size: 0.82rem; color: var(--err); margin-top: -4px; }
   .setup-screen .pf-err { color: #F2B8B5; text-align: center; }
   .api-input.pf-need { border-color: var(--gold-glow); box-shadow: 0 0 0 2px rgba(219,168,76,0.35); }
@@ -814,6 +823,24 @@
 </div>
 
 <!-- PERGUNTA COM DOIS BOTÕES (lição em andamento: Continuar / Recomeçar) -->
+<div class="modal" id="report-modal" role="dialog" aria-modal="true" aria-labelledby="rep-title" onclick="if(event.target===this)closeReport()">
+  <div class="cel-card rep-card">
+    <div class="cel-title" id="rep-title" data-i18n="rep_title"></div>
+    <div class="rep-opts" role="radiogroup">
+      <label class="rep-opt"><input type="radio" name="rep-reason" value="offensive" /> <span data-i18n="rep_offensive"></span></label>
+      <label class="rep-opt"><input type="radio" name="rep-reason" value="wrong" /> <span data-i18n="rep_wrong"></span></label>
+      <label class="rep-opt"><input type="radio" name="rep-reason" value="other" /> <span data-i18n="rep_other"></span></label>
+    </div>
+    <textarea class="api-input rep-comment" id="rep-comment" maxlength="300" rows="3" data-i18n-ph="rep_comment_ph"></textarea>
+    <div class="rep-notice" data-i18n="rep_notice"></div>
+    <div class="pf-err" id="rep-err" style="display:none"></div>
+    <div class="cel-btns">
+      <button class="cel-btn" onclick="closeReport()" data-i18n="lz_cancel"></button>
+      <button class="cel-btn primary" id="rep-send" onclick="sendReport()" data-i18n="rep_send"></button>
+    </div>
+  </div>
+</div>
+
 <div class="modal" id="choice-modal" role="dialog" aria-modal="true">
   <div class="cel-card">
     <div class="cel-title" id="choice-q"></div>
@@ -891,7 +918,7 @@ function profileCard(id) {
   setTimeout(() => { s.classList.add('hide'); setTimeout(() => s.remove(), 400); }, 1000);
 })();
 // Versão do app (fim da tela Perfil). Atualizada sozinha a cada commit que mexe neste arquivo (hook .git/hooks/pre-commit).
-const APP_VERSION = 90, APP_DATE = '2026-11-20';
+const APP_VERSION = 91, APP_DATE = '2026-11-20';
 let currentLang = 'es', currentLangName = 'Spanish', currentLocale = 'es-ES';
 // Teste de nível: uma pergunta que pede o nome (6 idiomas) perde essa frase; sem outra pergunta, fica "De onde você é?".
 const NAME_Q = /what'?s your name|what is your name|c[oó]mo te llamas|c[oó]mo se llama|cu[aá]l es tu nombre|comment tu t[’']?\s?appelles|comment vous vous appelez|comment vous appelez|comment t[’']?appelles[- ]tu|tu t[’']appelles comment|quel est ton (?:pr[ée])?nom|come ti chiami|come si chiama|qual [eè] il tuo nome|wie hei(?:ß|ss)t du|wie hei(?:ß|ss)en sie|wie ist dein name|como (?:voc[eê] )?se chama|como te chamas|qual [eé] (?:o )?(?:seu|teu) nome/i;
@@ -1919,7 +1946,7 @@ const I18N = {
     accent_q: 'Sotaque do espanhol (voz e vocabulário):', accent_es: 'Espanha', accent_latam: 'América Latina',
     ptvar_q: 'Variante do português (voz, vocabulário e correções):', ptvar_br: 'Brasil', ptvar_pt: 'Portugal',
     style_q: 'Estilo da Lia:', style_friendly: 'Amigável', style_formal: 'Formal', style_fun: 'Divertida',
-    save_btn: 'Salvar e começar →', mic_perm_q: 'A Lia precisa do microfone', mic_perm_sub: 'Para ouvir o que você diz e ajudar na pronúncia. A Parlia não grava nem guarda o áudio.', mic_perm_ok: 'Continuar', mic_perm_later: 'Agora não', app_version: 'App {v} (código {c}) · feito do site v{s}', lang_ptbr: 'Português (Brasil)', lang_ptpt: 'Português (Portugal)', lang_blocked: 'É a sua língua das explicações — troque no Perfil', lvls_A0: 'Do zero', lvls_A1: 'Iniciante', lvls_A2: 'Básico', lvls_B1: 'Intermediário', lvls_B2: 'Intermediário alto', lvls_C1: 'Avançado', lvls_C2: 'Proficiente', test_diff: 'O seu teste deu {level}. Atualizar?', nb_clear: 'Limpar Caderno deste idioma', nb_clear_q: 'Limpar o Caderno de {lang}?', nb_clear_sub: 'Os erros e as frases salvas deste idioma serão apagados.', nb_clear_yes: 'Limpar', nb_cleared: 'Caderno de {lang} limpo.', lvl_A0: 'Estou começando do zero', lvl_A1: 'Entendo e uso frases muito simples', lvl_A2: 'Falo de coisas do dia a dia com frases curtas', lvl_B1: 'Consigo falar em detalhe sobre temas do dia a dia', lvl_B2: 'Converso com fluência sobre muitos temas', lvl_C1: 'Me expresso com facilidade, também no trabalho', lvl_C2: 'Falo como um nativo, com nuances', goal_travel: 'Viajar', goal_abroad: 'Viver no estrangeiro', goal_work: 'Trabalho', goal_study: 'Estudos', goal_family: 'Família e amigos', goal_culture: 'Cultura e lazer', goal_exam: 'Exame ou certificado', goal_none: 'Sem objetivo definido', pf_b_personal: '👤 Pessoal', pf_b_study: '📚 Estudo', pf_b_look: '🎨 Aparência', pf_b_help: '💬 Contato e ajuda', contact_btn: '✉️ Falar com a Parlia', langs_title: 'Idiomas', langs_current: 'Estudando agora', langs_more: 'Mais idiomas', langs_modes: 'Modo de prática', modes_themes: '🎭 Temas', lang_lessons: '{d} de {total} lições', lang_nb: '📒 {n} no Caderno', lang_new: 'Ainda não começou', level_label: 'Nível', goal_label: 'Objetivo', contact_subject: 'Parlia — contato', contact_body: 'Escreva aqui a sua mensagem:', contact_device: 'Aparelho', contact_version: 'Versão', contact_lang: 'Idioma estudado', contact_ui: 'Língua da interface', level_goal_q: 'Nível e objetivo em cada idioma', backup_label: 'Backup (perfil, foto, caderno, racha, lições e testes):',
+    save_btn: 'Salvar e começar →', rep_title: 'Denunciar esta resposta', rep_offensive: 'Ofensiva ou inapropriada', rep_wrong: 'Errada ou enganosa', rep_other: 'Outro motivo', rep_comment_ph: 'Comentário (opcional)', rep_notice: 'O texto desta resposta e a sua última frase serão enviados à equipe da Parlia para análise. Nenhum dado do seu perfil é enviado.', rep_send: 'Enviar', rep_thanks: 'Obrigada. Vamos analisar.', rep_fail: 'Não foi possível enviar agora. Tente de novo mais tarde.', rep_done: 'Denunciada', rep_choose: 'Escolha um motivo.', mic_perm_q: 'A Lia precisa do microfone', mic_perm_sub: 'Para ouvir o que você diz e ajudar na pronúncia. A Parlia não grava nem guarda o áudio.', mic_perm_ok: 'Continuar', mic_perm_later: 'Agora não', app_version: 'App {v} (código {c}) · feito do site v{s}', lang_ptbr: 'Português (Brasil)', lang_ptpt: 'Português (Portugal)', lang_blocked: 'É a sua língua das explicações — troque no Perfil', lvls_A0: 'Do zero', lvls_A1: 'Iniciante', lvls_A2: 'Básico', lvls_B1: 'Intermediário', lvls_B2: 'Intermediário alto', lvls_C1: 'Avançado', lvls_C2: 'Proficiente', test_diff: 'O seu teste deu {level}. Atualizar?', nb_clear: 'Limpar Caderno deste idioma', nb_clear_q: 'Limpar o Caderno de {lang}?', nb_clear_sub: 'Os erros e as frases salvas deste idioma serão apagados.', nb_clear_yes: 'Limpar', nb_cleared: 'Caderno de {lang} limpo.', lvl_A0: 'Estou começando do zero', lvl_A1: 'Entendo e uso frases muito simples', lvl_A2: 'Falo de coisas do dia a dia com frases curtas', lvl_B1: 'Consigo falar em detalhe sobre temas do dia a dia', lvl_B2: 'Converso com fluência sobre muitos temas', lvl_C1: 'Me expresso com facilidade, também no trabalho', lvl_C2: 'Falo como um nativo, com nuances', goal_travel: 'Viajar', goal_abroad: 'Viver no estrangeiro', goal_work: 'Trabalho', goal_study: 'Estudos', goal_family: 'Família e amigos', goal_culture: 'Cultura e lazer', goal_exam: 'Exame ou certificado', goal_none: 'Sem objetivo definido', pf_b_personal: '👤 Pessoal', pf_b_study: '📚 Estudo', pf_b_look: '🎨 Aparência', pf_b_help: '💬 Contato e ajuda', contact_btn: '✉️ Falar com a Parlia', langs_title: 'Idiomas', langs_current: 'Estudando agora', langs_more: 'Mais idiomas', langs_modes: 'Modo de prática', modes_themes: '🎭 Temas', lang_lessons: '{d} de {total} lições', lang_nb: '📒 {n} no Caderno', lang_new: 'Ainda não começou', level_label: 'Nível', goal_label: 'Objetivo', contact_subject: 'Parlia — contato', contact_body: 'Escreva aqui a sua mensagem:', contact_device: 'Aparelho', contact_version: 'Versão', contact_lang: 'Idioma estudado', contact_ui: 'Língua da interface', level_goal_q: 'Nível e objetivo em cada idioma', backup_label: 'Backup (perfil, foto, caderno, racha, lições e testes):',
     export_btn: '⬇️ Exportar meus dados', import_btn: '⬆️ Importar meus dados', name_required: 'Escreva o seu nome', yes_replace: 'Substituir', yes_update: 'Atualizar', keep_btn: 'Manter',
     lang_es: 'Espanhol', lang_en: 'Inglês', lang_fr: 'Francês', lang_it: 'Italiano', lang_pt: 'Português', lang_de: "Alemão",
     nb_title: '📒 Meu caderno', nb_sort_recent: 'Mais recentes', nb_sort_count: 'Mais repetidos', nb_times: 'Repetido {n} vezes', tab_errors: 'Meus erros', tab_saved: 'Salvas',
@@ -1981,7 +2008,7 @@ const I18N = {
     accent_q: 'Sotaque do espanhol (voz e vocabulário):', accent_es: 'Espanha', accent_latam: 'América Latina',
     ptvar_q: 'Variante do português (voz, vocabulário e correções):', ptvar_br: 'Brasil', ptvar_pt: 'Portugal',
     style_q: 'Estilo da Lia:', style_friendly: 'Amigável', style_formal: 'Formal', style_fun: 'Divertida',
-    save_btn: 'Guardar e começar →', mic_perm_q: 'A Lia precisa do microfone', mic_perm_sub: 'Para ouvir o que dizes e ajudar na pronúncia. A Parlia não grava nem guarda o áudio.', mic_perm_ok: 'Continuar', mic_perm_later: 'Agora não', app_version: 'App {v} (código {c}) · feita do site v{s}', lang_ptbr: 'Português (Brasil)', lang_ptpt: 'Português (Portugal)', lang_blocked: 'É a tua língua das explicações — muda no Perfil', lvls_A0: 'Do zero', lvls_A1: 'Iniciante', lvls_A2: 'Básico', lvls_B1: 'Intermédio', lvls_B2: 'Intermédio alto', lvls_C1: 'Avançado', lvls_C2: 'Proficiente', test_diff: 'O teu teste deu {level}. Atualizar?', nb_clear: 'Limpar o Caderno deste idioma', nb_clear_q: 'Limpar o Caderno de {lang}?', nb_clear_sub: 'Os erros e as frases guardadas deste idioma vão ser apagados.', nb_clear_yes: 'Limpar', nb_cleared: 'Caderno de {lang} limpo.', lvl_A0: 'Estou a começar do zero', lvl_A1: 'Entendo e uso frases muito simples', lvl_A2: 'Falo de coisas do dia a dia com frases curtas', lvl_B1: 'Consigo falar em pormenor sobre temas do dia a dia', lvl_B2: 'Converso com fluência sobre muitos temas', lvl_C1: 'Exprimo-me com facilidade, também no trabalho', lvl_C2: 'Falo como um nativo, com nuances', goal_travel: 'Viajar', goal_abroad: 'Viver no estrangeiro', goal_work: 'Trabalho', goal_study: 'Estudos', goal_family: 'Família e amigos', goal_culture: 'Cultura e lazer', goal_exam: 'Exame ou certificado', goal_none: 'Sem objetivo definido', pf_b_personal: '👤 Pessoal', pf_b_study: '📚 Estudo', pf_b_look: '🎨 Aparência', pf_b_help: '💬 Contacto e ajuda', contact_btn: '✉️ Falar com a Parlia', langs_title: 'Idiomas', langs_current: 'A estudar agora', langs_more: 'Mais idiomas', langs_modes: 'Modo de prática', modes_themes: '🎭 Temas', lang_lessons: '{d} de {total} lições', lang_nb: '📒 {n} no Caderno', lang_new: 'Ainda não começou', level_label: 'Nível', goal_label: 'Objetivo', contact_subject: 'Parlia — contacto', contact_body: 'Escreve aqui a tua mensagem:', contact_device: 'Aparelho', contact_version: 'Versão', contact_lang: 'Idioma estudado', contact_ui: 'Língua da interface', level_goal_q: 'Nível e objetivo em cada idioma', backup_label: 'Cópia de segurança (perfil, foto, caderno, racha, lições e testes):',
+    save_btn: 'Guardar e começar →', rep_title: 'Denunciar esta resposta', rep_offensive: 'Ofensiva ou inapropriada', rep_wrong: 'Errada ou enganadora', rep_other: 'Outro motivo', rep_comment_ph: 'Comentário (opcional)', rep_notice: 'O texto desta resposta e a tua última frase serão enviados à equipa da Parlia para análise. Nenhum dado do teu perfil é enviado.', rep_send: 'Enviar', rep_thanks: 'Obrigada. Vamos analisar.', rep_fail: 'Não foi possível enviar agora. Tenta de novo mais tarde.', rep_done: 'Denunciada', rep_choose: 'Escolhe um motivo.', mic_perm_q: 'A Lia precisa do microfone', mic_perm_sub: 'Para ouvir o que dizes e ajudar na pronúncia. A Parlia não grava nem guarda o áudio.', mic_perm_ok: 'Continuar', mic_perm_later: 'Agora não', app_version: 'App {v} (código {c}) · feita do site v{s}', lang_ptbr: 'Português (Brasil)', lang_ptpt: 'Português (Portugal)', lang_blocked: 'É a tua língua das explicações — muda no Perfil', lvls_A0: 'Do zero', lvls_A1: 'Iniciante', lvls_A2: 'Básico', lvls_B1: 'Intermédio', lvls_B2: 'Intermédio alto', lvls_C1: 'Avançado', lvls_C2: 'Proficiente', test_diff: 'O teu teste deu {level}. Atualizar?', nb_clear: 'Limpar o Caderno deste idioma', nb_clear_q: 'Limpar o Caderno de {lang}?', nb_clear_sub: 'Os erros e as frases guardadas deste idioma vão ser apagados.', nb_clear_yes: 'Limpar', nb_cleared: 'Caderno de {lang} limpo.', lvl_A0: 'Estou a começar do zero', lvl_A1: 'Entendo e uso frases muito simples', lvl_A2: 'Falo de coisas do dia a dia com frases curtas', lvl_B1: 'Consigo falar em pormenor sobre temas do dia a dia', lvl_B2: 'Converso com fluência sobre muitos temas', lvl_C1: 'Exprimo-me com facilidade, também no trabalho', lvl_C2: 'Falo como um nativo, com nuances', goal_travel: 'Viajar', goal_abroad: 'Viver no estrangeiro', goal_work: 'Trabalho', goal_study: 'Estudos', goal_family: 'Família e amigos', goal_culture: 'Cultura e lazer', goal_exam: 'Exame ou certificado', goal_none: 'Sem objetivo definido', pf_b_personal: '👤 Pessoal', pf_b_study: '📚 Estudo', pf_b_look: '🎨 Aparência', pf_b_help: '💬 Contacto e ajuda', contact_btn: '✉️ Falar com a Parlia', langs_title: 'Idiomas', langs_current: 'A estudar agora', langs_more: 'Mais idiomas', langs_modes: 'Modo de prática', modes_themes: '🎭 Temas', lang_lessons: '{d} de {total} lições', lang_nb: '📒 {n} no Caderno', lang_new: 'Ainda não começou', level_label: 'Nível', goal_label: 'Objetivo', contact_subject: 'Parlia — contacto', contact_body: 'Escreve aqui a tua mensagem:', contact_device: 'Aparelho', contact_version: 'Versão', contact_lang: 'Idioma estudado', contact_ui: 'Língua da interface', level_goal_q: 'Nível e objetivo em cada idioma', backup_label: 'Cópia de segurança (perfil, foto, caderno, racha, lições e testes):',
     export_btn: '⬇️ Exportar os meus dados', import_btn: '⬆️ Importar os meus dados', name_required: 'Escreve o teu nome', yes_replace: 'Substituir', yes_update: 'Atualizar', keep_btn: 'Manter',
     lang_es: 'Espanhol', lang_en: 'Inglês', lang_fr: 'Francês', lang_it: 'Italiano', lang_pt: 'Português', lang_de: "Alemão",
     nb_title: '📒 O meu caderno', nb_sort_recent: 'Mais recentes', nb_sort_count: 'Mais repetidos', nb_times: 'Repetido {n} vezes', tab_errors: 'Os meus erros', tab_saved: 'Guardadas',
@@ -2043,7 +2070,7 @@ const I18N = {
     accent_q: 'Acento del español (voz y vocabulario):', accent_es: 'España', accent_latam: 'América Latina',
     ptvar_q: 'Variante del portugués (voz, vocabulario y correcciones):', ptvar_br: 'Brasil', ptvar_pt: 'Portugal',
     style_q: 'Estilo de Lia:', style_friendly: 'Amable', style_formal: 'Formal', style_fun: 'Divertida',
-    save_btn: 'Guardar y empezar →', mic_perm_q: 'Lia necesita el micrófono', mic_perm_sub: 'Para escuchar lo que dices y ayudarte con la pronunciación. La Parlia no graba ni guarda el audio.', mic_perm_ok: 'Continuar', mic_perm_later: 'Ahora no', app_version: 'App {v} (código {c}) · hecha del sitio v{s}', lang_ptbr: 'Portugués (Brasil)', lang_ptpt: 'Portugués (Portugal)', lang_blocked: 'Es tu lengua de las explicaciones — cámbiala en el Perfil', lvls_A0: 'Desde cero', lvls_A1: 'Principiante', lvls_A2: 'Básico', lvls_B1: 'Intermedio', lvls_B2: 'Intermedio alto', lvls_C1: 'Avanzado', lvls_C2: 'Dominio', test_diff: 'Tu prueba dio {level}. ¿Actualizar?', nb_clear: 'Vaciar el Cuaderno de este idioma', nb_clear_q: '¿Vaciar el Cuaderno de {lang}?', nb_clear_sub: 'Se borrarán los errores y las frases guardadas de este idioma.', nb_clear_yes: 'Vaciar', nb_cleared: 'Cuaderno de {lang} vaciado.', lvl_A0: 'Empiezo desde cero', lvl_A1: 'Entiendo y uso frases muy sencillas', lvl_A2: 'Hablo de cosas cotidianas con frases cortas', lvl_B1: 'Puedo hablar en detalle sobre temas cotidianos', lvl_B2: 'Converso con fluidez sobre muchos temas', lvl_C1: 'Me expreso con facilidad, también en el trabajo', lvl_C2: 'Hablo como un nativo, con matices', goal_travel: 'Viajar', goal_abroad: 'Vivir en el extranjero', goal_work: 'Trabajo', goal_study: 'Estudios', goal_family: 'Familia y amigos', goal_culture: 'Cultura y ocio', goal_exam: 'Examen o certificado', goal_none: 'Sin objetivo definido', pf_b_personal: '👤 Personal', pf_b_study: '📚 Estudio', pf_b_look: '🎨 Apariencia', pf_b_help: '💬 Contacto y ayuda', contact_btn: '✉️ Escribir a la Parlia', langs_title: 'Idiomas', langs_current: 'Estudiando ahora', langs_more: 'Más idiomas', langs_modes: 'Modo de práctica', modes_themes: '🎭 Temas', lang_lessons: '{d} de {total} lecciones', lang_nb: '📒 {n} en el Cuaderno', lang_new: 'Aún no empezaste', level_label: 'Nivel', goal_label: 'Objetivo', contact_subject: 'Parlia — contacto', contact_body: 'Escribe aquí tu mensaje:', contact_device: 'Dispositivo', contact_version: 'Versión', contact_lang: 'Idioma que estudias', contact_ui: 'Lengua de la interfaz', level_goal_q: 'Nivel y objetivo en cada idioma', backup_label: 'Copia de seguridad (perfil, foto, cuaderno, racha, lecciones y pruebas):',
+    save_btn: 'Guardar y empezar →', rep_title: 'Denunciar esta respuesta', rep_offensive: 'Ofensiva o inapropiada', rep_wrong: 'Incorrecta o engañosa', rep_other: 'Otro motivo', rep_comment_ph: 'Comentario (opcional)', rep_notice: 'El texto de esta respuesta y tu última frase se enviarán al equipo de la Parlia para su análisis. No se envía ningún dato de tu perfil.', rep_send: 'Enviar', rep_thanks: 'Gracias. Lo vamos a revisar.', rep_fail: 'No se pudo enviar ahora. Inténtalo de nuevo más tarde.', rep_done: 'Denunciada', rep_choose: 'Elige un motivo.', mic_perm_q: 'Lia necesita el micrófono', mic_perm_sub: 'Para escuchar lo que dices y ayudarte con la pronunciación. La Parlia no graba ni guarda el audio.', mic_perm_ok: 'Continuar', mic_perm_later: 'Ahora no', app_version: 'App {v} (código {c}) · hecha del sitio v{s}', lang_ptbr: 'Portugués (Brasil)', lang_ptpt: 'Portugués (Portugal)', lang_blocked: 'Es tu lengua de las explicaciones — cámbiala en el Perfil', lvls_A0: 'Desde cero', lvls_A1: 'Principiante', lvls_A2: 'Básico', lvls_B1: 'Intermedio', lvls_B2: 'Intermedio alto', lvls_C1: 'Avanzado', lvls_C2: 'Dominio', test_diff: 'Tu prueba dio {level}. ¿Actualizar?', nb_clear: 'Vaciar el Cuaderno de este idioma', nb_clear_q: '¿Vaciar el Cuaderno de {lang}?', nb_clear_sub: 'Se borrarán los errores y las frases guardadas de este idioma.', nb_clear_yes: 'Vaciar', nb_cleared: 'Cuaderno de {lang} vaciado.', lvl_A0: 'Empiezo desde cero', lvl_A1: 'Entiendo y uso frases muy sencillas', lvl_A2: 'Hablo de cosas cotidianas con frases cortas', lvl_B1: 'Puedo hablar en detalle sobre temas cotidianos', lvl_B2: 'Converso con fluidez sobre muchos temas', lvl_C1: 'Me expreso con facilidad, también en el trabajo', lvl_C2: 'Hablo como un nativo, con matices', goal_travel: 'Viajar', goal_abroad: 'Vivir en el extranjero', goal_work: 'Trabajo', goal_study: 'Estudios', goal_family: 'Familia y amigos', goal_culture: 'Cultura y ocio', goal_exam: 'Examen o certificado', goal_none: 'Sin objetivo definido', pf_b_personal: '👤 Personal', pf_b_study: '📚 Estudio', pf_b_look: '🎨 Apariencia', pf_b_help: '💬 Contacto y ayuda', contact_btn: '✉️ Escribir a la Parlia', langs_title: 'Idiomas', langs_current: 'Estudiando ahora', langs_more: 'Más idiomas', langs_modes: 'Modo de práctica', modes_themes: '🎭 Temas', lang_lessons: '{d} de {total} lecciones', lang_nb: '📒 {n} en el Cuaderno', lang_new: 'Aún no empezaste', level_label: 'Nivel', goal_label: 'Objetivo', contact_subject: 'Parlia — contacto', contact_body: 'Escribe aquí tu mensaje:', contact_device: 'Dispositivo', contact_version: 'Versión', contact_lang: 'Idioma que estudias', contact_ui: 'Lengua de la interfaz', level_goal_q: 'Nivel y objetivo en cada idioma', backup_label: 'Copia de seguridad (perfil, foto, cuaderno, racha, lecciones y pruebas):',
     export_btn: '⬇️ Exportar mis datos', import_btn: '⬆️ Importar mis datos', name_required: 'Escribe tu nombre', yes_replace: 'Sustituir', yes_update: 'Actualizar', keep_btn: 'Mantener',
     lang_es: 'Español', lang_en: 'Inglés', lang_fr: 'Francés', lang_it: 'Italiano', lang_pt: 'Portugués', lang_de: "Alemán",
     nb_title: '📒 Mi cuaderno', nb_sort_recent: 'Más recientes', nb_sort_count: 'Más repetidos', nb_times: 'Repetido {n} veces', tab_errors: 'Mis errores', tab_saved: 'Guardadas',
@@ -2105,7 +2132,7 @@ const I18N = {
     accent_q: 'Spanish accent (voice and vocabulary):', accent_es: 'Spain', accent_latam: 'Latin America',
     ptvar_q: 'Portuguese variant (voice, vocabulary and corrections):', ptvar_br: 'Brazil', ptvar_pt: 'Portugal',
     style_q: 'Lia’s style:', style_friendly: 'Friendly', style_formal: 'Formal', style_fun: 'Fun',
-    save_btn: 'Save and start →', mic_perm_q: 'Lia needs the microphone', mic_perm_sub: 'To hear what you say and help with your pronunciation. Parlia does not record or store the audio.', mic_perm_ok: 'Continue', mic_perm_later: 'Not now', app_version: 'App {v} (code {c}) · built from site v{s}', lang_ptbr: 'Portuguese (Brazil)', lang_ptpt: 'Portuguese (Portugal)', lang_blocked: 'It’s your explanation language — change it in your Profile', lvls_A0: 'Starter', lvls_A1: 'Beginner', lvls_A2: 'Elementary', lvls_B1: 'Intermediate', lvls_B2: 'Upper intermediate', lvls_C1: 'Advanced', lvls_C2: 'Proficient', test_diff: 'Your test result was {level}. Update?', nb_clear: 'Clear this language’s Notebook', nb_clear_q: 'Clear the {lang} Notebook?', nb_clear_sub: 'The mistakes and saved sentences for this language will be deleted.', nb_clear_yes: 'Clear', nb_cleared: '{lang} Notebook cleared.', lvl_A0: 'I’m starting from zero', lvl_A1: 'I understand and use very simple phrases', lvl_A2: 'I talk about everyday things in short sentences', lvl_B1: 'I can talk in detail about everyday topics', lvl_B2: 'I speak fluently about many topics', lvl_C1: 'I express myself easily, also at work', lvl_C2: 'I speak like a native, with nuance', goal_travel: 'Travel', goal_abroad: 'Living abroad', goal_work: 'Work', goal_study: 'Studies', goal_family: 'Family and friends', goal_culture: 'Culture and leisure', goal_exam: 'Exam or certificate', goal_none: 'No set goal', pf_b_personal: '👤 Personal', pf_b_study: '📚 Study', pf_b_look: '🎨 Appearance', pf_b_help: '💬 Contact and help', contact_btn: '✉️ Contact Parlia', langs_title: 'Languages', langs_current: 'Studying now', langs_more: 'More languages', langs_modes: 'Practice mode', modes_themes: '🎭 Topics', lang_lessons: '{d} of {total} lessons', lang_nb: '📒 {n} in your Notebook', lang_new: 'Not started yet', level_label: 'Level', goal_label: 'Goal', contact_subject: 'Parlia — contact', contact_body: 'Write your message here:', contact_device: 'Device', contact_version: 'Version', contact_lang: 'Language studied', contact_ui: 'Interface language', level_goal_q: 'Level and goal for each language', backup_label: 'Backup (profile, photo, notebook, streak, lessons and tests):',
+    save_btn: 'Save and start →', rep_title: 'Report this response', rep_offensive: 'Offensive or inappropriate', rep_wrong: 'Wrong or misleading', rep_other: 'Other reason', rep_comment_ph: 'Comment (optional)', rep_notice: 'The text of this response and your last sentence will be sent to the Parlia team for review. No profile data is sent.', rep_send: 'Send', rep_thanks: 'Thank you. We will look into it.', rep_fail: 'Could not send right now. Please try again later.', rep_done: 'Reported', rep_choose: 'Choose a reason.', mic_perm_q: 'Lia needs the microphone', mic_perm_sub: 'To hear what you say and help with your pronunciation. Parlia does not record or store the audio.', mic_perm_ok: 'Continue', mic_perm_later: 'Not now', app_version: 'App {v} (code {c}) · built from site v{s}', lang_ptbr: 'Portuguese (Brazil)', lang_ptpt: 'Portuguese (Portugal)', lang_blocked: 'It’s your explanation language — change it in your Profile', lvls_A0: 'Starter', lvls_A1: 'Beginner', lvls_A2: 'Elementary', lvls_B1: 'Intermediate', lvls_B2: 'Upper intermediate', lvls_C1: 'Advanced', lvls_C2: 'Proficient', test_diff: 'Your test result was {level}. Update?', nb_clear: 'Clear this language’s Notebook', nb_clear_q: 'Clear the {lang} Notebook?', nb_clear_sub: 'The mistakes and saved sentences for this language will be deleted.', nb_clear_yes: 'Clear', nb_cleared: '{lang} Notebook cleared.', lvl_A0: 'I’m starting from zero', lvl_A1: 'I understand and use very simple phrases', lvl_A2: 'I talk about everyday things in short sentences', lvl_B1: 'I can talk in detail about everyday topics', lvl_B2: 'I speak fluently about many topics', lvl_C1: 'I express myself easily, also at work', lvl_C2: 'I speak like a native, with nuance', goal_travel: 'Travel', goal_abroad: 'Living abroad', goal_work: 'Work', goal_study: 'Studies', goal_family: 'Family and friends', goal_culture: 'Culture and leisure', goal_exam: 'Exam or certificate', goal_none: 'No set goal', pf_b_personal: '👤 Personal', pf_b_study: '📚 Study', pf_b_look: '🎨 Appearance', pf_b_help: '💬 Contact and help', contact_btn: '✉️ Contact Parlia', langs_title: 'Languages', langs_current: 'Studying now', langs_more: 'More languages', langs_modes: 'Practice mode', modes_themes: '🎭 Topics', lang_lessons: '{d} of {total} lessons', lang_nb: '📒 {n} in your Notebook', lang_new: 'Not started yet', level_label: 'Level', goal_label: 'Goal', contact_subject: 'Parlia — contact', contact_body: 'Write your message here:', contact_device: 'Device', contact_version: 'Version', contact_lang: 'Language studied', contact_ui: 'Interface language', level_goal_q: 'Level and goal for each language', backup_label: 'Backup (profile, photo, notebook, streak, lessons and tests):',
     export_btn: '⬇️ Export my data', import_btn: '⬆️ Import my data', name_required: 'Write your name', yes_replace: 'Replace', yes_update: 'Update', keep_btn: 'Keep',
     lang_es: 'Spanish', lang_en: 'English', lang_fr: 'French', lang_it: 'Italian', lang_pt: 'Portuguese', lang_de: "German",
     nb_title: '📒 My notebook', nb_sort_recent: 'Most recent', nb_sort_count: 'Most repeated', nb_times: 'Repeated {n} times', tab_errors: 'My mistakes', tab_saved: 'Saved',
@@ -2167,7 +2194,7 @@ const I18N = {
     accent_q: 'Accent de l’espagnol (voix et vocabulaire) :', accent_es: 'Espagne', accent_latam: 'Amérique latine',
     ptvar_q: 'Variante du portugais (voix, vocabulaire et corrections) :', ptvar_br: 'Brésil', ptvar_pt: 'Portugal',
     style_q: 'Style de Lia :', style_friendly: 'Sympathique', style_formal: 'Formel', style_fun: 'Drôle',
-    save_btn: 'Enregistrer et commencer →', mic_perm_q: 'Lia a besoin du micro', mic_perm_sub: 'Pour entendre ce que tu dis et t’aider avec la prononciation. Parlia n’enregistre ni ne conserve l’audio.', mic_perm_ok: 'Continuer', mic_perm_later: 'Pas maintenant', app_version: 'App {v} (code {c}) · faite à partir du site v{s}', lang_ptbr: 'Portugais (Brésil)', lang_ptpt: 'Portugais (Portugal)', lang_blocked: 'C’est ta langue des explications — change-la dans le Profil', lvls_A0: 'De zéro', lvls_A1: 'Débutant', lvls_A2: 'Élémentaire', lvls_B1: 'Intermédiaire', lvls_B2: 'Intermédiaire avancé', lvls_C1: 'Avancé', lvls_C2: 'Maîtrise', test_diff: 'Ton test a donné {level}. Mettre à jour ?', nb_clear: 'Vider le Carnet de cette langue', nb_clear_q: 'Vider le Carnet de {lang} ?', nb_clear_sub: 'Les erreurs et les phrases enregistrées de cette langue seront effacées.', nb_clear_yes: 'Vider', nb_cleared: 'Carnet de {lang} vidé.', lvl_A0: 'Je commence de zéro', lvl_A1: 'Je comprends et j’utilise des phrases très simples', lvl_A2: 'Je parle du quotidien avec des phrases courtes', lvl_B1: 'Je peux parler en détail de sujets du quotidien', lvl_B2: 'Je parle avec aisance de nombreux sujets', lvl_C1: 'Je m’exprime facilement, même au travail', lvl_C2: 'Je parle comme un natif, avec des nuances', goal_travel: 'Voyager', goal_abroad: 'Vivre à l’étranger', goal_work: 'Travail', goal_study: 'Études', goal_family: 'Famille et amis', goal_culture: 'Culture et loisirs', goal_exam: 'Examen ou certificat', goal_none: 'Pas d’objectif défini', pf_b_personal: '👤 Personnel', pf_b_study: '📚 Études', pf_b_look: '🎨 Apparence', pf_b_help: '💬 Contact et aide', contact_btn: '✉️ Écrire à Parlia', langs_title: 'Langues', langs_current: 'En cours', langs_more: 'Autres langues', langs_modes: 'Mode de pratique', modes_themes: '🎭 Thèmes', lang_lessons: '{d} leçons sur {total}', lang_nb: '📒 {n} dans le Carnet', lang_new: 'Pas encore commencé', level_label: 'Niveau', goal_label: 'Objectif', contact_subject: 'Parlia — contact', contact_body: 'Écris ton message ici :', contact_device: 'Appareil', contact_version: 'Version', contact_lang: 'Langue étudiée', contact_ui: 'Langue de l’interface', level_goal_q: 'Niveau et objectif pour chaque langue', backup_label: 'Sauvegarde (profil, photo, carnet, série, leçons et tests) :',
+    save_btn: 'Enregistrer et commencer →', rep_title: 'Signaler cette réponse', rep_offensive: 'Offensante ou inappropriée', rep_wrong: 'Fausse ou trompeuse', rep_other: 'Autre motif', rep_comment_ph: 'Commentaire (facultatif)', rep_notice: 'Le texte de cette réponse et ta dernière phrase seront envoyés à l’équipe de Parlia pour analyse. Aucune donnée de ton profil n’est envoyée.', rep_send: 'Envoyer', rep_thanks: 'Merci. Nous allons l’examiner.', rep_fail: 'Impossible d’envoyer pour le moment. Réessaie plus tard.', rep_done: 'Signalée', rep_choose: 'Choisis un motif.', mic_perm_q: 'Lia a besoin du micro', mic_perm_sub: 'Pour entendre ce que tu dis et t’aider avec la prononciation. Parlia n’enregistre ni ne conserve l’audio.', mic_perm_ok: 'Continuer', mic_perm_later: 'Pas maintenant', app_version: 'App {v} (code {c}) · faite à partir du site v{s}', lang_ptbr: 'Portugais (Brésil)', lang_ptpt: 'Portugais (Portugal)', lang_blocked: 'C’est ta langue des explications — change-la dans le Profil', lvls_A0: 'De zéro', lvls_A1: 'Débutant', lvls_A2: 'Élémentaire', lvls_B1: 'Intermédiaire', lvls_B2: 'Intermédiaire avancé', lvls_C1: 'Avancé', lvls_C2: 'Maîtrise', test_diff: 'Ton test a donné {level}. Mettre à jour ?', nb_clear: 'Vider le Carnet de cette langue', nb_clear_q: 'Vider le Carnet de {lang} ?', nb_clear_sub: 'Les erreurs et les phrases enregistrées de cette langue seront effacées.', nb_clear_yes: 'Vider', nb_cleared: 'Carnet de {lang} vidé.', lvl_A0: 'Je commence de zéro', lvl_A1: 'Je comprends et j’utilise des phrases très simples', lvl_A2: 'Je parle du quotidien avec des phrases courtes', lvl_B1: 'Je peux parler en détail de sujets du quotidien', lvl_B2: 'Je parle avec aisance de nombreux sujets', lvl_C1: 'Je m’exprime facilement, même au travail', lvl_C2: 'Je parle comme un natif, avec des nuances', goal_travel: 'Voyager', goal_abroad: 'Vivre à l’étranger', goal_work: 'Travail', goal_study: 'Études', goal_family: 'Famille et amis', goal_culture: 'Culture et loisirs', goal_exam: 'Examen ou certificat', goal_none: 'Pas d’objectif défini', pf_b_personal: '👤 Personnel', pf_b_study: '📚 Études', pf_b_look: '🎨 Apparence', pf_b_help: '💬 Contact et aide', contact_btn: '✉️ Écrire à Parlia', langs_title: 'Langues', langs_current: 'En cours', langs_more: 'Autres langues', langs_modes: 'Mode de pratique', modes_themes: '🎭 Thèmes', lang_lessons: '{d} leçons sur {total}', lang_nb: '📒 {n} dans le Carnet', lang_new: 'Pas encore commencé', level_label: 'Niveau', goal_label: 'Objectif', contact_subject: 'Parlia — contact', contact_body: 'Écris ton message ici :', contact_device: 'Appareil', contact_version: 'Version', contact_lang: 'Langue étudiée', contact_ui: 'Langue de l’interface', level_goal_q: 'Niveau et objectif pour chaque langue', backup_label: 'Sauvegarde (profil, photo, carnet, série, leçons et tests) :',
     export_btn: '⬇️ Exporter mes données', import_btn: '⬆️ Importer mes données', name_required: 'Écris ton prénom', yes_replace: 'Remplacer', yes_update: 'Mettre à jour', keep_btn: 'Garder',
     lang_es: 'Espagnol', lang_en: 'Anglais', lang_fr: 'Français', lang_it: 'Italien', lang_pt: 'Portugais', lang_de: "Allemand",
     nb_title: '📒 Mon carnet', nb_sort_recent: 'Plus récents', nb_sort_count: 'Plus fréquents', nb_times: 'Répété {n} fois', tab_errors: 'Mes erreurs', tab_saved: 'Enregistrées',
@@ -2229,7 +2256,7 @@ const I18N = {
     accent_q: 'Accento dello spagnolo (voce e vocabolario):', accent_es: 'Spagna', accent_latam: 'America Latina',
     ptvar_q: 'Variante del portoghese (voce, vocabolario e correzioni):', ptvar_br: 'Brasile', ptvar_pt: 'Portogallo',
     style_q: 'Stile di Lia:', style_friendly: 'Amichevole', style_formal: 'Formale', style_fun: 'Divertente',
-    save_btn: 'Salva e inizia →', mic_perm_q: 'Lia ha bisogno del microfono', mic_perm_sub: 'Per ascoltare quello che dici e aiutarti con la pronuncia. Parlia non registra né salva l’audio.', mic_perm_ok: 'Continua', mic_perm_later: 'Non ora', app_version: 'App {v} (codice {c}) · fatta dal sito v{s}', lang_ptbr: 'Portoghese (Brasile)', lang_ptpt: 'Portoghese (Portogallo)', lang_blocked: 'È la tua lingua delle spiegazioni — cambiala nel Profilo', lvls_A0: 'Da zero', lvls_A1: 'Principiante', lvls_A2: 'Elementare', lvls_B1: 'Intermedio', lvls_B2: 'Intermedio avanzato', lvls_C1: 'Avanzato', lvls_C2: 'Padronanza', test_diff: 'Il tuo test ha dato {level}. Aggiornare?', nb_clear: 'Svuota il Quaderno di questa lingua', nb_clear_q: 'Svuotare il Quaderno di {lang}?', nb_clear_sub: 'Gli errori e le frasi salvate di questa lingua saranno cancellati.', nb_clear_yes: 'Svuota', nb_cleared: 'Quaderno di {lang} svuotato.', lvl_A0: 'Comincio da zero', lvl_A1: 'Capisco e uso frasi molto semplici', lvl_A2: 'Parlo della vita quotidiana con frasi brevi', lvl_B1: 'Posso parlare in dettaglio di temi quotidiani', lvl_B2: 'Converso con scioltezza su molti temi', lvl_C1: 'Mi esprimo con facilità, anche al lavoro', lvl_C2: 'Parlo come un madrelingua, con sfumature', goal_travel: 'Viaggiare', goal_abroad: 'Vivere all’estero', goal_work: 'Lavoro', goal_study: 'Studio', goal_family: 'Famiglia e amici', goal_culture: 'Cultura e tempo libero', goal_exam: 'Esame o certificato', goal_none: 'Nessun obiettivo', pf_b_personal: '👤 Personale', pf_b_study: '📚 Studio', pf_b_look: '🎨 Aspetto', pf_b_help: '💬 Contatti e aiuto', contact_btn: '✉️ Scrivi a Parlia', langs_title: 'Lingue', langs_current: 'Stai studiando', langs_more: 'Altre lingue', langs_modes: 'Modalità di pratica', modes_themes: '🎭 Temi', lang_lessons: '{d} lezioni su {total}', lang_nb: '📒 {n} nel Quaderno', lang_new: 'Non ancora iniziata', level_label: 'Livello', goal_label: 'Obiettivo', contact_subject: 'Parlia — contatto', contact_body: 'Scrivi qui il tuo messaggio:', contact_device: 'Dispositivo', contact_version: 'Versione', contact_lang: 'Lingua studiata', contact_ui: 'Lingua dell’interfaccia', level_goal_q: 'Livello e obiettivo per ogni lingua', backup_label: 'Backup (profilo, foto, quaderno, serie, lezioni e test):',
+    save_btn: 'Salva e inizia →', rep_title: 'Segnala questa risposta', rep_offensive: 'Offensiva o inappropriata', rep_wrong: 'Sbagliata o fuorviante', rep_other: 'Altro motivo', rep_comment_ph: 'Commento (facoltativo)', rep_notice: 'Il testo di questa risposta e la tua ultima frase saranno inviati al team di Parlia per l’analisi. Nessun dato del tuo profilo viene inviato.', rep_send: 'Invia', rep_thanks: 'Grazie. Lo esamineremo.', rep_fail: 'Impossibile inviare ora. Riprova più tardi.', rep_done: 'Segnalata', rep_choose: 'Scegli un motivo.', mic_perm_q: 'Lia ha bisogno del microfono', mic_perm_sub: 'Per ascoltare quello che dici e aiutarti con la pronuncia. Parlia non registra né salva l’audio.', mic_perm_ok: 'Continua', mic_perm_later: 'Non ora', app_version: 'App {v} (codice {c}) · fatta dal sito v{s}', lang_ptbr: 'Portoghese (Brasile)', lang_ptpt: 'Portoghese (Portogallo)', lang_blocked: 'È la tua lingua delle spiegazioni — cambiala nel Profilo', lvls_A0: 'Da zero', lvls_A1: 'Principiante', lvls_A2: 'Elementare', lvls_B1: 'Intermedio', lvls_B2: 'Intermedio avanzato', lvls_C1: 'Avanzato', lvls_C2: 'Padronanza', test_diff: 'Il tuo test ha dato {level}. Aggiornare?', nb_clear: 'Svuota il Quaderno di questa lingua', nb_clear_q: 'Svuotare il Quaderno di {lang}?', nb_clear_sub: 'Gli errori e le frasi salvate di questa lingua saranno cancellati.', nb_clear_yes: 'Svuota', nb_cleared: 'Quaderno di {lang} svuotato.', lvl_A0: 'Comincio da zero', lvl_A1: 'Capisco e uso frasi molto semplici', lvl_A2: 'Parlo della vita quotidiana con frasi brevi', lvl_B1: 'Posso parlare in dettaglio di temi quotidiani', lvl_B2: 'Converso con scioltezza su molti temi', lvl_C1: 'Mi esprimo con facilità, anche al lavoro', lvl_C2: 'Parlo come un madrelingua, con sfumature', goal_travel: 'Viaggiare', goal_abroad: 'Vivere all’estero', goal_work: 'Lavoro', goal_study: 'Studio', goal_family: 'Famiglia e amici', goal_culture: 'Cultura e tempo libero', goal_exam: 'Esame o certificato', goal_none: 'Nessun obiettivo', pf_b_personal: '👤 Personale', pf_b_study: '📚 Studio', pf_b_look: '🎨 Aspetto', pf_b_help: '💬 Contatti e aiuto', contact_btn: '✉️ Scrivi a Parlia', langs_title: 'Lingue', langs_current: 'Stai studiando', langs_more: 'Altre lingue', langs_modes: 'Modalità di pratica', modes_themes: '🎭 Temi', lang_lessons: '{d} lezioni su {total}', lang_nb: '📒 {n} nel Quaderno', lang_new: 'Non ancora iniziata', level_label: 'Livello', goal_label: 'Obiettivo', contact_subject: 'Parlia — contatto', contact_body: 'Scrivi qui il tuo messaggio:', contact_device: 'Dispositivo', contact_version: 'Versione', contact_lang: 'Lingua studiata', contact_ui: 'Lingua dell’interfaccia', level_goal_q: 'Livello e obiettivo per ogni lingua', backup_label: 'Backup (profilo, foto, quaderno, serie, lezioni e test):',
     export_btn: '⬇️ Esporta i miei dati', import_btn: '⬆️ Importa i miei dati', name_required: 'Scrivi il tuo nome', yes_replace: 'Sostituire', yes_update: 'Aggiornare', keep_btn: 'Mantenere',
     lang_es: 'Spagnolo', lang_en: 'Inglese', lang_fr: 'Francese', lang_it: 'Italiano', lang_pt: 'Portoghese', lang_de: "Tedesco",
     nb_title: '📒 Il mio quaderno', nb_sort_recent: 'Più recenti', nb_sort_count: 'Più ripetuti', nb_times: 'Ripetuto {n} volte', tab_errors: 'I miei errori', tab_saved: 'Salvate',
@@ -2551,6 +2578,46 @@ function contactParlia() {
   const body = t('contact_body') + '\n\n\n\n——\n' + t('contact_version') + ': Parlia v' + APP_VERSION + ' · ' + APP_DATE + '\n' +
     t('contact_lang') + ': ' + langUI(currentLang) + ' (' + curLevel() + ')\n' + t('contact_ui') + ': ' + uiLang() + '\n' + t('contact_device') + ': ' + deviceModel();
   location.href = 'mailto:parlia.app@gmail.com?subject=' + encodeURIComponent(t('contact_subject')) + '&body=' + encodeURIComponent(body);
+}
+// ── Denunciar uma resposta da IA (política "AI-Generated Content" da Google Play) ──
+// Envia ao servidor só: o motivo, o comentário, o texto da resposta, a última frase da aluna, o idioma, o nível e se
+// veio de lição ou conversa. Nenhum dado do perfil. Sem fila: se falhar, avisa e a pessoa tenta mais tarde.
+let reportCtx = null;
+function openReport(btn, div, lastUser, source) {
+  const corr = div.querySelector('.correction'), bub = div.querySelector('.bubble');
+  const response = [corr ? corr.innerText : '', bub ? bub.innerText : div.dataset.text || ''].map(s => s.trim()).filter(Boolean).join('\n').slice(0, 4000);
+  reportCtx = { btn, response, lastUser: String(lastUser || '').slice(0, 1000), source };
+  document.querySelectorAll('input[name="rep-reason"]').forEach(r => { r.checked = false; });
+  document.getElementById('rep-comment').value = '';
+  document.getElementById('rep-err').style.display = 'none';
+  document.getElementById('rep-send').disabled = false;
+  document.getElementById('report-modal').classList.add('show');
+}
+function closeReport() { document.getElementById('report-modal').classList.remove('show'); reportCtx = null; }
+async function sendReport() {
+  const ctx = reportCtx; if (!ctx) return;
+  const err = document.getElementById('rep-err'), btn = document.getElementById('rep-send');
+  const r = document.querySelector('input[name="rep-reason"]:checked');
+  if (!r) { err.textContent = t('rep_choose'); err.style.display = ''; return; }
+  const body = JSON.stringify({ reason: r.value, comment: document.getElementById('rep-comment').value.trim().slice(0, 300), response: ctx.response, lastUser: ctx.lastUser, lang: SID(), level: curLevel(), source: ctx.source });
+  btn.disabled = true; err.style.display = 'none';
+  try {
+    if (!SERVER_URL) throw new Error('sem servidor');
+    let tok = await serverSession(), ok = false;
+    for (let k = 0; k < 2 && !ok; k++) {
+      const res = await fetch(SERVER_URL + '/api/report', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + tok }, body });
+      if (res.status === 401 && k === 0) { try { localStorage.removeItem(SESSION_KEY); } catch(e) {} tok = await serverSession(true); continue; }
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      ok = true;
+    }
+    if (!ok) throw new Error('sessão');
+    dlog(0, 'denúncia enviada (' + r.value + ')');
+    ctx.btn.classList.add('reported'); ctx.btn.disabled = true; ctx.btn.title = t('rep_done');
+    closeReport(); showToast(t('rep_thanks'));
+  } catch(e) {
+    dlog(0, 'denúncia não enviada: ' + (e && e.message));
+    err.textContent = t('rep_fail'); err.style.display = ''; btn.disabled = false;
+  }
 }
 function renderVersion() {
   const el = document.getElementById('app-version'); if (!el) return;
@@ -3209,7 +3276,7 @@ async function moveOn() {
   const body = cont ? await ensureGuidedTr(limitEmoji(cleanConv(g.main.replace(/🎯\s*[A-ZÀ-Ú ]*/gu, '')))) : '';
   const main = `[fala] ${t('g_move_on')}` + (body ? '\n' + body : '');
   chatHistory.push({ role: 'assistant', content: main });
-  addMsg('tutor', main); speak(main, null, { chime: guidedMode });
+  aiMsgNext = true; addMsg('tutor', main); speak(main, null, { chime: guidedMode });
   if (g.sugg.length) showSuggestions(g.sugg);
 }
 function lzSugMatch(text) { const a = lzWords(text); return !!a.length && (lastSuggestions || []).some(s => { const b = lzWords(s.t); return a.join(' ') === b.join(' ') || lzWordsClose(a, b); }); }
@@ -3258,7 +3325,7 @@ async function dontKnow() {
   const main = `[nat] ${t('dunno_intro')}\n${ask}: «${ans.t}»${ans.g && showTr() ? `\n[nat] (${ans.g})` : ''}`;
   chatHistory.push({ role: 'user', content: `(${P.name} tapped "I don't know".)` }, { role: 'assistant', content: main });
   repeatTarget = ans.t; repeatTries = 0; dunnoEasier = true;
-  addMsg('tutor', main, '', false, `${ans.t}. ${tgt('rep')} ${ans.t}.`, ans.t);
+  aiMsgNext = true; addMsg('tutor', main, '', false, `${ans.t}. ${tgt('rep')} ${ans.t}.`, ans.t);
   speak(`[alvo] ${ans.t}. ${tgt('rep')} ${ans.t}.`);
 }
 
@@ -4193,7 +4260,7 @@ async function showPendingCont(prefix) {
   }
   const main = (prefix ? prefix + '\n' : '') + (body ? await ensureGuidedTr(body) : '');
   chatHistory.push({ role: 'assistant', content: main });
-  addMsg('tutor', main); speak(main, null, { chime: guidedMode });
+  aiMsgNext = true; addMsg('tutor', main); speak(main, null, { chime: guidedMode });
   if (g.sugg.length) showSuggestions(g.sugg);
   return true;
 }
@@ -4211,7 +4278,7 @@ function offerPhrase(s, sugg) {
   const offer = `[fala] 👉 ${t('g_you_can_say', { q: '«' + s.t + '»' })}\n[voz] ${s.t}` + (s.g && showTr() ? `\n[nat] (${s.g})` : '');
   offered = { t: s.t, g: s.g };
   chatHistory.push({ role: 'assistant', content: offer });
-  addMsg('tutor', offer, '', false, offer, s.t);
+  aiMsgNext = true; addMsg('tutor', offer, '', false, offer, s.t);
   speak(offer, null, { chime: true });
   const other = (sugg || []).find(x => x && x.t && lzNorm(x.t) !== lzNorm(s.t));
   showSuggestions(other ? [s, other] : [s]);
@@ -4242,7 +4309,7 @@ async function themeTransition() {
     const reply = await busyAI(recent.map(m => ({ role: m.role, content: m.content })), buildSystem());
     const g = guidedMode ? guidedSplit(reply) : { main: reply, sugg: [] };
     g.main = await ensureGuidedTr(limitEmoji(cleanConv(g.main) || g.main));
-    removeLoading(); addMsg('tutor', g.main); speak(g.main, null, { chime: guidedMode });
+    removeLoading(); aiMsgNext = true; addMsg('tutor', g.main); speak(g.main, null, { chime: guidedMode });
     chatHistory.push({ role: 'assistant', content: g.main });
     if (guidedMode) showSuggestions(g.sugg);
   } catch(e) { removeLoading(); setStatus('error', errText(e)); }
@@ -4262,7 +4329,7 @@ async function greet() {
     const reply = await busyAI([{ role: 'user', content: prompt }], system);
     const g = guidedMode ? guidedSplit(reply) : { main: reply, sugg: [] };
     g.main = await ensureGuidedTr(limitEmoji(g.main));
-    removeLoading(); addMsg('tutor', g.main); speak(g.main);
+    removeLoading(); aiMsgNext = true; addMsg('tutor', g.main); speak(g.main);
     updateLessonBanner(); // tema (guiada) ou aviso da guiada (livre, iniciante/básico)
     chatHistory.push({ role: 'assistant', content: g.main });
     if (guidedMode) showSuggestions(g.sugg);
@@ -4874,7 +4941,7 @@ function processLessonReply(reply, local, why) {
   chatHistory.push({ role: 'assistant', content: main });
   updateLessonBanner();
   const nowStep = !finished && steps[st.pos];
-  addMsg('tutor', main, '', false, main, nowStep ? lzExpected(nowStep, items).t : '', hint);
+  aiMsgNext = !local; addMsg('tutor', main, '', false, main, nowStep ? lzExpected(nowStep, items).t : '', hint);
   if (finished && !lessonCompleted && currentLesson !== null) {
     const i = currentLesson;
     lessonCompleted = true;
@@ -5008,7 +5075,7 @@ async function processInput(text) {
         const main = `[fala] ${t(rev.complete ? 'lz_block' : 'g_finish', { q: '«' + S + '»' })}\n${lzSay2(S)}` + (tip ? `\n[ver] 🗣️ ${tip}\n${lzMixedVoice(tip)}` : '') + `\n[fala] ${lzNI().repeatEx}:\n${lzShowOnly(S)}`;
         repeatTarget = S; repeatTries = 0; pendingCont = cleanConv(conv);
         chatHistory.push({ role: 'assistant', content: main });
-        addMsg('tutor', main, '', false, main, S);
+        aiMsgNext = true; addMsg('tutor', main, '', false, main, S);
         speak(main, null, { chime: true });
         return;
       }
@@ -5073,7 +5140,7 @@ async function processInput(text) {
       chatHistory.push({ role: 'assistant', content: main });
       const spokenSay = `${canSay} ${say}. ${rep} ${say}.`;
       main = await ensureGuidedTr(main);
-      addMsg('tutor', main, '', false, spokenSay, say);
+      aiMsgNext = true; addMsg('tutor', main, '', false, spokenSay, say);
       speak(spokenSay);
       return;
     }
@@ -5112,11 +5179,11 @@ async function processInput(text) {
       let spoken = gramFix.length && !wasRepeating ? `${spokenFix} ${rep} ${fragment}.` : (spokenFix ? `${spokenFix} ${main}` : main);
       if (!gramFix.length) { const pron = fixLines.map(l => mixedSpeech(firstSentence(l.replace(/^[🗣️\s]+/u, '').split('·')[0]))).join('\n'); if (pron) spoken = [spokenFix, pron, main].filter(Boolean).join('\n'); }
       main = await ensureGuidedTr(main);
-      addMsg('tutor', main, html, true, spoken, fixed);
+      aiMsgNext = true; addMsg('tutor', main, html, true, spoken, fixed);
       speak(spoken);
     } else {
       main = await ensureGuidedTr(limitEmoji(main || reply));
-      addMsg('tutor', main);
+      aiMsgNext = true; addMsg('tutor', main);
       speak(main);
       if (guidedMode && !repeatTarget) showSuggestions(guidedSugg);
     }
@@ -5548,7 +5615,11 @@ function esc(t) { return String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').re
 // saveText: o que o ⭐ guarda no caderno (ex.: a frase ✅); se a aluna selecionar um trecho da mensagem, guarda o trecho.
 // hint: resposta escondida no botão "💡 Dica" (passo LEMBRAR das lições).
 // No modo Do zero, cada mensagem entra no registo da lição (lessonLog) para "Continuar lição" a poder repor.
+// Mensagens geradas pela IA: quem chama põe aiMsgNext = true logo antes de addMsg (ganham o ⚑ Denunciar).
+let aiMsgNext = false, lastUserSaid = '';
 function addMsg(role, text, correction, correctionFirst, spoken, saveText, hint) {
+  const isAI = role === 'tutor' && aiMsgNext; aiMsgNext = false;
+  if (role === 'user') lastUserSaid = String(text || '');
   const box = document.getElementById('transcript');
   const div = document.createElement('div');
   div.className = 'msg ' + role;
@@ -5581,6 +5652,13 @@ function addMsg(role, text, correction, correctionFirst, spoken, saveText, hint)
       setTimeout(() => { bStar.textContent = '⭐'; }, 1500);
     };
     tools.append(bListen, bTr, bStar);
+    if (isAI) {
+      const bFlag = document.createElement('button');
+      bFlag.className = 'msg-flag'; bFlag.textContent = '⚑'; bFlag.title = t('rep_title'); bFlag.setAttribute('aria-label', t('rep_title'));
+      const lastUser = lastUserSaid, source = currentLesson !== null ? 'lesson' : 'conversation';
+      bFlag.onclick = () => { if (!bFlag.classList.contains('reported')) openReport(bFlag, div, lastUser, source); };
+      tools.appendChild(bFlag);
+    }
     if (hint) {
       const bHint = document.createElement('button');
       bHint.textContent = t('hint_label');
@@ -5971,7 +6049,7 @@ No translations and no numbering inside the sentences. Reply ONLY with JSON: {"p
 function askTestQuestion() {
   const q = currentTest.q[currentTest.idx];
   updateLessonBanner();
-  addMsg('tutor', q);
+  aiMsgNext = true; addMsg('tutor', q);
   speak(q);
 }
 // Resposta da aluna a uma pergunta do teste (sem correção nem chamada à IA).
@@ -6029,7 +6107,7 @@ function showTestResult(r) {
     (r.strengths.length ? `<div class="sec">${esc(t('test_strong'))}</div><ul>${li(r.strengths)}</ul>` : '') +
     (r.improve.length ? `<div class="sec">${esc(t('test_improve'))}</div><ul>${li(r.improve)}</ul>` : '') +
     `<div class="sec">${esc(t('test_recommend'))}</div><div class="rec"></div></div>`;
-  const div = addMsg('tutor', '[nat] ' + (r.explanation || t('test_result_title', { level: lvlLabel(r.level) })), html, true);
+  aiMsgNext = true; const div = addMsg('tutor', '[nat] ' + (r.explanation || t('test_result_title', { level: lvlLabel(r.level) })), html, true);
   // Recomendação: iniciante/básico → próxima lição do Do zero; senão → Conversar.
   const next = nextLessonIdx(zeroLang().done);
   const lessonFirst = lvlRank(r.level) <= 2 && next >= 0;

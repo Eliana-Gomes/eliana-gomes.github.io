@@ -96,6 +96,42 @@ const g = await storage.get('g:' + today); g.costUsd = 1.0; await storage.put('g
 await check('teto de gasto do dia (US$ 1,00)', await call('/api/chat', { body: ok, token: s2.session, ip: '9.9.9.9' }), 429, 'daily_budget');
 // Registos
 for (const [n, q, want] of [['sem chave', '', 404], ['chave errada', '?key=errada', 404], ['chave certa', '?key=leitura-teste', 200], ['chave certa com espaço no fim', '?key=leitura-teste%20', 200]]) { const r = await call('/api/stats' + q, { method: 'GET', origin: '' }); const pass = r.status === want; if (!pass) fails++; console.log(`${pass ? '✔' : '✘'} /api/stats ${n}: HTTP ${r.status}`); }
+// ── Denúncias (POST /api/report, GET /api/reports)
+const RD = 'aparelho-denuncia-0001', RIP = '3.3.3.3';
+const sR = await (await call('/api/session', { body: { device: RD, turnstile: 'token-bom' }, ip: RIP })).json();
+const rep0 = { reason: 'offensive', comment: 'resposta rude', response: 'Bonjour ! Tu es nulle.', lastUser: 'je voudrais un café', lang: 'fr', level: 'B1', source: 'conversation' };
+const R = (body, o = {}) => call('/api/report', { body, token: o.token === undefined ? sR.session : o.token, ip: RIP, origin: o.origin });
+await check('denúncia válida', await R(rep0), 200);
+await check('denúncia sem sessão', await R(rep0, { token: '' }), 401, 'session');
+await check('denúncia de outra origem', await R(rep0, { origin: 'https://site-estranho.com' }), 403, 'origin');
+await check('denúncia com sessão de diagnóstico', await R(rep0, { token: dg.diag }), 401, 'session');
+await check('motivo inválido', await R({ ...rep0, reason: 'spam' }), 400, 'reason');
+await check('campo a mais (device)', await R({ ...rep0, device: RD }), 400, 'fields');
+await check('comentário com 301 caracteres', await R({ ...rep0, comment: 'a'.repeat(301) }), 400, 'comment');
+await check('sem o texto da resposta', await R({ ...rep0, response: '  ' }), 400, 'response');
+await check('nível inválido', await R({ ...rep0, level: 'X9' }), 400, 'level');
+await check('origem inválida (source)', await R({ ...rep0, source: 'site' }), 400, 'source');
+await check('pedido com mais de 8 KB', await R({ ...rep0, lastUser: 'a'.repeat(9000) }), 413, 'too_large');
+await check('denúncia mínima (só motivo e resposta)', await R({ reason: 'wrong', response: 'Il fait beau.' }), 200);
+for (let i = 3; i <= 10; i++) await R({ ...rep0, reason: 'other', comment: 'teste ' + i });
+await check('11.ª denúncia do mesmo aparelho no dia', await R(rep0), 429, 'report_limit');
+{ const r0 = await call('/api/reports', { method: 'GET', origin: '' }); const r1 = await call('/api/reports?key=errada', { method: 'GET', origin: '' }); const r2 = await call('/api/reports?key=leitura-teste', { method: 'GET', origin: '' });
+  const j = await r2.json(), txt = JSON.stringify(j), ipH = [...storage.m.keys()].find(k => k.startsWith('i:') && storage.m.get(k) > 0);
+  const okR = r0.status === 404 && r1.status === 404 && r2.status === 200 && j.total === 10 && j.reports[0].at >= j.reports[9].at;
+  const noIds = !txt.includes(RD) && !txt.includes(RIP) && !txt.includes((ipH || 'x:x:zzz').split(':')[2]) && Object.keys(j.reports[0]).sort().join(',') === 'at,comment,lang,lastUser,level,reason,response,source';
+  if (!okR || !noIds) fails++;
+  console.log((okR ? '✔' : '✘') + ' /api/reports: sem chave ' + r0.status + ', chave errada ' + r1.status + ', chave certa ' + r2.status + ' · ' + j.total + ' denúncias, mais recentes primeiro');
+  console.log((noIds ? '✔' : '✘') + ' denúncia guardada sem aparelho, IP nem resumo do IP · campos: ' + Object.keys(j.reports[0]).join(', '));
+  console.log('   exemplo: ' + JSON.stringify(j.reports.find(x => x.reason === 'offensive'))); }
+// Apagadas aos 90 dias
+{ const old = new Date(Date.now() - 91 * 864e5).toISOString(), recent = new Date(Date.now() - 89 * 864e5).toISOString();
+  await storage.put('rep:' + old + ':velha001', { at: old, reason: 'other', response: 'x' }); await storage.put('rep:' + recent + ':nova0001', { at: recent, reason: 'other', response: 'y' });
+  await storage.put('cleaned', '2000-01-01');
+  const s3 = await (await call('/api/session', { body: { device: 'aparelho-denuncia-0002', turnstile: 'token-bom' }, ip: '4.4.4.4' })).json();
+  await R({ reason: 'other', response: 'z' }, { token: s3.session });
+  const gone = !storage.m.has('rep:' + old + ':velha001'), kept = storage.m.has('rep:' + recent + ':nova0001');
+  if (!gone || !kept) fails++;
+  console.log((gone && kept ? '✔' : '✘') + ' denúncia com 91 dias apagada: ' + gone + ' · com 89 dias mantida: ' + kept); }
 const st = await (await call('/api/stats?key=leitura-teste', { method: 'GET', origin: '' })).json();
 console.log('registo do dia:', JSON.stringify(st.days[0]));
 console.log('guardado no servidor (chaves):', [...storage.m.keys()].join(', '));
