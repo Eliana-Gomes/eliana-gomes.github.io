@@ -63,6 +63,20 @@ O Android pergunta se pode instalar apps desta origem.
 
 ---
 
+## Parte E — Teste da denúncia (⚑)
+
+1. Em Conversar, espere uma resposta da Lia.
+2. Por baixo da resposta, à direita, toque no ⚑ (pequeno, ao lado de 🔊 🌐 ⭐).
+3. Abre "Denunciar esta resposta".
+4. Toque em "Enviar" sem escolher nada: aparece "Escolha um motivo.".
+5. Escolha "Outro motivo" e escreva no comentário: TESTE.
+6. Toque em "Enviar".
+7. Aparece "Obrigada. Vamos analisar." e o ⚑ dessa mensagem fica vermelho (já não abre de novo).
+8. Para testar sem internet: ponha o celular em modo avião, denuncie outra resposta e toque em "Enviar": aparece "Não foi possível enviar agora. Tente de novo mais tarde.".
+9. No computador, abra o link das denúncias (no COFRE-PARLIA.txt) e confirme que a denúncia "TESTE" aparece no topo.
+
+---
+
 ## Se algo não funcionar
 
 1. A Lia não fala: Configurações do Android → Sistema → Idiomas → "Saída de texto para fala" → confirme o "Mecanismo do Google" e instale a voz do idioma.
