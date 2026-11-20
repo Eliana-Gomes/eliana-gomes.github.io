@@ -201,6 +201,7 @@
   .ls-name { font-size: 1.1rem; font-weight: 600; }
   .ls-line { color: var(--gold-glow); font-size: 0.92rem; }
   .ls-prog { color: #C9C2B6; font-size: 0.82rem; }
+  .ls-card.blocked { opacity: 0.45; cursor: default; }
   .ls-go { font-size: 1.6rem; color: var(--gold-glow); }
   .ls-sels { width: 100%; display: flex; flex-direction: column; gap: 8px; }
   .ls-sel { display: flex; flex-direction: column; gap: 4px; font-size: 0.82rem; color: #C9C2B6; }
@@ -590,13 +591,6 @@
     <option value="Espanha" data-i18n="accent_es"></option>
     <option value="América Latina" data-i18n="accent_latam"></option>
   </select>
-  <div id="pf-ptvar-wrap" style="display:contents">
-    <div class="prof-label" data-i18n="ptvar_q"></div>
-    <select class="api-select" id="pf-ptvar">
-      <option value="Brasil" data-i18n="ptvar_br"></option>
-      <option value="Portugal" data-i18n="ptvar_pt"></option>
-    </select>
-  </div>
   <div class="prof-label" data-i18n="style_q"></div>
   <select class="api-select" id="pf-style">
     <option value="amigável" data-i18n="style_friendly"></option>
@@ -882,7 +876,7 @@ function profileCard(id) {
   setTimeout(() => { s.classList.add('hide'); setTimeout(() => s.remove(), 400); }, 1000);
 })();
 // Versão do app (fim da tela Perfil). Atualizada sozinha a cada commit que mexe neste arquivo (hook .git/hooks/pre-commit).
-const APP_VERSION = 87, APP_DATE = '2026-11-20';
+const APP_VERSION = 88, APP_DATE = '2026-11-20';
 let currentLang = 'es', currentLangName = 'Spanish', currentLocale = 'es-ES';
 // Teste de nível: uma pergunta que pede o nome (6 idiomas) perde essa frase; sem outra pergunta, fica "De onde você é?".
 const NAME_Q = /what'?s your name|what is your name|c[oó]mo te llamas|c[oó]mo se llama|cu[aá]l es tu nombre|comment tu t[’']?\s?appelles|comment vous vous appelez|comment vous appelez|comment t[’']?appelles[- ]tu|tu t[’']appelles comment|quel est ton (?:pr[ée])?nom|come ti chiami|come si chiama|qual [eè] il tuo nome|wie hei(?:ß|ss)t du|wie hei(?:ß|ss)en sie|wie ist dein name|como (?:voc[eê] )?se chama|como te chamas|qual [eé] (?:o )?(?:seu|teu) nome/i;
@@ -906,24 +900,33 @@ const LANGS = [
   { code: 'fr', locale: 'fr-FR', flag: '🇫🇷', name: 'French' },
   { code: 'it', locale: 'it-IT', flag: '🇮🇹', name: 'Italian' },
   { code: 'de', locale: 'de-DE', flag: '🇩🇪', name: 'German' },
-  { code: 'pt', locale: 'pt-BR', flag: '🇧🇷', name: 'Brazilian Portuguese' } // variante (pt-BR/pt-PT) conforme o perfil: ver langFlag/applyLangVars
+  { code: 'pt', locale: 'pt-BR', flag: '🇧🇷', name: 'Brazilian Portuguese' },
+  { code: 'ptpt', locale: 'pt-PT', flag: '🇵🇹', name: 'European Portuguese (Portugal)' } // entrada de estudo; o conteúdo é o português (currentLang = 'pt', ptStudyPT)
 ];
-// Português de Portugal como idioma de estudo (perfil: ptVariant = 'Portugal').
-function ptIsPT() { return !!(PROFILE && PROFILE.ptVariant === 'Portugal'); }
-function langFlag(code) { return code === 'pt' ? (ptIsPT() ? '🇵🇹' : '🇧🇷') : (LANGS.find(l => l.code === code) || {}).flag || ''; }
+// Português de Portugal como idioma de estudo (v88: entrada própria 'ptpt'; o conteúdo é o português com a variante de Portugal).
+let ptStudyPT = false;
+function ptIsPT() { return ptStudyPT; }
+// Entrada de estudo atual (chave dos dados guardados): 'ptpt' para o português de Portugal, senão o idioma.
+function SID() { return currentLang === 'pt' && ptStudyPT ? 'ptpt' : currentLang; }
+function setStudyId(id) { ptStudyPT = id === 'ptpt'; currentLang = id === 'ptpt' ? 'pt' : id; }
+function langFlag(code) { return code === 'ptpt' ? '🇵🇹' : code === 'pt' ? (ptIsPT() ? '🇵🇹' : '🇧🇷') : (LANGS.find(l => l.code === code) || {}).flag || ''; }
+function langFlagId(id) { return id === 'pt' ? '🇧🇷' : langFlag(id); }
+function langNameId(id) { return id === 'pt' ? t('lang_ptbr') : langUI(id); }
+// A língua das explicações não pode ser estudada (pt-BR → 'pt', pt-PT → 'ptpt').
+function nativeStudyId() { const n = getNative(PROFILE); return n === 'pt-BR' ? 'pt' : n === 'pt-PT' ? 'ptpt' : n; }
 // Define nome (para as instruções) e locale (voz e microfone) do idioma atual, incluindo a variante do português.
 function applyLangVars() {
-  const l = LANGS.find(x => x.code === currentLang) || LANGS[0];
+  const l = LANGS.find(x => x.code === currentLang && x.code !== 'ptpt') || LANGS[0];
   currentLangName = l.code === 'pt' ? (ptIsPT() ? 'European Portuguese (Portugal)' : 'Brazilian Portuguese') : l.name;
   currentLocale = l.code === 'pt' ? (ptIsPT() ? 'pt-PT' : 'pt-BR') : l.locale;
 }
 // Níveis do QECR (v85). Perfis antigos: iniciante → A1, básico → A2, intermediário → B1, avançado → B2 (normLevel, loadProfile).
-const DEFAULT_LEVELS = { es: 'A1', en: 'A1', fr: 'A1', it: 'A1', de: 'A1', pt: 'A1' };
+const DEFAULT_LEVELS = { es: 'A1', en: 'A1', fr: 'A1', it: 'A1', de: 'A1', pt: 'A1', ptpt: 'A1' };
 const LEVELS = ['A0', 'A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
 const OLD_LEVELS = { iniciante: 'A1', basico: 'A2', intermediario: 'B1', avancado: 'B2' };
 const LEVEL_EN = { A0: 'absolute beginner', A1: 'beginner', A2: 'elementary', B1: 'intermediate', B2: 'upper intermediate', C1: 'advanced', C2: 'proficient' };
 function lvlRank(v) { return LEVELS.indexOf(normLevel(v) || 'A1'); }
-function curLevel() { return normLevel(((PROFILE && PROFILE.levels) || {})[currentLang]) || DEFAULT_LEVELS[currentLang] || 'A1'; }
+function curLevel() { return normLevel(((PROFILE && PROFILE.levels) || {})[SID()]) || DEFAULT_LEVELS[SID()] || 'A1'; }
 function lvlShort(v) { v = normLevel(v) || 'A1'; return v + ' ' + t('lvls_' + v); }
 // Campo de nível: fechado mostra "B1 Intermediário"; ao abrir a lista, as opções mostram a frase completa.
 function shortLevelSelect(sel) {
@@ -948,7 +951,7 @@ function lvlEn(v) { v = normLevel(v) || 'A1'; return v + ' (CEFR, ' + LEVEL_EN[v
 // Objetivo por idioma (PROFILE.goals = { idioma: chave }).
 const GOALS = ['travel', 'abroad', 'work', 'study', 'family', 'culture', 'exam'];
 const GOAL_EN = { travel: 'travelling', abroad: 'living abroad', work: 'work', study: 'studies', family: 'family and friends', culture: 'culture and leisure', exam: 'an exam or certificate' };
-function curGoal(code) { const g = ((PROFILE && PROFILE.goals) || {})[code || currentLang]; return GOALS.includes(g) ? g : ''; }
+function curGoal(code) { const g = ((PROFILE && PROFILE.goals) || {})[code || SID()]; return GOALS.includes(g) ? g : ''; }
 
 // ── LÍNGUA NATIVA DO ALUNO ──
 // ui: dicionário da interface; expl/speaker/short/variant: em inglês, para as instruções da IA; exFix/exPron/exTr/repeatEx:
@@ -1894,14 +1897,14 @@ const I18N = {
     key_note_html: 'Obtenha sua chave gratuita em:<br><a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a><br><br>A chave fica guardada só no seu celular (localStorage).<br>Ninguém mais tem acesso.',
     key_invalid: 'A chave deve começar com "sk-ant-". Verifique e tente de novo.',
     profile_title: 'Seu perfil', profile_text: 'A Lia usa estes dados para chamar você pelo nome e adaptar a conversa ao seu nível. Fica guardado só neste celular.',
-    native_q: 'Minha língua (explicações, menus e traduções):', name_q: 'Como você se chama?', interests_q: 'Do que você gosta? (pode marcar vários)', int_culinaria: 'Culinária', int_viagens: 'Viagens', int_musica: 'Música', int_cinema: 'Cinema e séries', int_esportes: 'Esportes', int_trabalho: 'Trabalho e negócios', int_familia: 'Família', int_natureza: 'Natureza', int_tecnologia: 'Tecnologia', int_moda: 'Moda e beleza', int_leitura: 'Leitura', int_saude: 'Saúde e bem-estar', int_estilo: 'Estilo de vida', int_arte: 'Arte e design', int_fotografia: 'Fotografia', int_animais: 'Animais', int_idiomas: 'Idiomas e culturas', int_espiritualidade: 'Espiritualidade', int_empreendedorismo: 'Empreendedorismo', int_jogos: 'Jogos', int_decoracao: 'Decoração', int_carros: 'Carros', likes_more_q: 'Conte mais sobre os seus gostos (opcional)', likes_more_ph: 'ex.: romances, K-dramas, IA, moda sustentável, MPB', name_ph: 'Ex.: Eliana',
+    native_q: 'Língua das explicações (a Lia explica, corrige e traduz nesta língua; também os menus):', name_q: 'Como você se chama?', interests_q: 'Do que você gosta? (pode marcar vários)', int_culinaria: 'Culinária', int_viagens: 'Viagens', int_musica: 'Música', int_cinema: 'Cinema e séries', int_esportes: 'Esportes', int_trabalho: 'Trabalho e negócios', int_familia: 'Família', int_natureza: 'Natureza', int_tecnologia: 'Tecnologia', int_moda: 'Moda e beleza', int_leitura: 'Leitura', int_saude: 'Saúde e bem-estar', int_estilo: 'Estilo de vida', int_arte: 'Arte e design', int_fotografia: 'Fotografia', int_animais: 'Animais', int_idiomas: 'Idiomas e culturas', int_espiritualidade: 'Espiritualidade', int_empreendedorismo: 'Empreendedorismo', int_jogos: 'Jogos', int_decoracao: 'Decoração', int_carros: 'Carros', likes_more_q: 'Conte mais sobre os seus gostos (opcional)', likes_more_ph: 'ex.: romances, K-dramas, IA, moda sustentável, MPB', name_ph: 'Ex.: Eliana',
     city_q: 'Cidade onde mora', city_ph: 'Ex.: Huelva', level_q: 'Seu nível em cada idioma:',
     lvl_iniciante: 'iniciante', 'lvl_básico': 'básico', 'lvl_intermediário': 'intermediário', 'lvl_avançado': 'avançado',
     speed_q: 'Velocidade da voz da Lia:', speed_lenta: 'Lenta', speed_normal: 'Normal', speed_rapida: 'Rápida',
     accent_q: 'Sotaque do espanhol (voz e vocabulário):', accent_es: 'Espanha', accent_latam: 'América Latina',
     ptvar_q: 'Variante do português (voz, vocabulário e correções):', ptvar_br: 'Brasil', ptvar_pt: 'Portugal',
     style_q: 'Estilo da Lia:', style_friendly: 'Amigável', style_formal: 'Formal', style_fun: 'Divertida',
-    save_btn: 'Salvar e começar →', lvls_A0: 'Do zero', lvls_A1: 'Iniciante', lvls_A2: 'Básico', lvls_B1: 'Intermediário', lvls_B2: 'Intermediário alto', lvls_C1: 'Avançado', lvls_C2: 'Proficiente', test_diff: 'O seu teste deu {level}. Atualizar?', nb_clear: 'Limpar Caderno deste idioma', nb_clear_q: 'Limpar o Caderno de {lang}?', nb_clear_sub: 'Os erros e as frases salvas deste idioma serão apagados.', nb_clear_yes: 'Limpar', nb_cleared: 'Caderno de {lang} limpo.', lvl_A0: 'Estou começando do zero', lvl_A1: 'Entendo e uso frases muito simples', lvl_A2: 'Falo de coisas do dia a dia com frases curtas', lvl_B1: 'Consigo falar em detalhe sobre temas do dia a dia', lvl_B2: 'Converso com fluência sobre muitos temas', lvl_C1: 'Me expresso com facilidade, também no trabalho', lvl_C2: 'Falo como um nativo, com nuances', goal_travel: 'Viajar', goal_abroad: 'Viver no estrangeiro', goal_work: 'Trabalho', goal_study: 'Estudos', goal_family: 'Família e amigos', goal_culture: 'Cultura e lazer', goal_exam: 'Exame ou certificado', goal_none: 'Sem objetivo definido', pf_b_personal: '👤 Pessoal', pf_b_study: '📚 Estudo', pf_b_look: '🎨 Aparência', pf_b_help: '💬 Contato e ajuda', contact_btn: '✉️ Falar com a Parlia', langs_title: 'Idiomas', langs_current: 'Estudando agora', langs_more: 'Mais idiomas', langs_modes: 'Modo de prática', modes_themes: '🎭 Temas', lang_lessons: '{d} de {total} lições', lang_nb: '📒 {n} no Caderno', lang_new: 'Ainda não começou', level_label: 'Nível', goal_label: 'Objetivo', contact_subject: 'Parlia — contato', contact_body: 'Escreva aqui a sua mensagem:', contact_device: 'Aparelho', contact_version: 'Versão', contact_lang: 'Idioma estudado', contact_ui: 'Língua da interface', level_goal_q: 'Nível e objetivo em cada idioma', backup_label: 'Backup (perfil, foto, caderno, racha, lições e testes; sem a chave API):',
+    save_btn: 'Salvar e começar →', lang_ptbr: 'Português (Brasil)', lang_ptpt: 'Português (Portugal)', lang_blocked: 'É a sua língua das explicações — troque no Perfil', lvls_A0: 'Do zero', lvls_A1: 'Iniciante', lvls_A2: 'Básico', lvls_B1: 'Intermediário', lvls_B2: 'Intermediário alto', lvls_C1: 'Avançado', lvls_C2: 'Proficiente', test_diff: 'O seu teste deu {level}. Atualizar?', nb_clear: 'Limpar Caderno deste idioma', nb_clear_q: 'Limpar o Caderno de {lang}?', nb_clear_sub: 'Os erros e as frases salvas deste idioma serão apagados.', nb_clear_yes: 'Limpar', nb_cleared: 'Caderno de {lang} limpo.', lvl_A0: 'Estou começando do zero', lvl_A1: 'Entendo e uso frases muito simples', lvl_A2: 'Falo de coisas do dia a dia com frases curtas', lvl_B1: 'Consigo falar em detalhe sobre temas do dia a dia', lvl_B2: 'Converso com fluência sobre muitos temas', lvl_C1: 'Me expresso com facilidade, também no trabalho', lvl_C2: 'Falo como um nativo, com nuances', goal_travel: 'Viajar', goal_abroad: 'Viver no estrangeiro', goal_work: 'Trabalho', goal_study: 'Estudos', goal_family: 'Família e amigos', goal_culture: 'Cultura e lazer', goal_exam: 'Exame ou certificado', goal_none: 'Sem objetivo definido', pf_b_personal: '👤 Pessoal', pf_b_study: '📚 Estudo', pf_b_look: '🎨 Aparência', pf_b_help: '💬 Contato e ajuda', contact_btn: '✉️ Falar com a Parlia', langs_title: 'Idiomas', langs_current: 'Estudando agora', langs_more: 'Mais idiomas', langs_modes: 'Modo de prática', modes_themes: '🎭 Temas', lang_lessons: '{d} de {total} lições', lang_nb: '📒 {n} no Caderno', lang_new: 'Ainda não começou', level_label: 'Nível', goal_label: 'Objetivo', contact_subject: 'Parlia — contato', contact_body: 'Escreva aqui a sua mensagem:', contact_device: 'Aparelho', contact_version: 'Versão', contact_lang: 'Idioma estudado', contact_ui: 'Língua da interface', level_goal_q: 'Nível e objetivo em cada idioma', backup_label: 'Backup (perfil, foto, caderno, racha, lições e testes; sem a chave API):',
     export_btn: '⬇️ Exportar meus dados', import_btn: '⬆️ Importar meus dados', name_required: 'Escreva o seu nome', yes_replace: 'Substituir', yes_update: 'Atualizar', keep_btn: 'Manter',
     lang_es: 'Espanhol', lang_en: 'Inglês', lang_fr: 'Francês', lang_it: 'Italiano', lang_pt: 'Português', lang_de: "Alemão",
     nb_title: '📒 Meu caderno', nb_sort_recent: 'Mais recentes', nb_sort_count: 'Mais repetidos', nb_times: 'Repetido {n} vezes', tab_errors: 'Meus erros', tab_saved: 'Salvas',
@@ -1956,14 +1959,14 @@ const I18N = {
     key_note_html: 'Obtém a tua chave gratuita em:<br><a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a><br><br>A chave é guardada só no teu telemóvel (localStorage).<br>Ninguém mais tem acesso.',
     key_invalid: 'A chave deve começar com "sk-ant-". Verifica e tenta de novo.',
     profile_title: 'O teu perfil', profile_text: 'A Lia usa estes dados para te chamar pelo nome e adaptar a conversa ao teu nível. Fica guardado só neste telemóvel.',
-    native_q: 'A minha língua (explicações, menus e traduções):', name_q: 'Como te chamas?', interests_q: 'De que gostas? (podes marcar vários)', int_culinaria: 'Culinária', int_viagens: 'Viagens', int_musica: 'Música', int_cinema: 'Cinema e séries', int_esportes: 'Desporto', int_trabalho: 'Trabalho e negócios', int_familia: 'Família', int_natureza: 'Natureza', int_tecnologia: 'Tecnologia', int_moda: 'Moda e beleza', int_leitura: 'Leitura', int_saude: 'Saúde e bem-estar', int_estilo: 'Estilo de vida', int_arte: 'Arte e design', int_fotografia: 'Fotografia', int_animais: 'Animais', int_idiomas: 'Línguas e culturas', int_espiritualidade: 'Espiritualidade', int_empreendedorismo: 'Empreendedorismo', int_jogos: 'Jogos', int_decoracao: 'Decoração', int_carros: 'Carros', likes_more_q: 'Conta mais sobre os teus gostos (opcional)', likes_more_ph: 'ex.: romances, K-dramas, IA, moda sustentável, fado', name_ph: 'Ex.: Eliana',
+    native_q: 'Língua das explicações (a Lia explica, corrige e traduz nesta língua; também os menus):', name_q: 'Como te chamas?', interests_q: 'De que gostas? (podes marcar vários)', int_culinaria: 'Culinária', int_viagens: 'Viagens', int_musica: 'Música', int_cinema: 'Cinema e séries', int_esportes: 'Desporto', int_trabalho: 'Trabalho e negócios', int_familia: 'Família', int_natureza: 'Natureza', int_tecnologia: 'Tecnologia', int_moda: 'Moda e beleza', int_leitura: 'Leitura', int_saude: 'Saúde e bem-estar', int_estilo: 'Estilo de vida', int_arte: 'Arte e design', int_fotografia: 'Fotografia', int_animais: 'Animais', int_idiomas: 'Línguas e culturas', int_espiritualidade: 'Espiritualidade', int_empreendedorismo: 'Empreendedorismo', int_jogos: 'Jogos', int_decoracao: 'Decoração', int_carros: 'Carros', likes_more_q: 'Conta mais sobre os teus gostos (opcional)', likes_more_ph: 'ex.: romances, K-dramas, IA, moda sustentável, fado', name_ph: 'Ex.: Eliana',
     city_q: 'Cidade onde moras', city_ph: 'Ex.: Huelva', level_q: 'O teu nível em cada idioma:',
     lvl_iniciante: 'iniciante', 'lvl_básico': 'básico', 'lvl_intermediário': 'intermédio', 'lvl_avançado': 'avançado',
     speed_q: 'Velocidade da voz da Lia:', speed_lenta: 'Lenta', speed_normal: 'Normal', speed_rapida: 'Rápida',
     accent_q: 'Sotaque do espanhol (voz e vocabulário):', accent_es: 'Espanha', accent_latam: 'América Latina',
     ptvar_q: 'Variante do português (voz, vocabulário e correções):', ptvar_br: 'Brasil', ptvar_pt: 'Portugal',
     style_q: 'Estilo da Lia:', style_friendly: 'Amigável', style_formal: 'Formal', style_fun: 'Divertida',
-    save_btn: 'Guardar e começar →', lvls_A0: 'Do zero', lvls_A1: 'Iniciante', lvls_A2: 'Básico', lvls_B1: 'Intermédio', lvls_B2: 'Intermédio alto', lvls_C1: 'Avançado', lvls_C2: 'Proficiente', test_diff: 'O teu teste deu {level}. Atualizar?', nb_clear: 'Limpar o Caderno deste idioma', nb_clear_q: 'Limpar o Caderno de {lang}?', nb_clear_sub: 'Os erros e as frases guardadas deste idioma vão ser apagados.', nb_clear_yes: 'Limpar', nb_cleared: 'Caderno de {lang} limpo.', lvl_A0: 'Estou a começar do zero', lvl_A1: 'Entendo e uso frases muito simples', lvl_A2: 'Falo de coisas do dia a dia com frases curtas', lvl_B1: 'Consigo falar em pormenor sobre temas do dia a dia', lvl_B2: 'Converso com fluência sobre muitos temas', lvl_C1: 'Exprimo-me com facilidade, também no trabalho', lvl_C2: 'Falo como um nativo, com nuances', goal_travel: 'Viajar', goal_abroad: 'Viver no estrangeiro', goal_work: 'Trabalho', goal_study: 'Estudos', goal_family: 'Família e amigos', goal_culture: 'Cultura e lazer', goal_exam: 'Exame ou certificado', goal_none: 'Sem objetivo definido', pf_b_personal: '👤 Pessoal', pf_b_study: '📚 Estudo', pf_b_look: '🎨 Aparência', pf_b_help: '💬 Contacto e ajuda', contact_btn: '✉️ Falar com a Parlia', langs_title: 'Idiomas', langs_current: 'A estudar agora', langs_more: 'Mais idiomas', langs_modes: 'Modo de prática', modes_themes: '🎭 Temas', lang_lessons: '{d} de {total} lições', lang_nb: '📒 {n} no Caderno', lang_new: 'Ainda não começou', level_label: 'Nível', goal_label: 'Objetivo', contact_subject: 'Parlia — contacto', contact_body: 'Escreve aqui a tua mensagem:', contact_device: 'Aparelho', contact_version: 'Versão', contact_lang: 'Idioma estudado', contact_ui: 'Língua da interface', level_goal_q: 'Nível e objetivo em cada idioma', backup_label: 'Cópia de segurança (perfil, foto, caderno, racha, lições e testes; sem a chave API):',
+    save_btn: 'Guardar e começar →', lang_ptbr: 'Português (Brasil)', lang_ptpt: 'Português (Portugal)', lang_blocked: 'É a tua língua das explicações — muda no Perfil', lvls_A0: 'Do zero', lvls_A1: 'Iniciante', lvls_A2: 'Básico', lvls_B1: 'Intermédio', lvls_B2: 'Intermédio alto', lvls_C1: 'Avançado', lvls_C2: 'Proficiente', test_diff: 'O teu teste deu {level}. Atualizar?', nb_clear: 'Limpar o Caderno deste idioma', nb_clear_q: 'Limpar o Caderno de {lang}?', nb_clear_sub: 'Os erros e as frases guardadas deste idioma vão ser apagados.', nb_clear_yes: 'Limpar', nb_cleared: 'Caderno de {lang} limpo.', lvl_A0: 'Estou a começar do zero', lvl_A1: 'Entendo e uso frases muito simples', lvl_A2: 'Falo de coisas do dia a dia com frases curtas', lvl_B1: 'Consigo falar em pormenor sobre temas do dia a dia', lvl_B2: 'Converso com fluência sobre muitos temas', lvl_C1: 'Exprimo-me com facilidade, também no trabalho', lvl_C2: 'Falo como um nativo, com nuances', goal_travel: 'Viajar', goal_abroad: 'Viver no estrangeiro', goal_work: 'Trabalho', goal_study: 'Estudos', goal_family: 'Família e amigos', goal_culture: 'Cultura e lazer', goal_exam: 'Exame ou certificado', goal_none: 'Sem objetivo definido', pf_b_personal: '👤 Pessoal', pf_b_study: '📚 Estudo', pf_b_look: '🎨 Aparência', pf_b_help: '💬 Contacto e ajuda', contact_btn: '✉️ Falar com a Parlia', langs_title: 'Idiomas', langs_current: 'A estudar agora', langs_more: 'Mais idiomas', langs_modes: 'Modo de prática', modes_themes: '🎭 Temas', lang_lessons: '{d} de {total} lições', lang_nb: '📒 {n} no Caderno', lang_new: 'Ainda não começou', level_label: 'Nível', goal_label: 'Objetivo', contact_subject: 'Parlia — contacto', contact_body: 'Escreve aqui a tua mensagem:', contact_device: 'Aparelho', contact_version: 'Versão', contact_lang: 'Idioma estudado', contact_ui: 'Língua da interface', level_goal_q: 'Nível e objetivo em cada idioma', backup_label: 'Cópia de segurança (perfil, foto, caderno, racha, lições e testes; sem a chave API):',
     export_btn: '⬇️ Exportar os meus dados', import_btn: '⬆️ Importar os meus dados', name_required: 'Escreve o teu nome', yes_replace: 'Substituir', yes_update: 'Atualizar', keep_btn: 'Manter',
     lang_es: 'Espanhol', lang_en: 'Inglês', lang_fr: 'Francês', lang_it: 'Italiano', lang_pt: 'Português', lang_de: "Alemão",
     nb_title: '📒 O meu caderno', nb_sort_recent: 'Mais recentes', nb_sort_count: 'Mais repetidos', nb_times: 'Repetido {n} vezes', tab_errors: 'Os meus erros', tab_saved: 'Guardadas',
@@ -2018,14 +2021,14 @@ const I18N = {
     key_note_html: 'Consigue tu clave gratuita en:<br><a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a><br><br>La clave se guarda solo en tu móvil (localStorage).<br>Nadie más tiene acceso.',
     key_invalid: 'La clave debe empezar por "sk-ant-". Revísala e inténtalo de nuevo.',
     profile_title: 'Tu perfil', profile_text: 'Lia usa estos datos para llamarte por tu nombre y adaptar la conversación a tu nivel. Se guarda solo en este móvil.',
-    native_q: 'Mi lengua (explicaciones, menús y traducciones):', name_q: '¿Cómo te llamas?', interests_q: '¿Qué te gusta? (puedes marcar varios)', int_culinaria: 'Cocina', int_viagens: 'Viajes', int_musica: 'Música', int_cinema: 'Cine y series', int_esportes: 'Deportes', int_trabalho: 'Trabajo y negocios', int_familia: 'Familia', int_natureza: 'Naturaleza', int_tecnologia: 'Tecnología', int_moda: 'Moda y belleza', int_leitura: 'Lectura', int_saude: 'Salud y bienestar', int_estilo: 'Estilo de vida', int_arte: 'Arte y diseño', int_fotografia: 'Fotografía', int_animais: 'Animales', int_idiomas: 'Idiomas y culturas', int_espiritualidade: 'Espiritualidad', int_empreendedorismo: 'Emprendimiento', int_jogos: 'Juegos', int_decoracao: 'Decoración', int_carros: 'Coches', likes_more_q: 'Cuéntame más sobre tus gustos (opcional)', likes_more_ph: 'ej.: novelas, K-dramas, IA, moda sostenible, flamenco', name_ph: 'Ej.: Eliana',
+    native_q: 'Lengua de las explicaciones (Lia explica, corrige y traduce en esta lengua; también los menús):', name_q: '¿Cómo te llamas?', interests_q: '¿Qué te gusta? (puedes marcar varios)', int_culinaria: 'Cocina', int_viagens: 'Viajes', int_musica: 'Música', int_cinema: 'Cine y series', int_esportes: 'Deportes', int_trabalho: 'Trabajo y negocios', int_familia: 'Familia', int_natureza: 'Naturaleza', int_tecnologia: 'Tecnología', int_moda: 'Moda y belleza', int_leitura: 'Lectura', int_saude: 'Salud y bienestar', int_estilo: 'Estilo de vida', int_arte: 'Arte y diseño', int_fotografia: 'Fotografía', int_animais: 'Animales', int_idiomas: 'Idiomas y culturas', int_espiritualidade: 'Espiritualidad', int_empreendedorismo: 'Emprendimiento', int_jogos: 'Juegos', int_decoracao: 'Decoración', int_carros: 'Coches', likes_more_q: 'Cuéntame más sobre tus gustos (opcional)', likes_more_ph: 'ej.: novelas, K-dramas, IA, moda sostenible, flamenco', name_ph: 'Ej.: Eliana',
     city_q: 'Ciudad donde vives', city_ph: 'Ej.: Huelva', level_q: 'Tu nivel en cada idioma:',
     lvl_iniciante: 'principiante', 'lvl_básico': 'básico', 'lvl_intermediário': 'intermedio', 'lvl_avançado': 'avanzado',
     speed_q: 'Velocidad de la voz de Lia:', speed_lenta: 'Lenta', speed_normal: 'Normal', speed_rapida: 'Rápida',
     accent_q: 'Acento del español (voz y vocabulario):', accent_es: 'España', accent_latam: 'América Latina',
     ptvar_q: 'Variante del portugués (voz, vocabulario y correcciones):', ptvar_br: 'Brasil', ptvar_pt: 'Portugal',
     style_q: 'Estilo de Lia:', style_friendly: 'Amable', style_formal: 'Formal', style_fun: 'Divertida',
-    save_btn: 'Guardar y empezar →', lvls_A0: 'Desde cero', lvls_A1: 'Principiante', lvls_A2: 'Básico', lvls_B1: 'Intermedio', lvls_B2: 'Intermedio alto', lvls_C1: 'Avanzado', lvls_C2: 'Dominio', test_diff: 'Tu prueba dio {level}. ¿Actualizar?', nb_clear: 'Vaciar el Cuaderno de este idioma', nb_clear_q: '¿Vaciar el Cuaderno de {lang}?', nb_clear_sub: 'Se borrarán los errores y las frases guardadas de este idioma.', nb_clear_yes: 'Vaciar', nb_cleared: 'Cuaderno de {lang} vaciado.', lvl_A0: 'Empiezo desde cero', lvl_A1: 'Entiendo y uso frases muy sencillas', lvl_A2: 'Hablo de cosas cotidianas con frases cortas', lvl_B1: 'Puedo hablar en detalle sobre temas cotidianos', lvl_B2: 'Converso con fluidez sobre muchos temas', lvl_C1: 'Me expreso con facilidad, también en el trabajo', lvl_C2: 'Hablo como un nativo, con matices', goal_travel: 'Viajar', goal_abroad: 'Vivir en el extranjero', goal_work: 'Trabajo', goal_study: 'Estudios', goal_family: 'Familia y amigos', goal_culture: 'Cultura y ocio', goal_exam: 'Examen o certificado', goal_none: 'Sin objetivo definido', pf_b_personal: '👤 Personal', pf_b_study: '📚 Estudio', pf_b_look: '🎨 Apariencia', pf_b_help: '💬 Contacto y ayuda', contact_btn: '✉️ Escribir a la Parlia', langs_title: 'Idiomas', langs_current: 'Estudiando ahora', langs_more: 'Más idiomas', langs_modes: 'Modo de práctica', modes_themes: '🎭 Temas', lang_lessons: '{d} de {total} lecciones', lang_nb: '📒 {n} en el Cuaderno', lang_new: 'Aún no empezaste', level_label: 'Nivel', goal_label: 'Objetivo', contact_subject: 'Parlia — contacto', contact_body: 'Escribe aquí tu mensaje:', contact_device: 'Dispositivo', contact_version: 'Versión', contact_lang: 'Idioma que estudias', contact_ui: 'Lengua de la interfaz', level_goal_q: 'Nivel y objetivo en cada idioma', backup_label: 'Copia de seguridad (perfil, foto, cuaderno, racha, lecciones y pruebas; sin la clave API):',
+    save_btn: 'Guardar y empezar →', lang_ptbr: 'Portugués (Brasil)', lang_ptpt: 'Portugués (Portugal)', lang_blocked: 'Es tu lengua de las explicaciones — cámbiala en el Perfil', lvls_A0: 'Desde cero', lvls_A1: 'Principiante', lvls_A2: 'Básico', lvls_B1: 'Intermedio', lvls_B2: 'Intermedio alto', lvls_C1: 'Avanzado', lvls_C2: 'Dominio', test_diff: 'Tu prueba dio {level}. ¿Actualizar?', nb_clear: 'Vaciar el Cuaderno de este idioma', nb_clear_q: '¿Vaciar el Cuaderno de {lang}?', nb_clear_sub: 'Se borrarán los errores y las frases guardadas de este idioma.', nb_clear_yes: 'Vaciar', nb_cleared: 'Cuaderno de {lang} vaciado.', lvl_A0: 'Empiezo desde cero', lvl_A1: 'Entiendo y uso frases muy sencillas', lvl_A2: 'Hablo de cosas cotidianas con frases cortas', lvl_B1: 'Puedo hablar en detalle sobre temas cotidianos', lvl_B2: 'Converso con fluidez sobre muchos temas', lvl_C1: 'Me expreso con facilidad, también en el trabajo', lvl_C2: 'Hablo como un nativo, con matices', goal_travel: 'Viajar', goal_abroad: 'Vivir en el extranjero', goal_work: 'Trabajo', goal_study: 'Estudios', goal_family: 'Familia y amigos', goal_culture: 'Cultura y ocio', goal_exam: 'Examen o certificado', goal_none: 'Sin objetivo definido', pf_b_personal: '👤 Personal', pf_b_study: '📚 Estudio', pf_b_look: '🎨 Apariencia', pf_b_help: '💬 Contacto y ayuda', contact_btn: '✉️ Escribir a la Parlia', langs_title: 'Idiomas', langs_current: 'Estudiando ahora', langs_more: 'Más idiomas', langs_modes: 'Modo de práctica', modes_themes: '🎭 Temas', lang_lessons: '{d} de {total} lecciones', lang_nb: '📒 {n} en el Cuaderno', lang_new: 'Aún no empezaste', level_label: 'Nivel', goal_label: 'Objetivo', contact_subject: 'Parlia — contacto', contact_body: 'Escribe aquí tu mensaje:', contact_device: 'Dispositivo', contact_version: 'Versión', contact_lang: 'Idioma que estudias', contact_ui: 'Lengua de la interfaz', level_goal_q: 'Nivel y objetivo en cada idioma', backup_label: 'Copia de seguridad (perfil, foto, cuaderno, racha, lecciones y pruebas; sin la clave API):',
     export_btn: '⬇️ Exportar mis datos', import_btn: '⬆️ Importar mis datos', name_required: 'Escribe tu nombre', yes_replace: 'Sustituir', yes_update: 'Actualizar', keep_btn: 'Mantener',
     lang_es: 'Español', lang_en: 'Inglés', lang_fr: 'Francés', lang_it: 'Italiano', lang_pt: 'Portugués', lang_de: "Alemán",
     nb_title: '📒 Mi cuaderno', nb_sort_recent: 'Más recientes', nb_sort_count: 'Más repetidos', nb_times: 'Repetido {n} veces', tab_errors: 'Mis errores', tab_saved: 'Guardadas',
@@ -2080,14 +2083,14 @@ const I18N = {
     key_note_html: 'Get your free key at:<br><a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a><br><br>The key is stored only on your phone (localStorage).<br>Nobody else has access to it.',
     key_invalid: 'The key must start with "sk-ant-". Please check it and try again.',
     profile_title: 'Your profile', profile_text: 'Lia uses this information to call you by your name and adapt the conversation to your level. It is stored only on this phone.',
-    native_q: 'My language (explanations, menus and translations):', name_q: 'What is your name?', interests_q: 'What do you like? (choose as many as you want)', int_culinaria: 'Cooking', int_viagens: 'Travel', int_musica: 'Music', int_cinema: 'Films and TV series', int_esportes: 'Sports', int_trabalho: 'Work and business', int_familia: 'Family', int_natureza: 'Nature', int_tecnologia: 'Technology', int_moda: 'Fashion and beauty', int_leitura: 'Reading', int_saude: 'Health and wellbeing', int_estilo: 'Lifestyle', int_arte: 'Art and design', int_fotografia: 'Photography', int_animais: 'Animals', int_idiomas: 'Languages and cultures', int_espiritualidade: 'Spirituality', int_empreendedorismo: 'Entrepreneurship', int_jogos: 'Games', int_decoracao: 'Home decor', int_carros: 'Cars', likes_more_q: 'Tell me more about what you like (optional)', likes_more_ph: 'e.g. novels, K-dramas, AI, sustainable fashion, jazz', name_ph: 'E.g.: Eliana',
+    native_q: 'Explanation language (Lia explains, corrects and translates in it; also the menus):', name_q: 'What is your name?', interests_q: 'What do you like? (choose as many as you want)', int_culinaria: 'Cooking', int_viagens: 'Travel', int_musica: 'Music', int_cinema: 'Films and TV series', int_esportes: 'Sports', int_trabalho: 'Work and business', int_familia: 'Family', int_natureza: 'Nature', int_tecnologia: 'Technology', int_moda: 'Fashion and beauty', int_leitura: 'Reading', int_saude: 'Health and wellbeing', int_estilo: 'Lifestyle', int_arte: 'Art and design', int_fotografia: 'Photography', int_animais: 'Animals', int_idiomas: 'Languages and cultures', int_espiritualidade: 'Spirituality', int_empreendedorismo: 'Entrepreneurship', int_jogos: 'Games', int_decoracao: 'Home decor', int_carros: 'Cars', likes_more_q: 'Tell me more about what you like (optional)', likes_more_ph: 'e.g. novels, K-dramas, AI, sustainable fashion, jazz', name_ph: 'E.g.: Eliana',
     city_q: 'City where you live', city_ph: 'E.g.: Huelva', level_q: 'Your level in each language:',
     lvl_iniciante: 'beginner', 'lvl_básico': 'elementary', 'lvl_intermediário': 'intermediate', 'lvl_avançado': 'advanced',
     speed_q: 'Lia’s voice speed:', speed_lenta: 'Slow', speed_normal: 'Normal', speed_rapida: 'Fast',
     accent_q: 'Spanish accent (voice and vocabulary):', accent_es: 'Spain', accent_latam: 'Latin America',
     ptvar_q: 'Portuguese variant (voice, vocabulary and corrections):', ptvar_br: 'Brazil', ptvar_pt: 'Portugal',
     style_q: 'Lia’s style:', style_friendly: 'Friendly', style_formal: 'Formal', style_fun: 'Fun',
-    save_btn: 'Save and start →', lvls_A0: 'Starter', lvls_A1: 'Beginner', lvls_A2: 'Elementary', lvls_B1: 'Intermediate', lvls_B2: 'Upper intermediate', lvls_C1: 'Advanced', lvls_C2: 'Proficient', test_diff: 'Your test result was {level}. Update?', nb_clear: 'Clear this language’s Notebook', nb_clear_q: 'Clear the {lang} Notebook?', nb_clear_sub: 'The mistakes and saved sentences for this language will be deleted.', nb_clear_yes: 'Clear', nb_cleared: '{lang} Notebook cleared.', lvl_A0: 'I’m starting from zero', lvl_A1: 'I understand and use very simple phrases', lvl_A2: 'I talk about everyday things in short sentences', lvl_B1: 'I can talk in detail about everyday topics', lvl_B2: 'I speak fluently about many topics', lvl_C1: 'I express myself easily, also at work', lvl_C2: 'I speak like a native, with nuance', goal_travel: 'Travel', goal_abroad: 'Living abroad', goal_work: 'Work', goal_study: 'Studies', goal_family: 'Family and friends', goal_culture: 'Culture and leisure', goal_exam: 'Exam or certificate', goal_none: 'No set goal', pf_b_personal: '👤 Personal', pf_b_study: '📚 Study', pf_b_look: '🎨 Appearance', pf_b_help: '💬 Contact and help', contact_btn: '✉️ Contact Parlia', langs_title: 'Languages', langs_current: 'Studying now', langs_more: 'More languages', langs_modes: 'Practice mode', modes_themes: '🎭 Topics', lang_lessons: '{d} of {total} lessons', lang_nb: '📒 {n} in your Notebook', lang_new: 'Not started yet', level_label: 'Level', goal_label: 'Goal', contact_subject: 'Parlia — contact', contact_body: 'Write your message here:', contact_device: 'Device', contact_version: 'Version', contact_lang: 'Language studied', contact_ui: 'Interface language', level_goal_q: 'Level and goal for each language', backup_label: 'Backup (profile, photo, notebook, streak, lessons and tests; without the API key):',
+    save_btn: 'Save and start →', lang_ptbr: 'Portuguese (Brazil)', lang_ptpt: 'Portuguese (Portugal)', lang_blocked: 'It’s your explanation language — change it in your Profile', lvls_A0: 'Starter', lvls_A1: 'Beginner', lvls_A2: 'Elementary', lvls_B1: 'Intermediate', lvls_B2: 'Upper intermediate', lvls_C1: 'Advanced', lvls_C2: 'Proficient', test_diff: 'Your test result was {level}. Update?', nb_clear: 'Clear this language’s Notebook', nb_clear_q: 'Clear the {lang} Notebook?', nb_clear_sub: 'The mistakes and saved sentences for this language will be deleted.', nb_clear_yes: 'Clear', nb_cleared: '{lang} Notebook cleared.', lvl_A0: 'I’m starting from zero', lvl_A1: 'I understand and use very simple phrases', lvl_A2: 'I talk about everyday things in short sentences', lvl_B1: 'I can talk in detail about everyday topics', lvl_B2: 'I speak fluently about many topics', lvl_C1: 'I express myself easily, also at work', lvl_C2: 'I speak like a native, with nuance', goal_travel: 'Travel', goal_abroad: 'Living abroad', goal_work: 'Work', goal_study: 'Studies', goal_family: 'Family and friends', goal_culture: 'Culture and leisure', goal_exam: 'Exam or certificate', goal_none: 'No set goal', pf_b_personal: '👤 Personal', pf_b_study: '📚 Study', pf_b_look: '🎨 Appearance', pf_b_help: '💬 Contact and help', contact_btn: '✉️ Contact Parlia', langs_title: 'Languages', langs_current: 'Studying now', langs_more: 'More languages', langs_modes: 'Practice mode', modes_themes: '🎭 Topics', lang_lessons: '{d} of {total} lessons', lang_nb: '📒 {n} in your Notebook', lang_new: 'Not started yet', level_label: 'Level', goal_label: 'Goal', contact_subject: 'Parlia — contact', contact_body: 'Write your message here:', contact_device: 'Device', contact_version: 'Version', contact_lang: 'Language studied', contact_ui: 'Interface language', level_goal_q: 'Level and goal for each language', backup_label: 'Backup (profile, photo, notebook, streak, lessons and tests; without the API key):',
     export_btn: '⬇️ Export my data', import_btn: '⬆️ Import my data', name_required: 'Write your name', yes_replace: 'Replace', yes_update: 'Update', keep_btn: 'Keep',
     lang_es: 'Spanish', lang_en: 'English', lang_fr: 'French', lang_it: 'Italian', lang_pt: 'Portuguese', lang_de: "German",
     nb_title: '📒 My notebook', nb_sort_recent: 'Most recent', nb_sort_count: 'Most repeated', nb_times: 'Repeated {n} times', tab_errors: 'My mistakes', tab_saved: 'Saved',
@@ -2142,14 +2145,14 @@ const I18N = {
     key_note_html: 'Obtiens ta clé gratuite sur :<br><a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a><br><br>La clé est enregistrée uniquement sur ton téléphone (localStorage).<br>Personne d’autre n’y a accès.',
     key_invalid: 'La clé doit commencer par « sk-ant- ». Vérifie-la et réessaie.',
     profile_title: 'Ton profil', profile_text: 'Lia utilise ces informations pour t’appeler par ton prénom et adapter la conversation à ton niveau. Elles sont enregistrées uniquement sur ce téléphone.',
-    native_q: 'Ma langue (explications, menus et traductions) :', name_q: 'Comment tu t’appelles ?', interests_q: 'Qu’est-ce que tu aimes ? (plusieurs choix possibles)', int_culinaria: 'Cuisine', int_viagens: 'Voyages', int_musica: 'Musique', int_cinema: 'Cinéma et séries', int_esportes: 'Sport', int_trabalho: 'Travail et affaires', int_familia: 'Famille', int_natureza: 'Nature', int_tecnologia: 'Technologie', int_moda: 'Mode et beauté', int_leitura: 'Lecture', int_saude: 'Santé et bien-être', int_estilo: 'Art de vivre', int_arte: 'Art et design', int_fotografia: 'Photographie', int_animais: 'Animaux', int_idiomas: 'Langues et cultures', int_espiritualidade: 'Spiritualité', int_empreendedorismo: 'Entrepreneuriat', int_jogos: 'Jeux', int_decoracao: 'Décoration', int_carros: 'Voitures', likes_more_q: 'Dis-en plus sur tes goûts (facultatif)', likes_more_ph: 'ex. : romans, K-dramas, IA, mode durable, jazz', name_ph: 'Ex. : Eliana',
+    native_q: 'Langue des explications (Lia explique, corrige et traduit dans cette langue ; aussi les menus) :', name_q: 'Comment tu t’appelles ?', interests_q: 'Qu’est-ce que tu aimes ? (plusieurs choix possibles)', int_culinaria: 'Cuisine', int_viagens: 'Voyages', int_musica: 'Musique', int_cinema: 'Cinéma et séries', int_esportes: 'Sport', int_trabalho: 'Travail et affaires', int_familia: 'Famille', int_natureza: 'Nature', int_tecnologia: 'Technologie', int_moda: 'Mode et beauté', int_leitura: 'Lecture', int_saude: 'Santé et bien-être', int_estilo: 'Art de vivre', int_arte: 'Art et design', int_fotografia: 'Photographie', int_animais: 'Animaux', int_idiomas: 'Langues et cultures', int_espiritualidade: 'Spiritualité', int_empreendedorismo: 'Entrepreneuriat', int_jogos: 'Jeux', int_decoracao: 'Décoration', int_carros: 'Voitures', likes_more_q: 'Dis-en plus sur tes goûts (facultatif)', likes_more_ph: 'ex. : romans, K-dramas, IA, mode durable, jazz', name_ph: 'Ex. : Eliana',
     city_q: 'Ville où tu habites', city_ph: 'Ex. : Huelva', level_q: 'Ton niveau dans chaque langue :',
     lvl_iniciante: 'débutant', 'lvl_básico': 'élémentaire', 'lvl_intermediário': 'intermédiaire', 'lvl_avançado': 'avancé',
     speed_q: 'Vitesse de la voix de Lia :', speed_lenta: 'Lente', speed_normal: 'Normale', speed_rapida: 'Rapide',
     accent_q: 'Accent de l’espagnol (voix et vocabulaire) :', accent_es: 'Espagne', accent_latam: 'Amérique latine',
     ptvar_q: 'Variante du portugais (voix, vocabulaire et corrections) :', ptvar_br: 'Brésil', ptvar_pt: 'Portugal',
     style_q: 'Style de Lia :', style_friendly: 'Sympathique', style_formal: 'Formel', style_fun: 'Drôle',
-    save_btn: 'Enregistrer et commencer →', lvls_A0: 'De zéro', lvls_A1: 'Débutant', lvls_A2: 'Élémentaire', lvls_B1: 'Intermédiaire', lvls_B2: 'Intermédiaire avancé', lvls_C1: 'Avancé', lvls_C2: 'Maîtrise', test_diff: 'Ton test a donné {level}. Mettre à jour ?', nb_clear: 'Vider le Carnet de cette langue', nb_clear_q: 'Vider le Carnet de {lang} ?', nb_clear_sub: 'Les erreurs et les phrases enregistrées de cette langue seront effacées.', nb_clear_yes: 'Vider', nb_cleared: 'Carnet de {lang} vidé.', lvl_A0: 'Je commence de zéro', lvl_A1: 'Je comprends et j’utilise des phrases très simples', lvl_A2: 'Je parle du quotidien avec des phrases courtes', lvl_B1: 'Je peux parler en détail de sujets du quotidien', lvl_B2: 'Je parle avec aisance de nombreux sujets', lvl_C1: 'Je m’exprime facilement, même au travail', lvl_C2: 'Je parle comme un natif, avec des nuances', goal_travel: 'Voyager', goal_abroad: 'Vivre à l’étranger', goal_work: 'Travail', goal_study: 'Études', goal_family: 'Famille et amis', goal_culture: 'Culture et loisirs', goal_exam: 'Examen ou certificat', goal_none: 'Pas d’objectif défini', pf_b_personal: '👤 Personnel', pf_b_study: '📚 Études', pf_b_look: '🎨 Apparence', pf_b_help: '💬 Contact et aide', contact_btn: '✉️ Écrire à Parlia', langs_title: 'Langues', langs_current: 'En cours', langs_more: 'Autres langues', langs_modes: 'Mode de pratique', modes_themes: '🎭 Thèmes', lang_lessons: '{d} leçons sur {total}', lang_nb: '📒 {n} dans le Carnet', lang_new: 'Pas encore commencé', level_label: 'Niveau', goal_label: 'Objectif', contact_subject: 'Parlia — contact', contact_body: 'Écris ton message ici :', contact_device: 'Appareil', contact_version: 'Version', contact_lang: 'Langue étudiée', contact_ui: 'Langue de l’interface', level_goal_q: 'Niveau et objectif pour chaque langue', backup_label: 'Sauvegarde (profil, photo, carnet, série, leçons et tests ; sans la clé API) :',
+    save_btn: 'Enregistrer et commencer →', lang_ptbr: 'Portugais (Brésil)', lang_ptpt: 'Portugais (Portugal)', lang_blocked: 'C’est ta langue des explications — change-la dans le Profil', lvls_A0: 'De zéro', lvls_A1: 'Débutant', lvls_A2: 'Élémentaire', lvls_B1: 'Intermédiaire', lvls_B2: 'Intermédiaire avancé', lvls_C1: 'Avancé', lvls_C2: 'Maîtrise', test_diff: 'Ton test a donné {level}. Mettre à jour ?', nb_clear: 'Vider le Carnet de cette langue', nb_clear_q: 'Vider le Carnet de {lang} ?', nb_clear_sub: 'Les erreurs et les phrases enregistrées de cette langue seront effacées.', nb_clear_yes: 'Vider', nb_cleared: 'Carnet de {lang} vidé.', lvl_A0: 'Je commence de zéro', lvl_A1: 'Je comprends et j’utilise des phrases très simples', lvl_A2: 'Je parle du quotidien avec des phrases courtes', lvl_B1: 'Je peux parler en détail de sujets du quotidien', lvl_B2: 'Je parle avec aisance de nombreux sujets', lvl_C1: 'Je m’exprime facilement, même au travail', lvl_C2: 'Je parle comme un natif, avec des nuances', goal_travel: 'Voyager', goal_abroad: 'Vivre à l’étranger', goal_work: 'Travail', goal_study: 'Études', goal_family: 'Famille et amis', goal_culture: 'Culture et loisirs', goal_exam: 'Examen ou certificat', goal_none: 'Pas d’objectif défini', pf_b_personal: '👤 Personnel', pf_b_study: '📚 Études', pf_b_look: '🎨 Apparence', pf_b_help: '💬 Contact et aide', contact_btn: '✉️ Écrire à Parlia', langs_title: 'Langues', langs_current: 'En cours', langs_more: 'Autres langues', langs_modes: 'Mode de pratique', modes_themes: '🎭 Thèmes', lang_lessons: '{d} leçons sur {total}', lang_nb: '📒 {n} dans le Carnet', lang_new: 'Pas encore commencé', level_label: 'Niveau', goal_label: 'Objectif', contact_subject: 'Parlia — contact', contact_body: 'Écris ton message ici :', contact_device: 'Appareil', contact_version: 'Version', contact_lang: 'Langue étudiée', contact_ui: 'Langue de l’interface', level_goal_q: 'Niveau et objectif pour chaque langue', backup_label: 'Sauvegarde (profil, photo, carnet, série, leçons et tests ; sans la clé API) :',
     export_btn: '⬇️ Exporter mes données', import_btn: '⬆️ Importer mes données', name_required: 'Écris ton prénom', yes_replace: 'Remplacer', yes_update: 'Mettre à jour', keep_btn: 'Garder',
     lang_es: 'Espagnol', lang_en: 'Anglais', lang_fr: 'Français', lang_it: 'Italien', lang_pt: 'Portugais', lang_de: "Allemand",
     nb_title: '📒 Mon carnet', nb_sort_recent: 'Plus récents', nb_sort_count: 'Plus fréquents', nb_times: 'Répété {n} fois', tab_errors: 'Mes erreurs', tab_saved: 'Enregistrées',
@@ -2204,14 +2207,14 @@ const I18N = {
     key_note_html: 'Ottieni la tua chiave gratuita su:<br><a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a><br><br>La chiave è salvata solo sul tuo telefono (localStorage).<br>Nessun altro vi ha accesso.',
     key_invalid: 'La chiave deve iniziare con "sk-ant-". Controllala e riprova.',
     profile_title: 'Il tuo profilo', profile_text: 'Lia usa questi dati per chiamarti per nome e adattare la conversazione al tuo livello. Sono salvati solo su questo telefono.',
-    native_q: 'La mia lingua (spiegazioni, menu e traduzioni):', name_q: 'Come ti chiami?', interests_q: 'Cosa ti piace? (puoi sceglierne più di uno)', int_culinaria: 'Cucina', int_viagens: 'Viaggi', int_musica: 'Musica', int_cinema: 'Cinema e serie TV', int_esportes: 'Sport', int_trabalho: 'Lavoro e affari', int_familia: 'Famiglia', int_natureza: 'Natura', int_tecnologia: 'Tecnologia', int_moda: 'Moda e bellezza', int_leitura: 'Lettura', int_saude: 'Salute e benessere', int_estilo: 'Stile di vita', int_arte: 'Arte e design', int_fotografia: 'Fotografia', int_animais: 'Animali', int_idiomas: 'Lingue e culture', int_espiritualidade: 'Spiritualità', int_empreendedorismo: 'Imprenditoria', int_jogos: 'Giochi', int_decoracao: 'Arredamento', int_carros: 'Auto', likes_more_q: 'Raccontami di più sui tuoi gusti (facoltativo)', likes_more_ph: 'es.: romanzi, K-drama, IA, moda sostenibile, jazz', name_ph: 'Es.: Eliana',
+    native_q: 'Lingua delle spiegazioni (Lia spiega, corregge e traduce in questa lingua; anche i menu):', name_q: 'Come ti chiami?', interests_q: 'Cosa ti piace? (puoi sceglierne più di uno)', int_culinaria: 'Cucina', int_viagens: 'Viaggi', int_musica: 'Musica', int_cinema: 'Cinema e serie TV', int_esportes: 'Sport', int_trabalho: 'Lavoro e affari', int_familia: 'Famiglia', int_natureza: 'Natura', int_tecnologia: 'Tecnologia', int_moda: 'Moda e bellezza', int_leitura: 'Lettura', int_saude: 'Salute e benessere', int_estilo: 'Stile di vita', int_arte: 'Arte e design', int_fotografia: 'Fotografia', int_animais: 'Animali', int_idiomas: 'Lingue e culture', int_espiritualidade: 'Spiritualità', int_empreendedorismo: 'Imprenditoria', int_jogos: 'Giochi', int_decoracao: 'Arredamento', int_carros: 'Auto', likes_more_q: 'Raccontami di più sui tuoi gusti (facoltativo)', likes_more_ph: 'es.: romanzi, K-drama, IA, moda sostenibile, jazz', name_ph: 'Es.: Eliana',
     city_q: 'Città dove vivi', city_ph: 'Es.: Huelva', level_q: 'Il tuo livello in ogni lingua:',
     lvl_iniciante: 'principiante', 'lvl_básico': 'elementare', 'lvl_intermediário': 'intermedio', 'lvl_avançado': 'avanzato',
     speed_q: 'Velocità della voce di Lia:', speed_lenta: 'Lenta', speed_normal: 'Normale', speed_rapida: 'Veloce',
     accent_q: 'Accento dello spagnolo (voce e vocabolario):', accent_es: 'Spagna', accent_latam: 'America Latina',
     ptvar_q: 'Variante del portoghese (voce, vocabolario e correzioni):', ptvar_br: 'Brasile', ptvar_pt: 'Portogallo',
     style_q: 'Stile di Lia:', style_friendly: 'Amichevole', style_formal: 'Formale', style_fun: 'Divertente',
-    save_btn: 'Salva e inizia →', lvls_A0: 'Da zero', lvls_A1: 'Principiante', lvls_A2: 'Elementare', lvls_B1: 'Intermedio', lvls_B2: 'Intermedio avanzato', lvls_C1: 'Avanzato', lvls_C2: 'Padronanza', test_diff: 'Il tuo test ha dato {level}. Aggiornare?', nb_clear: 'Svuota il Quaderno di questa lingua', nb_clear_q: 'Svuotare il Quaderno di {lang}?', nb_clear_sub: 'Gli errori e le frasi salvate di questa lingua saranno cancellati.', nb_clear_yes: 'Svuota', nb_cleared: 'Quaderno di {lang} svuotato.', lvl_A0: 'Comincio da zero', lvl_A1: 'Capisco e uso frasi molto semplici', lvl_A2: 'Parlo della vita quotidiana con frasi brevi', lvl_B1: 'Posso parlare in dettaglio di temi quotidiani', lvl_B2: 'Converso con scioltezza su molti temi', lvl_C1: 'Mi esprimo con facilità, anche al lavoro', lvl_C2: 'Parlo come un madrelingua, con sfumature', goal_travel: 'Viaggiare', goal_abroad: 'Vivere all’estero', goal_work: 'Lavoro', goal_study: 'Studio', goal_family: 'Famiglia e amici', goal_culture: 'Cultura e tempo libero', goal_exam: 'Esame o certificato', goal_none: 'Nessun obiettivo', pf_b_personal: '👤 Personale', pf_b_study: '📚 Studio', pf_b_look: '🎨 Aspetto', pf_b_help: '💬 Contatti e aiuto', contact_btn: '✉️ Scrivi a Parlia', langs_title: 'Lingue', langs_current: 'Stai studiando', langs_more: 'Altre lingue', langs_modes: 'Modalità di pratica', modes_themes: '🎭 Temi', lang_lessons: '{d} lezioni su {total}', lang_nb: '📒 {n} nel Quaderno', lang_new: 'Non ancora iniziata', level_label: 'Livello', goal_label: 'Obiettivo', contact_subject: 'Parlia — contatto', contact_body: 'Scrivi qui il tuo messaggio:', contact_device: 'Dispositivo', contact_version: 'Versione', contact_lang: 'Lingua studiata', contact_ui: 'Lingua dell’interfaccia', level_goal_q: 'Livello e obiettivo per ogni lingua', backup_label: 'Backup (profilo, foto, quaderno, serie, lezioni e test; senza la chiave API):',
+    save_btn: 'Salva e inizia →', lang_ptbr: 'Portoghese (Brasile)', lang_ptpt: 'Portoghese (Portogallo)', lang_blocked: 'È la tua lingua delle spiegazioni — cambiala nel Profilo', lvls_A0: 'Da zero', lvls_A1: 'Principiante', lvls_A2: 'Elementare', lvls_B1: 'Intermedio', lvls_B2: 'Intermedio avanzato', lvls_C1: 'Avanzato', lvls_C2: 'Padronanza', test_diff: 'Il tuo test ha dato {level}. Aggiornare?', nb_clear: 'Svuota il Quaderno di questa lingua', nb_clear_q: 'Svuotare il Quaderno di {lang}?', nb_clear_sub: 'Gli errori e le frasi salvate di questa lingua saranno cancellati.', nb_clear_yes: 'Svuota', nb_cleared: 'Quaderno di {lang} svuotato.', lvl_A0: 'Comincio da zero', lvl_A1: 'Capisco e uso frasi molto semplici', lvl_A2: 'Parlo della vita quotidiana con frasi brevi', lvl_B1: 'Posso parlare in dettaglio di temi quotidiani', lvl_B2: 'Converso con scioltezza su molti temi', lvl_C1: 'Mi esprimo con facilità, anche al lavoro', lvl_C2: 'Parlo come un madrelingua, con sfumature', goal_travel: 'Viaggiare', goal_abroad: 'Vivere all’estero', goal_work: 'Lavoro', goal_study: 'Studio', goal_family: 'Famiglia e amici', goal_culture: 'Cultura e tempo libero', goal_exam: 'Esame o certificato', goal_none: 'Nessun obiettivo', pf_b_personal: '👤 Personale', pf_b_study: '📚 Studio', pf_b_look: '🎨 Aspetto', pf_b_help: '💬 Contatti e aiuto', contact_btn: '✉️ Scrivi a Parlia', langs_title: 'Lingue', langs_current: 'Stai studiando', langs_more: 'Altre lingue', langs_modes: 'Modalità di pratica', modes_themes: '🎭 Temi', lang_lessons: '{d} lezioni su {total}', lang_nb: '📒 {n} nel Quaderno', lang_new: 'Non ancora iniziata', level_label: 'Livello', goal_label: 'Obiettivo', contact_subject: 'Parlia — contatto', contact_body: 'Scrivi qui il tuo messaggio:', contact_device: 'Dispositivo', contact_version: 'Versione', contact_lang: 'Lingua studiata', contact_ui: 'Lingua dell’interfaccia', level_goal_q: 'Livello e obiettivo per ogni lingua', backup_label: 'Backup (profilo, foto, quaderno, serie, lezioni e test; senza la chiave API):',
     export_btn: '⬇️ Esporta i miei dati', import_btn: '⬆️ Importa i miei dati', name_required: 'Scrivi il tuo nome', yes_replace: 'Sostituire', yes_update: 'Aggiornare', keep_btn: 'Mantenere',
     lang_es: 'Spagnolo', lang_en: 'Inglese', lang_fr: 'Francese', lang_it: 'Italiano', lang_pt: 'Portoghese', lang_de: "Tedesco",
     nb_title: '📒 Il mio quaderno', nb_sort_recent: 'Più recenti', nb_sort_count: 'Più ripetuti', nb_times: 'Ripetuto {n} volte', tab_errors: 'I miei errori', tab_saved: 'Salvate',
@@ -2329,8 +2332,8 @@ function t(key, vars) {
   if (vars) Object.keys(vars).forEach(k => { s = s.split('{' + k + '}').join(vars[k]); });
   return s;
 }
-function langUI(code) { return t('lang_' + code); }
-function visibleLangs() { const hide = nativeInfo().hide; return LANGS.filter(l => l.code !== hide); }
+function langUI(code) { if (code === 'ptpt') return t('lang_ptpt'); if (code === 'pt') return t(ptIsPT() ? 'lang_ptpt' : 'lang_ptbr'); return t('lang_' + code); }
+function visibleLangs() { const hide = nativeStudyId(); return LANGS.filter(l => l.code !== hide); }
 
 // Aplica o dicionário a todos os elementos marcados com data-i18n*.
 function applyI18n() {
@@ -2395,24 +2398,24 @@ function renderLangScreen() {
   cur.innerHTML = '';
   const c = document.createElement('div'); c.className = 'ls-card current';
   c.innerHTML = '<div class="ls-flag"></div><div class="ls-info"><div class="ls-name"></div><div class="ls-line"></div><div class="ls-prog"></div></div>';
-  c.querySelector('.ls-flag').textContent = langFlag(currentLang);
-  c.querySelector('.ls-name').textContent = langUI(currentLang);
-  c.querySelector('.ls-line').textContent = line(currentLang);
-  c.querySelector('.ls-prog').textContent = prog(currentLang);
+  c.querySelector('.ls-flag').textContent = langFlagId(SID());
+  c.querySelector('.ls-name').textContent = langNameId(SID());
+  c.querySelector('.ls-line').textContent = line(SID());
+  c.querySelector('.ls-prog').textContent = prog(SID());
   const sels = document.createElement('div'); sels.className = 'ls-sels';
   const mk = (label, opts, val, fn) => { const w = document.createElement('label'); w.className = 'ls-sel'; const s = document.createElement('span'); s.textContent = label; const se = document.createElement('select'); se.className = 'api-select';
     opts.forEach(([v, tx]) => { const o = document.createElement('option'); o.value = v; o.textContent = tx; se.appendChild(o); }); se.value = val; se.onchange = () => { fn(se.value); renderLangScreen(); }; if (label === t('level_label')) shortLevelSelect(se); w.append(s, se); return w; };
-  sels.append(mk(t('level_label'), LEVELS.map(v => [v, lvlLabel(v)]), curLevel(), v => setLangLevel(currentLang, v)),
-    mk(t('goal_label'), [['', t('goal_none')], ...GOALS.map(g => [g, t('goal_' + g)])], curGoal(), g => setLangGoal(currentLang, g)));
+  sels.append(mk(t('level_label'), LEVELS.map(v => [v, lvlLabel(v)]), curLevel(), v => setLangLevel(SID(), v)),
+    mk(t('goal_label'), [['', t('goal_none')], ...GOALS.map(g => [g, t('goal_' + g)])], curGoal(), g => setLangGoal(SID(), g)));
   c.appendChild(sels);
-  const td = testDiffRow(currentLang, () => curLevel(), v => { setLangLevel(currentLang, v); renderLangScreen(); });
+  const td = testDiffRow(SID(), () => curLevel(), v => { setLangLevel(SID(), v); renderLangScreen(); });
   if (td) c.appendChild(td);
   // ── 5) Limpar o Caderno deste idioma (com confirmação)
   const nbl = document.createElement('button'); nbl.className = 'ls-link'; nbl.textContent = t('nb_clear');
   nbl.onclick = () => askChoice(t('nb_clear_q', { lang: langUI(currentLang) }), t('nb_clear_sub'), t('nb_clear_yes'), () => {
-    const nb = nbLoad(); delete nb[currentLang]; nbStore(nb); renderLangScreen(); showToast(t('nb_cleared', { lang: langUI(currentLang) }));
+    const nb = nbLoad(); delete nb[SID()]; nbStore(nb); renderLangScreen(); showToast(t('nb_cleared', { lang: langUI(currentLang) }));
   }, t('lz_cancel'), null);
-  if (langProgress(currentLang).nb) c.appendChild(nbl);
+  if (langProgress(SID()).nb) c.appendChild(nbl);
   cur.appendChild(c);
   // Modos (só a partir da conversa)
   document.getElementById('ls-modes-wrap').style.display = langScreenFromChat ? '' : 'none';
@@ -2421,14 +2424,15 @@ function renderLangScreen() {
     const b = document.createElement('button'); b.className = 'topic-pill'; b.textContent = tx; b.onclick = () => closeLangScreen(fn); modes.appendChild(b); });
   // Mais idiomas
   more.innerHTML = '';
-  visibleLangs().filter(l => l.code !== currentLang).forEach(l => {
-    const r = document.createElement('button'); r.className = 'ls-card';
+  LANGS.filter(l => l.code !== SID()).forEach(l => {
+    const blocked = l.code === nativeStudyId();
+    const r = document.createElement('button'); r.className = 'ls-card' + (blocked ? ' blocked' : '');
     r.innerHTML = '<div class="ls-flag"></div><div class="ls-info"><div class="ls-name"></div><div class="ls-line"></div><div class="ls-prog"></div></div><div class="ls-go">›</div>';
-    r.querySelector('.ls-flag').textContent = langFlag(l.code);
-    r.querySelector('.ls-name').textContent = langUI(l.code);
-    r.querySelector('.ls-line').textContent = line(l.code);
-    r.querySelector('.ls-prog').textContent = prog(l.code);
-    r.onclick = () => closeLangScreen(() => setLang(l.code));
+    r.querySelector('.ls-flag').textContent = langFlagId(l.code);
+    r.querySelector('.ls-name').textContent = langNameId(l.code);
+    r.querySelector('.ls-line').textContent = blocked ? '' : line(l.code);
+    r.querySelector('.ls-prog').textContent = blocked ? t('lang_blocked') : prog(l.code);
+    if (blocked) { r.disabled = true; r.querySelector('.ls-go').textContent = ''; } else r.onclick = () => closeLangScreen(() => setLang(l.code));
     more.appendChild(r);
   });
 }
@@ -2437,9 +2441,9 @@ function renderLangScreen() {
 function ensureVisibleLang() {
   applyLangVars();
   refreshTopicPills(); // cenários do idioma guardado, logo ao abrir
-  if (visibleLangs().some(l => l.code === currentLang)) return;
+  if (visibleLangs().some(l => l.code === SID())) return;
   const l = visibleLangs()[0];
-  currentLang = l.code; applyLangVars();
+  setStudyId(l.code); applyLangVars();
   { const tp = document.querySelector(`.topic-pill[data-topic="${currentTopic}"]`); if (tp && !pillVisible(tp)) currentTopic = 'Free conversation'; } // cenário que não existe neste idioma
   refreshTopicPills();
 }
@@ -2543,6 +2547,18 @@ function loadProfile() {
     const lv = {}; Object.entries(p.levels).forEach(([k, v]) => { lv[k] = normLevel(v) || 'A1'; }); p.levels = lv;
     try { store.setItem('tutora_profile', JSON.stringify(p)); } catch(e) {}
   }
+  if (p && !p.ptSplit) {
+    if (p.ptVariant === 'Portugal') {
+      const mv = (o, k) => { if (o && typeof o === 'object' && o.pt !== undefined) { o.ptpt = o.pt; delete o.pt; return true; } return false; };
+      mv(p.levels); mv(p.goals);
+      for (const key of ['tutora_zero', 'tutora_caderno', 'tutora_licao', 'tutora_teste']) {
+        try { const o = JSON.parse(store.getItem(key) || 'null'); if (o && mv(o)) store.setItem(key, JSON.stringify(o)); } catch(e) {}
+      }
+      try { if (store.getItem('tutora_idioma') === 'pt') store.setItem('tutora_idioma', 'ptpt'); } catch(e) {}
+    }
+    p.ptSplit = true;
+    try { store.setItem('tutora_profile', JSON.stringify(p)); } catch(e) {}
+  }
   return p;
 }
 function renderLevelGrid(levels) {
@@ -2550,13 +2566,11 @@ function renderLevelGrid(levels) {
   const cur = {};
   LANGS.forEach(l => { const s = document.getElementById('pf-lv-' + l.code); if (s) cur[l.code] = s.value; });
   grid.innerHTML = '';
-  // "Variante do português" só aparece quando o português está disponível para aprender.
-  document.getElementById('pf-ptvar-wrap').style.display = visibleLangs().some(l => l.code === 'pt') ? 'contents' : 'none';
   const gcur = {}; LANGS.forEach(l => { const s = document.getElementById('pf-goal-' + l.code); if (s) gcur[l.code] = s.value; });
   visibleLangs().forEach(l => {
     const lab = document.createElement('div');
     lab.className = 'pf-lang-row';
-    const nm = document.createElement('div'); nm.className = 'pf-lang-name'; nm.textContent = langFlag(l.code) + ' ' + langUI(l.code); lab.appendChild(nm);
+    const nm = document.createElement('div'); nm.className = 'pf-lang-name'; nm.textContent = langFlagId(l.code) + ' ' + langNameId(l.code); lab.appendChild(nm);
     const gs = document.createElement('select'); gs.className = 'api-select'; gs.id = 'pf-goal-' + l.code;
     ['', ...GOALS].forEach(g => { const o = document.createElement('option'); o.value = g; o.textContent = g ? t('goal_' + g) : t('goal_none'); gs.appendChild(o); });
     gs.value = gcur[l.code] !== undefined ? gcur[l.code] : curGoal(l.code);
@@ -2585,7 +2599,6 @@ function fillProfileForm() {
   document.getElementById('pf-country-other').style.display = p.country === 'other' ? '' : 'none';
   document.getElementById('pf-speed').value = p.speed || 'normal';
   document.getElementById('pf-accent').value = p.accent || 'Espanha';
-  document.getElementById('pf-ptvar').value = p.ptVariant || 'Brasil';
   document.getElementById('pf-style').value = p.style || 'amigável';
   document.getElementById('pf-readnat').checked = !!p.readNative;
   document.getElementById('pf-precise').checked = p.precise !== false;
@@ -2642,7 +2655,7 @@ function saveProfile() {
     native: document.getElementById('pf-native').value, levels,
     speed: document.getElementById('pf-speed').value,
     accent: document.getElementById('pf-accent').value,
-    ptVariant: document.getElementById('pf-ptvar').value,
+    ptVariant: (old && old.ptVariant) || 'Brasil', ptSplit: true,
     style: document.getElementById('pf-style').value,
     readNative: document.getElementById('pf-readnat').checked,
     precise: document.getElementById('pf-precise').checked,
@@ -2651,7 +2664,7 @@ function saveProfile() {
     goals: (() => { const g = Object.assign({}, (old && old.goals) || {}); LANGS.forEach(l => { const s = document.getElementById('pf-goal-' + l.code); if (s) { if (s.value) g[l.code] = s.value; else delete g[l.code]; } }); return g; })()
   };
   uiOverride = null;
-  const langChanged = old && (getNative(old) !== PROFILE.native || (old.ptVariant || 'Brasil') !== PROFILE.ptVariant);
+  const langChanged = old && getNative(old) !== PROFILE.native;
   if (langChanged) { try { store.removeItem(LESSON_KEY); } catch(e) {} }
   try { store.setItem('tutora_profile', JSON.stringify(PROFILE)); } catch(e) {}
   commitNewProfile();
@@ -2829,7 +2842,7 @@ window.addEventListener('load', () => {
   document.getElementById('home-avatar').innerHTML = document.getElementById('avatar').innerHTML;
   PROFILE = loadProfile();
   // Idioma escolhido da última vez (se ainda estiver visível para a língua nativa).
-  try { const sl = store.getItem('tutora_idioma'); if (LANGS.some(l => l.code === sl)) currentLang = sl; } catch(e) {}
+  try { const sl = store.getItem('tutora_idioma'); if (LANGS.some(l => l.code === sl)) setStudyId(sl); } catch(e) {}
   ensureVisibleLang();
   applyI18n();
   setStatus('ready', t('st_starting'));
@@ -2938,7 +2951,7 @@ function renderHome() {
   {
     // iniciante com menos de 4 lições do Do zero concluídas → lição; 4 ou mais, ou básico → Conversa guiada;
     // intermediário ou acima → Conversar.
-    const lvl = (PROFILE.levels || {})[currentLang] || DEFAULT_LEVELS[currentLang];
+    const lvl = (PROFILE.levels || {})[SID()] || DEFAULT_LEVELS[SID()];
     const doneZero = zeroLang().done.filter(i => i < PP_START).length;
     const recId = lvlRank(lvl) <= 1 && doneZero < 4 ? 'card-continue' : lvlRank(lvl) <= 2 ? 'card-guided' : 'card-chat';
     ['card-continue', 'card-guided', 'card-chat'].forEach(id => {
@@ -2963,7 +2976,7 @@ function renderHome() {
   // Sem repetir o "Continuar" do cartão de cima: quantas lições da trilha atual estão concluídas (o Do zero; acabado, os Primeiros passos).
   { const dz = e.done.filter(i => i < PP_START).length, tr = dz >= ZERO_TOTAL && ppUnlocked() ? 1 : 0, d = tr ? e.done.filter(i => i >= PP_START).length : dz;
     document.getElementById('card-lessons-d').textContent = t('card_lessons_sub', { d, total: ZERO_TOTAL }); }
-  const last = testLoad()[currentLang], lv = last && normLevel(last.level);
+  const last = testLoad()[SID()], lv = last && normLevel(last.level);
   document.getElementById('card-test-d').textContent = lv ? t('card_test_last', { level: lv }) : t('card_test_d');
   renderPhotos();
 }
@@ -3029,13 +3042,13 @@ function slowChunks(text) {
 function setLang(code) {
   toggleChooserRow(false);
   const l = LANGS.find(x => x.code === code);
-  if (!l) return;
-  currentLang = l.code; applyLangVars();
+  if (!l || l.code === nativeStudyId()) return;
+  setStudyId(l.code); applyLangVars();
   { const tp = document.querySelector(`.topic-pill[data-topic="${currentTopic}"]`); if (tp && !pillVisible(tp)) currentTopic = 'Free conversation'; } // cenário que não existe neste idioma
   refreshTopicPills();
   try { store.setItem('tutora_idioma', l.code); } catch(e) {}
   renderLangPills();
-  document.getElementById('tip-text').textContent = (TIPS[uiLang()] || {})[code] || '';
+  document.getElementById('tip-text').textContent = (TIPS[uiLang()] || {})[currentLang] || '';
   chatHistory = []; repeatTarget = ''; repeatTries = 0; clearTranscript(); stopRecording(); ttsCancel();
   exitLesson();
   exitTest();
@@ -3239,16 +3252,16 @@ function zeroLoad() {
 }
 function zeroStore(z) { try { store.setItem(ZERO_KEY, JSON.stringify(z)); } catch(e) {} }
 function zeroLang() {
-  const e = zeroLoad()[currentLang];
+  const e = zeroLoad()[SID()];
   const cur = e && Number.isInteger(e.current) && e.current >= 0 && e.current < LESSON_COUNT ? e.current : null;
   return { done: e && Array.isArray(e.done) ? e.done.filter(n => Number.isInteger(n) && n >= 0 && n < LESSON_COUNT) : [], seen: !!(e && e.seen), current: cur };
 }
-function zeroSave(entry) { const z = zeroLoad(); z[currentLang] = entry; zeroStore(z); }
+function zeroSave(entry) { const z = zeroLoad(); z[SID()] = entry; zeroStore(z); }
 // Próxima lição por fazer na trilha (0 = Do zero, 1 = Primeiros passos).
 function nextLessonIdx(done, track) { const s = (track || 0) * PP_START; for (let i = s; i < s + ZERO_TOTAL; i++) if (!done.includes(i)) return i; return -1; }
 // Primeiros passos: disponível depois da lição 12 do Do zero, ou com nível básico ou acima no perfil.
 function ppUnlocked() {
-  const lvl = ((PROFILE && PROFILE.levels) || {})[currentLang] || DEFAULT_LEVELS[currentLang];
+  const lvl = ((PROFILE && PROFILE.levels) || {})[SID()] || DEFAULT_LEVELS[SID()];
   return zeroLang().done.includes(PP_START - 1) || lvlRank(lvl) >= 2;
 }
 
@@ -3314,11 +3327,11 @@ function renderZero() {
 }
 // Lição com conversa guardada que pode ser retomada (mesma língua nativa e variante, formato com passos).
 // Lição começada de verdade: guardada e com pelo menos uma resposta da aluna.
-function lessonStarted(i) { const s = lessonSessions()[currentLang]; return lessonResumable(i) && ((s.st && (s.st.pos > 0 || s.st.tries > 0)) || s.log.some(m => m && m.role === 'user')); }
+function lessonStarted(i) { const s = lessonSessions()[SID()]; return lessonResumable(i) && ((s.st && (s.st.pos > 0 || s.st.tries > 0)) || s.log.some(m => m && m.role === 'user')); }
 function lessonResumable(i) {
-  const s = lessonSessions()[currentLang];
+  const s = lessonSessions()[SID()];
   return !!(s && s.lesson === i && s.st && Number.isInteger(s.st.pos) && Array.isArray(s.log) && s.log.length &&
-    s.native === getNative(PROFILE) && (s.ptVariant || 'Brasil') === ((PROFILE && PROFILE.ptVariant) || 'Brasil'));
+    s.native === getNative(PROFILE) && (s.ptVariant || 'Brasil') === (ptIsPT() ? 'Portugal' : 'Brasil'));
 }
 // Tocar numa lição da lista: em andamento → "Continuar" ou "Recomeçar do início"; senão começa (as concluídas
 // também, para rever, sem perder o ✓).
@@ -3349,7 +3362,7 @@ function askChoice(q, sub, aLabel, aFn, bLabel, bFn) {
 // Na primeira vez num idioma em que o perfil diz "iniciante", abre a trilha sozinha.
 function maybeAutoZero() {
   if (!PROFILE) return false;
-  const lvl = (PROFILE.levels || {})[currentLang] || DEFAULT_LEVELS[currentLang];
+  const lvl = (PROFILE.levels || {})[SID()] || DEFAULT_LEVELS[SID()];
   if (lvlRank(lvl) <= 1 && !zeroLang().seen) { openZero(); return true; }
   return false;
 }
@@ -3362,12 +3375,12 @@ function lessonSessions() { try { const s = JSON.parse(store.getItem(LESSON_KEY)
 function saveLessonSession() {
   if (currentLesson === null || restoringLesson || lessonCompleted) return;
   const all = lessonSessions();
-  all[currentLang] = { lesson: currentLesson, native: getNative(PROFILE), ptVariant: (PROFILE && PROFILE.ptVariant) || 'Brasil', st: lessonState, history: chatHistory.slice(-60), log: lessonLog.slice(-80) };
+  all[SID()] = { lesson: currentLesson, native: getNative(PROFILE), ptVariant: ptIsPT() ? 'Portugal' : 'Brasil', st: lessonState, history: chatHistory.slice(-60), log: lessonLog.slice(-80) };
   try { store.setItem(LESSON_KEY, JSON.stringify(all)); } catch(e) {}
 }
 function clearLessonSession() {
   const all = lessonSessions();
-  delete all[currentLang];
+  delete all[SID()];
   try { store.setItem(LESSON_KEY, JSON.stringify(all)); } catch(e) {}
 }
 
@@ -3383,9 +3396,9 @@ function startLesson(i, resume) {
   chatHistory = []; repeatTarget = ''; repeatTries = 0; clearTranscript(); stopRecording(); ttsCancel();
   lessonLog = [];
   updateLessonBanner();
-  const sess = lessonSessions()[currentLang];
+  const sess = lessonSessions()[SID()];
   // Só se retoma uma conversa criada com a mesma língua nativa e a mesma variante do português.
-  const sameLang = sess && sess.native === getNative(PROFILE) && (sess.ptVariant || 'Brasil') === ((PROFILE && PROFILE.ptVariant) || 'Brasil');
+  const sameLang = sess && sess.native === getNative(PROFILE) && (sess.ptVariant || 'Brasil') === (ptIsPT() ? 'Portugal' : 'Brasil');
   if (resume !== false && sess && sess.lesson === i && !sameLang) showToast(t('lang_changed'));
   if (resume !== false && lessonResumable(i) && Array.isArray(sess.history)) {
     restoringLesson = true;
@@ -3475,8 +3488,8 @@ function chooseInterestTheme(k) {
 function changeTheme() { if (currentTopic !== 'Free conversation') currentTopic = 'Free conversation'; restartConversation(); }
 // Dica fixa do idioma: aparece no máximo 1 vez por dia por idioma (até a aluna falar ou tocar em ✕).
 function tipSeenMap() { try { return JSON.parse(localStorage.getItem('parlia_dica') || '{}'); } catch(e) { return {}; } }
-function tipDue() { return tipSeenMap()[currentLang] !== new Date().toISOString().slice(0, 10); }
-function markTipSeen() { const m = tipSeenMap(); if (m[currentLang] === new Date().toISOString().slice(0, 10)) return; m[currentLang] = new Date().toISOString().slice(0, 10); try { localStorage.setItem('parlia_dica', JSON.stringify(m)); } catch(e) {} }
+function tipDue() { return tipSeenMap()[SID()] !== new Date().toISOString().slice(0, 10); }
+function markTipSeen() { const m = tipSeenMap(); if (m[SID()] === new Date().toISOString().slice(0, 10)) return; m[SID()] = new Date().toISOString().slice(0, 10); try { localStorage.setItem('parlia_dica', JSON.stringify(m)); } catch(e) {} }
 function closeTip() { markTipSeen(); updateLessonBanner(); }
 function updateLessonBanner() {
   const el = document.getElementById('lesson-banner');
@@ -4043,7 +4056,7 @@ async function ensureGuidedTr(text) {
 // { ok, corrected, errors: [{ wrong, right, why }], pron } ou null (falha, recusa ou mais de 8 s → só o Haiku).
 async function reviewSentence(text, intended) {
   const P = PROFILE, NI = NATIVES[getNative(P)], L = currentLangName, N = P.name;
-  const lvl = (P.levels || {})[currentLang] || DEFAULT_LEVELS[currentLang];
+  const lvl = (P.levels || {})[SID()] || DEFAULT_LEVELS[SID()];
   const lastLia = stripTags(([...chatHistory].reverse().find(m => m.role === 'assistant') || {}).content || '').replace(/\s+/g, ' ').slice(0, 600);
   const system = `${langRule(NI)}
 You review ONE sentence said by ${N}, ${NI.speaker}, learning ${L} (level: ${lvlEn(lvl)}), in a CONVERSATION. ${accentRule(P)}
@@ -4075,7 +4088,7 @@ Reply ONLY with this JSON, nothing else:
 }
 // Com o revisor, o Haiku só continua a conversa: não avalia nem corrige.
 function reviewOverride(N) {
-  return `\nCORRECTIONS ARE DONE BY THE APP (this overrides every correction and repetition rule above): do NOT evaluate or correct ${N}'s message. No 📝, ➕, ✅, 💬 or 🗣️ lines, no request to repeat, and no 🎯 line${guidedMode ? ' except 🎯 CONFUSO when you really did not understand' : ''}. Never say whether it was correct (never «${tgt('correct')}», «Parfait», «C'est juste», «Très bien», «Correct», «Perfect»). Understand what ${N} meant and simply continue the conversation: a short natural reaction to the content and ONE question.`;
+  return `\nCORRECTIONS ARE DONE BY THE APP (this overrides every correction and repetition rule above): do NOT evaluate or correct ${N}'s message. No 📝, ➕, ✅, 💬 or 🗣️ lines, no request to repeat, and no 🎯 line${guidedMode ? ' except 🎯 CONFUSO when you really did not understand' : ''}.${closeVariant() ? ' Exception: the "[nat] 💡 …" line about the differences between the two variants of Portuguese is allowed.' : ''} Never say whether it was correct (never «${tgt('correct')}», «Parfait», «C'est juste», «Très bien», «Correct», «Perfect»). Understand what ${N} meant and simply continue the conversation: a short natural reaction to the content and ONE question.`;
 }
 // Tira elogios de "certo" do início de uma fala do Haiku (o app é que confirma).
 function cleanPraise(s) {
@@ -5164,6 +5177,18 @@ function limitEmoji(text) {
   if (used) emojiTurn = replyTurn;
   return out;
 }
+// Explicações numa variante do português e estudo da outra: devolve os nomes e a forma de dizer "em Portugal diz-se".
+function closeVariant() {
+  if (currentLang !== 'pt') return null;
+  const n = getNative(PROFILE); if (n !== 'pt-BR' && n !== 'pt-PT') return null;
+  const toPT = ptIsPT();
+  if (toPT === (n === 'pt-PT')) return null;
+  return toPT ? { from: 'Brazilian', to: 'European (Portugal)', say: 'Em Portugal diz-se' } : { from: 'European (Portugal)', to: 'Brazilian', say: n === 'pt-PT' ? 'No Brasil diz-se' : 'No Brasil se diz' };
+}
+function closeVariantRule(N, EX) {
+  const cv = closeVariant(); if (!cv) return '';
+  return `CLOSE VARIANT: ${N} already speaks ${cv.from} Portuguese and is learning ${cv.to} Portuguese. Focus on the DIFFERENCES: vocabulary (autocarro/ônibus, pequeno-almoço/café da manhã, casa de banho/banheiro, telemóvel/celular, comboio/trem, frigorífico/geladeira), forms of address (tu, você, o senhor / a senhora), placement of pronouns (diz-me / me diz), the progressive (estou a fazer / estou fazendo) and pronunciation. Always use ${cv.to} forms yourself. When ${N} uses a correct ${cv.from} form that is said differently in the other variant, it is NOT an error: add ONE short line "[nat] 💡 ${cv.say} «…»." in ${EX} (e.g. "[nat] 💡 ${cv.say} «${cv.to.startsWith('European') ? 'autocarro' : 'ônibus'}»."). Bring up these differences naturally in your questions.\n`;
+}
 function buildSystem() {
   const P = PROFILE || { name: 'the learner', city: '', levels: {} };
   const NI = NATIVES[getNative(P)];
@@ -5194,7 +5219,7 @@ Now and then (not in every reply), ask natural questions that lead ${N} to use t
 You are Lia, a ${L} tutor for ${N}, ${NI.speaker}. All explanations for ${N} are in ${EX}: ${NI.variant}. ${N}'s level in ${L}: ${lvlEn(lvl)}. Adapt vocabulary and pace to that level (at beginner level, use very simple sentences).
 NAME: ${N}'s name is "${N}" and you already know it. NEVER ask ${N} for their name (in the Introductions scenario, if you ask it as practice, the answer is "${N}"). Always call ${N} "${N}": if another name comes up, keep using "${N}".
 ${style}${accentRule(P) ? ' ' + accentRule(P) : ''}
-${P.city ? `Context (for you only): ${N} lives in ${P.city}. Do NOT mention the city in your replies unless ${N} brings it up first.\n` : ''}You talk with ${N} and correct only REAL mistakes.
+${closeVariantRule(N, EX)}${P.city ? `Context (for you only): ${N} lives in ${P.city}. Do NOT mention the city in your replies unless ${N} brings it up first.\n` : ''}You talk with ${N} and correct only REAL mistakes.
 The text comes from speech recognition. TOLERANCE: ignore ONLY punctuation, capital letters, accents and words clearly mis-heard by the microphone (a sound-alike word that makes no sense there); everything else (grammar AND vocabulary) is checked strictly. Repeated consecutive words (e.g. "el clima el clima") are microphone glitches, and hesitations like "eh", "em", "este", "pues", "um" are normal in speech: always ignore them.
 If a word makes no sense but sounds like the right word (e.g. "mi tía ha ido bien" when they meant "mi día"), that is PRONUNCIATION, not grammar: reply as if they had said the right word and use the 🗣️ line.
 LETTERS, ACRONYMS, NUMBERS AND SIZES said aloud (e.g. "ex el", "doble ex", "ese eme") are transcription glitches: NEVER correct them as grammar. Understand what ${N} meant (e.g. "ex el" = XL) and teach how to say it in ${L} in a 🗣️ line, with the explanation in ${EX} (e.g. for Spanish: XL = "equis ele").
@@ -5653,19 +5678,19 @@ function nbMerge(list) {
   return out;
 }
 function nbStore(nb) { try { store.setItem(NB_KEY, JSON.stringify(nb)); } catch(e) {} }
-function nbList() { const l = nbLoad()[currentLang]; return Array.isArray(l) ? l : []; }
+function nbList() { const l = nbLoad()[SID()]; return Array.isArray(l) ? l : []; }
 
 function nbAdd(item) {
   if (item.type === 'erro') item = Object.assign({}, item, { why: nativeOnly(item.why || ''), more: nativeOnly(item.more || '') });
   const nb = nbLoad();
-  const list = Array.isArray(nb[currentLang]) ? nb[currentLang] : [];
+  const list = Array.isArray(nb[SID()]) ? nb[SID()] : [];
   // Erro que já está no caderno: não cria cartão novo; sobe para o topo, com a data de hoje e mais uma vez no contador.
   if (item.type === 'erro') {
     const k = nbKey(item), i = list.findIndex(x => x && x.type === 'erro' && nbKey(x) === k);
     if (i >= 0) {
       const old = list.splice(i, 1)[0];
       list.unshift(Object.assign({}, old, { date: new Date().toISOString(), count: (old.count || 1) + 1, why: item.why || old.why, more: item.more || old.more }));
-      nb[currentLang] = list.slice(0, NB_MAX);
+      nb[SID()] = list.slice(0, NB_MAX);
       nbStore(nb);
       if (currentView === 'notebook') renderNotebook();
       return;
@@ -5673,14 +5698,14 @@ function nbAdd(item) {
     item = Object.assign({ count: 1 }, item);
   }
   list.unshift(Object.assign({ id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6), date: new Date().toISOString() }, item));
-  nb[currentLang] = list.slice(0, NB_MAX); // apaga os mais antigos
+  nb[SID()] = list.slice(0, NB_MAX); // apaga os mais antigos
   nbStore(nb);
   if (currentView === 'notebook') renderNotebook();
 }
 
 function nbDelete(id) {
   const nb = nbLoad();
-  nb[currentLang] = nbList().filter(i => i.id !== id);
+  nb[SID()] = nbList().filter(i => i.id !== id);
   nbStore(nb);
   renderNotebook();
 }
@@ -5927,7 +5952,7 @@ async function finishTest() {
   updateLessonBanner();
   setStatus('gold', t('st_processing'));
   addLoadingMsg();
-  const P = PROFILE, NI = NATIVES[getNative(P)], EX = NI.expl, lang = currentLang;
+  const P = PROFILE, NI = NATIVES[getNative(P)], EX = NI.expl, lang = SID();
   const system = `${langRule(NI)}
 You are a ${currentLangName} examiner. Assess the spoken level of ${P.name} (${NI.speaker}) from the answers to a ${TEST_TOTAL}-question test of increasing difficulty. The answers come from speech recognition: ignore punctuation, capitals, accents and microphone glitches. "(no answer)" = they did not answer. ${accentRule(P)}
 Levels (CEFR): "A0" (does not answer or only isolated words), "A1" (very simple phrases about themselves), "A2" (simple present-tense sentences about everyday life), "B1" (uses past and future with some mistakes, explains opinions in detail), "B2" (fluent, hypotheses and complex sentences with few mistakes), "C1" (precise and natural, rare mistakes), "C2" (native-like). Be strict: an 8-question oral test rarely proves C1 or C2.
@@ -5977,11 +6002,11 @@ function showTestResult(r) {
   setStatus('ready', t('st_ready'));
   renderHome();
   // Atualiza o nível do idioma no perfil, com confirmação.
-  const cur = (PROFILE.levels || {})[currentLang] || DEFAULT_LEVELS[currentLang];
+  const cur = (PROFILE.levels || {})[SID()] || DEFAULT_LEVELS[SID()];
   if (r.level !== cur) {
     setTimeout(() => {
       askChoice(t('test_confirm', { lang: langUI(currentLang), level: lvlLabel(r.level) }), '', t('yes_update'), () => {
-        PROFILE.levels = Object.assign({}, DEFAULT_LEVELS, PROFILE.levels || {}, { [currentLang]: r.level });
+        PROFILE.levels = Object.assign({}, DEFAULT_LEVELS, PROFILE.levels || {}, { [SID()]: r.level });
         try { store.setItem('tutora_profile', JSON.stringify(PROFILE)); } catch(e) {}
       }, t('keep_btn'), null);
     }, 600);
@@ -6001,7 +6026,7 @@ function renderTestsSummary() {
     const r = all[l.code];
     let d = '';
     try { d = new Date(r.date).toLocaleDateString(nativeInfo().date); } catch(e) {}
-    return `<div>${langFlag(l.code)} ${esc(langUI(l.code))}: <span class="lvl">${esc(lvlLabel(r.level))}</span> <span class="when">· ${esc(d)}</span></div>`;
+    return `<div>${langFlagId(l.code)} ${esc(langNameId(l.code))}: <span class="lvl">${esc(lvlLabel(r.level))}</span> <span class="when">· ${esc(d)}</span></div>`;
   }).join('');
 }
 
