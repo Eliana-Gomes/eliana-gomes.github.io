@@ -10,3 +10,11 @@
 server/node_modules/
 server/.wrangler/
 node_modules/
+
+# App Android (TWA): chaves de assinatura e senhas NUNCA no repositório (ficam em C:\Users\HP 840 G1\parlia-chaves).
+*.keystore
+*.jks
+*.p12
+*.pepk
+parlia-chaves/
+keystore*.txt

@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.luzemmovimento.parlia",
+      "sha256_cert_fingerprints": [
+        "AC:1E:19:92:FF:26:C9:EA:71:68:F7:91:72:19:38:07:F3:40:D6:C2:FB:70:1D:42:F9:63:8B:1B:37:B3:29:18"
+      ]
+    }
+  }
+]
