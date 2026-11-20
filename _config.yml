@@ -1,0 +1,4 @@
+# Só para o GitHub Pages publicar a pasta .well-known (assetlinks.json do app Android da Parlia).
+# O Jekyll ignora pastas que começam com ponto; o resto do site fica com a configuração padrão.
+include:
+  - .well-known
