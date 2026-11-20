@@ -1,4 +1,4 @@
-# Guia do servidor do Parlia
+# Guia do servidor da Parlia
 
 O app vai falar com um servidor nosso, na Cloudflare.
 O servidor guarda a chave da Anthropic.
