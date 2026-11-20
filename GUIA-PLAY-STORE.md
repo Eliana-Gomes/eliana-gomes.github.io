@@ -4,8 +4,12 @@ Um passo por linha.
 Faça uma parte de cada vez.
 Os nomes dos botões estão como aparecem na Play Console em português.
 
-O arquivo do app fica em:
-C:\Users\HP 840 G1\parlia-android\app-release-bundle.aab
+O app é nativo (Capacitor), com o código da Parlia dentro.
+O arquivo para a Play Store fica em:
+C:\Users\HP 840 G1\parlia-app\saida\Parlia-1.0.1-codigo2-site-v90.aab
+(O nome diz a versão do app, o código e de que versão do site foi feito.)
+
+Antes de tudo, faça a Parte A do GUIA-TESTE-APK.md (localhost no Turnstile).
 
 ---
 
@@ -45,24 +49,18 @@ C:\Users\HP 840 G1\parlia-android\app-release-bundle.aab
 1. Menu: "Testar e lançar" → "Testes" → "Teste fechado".
 2. Toque em "Criar faixa" (ou use a faixa "Alfa" que já existe).
 3. Toque em "Criar versão".
-4. Em "App bundles", toque em "Enviar" e escolha o arquivo app-release-bundle.aab.
-5. Nome da versão: 1.0.0 (1)
+4. Em "App bundles", toque em "Enviar" e escolha o arquivo Parlia-1.0.1-codigo2-site-v90.aab.
+5. Nome da versão: 1.0.1 (2)
 6. Notas da versão (pt-BR): Primeira versão de teste da Parlia.
 7. Toque em "Próxima" e depois em "Salvar".
 8. Ainda não envie para revisão: faça antes as partes E a H.
 
 ---
 
-## Parte E — MUITO IMPORTANTE: impressão digital da Google no assetlinks
+## Parte E — (já não é preciso)
 
-Sem isto, o app abre com a barra de endereço do navegador por cima.
-
-1. Depois de subir o .aab, vá a "Testar e lançar" → "Configuração" → "Integridade do app" → "Assinatura de apps".
-2. Procure "Certificado da chave de assinatura do app".
-3. Copie o valor "Impressão digital do certificado SHA-256" (começa por letras e números separados por dois-pontos).
-4. Cole esse valor aqui no chat. Ele é público (não é segredo).
-5. O Claude acrescenta-o ao arquivo assetlinks.json e publica.
-6. Só depois disso o app abre em tela cheia, sem barra do navegador.
+1. Com o app nativo (Capacitor), o arquivo assetlinks.json deixou de ser necessário.
+2. Não é preciso copiar nada da página "Integridade do app".
 
 ---
 
@@ -107,7 +105,8 @@ Sem isto, o app abre com a barra de endereço do navegador por cima.
 7. — "Informações pessoais" → "Outras informações" (cidade, interesses, nível): Coletadas. Uso: "Funcionalidade do app" e "Personalização". Processadas de forma temporária.
 8. — "Atividade no app" → "Outras ações": não declarar (contamos só números por aparelho, sem identificar a pessoa).
 9. — "Identificadores do dispositivo ou outros IDs": Coletado (número aleatório do aparelho e resumo do IP, para limitar abusos). Uso: "Segurança, conformidade e prevenção de fraudes". Apagados no dia seguinte.
-10. — Áudio: NÃO declarar como coletado (o app não grava nem envia áudio; o reconhecimento de voz é do sistema/Chrome).
+10. — Áudio ("Gravações de voz ou som"): NÃO declarar como coletado. A Parlia não grava nem envia áudio: o reconhecimento de voz é feito pelo serviço de voz do Android (Google) e o app recebe só o texto.
+10b. Permissões que a Play Console pode perguntar: microfone (RECORD_AUDIO) — "para reconhecer o que a pessoa diz na conversa com a tutora"; faturamento (BILLING) — preparado para a assinatura futura, ainda sem produtos; notificações — preparadas, ainda não usadas.
 11. — Fotos: NÃO declarar (a foto do perfil nunca sai do aparelho).
 12. Compartilhamento com terceiros: marque que o texto da conversa é "compartilhado" com um prestador de serviços (Anthropic) para a funcionalidade do app. Se a Play Console aceitar, use a opção de "prestador de serviços", que não conta como compartilhamento.
 13. Salve.
@@ -119,7 +118,7 @@ Sem isto, o app abre com a barra de endereço do navegador por cima.
 1. Nome do app: Parlia
 2. Descrição curta (até 80 caracteres): Converse por voz com a Lia e pratique idiomas com correção gentil.
 3. Descrição completa: escreva com as suas palavras (o Claude pode ajudar).
-4. Ícone do app (512 x 512): C:\Users\HP 840 G1\parlia-android\store_icon.png
+4. Ícone do app (512 x 512): C:\Users\HP 840 G1\eliana-gomes.github.io\tutora-icon-512.png
 5. Gráfico de destaque (1024 x 500): peça ao Claude para criar a partir do logotipo.
 6. Capturas de tela do celular: pelo menos 2 (tire no celular com o app aberto).
 7. Categoria: Educação.
@@ -154,13 +153,7 @@ Sem isto, o app abre com a barra de endereço do navegador por cima.
 
 ## Teste do microfone e da voz no app instalado
 
-1. Instale pela Play Store (link de participação).
-2. Abra a Parlia: deve abrir em tela cheia, sem barra de endereço (só depois da Parte E).
-3. Vá a Conversar e toque no microfone.
-4. O Chrome pergunta se a Parlia pode usar o microfone: toque em "Permitir".
-5. Fale uma frase: ela deve aparecer escrita.
-6. A Lia deve responder em voz alta.
-7. Se o microfone não funcionar: Configurações do Android → Apps → Chrome → Permissões → Microfone → Permitir. Depois, dentro da Parlia: menu ⋮ (ou "Configurações do site") → Microfone → Permitir.
+1. Siga a Parte D do GUIA-TESTE-APK.md (é o mesmo teste, com o app instalado pela Play Store).
 
 ---
 
@@ -180,6 +173,7 @@ Se perder a chave de upload, a Google pode trocá-la, mas demora e exige pedido 
 
 ## Versões novas do app
 
-1. Só é preciso um .aab novo quando mudar o ícone, o nome, as cores ou o endereço.
-2. Mudanças no site (eliana-voz.html) aparecem sozinhas no app, sem nova versão na loja.
-3. Para um .aab novo, peça ao Claude: ele aumenta o número da versão e assina com a mesma chave.
+1. ATENÇÃO: o código da Parlia vai DENTRO do app. Mudanças no site (eliana-voz.html) só chegam ao app com uma versão nova.
+2. Para uma versão nova: peça ao Claude. Ele aumenta o código da versão, corre o build e diz-lhe "app X (código N), feito do site vNN".
+3. O mesmo número aparece no fim do Perfil, dentro do app.
+4. Suba o .aab novo em "Teste fechado" → "Criar versão".

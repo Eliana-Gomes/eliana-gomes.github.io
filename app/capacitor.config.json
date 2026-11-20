@@ -1,0 +1,21 @@
+{
+  "appId": "com.luzemmovimento.parlia",
+  "appName": "Parlia",
+  "webDir": "www",
+  "backgroundColor": "#0B2A30",
+  "android": {
+    "backgroundColor": "#0B2A30",
+    "allowMixedContent": false,
+    "captureInput": true
+  },
+  "server": {
+    "androidScheme": "https",
+    "hostname": "localhost"
+  },
+  "plugins": {
+    "SystemBars": {
+      "insetsHandling": "css",
+      "style": "DARK"
+    }
+  }
+}
