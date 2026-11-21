@@ -8,7 +8,9 @@
   window.PARLIA_NATIVE = native;
   if (!native) return;
   var P = cap.Plugins || {};
-  var TTS = P.TextToSpeech, SR = P.SpeechRecognition;
+  var TTS = P.TextToSpeech, PS = P.ParliaSpeech;
+  // Registo da fala para o Diagnóstico (a função slog vem do código da Parlia).
+  var slog = function (m) { try { if (typeof window.slog === 'function') window.slog(m); } catch (e) {} };
   window.PARLIA_PLATFORM = typeof cap.getPlatform === 'function' ? cap.getPlatform() : 'android';
 
   // ── Voz (TextToSpeech): fila de falas, com onstart / onend / onerror como no navegador ──
@@ -51,15 +53,16 @@
     window.SpeechSynthesisUtterance = NativeUtterance;
   }
 
-  // ── Microfone (SpeechRecognizer do Android): cada sessão termina sozinha no silêncio; o código da Parlia
-  // já religa o microfone no onend enquanto a aluna não toca em ⏹, e aproveita o último texto parcial. ──
-  if (SR) {
+  // ── Microfone (plugin próprio ParliaSpeech, Android): UMA sessão do toque no microfone até ao ⏹. O plugin religa o
+  // reconhecedor a cada pausa por dentro (sem bip e sem perder o fio); cada pedaço chega como "segment" e o texto ao
+  // vivo como "partial". Aqui juntam-se TODOS os pedaços da sessão (resultados finais) mais o pedaço em curso. ──
+  if (PS) {
     var askedBefore = false;
     // Antes do pedido do Android (texto do sistema), uma explicação nossa na língua da interface.
     var ensurePermission = function () {
-      return SR.checkPermissions().then(function (s) {
-        if (s && s.speechRecognition === 'granted') return true;
-        var ask = function () { return SR.requestPermissions().then(function (r) { return !!(r && r.speechRecognition === 'granted'); }, function () { return false; }); };
+      return PS.checkPermissions().then(function (s) {
+        if (s && s.microphone === 'granted') return true;
+        var ask = function () { return PS.requestPermissions().then(function (r) { return !!(r && r.microphone === 'granted'); }, function () { return false; }); };
         if (askedBefore || typeof window.askChoice !== 'function' || typeof window.t !== 'function') return ask();
         askedBefore = true;
         return new Promise(function (res) {
@@ -67,48 +70,45 @@
         });
       }, function () { return false; });
     };
-    var NativeRecognition = function () { this.lang = 'pt-BR'; this.continuous = false; this.interimResults = false; this.maxAlternatives = 1; this.onstart = this.onresult = this.onerror = this.onend = null; this._active = false; };
+    var current = null; // sessão ativa (para os eventos do plugin)
+    var on = function (ev, fn) { try { return Promise.resolve(PS.addListener(ev, fn)); } catch (e) { return Promise.resolve(null); } };
+    on('partial', function (d) { if (current) current._partial(String(d && d.text || '')); });
+    on('segment', function (d) { if (current) current._segment(String(d && d.text || '')); });
+    on('state', function (d) { var st = d && d.state; if (st === 'restart' || st === 'listening' || st === 'relistening') slog('nativo: ' + st); });
+    on('error', function (d) { slog('nativo: erro ' + (d && d.name) + ' (' + (d && d.code) + ')'); if (current && d && d.name === 'permissions') current._fire('onerror', { error: 'not-allowed' }); });
+    on('end', function (d) { slog('nativo: fim (' + (d && d.reason) + ', ' + (d && d.restarts) + ' reinícios)'); if (current) current._end(); });
+
+    var NativeRecognition = function () { this.lang = 'pt-BR'; this.continuous = false; this.interimResults = false; this.maxAlternatives = 1; this.onstart = this.onresult = this.onerror = this.onend = null; this._active = false; this._segs = []; this._cur = ''; };
     NativeRecognition.prototype._fire = function (name, ev) { try { if (typeof this[name] === 'function') this[name](ev || {}); } catch (e) { setTimeout(function () { throw e; }); } };
-    NativeRecognition.prototype._emit = function (text) {
-      var alt = { transcript: text, confidence: 0.9 }, res = [alt]; res.isFinal = false; res.item = function (i) { return res[i]; };
-      var results = [res]; results.item = function (i) { return results[i]; };
+    // Lista de resultados como no navegador: os pedaços finais (isFinal) e o pedaço em curso (provisório).
+    NativeRecognition.prototype._emit = function () {
+      var mk = function (text, fin) { var r = [{ transcript: text, confidence: 0.9 }]; r.isFinal = fin; r.item = function (i) { return r[i]; }; return r; };
+      var results = this._segs.map(function (t) { return mk(t, true); });
+      if (this._cur) results.push(mk(this._cur, false));
+      results.item = function (i) { return results[i]; };
       this._fire('onresult', { resultIndex: 0, results: results });
     };
+    NativeRecognition.prototype._partial = function (t) { if (!this._active || !t) return; this._cur = t; this._emit(); };
+    NativeRecognition.prototype._segment = function (t) { if (!this._active) return; if (t) { this._segs.push(t); slog('segmento: «' + t + '»'); } this._cur = ''; this._emit(); };
     NativeRecognition.prototype.start = function () {
       if (this._active) throw new Error('InvalidStateError: recognition has already started');
-      var self = this; this._active = true; this._ending = false; this._gen = (this._gen || 0) + 1; var gen = this._gen;
+      var self = this; this._active = true; this._segs = []; this._cur = ''; current = this;
       ensurePermission().then(function (ok) {
-        if (gen !== self._gen || !self._active) return;
-        if (!ok) { self._fire('onerror', { error: 'not-allowed' }); self._end(); return; }
-        return Promise.resolve(SR.addListener('partialResults', function (d) {
-          var m = d && d.matches && d.matches[0];
-          if (gen === self._gen && self._active && m != null && m !== '') self._emit(String(m));
-        })).then(function (h) {
-          self._sub = h;
-          return SR.start({ language: self.lang, maxResults: 1, partialResults: true, popup: false });
-        }).then(function () {
-          if (gen !== self._gen || !self._active) return;
-          self._fire('onstart');
-          // O plugin não avisa quando a sessão acaba em silêncio: verifica de tempos a tempos.
-          self._poll = setInterval(function () {
-            SR.isListening().then(function (r) {
-              if (gen !== self._gen || !self._active || self._ending) return;
-              if (!(r && r.listening)) { self._ending = true; clearInterval(self._poll); setTimeout(function () { if (gen === self._gen) self._end(); }, 700); }
-            }, function () {});
-          }, 400);
+        if (current !== self || !self._active) return;
+        if (!ok) { slog('microfone: sem permissão'); self._fire('onerror', { error: 'not-allowed' }); self._end(); return; }
+        return PS.start({ language: self.lang, silenceMs: 6000, muteBeep: true }).then(function () {
+          if (current === self && self._active) { slog('início da escuta (' + self.lang + ')'); self._fire('onstart'); }
         }, function (e) {
-          if (gen !== self._gen) return;
-          self._fire('onerror', { error: 'audio-capture', message: String(e && e.message || e) }); self._end();
+          slog('microfone: não arrancou (' + String(e && e.message || e) + ')');
+          self._fire('onerror', { error: /not-allowed/.test(String(e && e.message)) ? 'not-allowed' : 'audio-capture' }); self._end();
         });
       });
     };
-    NativeRecognition.prototype.stop = function () { if (!this._active) return; try { SR.stop(); } catch (e) {} };
-    NativeRecognition.prototype.abort = function () { if (!this._active) return; try { SR.stop(); } catch (e) {} this._end(); };
+    NativeRecognition.prototype.stop = function () { if (!this._active) return; slog('⏹ pedido'); try { PS.stop(); } catch (e) { this._end(); } };
+    NativeRecognition.prototype.abort = function () { if (!this._active) return; try { PS.abort(); } catch (e) {} this._end(); };
     NativeRecognition.prototype._end = function () {
       if (!this._active) return;
-      this._active = false; this._ending = false; clearInterval(this._poll);
-      try { if (this._sub && this._sub.remove) this._sub.remove(); } catch (e) {}
-      this._sub = null; this._gen++;
+      this._active = false; if (current === this) current = null;
       this._fire('onend');
     };
     window.SpeechRecognition = NativeRecognition;
