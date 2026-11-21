@@ -22,7 +22,7 @@ Dentro do app, a Parlia corre no endereço "localhost". O anti-robô (Turnstile)
 ## Parte B — Levar o APK para o celular
 
 O arquivo fica no computador em:
-C:\Users\HP 840 G1\parlia-app\saida\Parlia-1.0.2-codigo3-site-v91-teste.apk
+C:\Users\HP 840 G1\parlia-app\saida\Parlia-1.0.3-codigo4-site-v92-teste.apk
 
 1. Abra o Google Drive no computador (drive.google.com).
 2. Arraste o arquivo .apk para uma pasta sua do Drive.
@@ -50,16 +50,31 @@ O Android pergunta se pode instalar apps desta origem.
 
 1. A Parlia abre com a tela petróleo e o logotipo.
 2. Vá ao Perfil e role até ao fim.
-3. Deve aparecer: "Parlia v91 · …" e, por baixo, "App 1.0.2 (código 3) · feito do site v91".
+3. Deve aparecer: "Parlia v92 · …" e, por baixo, "App 1.0.3 (código 4) · feito do site v92".
 4. Vá a Conversar.
 5. A Lia fala (voz do celular).
 6. Toque no microfone.
 7. Aparece a nossa mensagem "A Lia precisa do microfone" → toque em "Continuar".
 8. O Android pergunta se a Parlia pode gravar áudio → toque em "Durante o uso do app".
 9. Fale uma frase. Ela aparece escrita enquanto fala.
-10. Faça uma pausa de 2 ou 3 segundos e continue a falar: o microfone continua a ouvir (pode ouvir um bip).
+10. Faça uma pausa de 2 ou 3 segundos e continue a falar: o microfone continua a ouvir, sem bip.
 11. Toque em ⏹: a frase inteira vai para a Lia.
 12. A Lia responde em voz alta.
+
+---
+
+## Parte F — Testes da versão 1.0.3 (fala)
+
+1. Frase longa: na Conversa livre, toque no microfone e fale uns 10 segundos, com 2 pausas no meio (ex.: «Je fais du sport… le matin… avant le travail»).
+2. Durante as pausas não deve tocar nenhum bip, e o texto ao vivo deve ir crescendo, sem perder o começo.
+3. Toque em ⏹: a frase INTEIRA vai para a Lia e o app fica na conversa (não volta ao Início).
+4. Repita na Conversa guiada.
+5. Sem falar: toque no microfone, espere 5 segundos em silêncio e toque em ⏹: aparece «Não ouvi nada. Toque e fale de novo.» e fica na conversa.
+6. Cancelar: durante a escuta, o link «✕ Cancelar esta frase» fica em cima, à esquerda, longe do ⏹. Toque nele: nada é enviado.
+7. Som: depois de terminar, a voz da Lia e o som de marimba voltam normais; o volume do telemóvel (música, notificações) fica como estava.
+8. Nível: com o francês em A1, abra a Conversa livre: a Lia deve abrir com uma saudação curta e UMA pergunta simples, e responder sempre com frases curtas.
+9. Se algo correr mal: Perfil → 5 toques em «Parlia v92» → código → «Copiar registro» → mande-me o texto. A secção «FALA» mostra o que aconteceu (início, pedaços, reinícios, fim e para onde foi o texto).
+10. Se o app fechar a meio de uma frase, ao reabrir e entrar em Conversar a frase aparece na caixa de texto, com o aviso «A sua última frase foi recuperada».
 
 ---
 
@@ -83,7 +98,7 @@ O Android pergunta se pode instalar apps desta origem.
 2. O microfone não ouve: Configurações → Apps → Parlia → Permissões → Microfone → "Permitir durante o uso".
 3. Reconhecimento de voz em falta: instale (ou atualize) o app "Google" na Play Store.
 4. "A Lia não está disponível agora": confirme a Parte A (localhost no Turnstile).
-5. Diagnóstico: Perfil → 5 toques em "Parlia v91" → código → "Copiar registro" e mande-me o texto.
+5. Diagnóstico: Perfil → 5 toques em "Parlia v92" → código → "Copiar registro" e mande-me o texto.
 
 ---
 
